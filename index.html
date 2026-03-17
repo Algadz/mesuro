@@ -1,1 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Measurement Tool</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    border: 1px solid #333;
+    border-radius: 10px;
+    margin: 10px;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 200px;
+    min-width: 200px;
+    background: #242424;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 12px;
+    gap: 14px;
+    overflow-y: auto;
+  }
+
+  .slbl {
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: #666;
+    margin-bottom: 5px;
+  }
+
+  button {
+    background: transparent;
+    border: 0.5px solid #444;
+    border-radius: 6px;
+    color: #d0d0d0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 7px 10px;
+    transition: background .15s, border-color .15s;
+  }
+  button:hover:not(:disabled) { background: #2e2e2e; border-color: #666; }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: .4; cursor: default; }
+
+  #scaleStatus {
+    font-size: 11px;
+    font-family: monospace;
+    color: #666;
+    margin-bottom: 6px;
+    padding: 5px 8px;
+    background: #1e1e1e;
+    border-radius: 6px;
+    border: 0.5px solid #333;
+  }
+
+  /* ── Canvas area ── */
+  #canvasArea {
+    flex: 1;
+    position: relative;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #dz {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    pointer-events: none;
+    color: #555;
+    font-size: 13px;
+  }
+  #dz span { font-size: 12px; color: #444; }
+
+  #cv {
+    display: none;
+    max-width: 100%;
+    max-height: 100%;
+    cursor: default;
+  }
+
+  #hint {
+    display: none;
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, .75);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px 18px;
+    border-radius: 100px;
+    white-space: nowrap;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* ── Results list ── */
+  #resList { display: flex; flex-direction: column; gap: 4px; }
+  #noRes { font-size: 12px; color: #555; }
+
+  .res-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 8px;
+    background: #1e1e1e;
+    border-radius: 6px;
+    border: 0.5px solid #333;
+    font-size: 11px;
+    cursor: default;
+    transition: background .1s, border-color .1s;
+  }
+  .res-item:hover { background: rgba(239,159,39,.07); border-color: #EF9F27; }
+  .res-item .num  { color: #EF9F27; font-weight: 500; min-width: 18px; }
+  .res-item .val  { font-family: monospace; color: #e0e0e0; flex: 1; }
+  .res-item .px   { color: #555; font-size: 10px; }
+  .res-item .del  { cursor: pointer; color: #555; padding: 0 3px; font-size: 14px; line-height: 1; }
+  .res-item .del:hover { color: #e24b4b; }
+
+  /* ── Scale modal ── */
+  #scaleModal {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 30;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-box {
+    background: #242424;
+    border: 0.5px solid #444;
+    border-radius: 10px;
+    padding: 20px;
+    width: 260px;
+  }
+  .modal-box h3 { font-size: 14px; font-weight: 500; color: #e0e0e0; margin-bottom: 4px; }
+  .modal-box p  { font-size: 12px; color: #888; margin-bottom: 12px; }
+
+  .modal-inputs { display: flex; gap: 6px; margin-bottom: 14px; }
+
+  input[type="number"],
+  input[type="text"] {
+    background: #1a1a1a;
+    border: 0.5px solid #444;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: #888; }
+  input[type="number"] { flex: 1; min-width: 0; }
+  input[type="text"]   { width: 56px; text-align: center; }
+
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; }
+
+  .btn-confirm {
+    background: #0F6E56;
+    border-color: #0F6E56;
+    color: #fff;
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+  .btn-confirm:hover { background: #0a5240; }
+
+  .btn-scale-active  { background: #0F6E56 !important; border-color: #0F6E56 !important; color: #fff !important; }
+  .btn-meas-active   { background: #854F0B !important; border-color: #854F0B !important; color: #fff !important; }
+  .btn-clear-style   { color: #e24b4b; }
+
+  #loadLabel {
+    display: block;
+    background: #1e1e1e;
+    border: 0.5px solid #444;
+    border-radius: 6px;
+    padding: 7px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #d0d0d0;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  #loadLabel:hover { background: #2a2a2a; border-color: #666; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Sidebar ── -->
+  <div id="sidebar">
+
+    <div>
+      <label id="loadLabel">
+        Load image
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+      </label>
+    </div>
+
+    <div>
+      <div class="slbl">SCALE</div>
+      <div id="scaleStatus">Not set</div>
+      <button id="btnScale" onclick="doScale()" disabled>Set scale line</button>
+    </div>
+
+    <div>
+      <div class="slbl">MEASURE</div>
+      <button id="btnMeasure" onclick="doMeasure()" disabled>Add measurement</button>
+    </div>
+
+    <div style="flex:1;min-height:0;overflow-y:auto">
+      <div class="slbl">RESULTS</div>
+      <div id="resList"></div>
+      <div id="noRes">No measurements yet</div>
+    </div>
+
+    <button id="btnClear" class="btn-clear-style" onclick="clearAll()" disabled>Clear all</button>
+
+  </div>
+
+  <!-- ── Canvas area ── -->
+  <div id="canvasArea">
+
+    <div id="dz">
+      <svg width="48" height="48" viewBox="0 0 44 44" fill="none">
+        <circle cx="22" cy="22" r="21" fill="none" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
+        <path d="M22 13v11M16 19l6-6 6 6M13 30h18"
+              stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Drop image here
+      <span>or use the Load button</span>
+    </div>
+
+    <canvas id="cv"></canvas>
+
+    <div id="hint"></div>
+
+    <!-- Scale value modal -->
+    <div id="scaleModal">
+      <div class="modal-box">
+        <h3>Define scale</h3>
+        <p>The line you drew represents:</p>
+        <div class="modal-inputs">
+          <input type="number" id="sVal" placeholder="e.g. 100" min="0.001" step="any">
+          <input type="text"   id="sUnit" value="mm">
+        </div>
+        <div class="modal-footer">
+          <button onclick="cancelScale()">Cancel</button>
+          <button class="btn-confirm" onclick="confirmScale()">Set scale</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ─── State ─────────────────────────────────────────────────────────────── */
+const cv     = document.getElementById('cv');
+const ctx    = cv.getContext('2d');
+const ca     = document.getElementById('canvasArea');
+const btnScale   = document.getElementById('btnScale');
+const btnMeasure = document.getElementById('btnMeasure');
+const btnClear   = document.getElementById('btnClear');
+const scaleStatus = document.getElementById('scaleStatus');
+const resList = document.getElementById('resList');
+const noRes   = document.getElementById('noRes');
+const hint    = document.getElementById('hint');
+const modal   = document.getElementById('scaleModal');
+
+let img       = null;   // loaded HTMLImageElement
+let mode      = 'idle'; // idle | sa | sb | wait | ma | mb
+let p0        = null;   // first click point
+let mp        = null;   // live mouse position while drawing
+
+let scLine    = null;   // drawn scale line {x1,y1,x2,y2}
+let scPx      = null;   // pixel length of scale line
+let scFactor  = null;   // real_unit / pixel
+let scUnit    = 'mm';
+
+let meas      = [];     // [{x1,y1,x2,y2,px}]
+let pLine     = null;   // pending scale line, before user confirms value
+let hovIdx    = -1;     // highlighted measurement index
+
+/* ─── File loading ───────────────────────────────────────────────────────── */
+document.getElementById('fileInput').onchange = e => {
+  if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value = ''; }
+};
+
+ca.addEventListener('dragover', e => {
+  e.preventDefault();
+  ca.style.outline = '2px solid #1D9E75';
+});
+ca.addEventListener('dragleave', () => { ca.style.outline = ''; });
+ca.addEventListener('drop', e => {
+  e.preventDefault();
+  ca.style.outline = '';
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImg(f);
+});
+
+function loadImg(file) {
+  const r = new FileReader();
+  r.onload = ev => {
+    const i = new Image();
+    i.onload = () => {
+      img = i;
+      scLine = null; scPx = null; scFactor = null;
+      meas = []; mode = 'idle'; p0 = null;
+      fitImg();
+      document.getElementById('dz').style.display = 'none';
+      updUI();
+    };
+    i.src = ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+function fitImg() {
+  const aw = ca.clientWidth  - 20;
+  const ah = ca.clientHeight - 20;
+  const r  = Math.min(aw / img.width, ah / img.height, 1);
+  cv.width  = Math.round(img.width  * r);
+  cv.height = Math.round(img.height * r);
+  cv.style.display = 'block';
+  draw();
+}
+
+/* ─── Coordinate helpers ─────────────────────────────────────────────────── */
+function pt(e) {
+  const rc = cv.getBoundingClientRect();
+  return {
+    x: (e.clientX - rc.left) * cv.width  / rc.width,
+    y: (e.clientY - rc.top)  * cv.height / rc.height
+  };
+}
+
+function dst(a, b) { return Math.hypot(b.x - a.x, b.y - a.y); }
+
+/* ─── Canvas interaction ─────────────────────────────────────────────────── */
+cv.addEventListener('click', e => {
+  if (!img || mode === 'idle' || mode === 'wait') return;
+  const p = pt(e);
+
+  if (mode === 'sa') {
+    p0 = p; mode = 'sb';
+    setHint('Click to place end point — Esc to cancel');
+
+  } else if (mode === 'sb') {
+    if (dst(p0, p) < 5) return;
+    pLine = { x1: p0.x, y1: p0.y, x2: p.x, y2: p.y };
+    mode = 'wait'; p0 = null; mp = null;
+    draw(); showModal();
+
+  } else if (mode === 'ma') {
+    p0 = p; mode = 'mb';
+    setHint('Click to place end point — Esc to cancel');
+
+  } else if (mode === 'mb') {
+    if (dst(p0, p) < 5) return;
+    meas.push({ x1: p0.x, y1: p0.y, x2: p.x, y2: p.y, px: dst(p0, p) });
+    p0 = null; mp = null; mode = 'ma';
+    setHint('Click to start next measurement — Esc to stop');
+    draw(); updUI();
+  }
+});
+
+cv.addEventListener('mousemove', e => {
+  if (mode === 'sa' || mode === 'sb' || mode === 'ma' || mode === 'mb') {
+    mp = pt(e); draw();
+  }
+});
+
+cv.addEventListener('mouseleave', () => {
+  if (mp) { mp = null; draw(); }
+});
+
+/* ─── Keyboard shortcuts ─────────────────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (mode === 'sa' || mode === 'sb' || mode === 'wait') {
+    cancelScale();
+  } else if (mode === 'ma' || mode === 'mb') {
+    mode = 'idle'; p0 = null; mp = null; clearHint(); draw(); updUI();
+  }
+});
+
+/* ─── Tool button handlers ───────────────────────────────────────────────── */
+function doScale() {
+  if (mode === 'sa' || mode === 'sb') {
+    mode = 'idle'; p0 = null; mp = null; clearHint(); draw(); updUI(); return;
+  }
+  mode = 'sa'; p0 = null;
+  setHint('Click to place start point of the scale line');
+  updUI();
+}
+
+function doMeasure() {
+  if (mode === 'ma' || mode === 'mb') {
+    mode = 'idle'; p0 = null; mp = null; clearHint(); draw(); updUI(); return;
+  }
+  if (!scFactor) return;
+  mode = 'ma'; p0 = null;
+  setHint('Click to start a measurement');
+  updUI();
+}
+
+function clearAll() {
+  meas = []; scLine = null; scPx = null; scFactor = null;
+  mode = 'idle'; p0 = null; mp = null;
+  clearHint(); draw(); updUI();
+}
+
+/* ─── Modal ──────────────────────────────────────────────────────────────── */
+function showModal() {
+  modal.style.display = 'flex';
+  const sv = document.getElementById('sVal');
+  sv.value = ''; sv.style.borderColor = ''; sv.focus();
+}
+
+function cancelScale() {
+  modal.style.display = 'none';
+  pLine = null; mode = 'idle'; clearHint(); draw(); updUI();
+}
+
+function confirmScale() {
+  const sv  = document.getElementById('sVal');
+  const val = parseFloat(sv.value);
+  if (!val || val <= 0) { sv.style.borderColor = '#E24B4A'; sv.focus(); return; }
+  sv.style.borderColor = '';
+
+  scUnit   = document.getElementById('sUnit').value.trim() || 'mm';
+  scLine   = pLine;
+  scPx     = Math.hypot(scLine.x2 - scLine.x1, scLine.y2 - scLine.y1);
+  scFactor = val / scPx;
+  pLine = null; modal.style.display = 'none';
+  mode = 'idle'; clearHint(); draw(); updUI();
+}
+
+document.getElementById('sVal').addEventListener('keydown', e => {
+  if (e.key === 'Enter')  confirmScale();
+  if (e.key === 'Escape') cancelScale();
+});
+
+/* ─── UI update ──────────────────────────────────────────────────────────── */
+function updUI() {
+  const hasImg  = !!img;
+  const hasSc   = !!scFactor;
+  const isSc    = mode === 'sa' || mode === 'sb' || mode === 'wait';
+  const isMeas  = mode === 'ma' || mode === 'mb';
+
+  btnScale.disabled   = !hasImg;
+  btnMeasure.disabled = !hasSc;
+  btnClear.disabled   = !hasImg;
+
+  btnScale.className   = isSc   ? 'btn-scale-active' : '';
+  btnScale.textContent = isSc   ? 'Cancel scale drawing'
+                       : hasSc  ? 'Reset scale line'
+                       :          'Set scale line';
+
+  btnMeasure.className   = isMeas ? 'btn-meas-active' : '';
+  btnMeasure.textContent = isMeas ? 'Stop measuring' : 'Add measurement';
+
+  if (hasSc) {
+    scaleStatus.textContent = `${(1 / scFactor).toFixed(2)} px\u202f/\u202f${scUnit}`;
+    scaleStatus.style.color = '#1D9E75';
+  } else {
+    scaleStatus.textContent = 'Not set';
+    scaleStatus.style.color = '';
+  }
+
+  cv.style.cursor =
+    (mode === 'sa' || mode === 'sb' || mode === 'ma' || mode === 'mb')
+    ? 'none' : 'default';
+
+  /* Results list */
+  resList.innerHTML = '';
+  noRes.style.display = meas.length ? 'none' : 'block';
+
+  meas.forEach((m, i) => {
+    const real = scFactor ? m.px * scFactor : null;
+    const lbl  = real !== null
+                 ? `${real.toFixed(2)} ${scUnit}`
+                 : `${Math.round(m.px)} px`;
+
+    const d = document.createElement('div');
+    d.className = 'res-item';
+    d.innerHTML =
+      `<span class="num">#${i + 1}</span>` +
+      `<span class="val">${lbl}</span>` +
+      `<span class="px">${Math.round(m.px)}px</span>` +
+      `<span class="del" title="Delete" onclick="delM(${i})">&times;</span>`;
+    d.addEventListener('mouseenter', () => { hovIdx = i; draw(); updUI(); });
+    d.addEventListener('mouseleave', () => { hovIdx = -1; draw(); updUI(); });
+    resList.appendChild(d);
+  });
+}
+
+function delM(i) {
+  meas.splice(i, 1);
+  if (hovIdx >= meas.length) hovIdx = -1;
+  draw(); updUI();
+}
+
+/* ─── Drawing ────────────────────────────────────────────────────────────── */
+function draw() {
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!img) return;
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
+
+  /* Confirmed scale line */
+  if (scLine) ann(scLine.x1, scLine.y1, scLine.x2, scLine.y2, '#1D9E75', 'scale', false);
+
+  /* Pending scale line (drawn but not confirmed) */
+  if (pLine) ann(pLine.x1, pLine.y1, pLine.x2, pLine.y2, '#1D9E75', null, false);
+
+  /* Measurements */
+  meas.forEach((m, i) => {
+    const real = scFactor ? m.px * scFactor : null;
+    const lbl  = real !== null
+                 ? `#${i + 1}  ${real.toFixed(2)} ${scUnit}`
+                 : `#${i + 1}  ${Math.round(m.px)}px`;
+    ann(m.x1, m.y1, m.x2, m.y2, '#EF9F27', lbl, hovIdx === i);
+  });
+
+  /* Live rubber-band line */
+  if (p0 && mp) {
+    const col = mode === 'sb' ? '#1D9E75' : '#EF9F27';
+    ctx.save();
+    ctx.strokeStyle = col;
+    ctx.lineWidth   = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+    ctx.lineTo(mp.x, mp.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    /* Anchor dot */
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(p0.x, p0.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    /* Live length label */
+    const d   = dst(p0, mp);
+    const txt = (scFactor && mode !== 'sb')
+                ? `${(d * scFactor).toFixed(2)} ${scUnit}`
+                : `${Math.round(d)} px`;
+    drawLabel((p0.x + mp.x) / 2, (p0.y + mp.y) / 2 - 10, txt, col);
+    ctx.restore();
+  }
+
+  /* Magnifier lens — shown whenever cursor is over canvas in an active mode */
+  if (mp) {
+    const col = (mode === 'sa' || mode === 'sb') ? '#1D9E75' : '#EF9F27';
+    drawMagnifier(mp.x, mp.y, col);
+  }
+}
+
+/* Annotated line with tick marks and label */
+function ann(x1, y1, x2, y2, col, label, highlight) {
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = highlight ? 2.5 : 1.5;
+
+  /* Main line */
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  /* Tick marks at each end */
+  const angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
+  const tick  = 6;
+  for (const [px, py] of [[x1, y1], [x2, y2]]) {
+    ctx.beginPath();
+    ctx.moveTo(px + Math.cos(angle) * tick, py + Math.sin(angle) * tick);
+    ctx.lineTo(px - Math.cos(angle) * tick, py - Math.sin(angle) * tick);
+    ctx.stroke();
+  }
+
+  /* Endpoint dots */
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(x1, y1, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x2, y2, 4, 0, Math.PI * 2); ctx.fill();
+
+  if (label) drawLabel((x1 + x2) / 2, (y1 + y2) / 2 - 10, label, col);
+  ctx.restore();
+}
+
+/* Pill-shaped label with dark background */
+function drawLabel(x, y, text, col) {
+  ctx.save();
+  ctx.font = 'bold 11px monospace';
+  const tw = ctx.measureText(text).width;
+  const p  = 5, h = 17, r = 4;
+  const rx = x - tw / 2 - p;
+  const ry = y - h / 2;
+
+  ctx.fillStyle = 'rgba(0,0,0,.8)';
+  ctx.beginPath();
+  ctx.moveTo(rx + r, ry);
+  ctx.lineTo(rx + tw + p * 2 - r, ry);
+  ctx.arcTo(rx + tw + p * 2, ry, rx + tw + p * 2, ry + r, r);
+  ctx.lineTo(rx + tw + p * 2, ry + h - r);
+  ctx.arcTo(rx + tw + p * 2, ry + h, rx + tw + p * 2 - r, ry + h, r);
+  ctx.lineTo(rx + r, ry + h);
+  ctx.arcTo(rx, ry + h, rx, ry + h - r, r);
+  ctx.lineTo(rx, ry + r);
+  ctx.arcTo(rx, ry, rx + r, ry, r);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle    = col;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+/* ─── Magnifier lens ─────────────────────────────────────────────────────── */
+function drawMagnifier(cx, cy, col) {
+  const MAG_R   = 72;              // lens radius in canvas px
+  const ZOOM    = 5;               // zoom factor
+  const SRC_H   = MAG_R / ZOOM;   // half-size of source window in canvas px
+  const OFFSET  = MAG_R + 18;     // distance from cursor to lens centre
+
+  /* Pick a quadrant so the lens stays inside the canvas */
+  const flipX = cx + OFFSET + MAG_R > cv.width;
+  const flipY = cy - OFFSET - MAG_R < 0;
+  const mx = cx + (flipX ? -OFFSET : OFFSET);
+  const my = cy + (flipY ?  OFFSET : -OFFSET);
+
+  /* ── 1. Clip to circle, draw zoomed image ── */
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(mx, my, MAG_R, 0, Math.PI * 2);
+  ctx.clip();
+
+  /* Map from canvas coords → original image coords */
+  const ir   = img.width  / cv.width;   /* image px per canvas px */
+  const ir2  = img.height / cv.height;
+  const srcX = (cx - SRC_H) * ir;
+  const srcY = (cy - SRC_H) * ir2;
+  const srcW = SRC_H * 2   * ir;
+  const srcH = SRC_H * 2   * ir2;
+
+  /* Dark fill behind (handles source region going OOB) */
+  ctx.fillStyle = '#111';
+  ctx.fillRect(mx - MAG_R, my - MAG_R, MAG_R * 2, MAG_R * 2);
+
+  ctx.imageSmoothingEnabled = false;   /* crisp pixel edges */
+  ctx.drawImage(img, srcX, srcY, srcW, srcH,
+                mx - MAG_R, my - MAG_R, MAG_R * 2, MAG_R * 2);
+  ctx.imageSmoothingEnabled = true;
+
+  ctx.restore();
+
+  /* ── 2. Lens border ── */
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(mx, my, MAG_R, 0, Math.PI * 2);
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = 1.5;
+  ctx.stroke();
+
+  /* Thin dark outline for contrast on bright images */
+  ctx.beginPath();
+  ctx.arc(mx, my, MAG_R + 1, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,.5)';
+  ctx.lineWidth   = 1;
+  ctx.stroke();
+
+  /* ── 3. Crosshair ── */
+  const ARM = MAG_R - 4;   /* full arm length */
+  const GAP = 5;            /* gap around centre point */
+
+  ctx.strokeStyle = 'rgba(0,0,0,.55)';
+  ctx.lineWidth   = 3;
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  /* horizontal */
+  ctx.moveTo(mx - ARM, my); ctx.lineTo(mx - GAP, my);
+  ctx.moveTo(mx + GAP, my); ctx.lineTo(mx + ARM, my);
+  /* vertical */
+  ctx.moveTo(mx, my - ARM); ctx.lineTo(mx, my - GAP);
+  ctx.moveTo(mx, my + GAP); ctx.lineTo(mx, my + ARM);
+  ctx.stroke();
+
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(mx - ARM, my); ctx.lineTo(mx - GAP, my);
+  ctx.moveTo(mx + GAP, my); ctx.lineTo(mx + ARM, my);
+  ctx.moveTo(mx, my - ARM); ctx.lineTo(mx, my - GAP);
+  ctx.moveTo(mx, my + GAP); ctx.lineTo(mx, my + ARM);
+  ctx.stroke();
+
+  /* Centre dot */
+  ctx.beginPath();
+  ctx.arc(mx, my, 2, 0, Math.PI * 2);
+  ctx.fillStyle = col;
+  ctx.fill();
+
+  /* ── 4. Pixel coordinates label ── */
+  const imgPxX = Math.round(cx * ir);
+  const imgPxY = Math.round(cy * ir2);
+  const coordTxt = `${imgPxX}, ${imgPxY}`;
+
+  ctx.font         = 'bold 10px monospace';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  const tw = ctx.measureText(coordTxt).width;
+  const lx = mx, ly = my + MAG_R - 12;
+
+  ctx.fillStyle = 'rgba(0,0,0,.7)';
+  ctx.beginPath();
+  const pw = tw / 2 + 5, ph = 8, pr = 3;
+  ctx.roundRect(lx - pw, ly - ph, pw * 2, ph * 2, pr);
+  ctx.fill();
+
+  ctx.fillStyle = col;
+  ctx.fillText(coordTxt, lx, ly);
+
+  ctx.restore();
+
+  /* ── 5. Small dot cursor on the main canvas ── */
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,.6)';
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+  ctx.fillStyle   = col;
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ─── Hint bar ───────────────────────────────────────────────────────────── */
+function setHint(t)  { hint.textContent = t; hint.style.display = 'block'; }
+function clearHint() { hint.style.display = 'none'; }
+
+/* ─── Init ───────────────────────────────────────────────────────────────── */
+updUI();
+</script>
+</body>
+</html>
