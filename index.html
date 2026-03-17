@@ -315,6 +315,19 @@
       </svg>
       Drop image here
       <span>or use the Load button</span>
+
+      <div id="adUnit" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:220px">
+        <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=YOURCODE&placement=mesuro" id="_carbonads_js"></script>
+        <style>
+          #carbonads{display:flex;max-width:220px;background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;pointer-events:all}
+          #carbonads a{text-decoration:none;color:inherit}
+          #carbonads a:hover{color:inherit}
+          .carbon-wrap{display:flex;flex-direction:column}
+          .carbon-img img{display:block;width:220px;height:auto}
+          .carbon-text{font-size:11px;color:#999;line-height:1.5;padding:8px 10px 2px}
+          .carbon-poweredby{display:block;font-size:9px;color:#555;padding:0 10px 8px;letter-spacing:.04em}
+        </style>
+      </div>
     </div>
     <canvas id="cv"></canvas>
     <div id="hint"></div>
@@ -395,7 +408,11 @@ function loadImg(file) {
       img = i; scLine=null; scPx=null; scFactor=null;
       meas=[]; history=[]; areaPts=[]; mode='idle'; p0=null; p1=null;
       zoom=1; panX=0; panY=0;
-      fitImg(); document.getElementById('dz').style.display='none'; updUI();
+      fitImg();
+      document.getElementById('dz').style.display='none';
+      const ad = document.getElementById('adUnit');
+      if (ad) ad.style.display='none';
+      updUI();
     };
     i.src = ev.target.result;
   };
