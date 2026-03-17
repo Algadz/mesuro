@@ -253,6 +253,10 @@
     </div>
 
     <button id="btnClear" class="btn-clear-style" onclick="clearAll()" disabled>Clear all</button>
+    <div class="btn-row">
+      <button id="btnExport"    onclick="exportImg()" disabled>Export PNG</button>
+      <button id="btnExportCSV" onclick="exportCSV()" disabled>Export CSV</button>
+    </div>
 
   </div>
 
@@ -301,7 +305,9 @@ const btnScale   = document.getElementById('btnScale');
 const btnMeasure = document.getElementById('btnMeasure');
 const btnDiam    = document.getElementById('btnDiam');
 const btnAngle   = document.getElementById('btnAngle');
-const btnClear   = document.getElementById('btnClear');
+const btnClear      = document.getElementById('btnClear');
+const btnExport     = document.getElementById('btnExport');
+const btnExportCSV  = document.getElementById('btnExportCSV');
 const scaleStatus = document.getElementById('scaleStatus');
 const resList = document.getElementById('resList');
 const noRes   = document.getElementById('noRes');
@@ -557,7 +563,9 @@ function updUI() {
   btnMeasure.disabled = !hasSc;
   btnDiam.disabled    = !hasSc;
   btnAngle.disabled   = !hasSc;
-  btnClear.disabled   = !hasImg;
+  btnClear.disabled       = !hasImg;
+  btnExport.disabled      = !hasImg;
+  btnExportCSV.disabled   = !hasImg;
 
   btnScale.className   = isSc   ? 'btn-scale-active' : '';
   btnScale.textContent = isSc   ? 'Cancel scale drawing'
@@ -857,6 +865,180 @@ function drawLabel(x, y, text, col) {
   ctx.restore();
 }
 
+function exportImg() {
+  if (!img) return;
+  /* Render at full original image resolution */
+  const ec  = document.createElement('canvas');
+  ec.width  = img.width;
+  ec.height = img.height;
+  const ec_ctx = ec.getContext('2d');
+
+  /* Scale factor from canvas display size → original image size */
+  const sx = img.width  / cv.width;
+  const sy = img.height / cv.height;
+
+  ec_ctx.drawImage(img, 0, 0);
+
+  /* Redraw all annotations scaled up */
+  const savedCtx = ctx;
+  /* Temporarily redirect drawing to export canvas */
+  const _cv  = { width: img.width, height: img.height };
+  const _ctx = ec_ctx;
+
+  function scPt(x, y) { return [x * sx, y * sy]; }
+
+  /* Scale line */
+  if (scLine) {
+    const [x1,y1] = scPt(scLine.x1, scLine.y1);
+    const [x2,y2] = scPt(scLine.x2, scLine.y2);
+    drawAnnOn(ec_ctx, x1,y1,x2,y2, '#1D9E75', 'scale', false, sx);
+  }
+
+  meas.forEach((m, i) => {
+    if (m.type === 'line') {
+      const real = scFactor ? m.px * scFactor : null;
+      const lbl  = real !== null ? `#${i+1}  ${real.toFixed(2)} ${scUnit}` : `#${i+1}  ${Math.round(m.px)}px`;
+      const [x1,y1] = scPt(m.x1,m.y1), [x2,y2] = scPt(m.x2,m.y2);
+      drawAnnOn(ec_ctx, x1,y1,x2,y2, '#EF9F27', lbl, false, sx);
+    } else if (m.type === 'diam') {
+      const real = scFactor ? m.r*2*scFactor : null;
+      const lbl  = real !== null ? `⌀${i+1}  ${real.toFixed(2)} ${scUnit}` : `⌀${i+1}  ${Math.round(m.r*2)}px`;
+      const [cx,cy] = scPt(m.cx,m.cy), r = m.r * sx;
+      const [x1,y1] = scPt(m.x1,m.y1), [x2,y2] = scPt(m.x2,m.y2);
+      drawDiamOn(ec_ctx, cx,cy,r,x1,y1,x2,y2, '#5DCAA5', lbl, sx);
+    } else if (m.type === 'angle') {
+      const [ax,ay] = scPt(m.ax,m.ay), [vx,vy] = scPt(m.vx,m.vy), [bx,by] = scPt(m.bx,m.by);
+      drawAngleOn(ec_ctx, ax,ay,vx,vy,bx,by, m.deg, `∠${i+1}  ${m.deg.toFixed(1)}°`, sx);
+    }
+  });
+
+  const a = document.createElement('a');
+  a.download = 'mesuro-export.png';
+  a.href = ec.toDataURL('image/png');
+  a.click();
+}
+
+function exportCSV() {
+  if (!meas.length) return;
+
+  const rows = [
+    ['#', 'type', 'value', 'unit', 'px_length', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'radius_px', 'vertex_x', 'vertex_y', 'arm1_x', 'arm1_y', 'arm2_x', 'arm2_y']
+  ];
+
+  const ir  = img.width  / cv.width;
+  const ir2 = img.height / cv.height;
+
+  meas.forEach((m, i) => {
+    const n = i + 1;
+    if (m.type === 'line') {
+      const real = scFactor ? (m.px * scFactor).toFixed(4) : '';
+      rows.push([n, 'length', real, scUnit,
+        m.px.toFixed(2),
+        Math.round(m.x1 * ir), Math.round(m.y1 * ir2),
+        Math.round(m.x2 * ir), Math.round(m.y2 * ir2),
+        '', '', '', '', '', '', '', '', '']);
+    } else if (m.type === 'diam') {
+      const real = scFactor ? (m.r * 2 * scFactor).toFixed(4) : '';
+      rows.push([n, 'diameter', real, scUnit,
+        (m.r * 2).toFixed(2),
+        Math.round(m.x1 * ir), Math.round(m.y1 * ir2),
+        Math.round(m.x2 * ir), Math.round(m.y2 * ir2),
+        Math.round(m.cx * ir), Math.round(m.cy * ir2),
+        (m.r * ir).toFixed(2),
+        '', '', '', '', '', '']);
+    } else if (m.type === 'angle') {
+      rows.push([n, 'angle', m.deg.toFixed(4), 'deg',
+        '',
+        '', '', '', '', '', '', '',
+        Math.round(m.vx * ir), Math.round(m.vy * ir2),
+        Math.round(m.ax * ir), Math.round(m.ay * ir2),
+        Math.round(m.bx * ir), Math.round(m.by * ir2)]);
+    }
+  });
+
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.download = 'mesuro-measurements.csv';
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function drawLabelOn(ec, x, y, text, col, s) {
+  ec.save();
+  const fs = Math.max(11, 11 * s);
+  ec.font = `bold ${fs}px monospace`;
+  const tw = ec.measureText(text).width;
+  const p = 5*s, h = 17*s, r = 4*s;
+  const rx = x - tw/2 - p, ry = y - h/2;
+  ec.fillStyle = 'rgba(0,0,0,.8)';
+  ec.beginPath();
+  ec.moveTo(rx+r,ry); ec.lineTo(rx+tw+p*2-r,ry);
+  ec.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);
+  ec.lineTo(rx+tw+p*2,ry+h-r);
+  ec.arcTo(rx+tw+p*2,ry+h,rx+tw+p*2-r,ry+h,r);
+  ec.lineTo(rx+r,ry+h); ec.arcTo(rx,ry+h,rx,ry+h-r,r);
+  ec.lineTo(rx,ry+r);   ec.arcTo(rx,ry,rx+r,ry,r);
+  ec.closePath(); ec.fill();
+  ec.fillStyle = col; ec.textAlign = 'center'; ec.textBaseline = 'middle';
+  ec.fillText(text, x, y);
+  ec.restore();
+}
+
+function drawAnnOn(ec, x1,y1,x2,y2, col, label, hi, s) {
+  ec.save();
+  ec.strokeStyle = col; ec.lineWidth = 2*s;
+  ec.beginPath(); ec.moveTo(x1,y1); ec.lineTo(x2,y2); ec.stroke();
+  const angle = Math.atan2(y2-y1,x2-x1) + Math.PI/2, tick = 6*s;
+  for (const [px,py] of [[x1,y1],[x2,y2]]) {
+    ec.beginPath();
+    ec.moveTo(px+Math.cos(angle)*tick, py+Math.sin(angle)*tick);
+    ec.lineTo(px-Math.cos(angle)*tick, py-Math.sin(angle)*tick);
+    ec.stroke();
+  }
+  ec.fillStyle = col;
+  ec.beginPath(); ec.arc(x1,y1,4*s,0,Math.PI*2); ec.fill();
+  ec.beginPath(); ec.arc(x2,y2,4*s,0,Math.PI*2); ec.fill();
+  if (label) drawLabelOn(ec,(x1+x2)/2,(y1+y2)/2-10*s,label,col,s);
+  ec.restore();
+}
+
+function drawDiamOn(ec, cx,cy,r,x1,y1,x2,y2, col, label, s) {
+  ec.save();
+  ec.strokeStyle = col; ec.lineWidth = 2*s;
+  ec.beginPath(); ec.arc(cx,cy,r,0,Math.PI*2); ec.stroke();
+  ec.setLineDash([4*s,3*s]);
+  ec.beginPath(); ec.moveTo(x1,y1); ec.lineTo(x2,y2); ec.stroke();
+  ec.setLineDash([]);
+  ec.fillStyle = col;
+  ec.beginPath(); ec.arc(x1,y1,4*s,0,Math.PI*2); ec.fill();
+  ec.beginPath(); ec.arc(x2,y2,4*s,0,Math.PI*2); ec.fill();
+  const cs = 5*s;
+  ec.beginPath(); ec.moveTo(cx-cs,cy); ec.lineTo(cx+cs,cy);
+  ec.moveTo(cx,cy-cs); ec.lineTo(cx,cy+cs); ec.stroke();
+  if (label) drawLabelOn(ec,cx,cy-r-10*s,label,col,s);
+  ec.restore();
+}
+
+function drawAngleOn(ec, ax,ay,vx,vy,bx,by, deg, label, s) {
+  ec.save();
+  const col = '#D4537E';
+  ec.strokeStyle = col; ec.lineWidth = 2*s;
+  ec.beginPath(); ec.moveTo(ax,ay); ec.lineTo(vx,vy); ec.stroke();
+  ec.beginPath(); ec.moveTo(vx,vy); ec.lineTo(bx,by); ec.stroke();
+  const a1 = Math.atan2(ay-vy,ax-vx), a2 = Math.atan2(by-vy,bx-vx);
+  const arcR = Math.min(Math.hypot(ax-vx,ay-vy), Math.hypot(bx-vx,by-vy)) * 0.3;
+  ec.setLineDash([3*s,3*s]);
+  ec.beginPath(); ec.arc(vx,vy,arcR,a1,a2); ec.stroke();
+  ec.setLineDash([]);
+  ec.fillStyle = col;
+  for (const [px,py] of [[ax,ay],[vx,vy],[bx,by]]) {
+    ec.beginPath(); ec.arc(px,py,4*s,0,Math.PI*2); ec.fill();
+  }
+  const midA = (a1+a2)/2;
+  if (label) drawLabelOn(ec,vx+Math.cos(midA)*(arcR+20*s),vy+Math.sin(midA)*(arcR+20*s),label,col,s);
+  ec.restore();
+}
 /* ─── Magnifier lens ─────────────────────────────────────────────────────── */
 function drawMagnifier(cx, cy, col) {
   const MAG_R   = 72;              // lens radius in canvas px
