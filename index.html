@@ -79,16 +79,7 @@
   button:active:not(:disabled) { transform: scale(0.98); }
   button:disabled { opacity: .4; cursor: default; }
 
-  #scaleStatus {
-    font-size: 11px;
-    font-family: monospace;
-    color: #666;
-    margin-bottom: 6px;
-    padding: 5px 8px;
-    background: #1e1e1e;
-    border-radius: 6px;
-    border: 0.5px solid #333;
-  }
+
 
   #canvasArea {
     flex: 1;
@@ -234,18 +225,32 @@
   .kbd { color: #555; font-size: 10px; font-family: monospace; }
 
   #loadLabel {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #1e1e1e;
     border: 0.5px solid #444;
     border-radius: 6px;
-    padding: 7px 0;
-    text-align: center;
-    font-size: 13px;
+    padding: 7px 6px;
+    font-size: 12px;
     color: #d0d0d0;
     cursor: pointer;
     transition: background .15s, border-color .15s;
+    text-align: center;
   }
   #loadLabel:hover { background: #2a2a2a; border-color: #666; }
+  #scaleStatus {
+    font-size: 11px;
+    font-family: monospace;
+    color: #666;
+    padding: 7px 8px;
+    background: #1e1e1e;
+    border-radius: 6px;
+    border: 0.5px solid #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
 </head>
 <body>
@@ -268,16 +273,47 @@
     </div>
 
     <div>
-      <label id="loadLabel">
-        Load image
-        <input type="file" id="fileInput" accept="image/*" style="display:none">
-      </label>
+      <div class="btn-row">
+        <label id="loadLabel" style="flex:1;min-width:0">
+          Load image
+          <input type="file" id="fileInput" accept="image/*" style="display:none">
+        </label>
+        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title="Save project">
+          <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
+            <line x1="6" y1="3" x2="6" y2="20" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+            <polyline points="1,15 6,21 11,15" stroke="#d0d0d0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="15" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#d0d0d0">S</text>
+            <line x1="3" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
+            <line x1="3"  y1="26" x2="3"  y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="13" y1="26" x2="13" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="20" y1="26" x2="20" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="27" y1="26" x2="27" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="37" y1="26" x2="37" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button onclick="document.getElementById('projectInput').click()" style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title="Load project">
+          <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
+            <line x1="6" y1="21" x2="6" y2="4" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+            <polyline points="1,9 6,3 11,9" stroke="#d0d0d0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="15" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#d0d0d0">L</text>
+            <line x1="3" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
+            <line x1="3"  y1="26" x2="3"  y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="13" y1="26" x2="13" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="20" y1="26" x2="20" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="27" y1="26" x2="27" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="37" y1="26" x2="37" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input type="file" id="projectInput" accept=".mesuro" style="display:none">
+      </div>
     </div>
 
     <div>
       <div class="slbl">SCALE</div>
-      <div id="scaleStatus">Not set</div>
-      <button id="btnScale" onclick="doScale()" disabled>Set scale line</button>
+      <div class="btn-row">
+        <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
+        <button id="btnScale" onclick="doScale()" disabled style="flex:1">Set</button>
+      </div>
     </div>
 
     <div>
@@ -292,8 +328,10 @@
 
     <div>
       <div class="slbl">VIEW</div>
-      <button id="btnZoom" onclick="toggleZoom()" disabled style="margin-bottom:6px">⊕ Zoom &amp; pan <span class="kbd">Z</span></button>
-      <button id="btnMag"  onclick="toggleMag()"  disabled>◎ Cursor zoom <span class="kbd">C</span></button>
+      <div style="display:flex;gap:6px">
+        <button id="btnZoom" onclick="toggleZoom()" disabled style="flex:1;font-size:11px;text-align:center;white-space:normal;line-height:1.4;padding:5px 4px">⊕ Pan &amp; zoom<br><span class="kbd" style="font-size:10px">Z</span></button>
+        <button id="btnMag"  onclick="toggleMag()"  disabled style="flex:1;font-size:11px;text-align:center;white-space:normal;line-height:1.4;padding:5px 4px">◎ Zoom cursor<br><span class="kbd" style="font-size:10px">C</span></button>
+      </div>
     </div>
 
     <div style="flex:1;min-height:0;overflow-y:auto">
@@ -318,8 +356,8 @@
         <circle cx="22" cy="22" r="21" fill="none" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
         <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Drop image here
-      <span>or use the Load button</span>
+      Drop image or .mesu project here
+      <span>or use the buttons above</span>
     </div>
 
     <div id="adUnit" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:220px;z-index:2">
@@ -369,6 +407,7 @@ const cv  = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 const ca  = document.getElementById('canvasArea');
 const btnScale    = document.getElementById('btnScale');
+const btnSaveProject = document.getElementById('btnSaveProject');
 const btnMeasure  = document.getElementById('btnMeasure');
 const btnDiam     = document.getElementById('btnDiam');
 const btnAngle    = document.getElementById('btnAngle');
@@ -409,12 +448,16 @@ let dragState = null;
 
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => { if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value=''; } };
+document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { loadProject(e.target.files[0]); e.target.value=''; } };
+
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('dragleave', () => { ca.style.outline=''; });
 ca.addEventListener('drop', e => {
   e.preventDefault(); ca.style.outline='';
   const f = e.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) loadImg(f);
+  if (!f) return;
+  if (f.name.endsWith('.mesuro')) loadProject(f);
+  else if (f.type.startsWith('image/')) loadImg(f);
 });
 
 function loadImg(file) {
@@ -685,13 +728,13 @@ function updUI() {
   const isMeas=mode==='ma'||mode==='mb', isDiam=mode==='da'||mode==='db';
   const isAngle=mode==='aa'||mode==='ab'||mode==='ac', isArea=mode==='pa';
 
-  btnScale.disabled=!hasImg; btnMeasure.disabled=!hasSc; btnDiam.disabled=!hasSc;
+  btnScale.disabled=!hasImg; btnSaveProject.disabled=!hasImg; btnMeasure.disabled=!hasSc; btnDiam.disabled=!hasSc;
   btnAngle.disabled=!hasSc; btnArea.disabled=!hasSc; btnZoom.disabled=!hasImg;
   btnMag.disabled=!hasImg; btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
   btnExport.disabled=!hasImg; btnExportCSV.disabled=!hasImg;
 
   btnScale.className=isSc?'btn-scale-active':'';
-  btnScale.textContent=isSc?'Cancel':(hasSc?'Reset scale':'Set scale line');
+  btnScale.textContent=isSc?'Cancel':(hasSc?'Reset':'Set');
   btnMeasure.className=isMeas?'btn-meas-active':'';
   btnMeasure.innerHTML=isMeas?'Stop':'↔ Distance <span class="kbd">L</span>';
   btnDiam.className=isDiam?'btn-diam-active':'';
@@ -701,9 +744,9 @@ function updUI() {
   btnArea.className=isArea?'btn-area-active':'';
   btnArea.innerHTML=isArea?'Stop':'⬡ <span class="kbd">R</span>';
   btnZoom.className=zoomEnabled?'btn-zoom-active':'';
-  btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Zoom &amp; pan <span class="kbd">Z</span>`;
+  btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Pan &amp; zoom<br><span class="kbd">Z</span>`;
   btnMag.className=magEnabled?'btn-tog-active':'';
-  btnMag.innerHTML=`${magEnabled?'◉':'◎'} Cursor zoom <span class="kbd">C</span>`;
+  btnMag.innerHTML=`${magEnabled?'◉':'◎'} Zoom cursor<br><span class="kbd">C</span>`;
 
   const activeTool=isMeas||isDiam||isAngle||isArea||isSc;
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':'default';
@@ -948,6 +991,54 @@ function drawMagnifier(scx,scy,wx,wy,col) {
 }
 
 /* ── hint ── */
+/* ─── Project save / load ────────────────────────────────────────────────── */
+function saveProject() {
+  if (!img) return;
+  const ec = document.createElement('canvas');
+  ec.width = img.width; ec.height = img.height;
+  ec.getContext('2d').drawImage(img, 0, 0);
+  const project = {
+    version: 1, format: 'mesu',
+    savedAt: new Date().toISOString(),
+    image: ec.toDataURL('image/jpeg', 0.92),
+    scale: scFactor ? { line: scLine, px: scPx, factor: scFactor, unit: scUnit } : null,
+    measurements: meas
+  };
+  const blob = new Blob([JSON.stringify(project)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.download = `mesu-${new Date().toISOString().slice(0,10)}.mesuro`;
+  a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
+  showToast('Project saved');
+}
+
+function loadProject(file) {
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const p = JSON.parse(ev.target.result);
+      if (p.format !== 'mesu') { showToast('Invalid .mesu file'); return; }
+      const i = new Image();
+      i.onload = () => {
+        img = i;
+        scLine   = p.scale ? p.scale.line   : null;
+        scPx     = p.scale ? p.scale.px     : null;
+        scFactor = p.scale ? p.scale.factor : null;
+        scUnit   = p.scale ? p.scale.unit   : 'mm';
+        meas     = p.measurements || [];
+        history  = []; areaPts = []; mode = 'idle'; p0 = null; p1 = null;
+        zoom = 1; panX = 0; panY = 0;
+        fitImg();
+        document.getElementById('dz').style.display = 'none';
+        const ad = document.getElementById('adUnit');
+        if (ad) ad.style.display = 'none';
+        updUI(); showToast('Project loaded');
+      };
+      i.src = p.image;
+    } catch(e) { showToast('Could not read project file'); }
+  };
+  r.readAsText(file);
+}
+
 function setHint(t)  { hint.textContent=t; hint.style.display='block'; }
 function clearHint() { hint.style.display='none'; }
 
