@@ -196,7 +196,11 @@
 
   .btn-scale-active  { background: #0F6E56 !important; border-color: #0F6E56 !important; color: #fff !important; }
   .btn-meas-active   { background: #854F0B !important; border-color: #854F0B !important; color: #fff !important; }
+  .btn-diam-active   { background: #0F5E6E !important; border-color: #0F5E6E !important; color: #fff !important; }
+  .btn-angle-active  { background: #7B2D5A !important; border-color: #7B2D5A !important; color: #fff !important; }
   .btn-clear-style   { color: #e24b4b; }
+  .btn-row { display: flex; gap: 6px; }
+  .btn-row button { flex: 1; padding: 7px 4px; }
 
   #loadLabel {
     display: block;
@@ -236,6 +240,10 @@
     <div>
       <div class="slbl">MEASURE</div>
       <button id="btnMeasure" onclick="doMeasure()" disabled>Add measurement</button>
+      <div class="btn-row" style="margin-top:6px">
+        <button id="btnDiam"  onclick="doDiam()"  disabled>⌀ Diameter</button>
+        <button id="btnAngle" onclick="doAngle()" disabled>∠ Angle</button>
+      </div>
     </div>
 
     <div style="flex:1;min-height:0;overflow-y:auto">
@@ -291,6 +299,8 @@ const ctx    = cv.getContext('2d');
 const ca     = document.getElementById('canvasArea');
 const btnScale   = document.getElementById('btnScale');
 const btnMeasure = document.getElementById('btnMeasure');
+const btnDiam    = document.getElementById('btnDiam');
+const btnAngle   = document.getElementById('btnAngle');
 const btnClear   = document.getElementById('btnClear');
 const scaleStatus = document.getElementById('scaleStatus');
 const resList = document.getElementById('resList');
@@ -299,8 +309,9 @@ const hint    = document.getElementById('hint');
 const modal   = document.getElementById('scaleModal');
 
 let img       = null;   // loaded HTMLImageElement
-let mode      = 'idle'; // idle | sa | sb | wait | ma | mb
+let mode      = 'idle'; // idle | sa | sb | wait | ma | mb | da | db | aa | ab | ac
 let p0        = null;   // first click point
+let p1        = null;   // second click point (used for angle vertex)
 let mp        = null;   // live mouse position while drawing
 
 let scLine    = null;   // drawn scale line {x1,y1,x2,y2}
@@ -388,15 +399,46 @@ cv.addEventListener('click', e => {
 
   } else if (mode === 'mb') {
     if (dst(p0, p) < 5) return;
-    meas.push({ x1: p0.x, y1: p0.y, x2: p.x, y2: p.y, px: dst(p0, p) });
+    meas.push({ type:'line', x1: p0.x, y1: p0.y, x2: p.x, y2: p.y, px: dst(p0, p) });
     p0 = null; mp = null; mode = 'ma';
     setHint('Click to start next measurement — Esc to stop');
+    draw(); updUI();
+
+  } else if (mode === 'da') {
+    p0 = p; mode = 'db';
+    setHint('Click second point of diameter — Esc to cancel');
+
+  } else if (mode === 'db') {
+    if (dst(p0, p) < 5) return;
+    const r = dst(p0, p) / 2;
+    const cx = (p0.x + p.x) / 2, cy = (p0.y + p.y) / 2;
+    meas.push({ type:'diam', cx, cy, r, x1:p0.x, y1:p0.y, x2:p.x, y2:p.y });
+    p0 = null; mp = null; mode = 'da';
+    setHint('Click to start next diameter — Esc to stop');
+    draw(); updUI();
+
+  } else if (mode === 'aa') {
+    p0 = p; mode = 'ab';
+    setHint('Click vertex (angle point) — Esc to cancel');
+
+  } else if (mode === 'ab') {
+    if (dst(p0, p) < 5) return;
+    p1 = p; mode = 'ac';
+    setHint('Click second arm point — Esc to cancel');
+
+  } else if (mode === 'ac') {
+    if (dst(p1, p) < 5) return;
+    const deg = angleDeg(p0, p1, p);
+    meas.push({ type:'angle', ax:p0.x, ay:p0.y, vx:p1.x, vy:p1.y, bx:p.x, by:p.y, deg });
+    p0 = null; p1 = null; mp = null; mode = 'aa';
+    setHint('Click to start next angle — Esc to stop');
     draw(); updUI();
   }
 });
 
 cv.addEventListener('mousemove', e => {
-  if (mode === 'sa' || mode === 'sb' || mode === 'ma' || mode === 'mb') {
+  if (mode === 'sa' || mode === 'sb' || mode === 'ma' || mode === 'mb' ||
+      mode === 'da' || mode === 'db' || mode === 'aa' || mode === 'ab' || mode === 'ac') {
     mp = pt(e); draw();
   }
 });
@@ -410,8 +452,10 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (mode === 'sa' || mode === 'sb' || mode === 'wait') {
     cancelScale();
-  } else if (mode === 'ma' || mode === 'mb') {
-    mode = 'idle'; p0 = null; mp = null; clearHint(); draw(); updUI();
+  } else if (mode === 'ma' || mode === 'mb' ||
+             mode === 'da' || mode === 'db' ||
+             mode === 'aa' || mode === 'ab' || mode === 'ac') {
+    mode = 'idle'; p0 = null; p1 = null; mp = null; clearHint(); draw(); updUI();
   }
 });
 
@@ -433,6 +477,34 @@ function doMeasure() {
   mode = 'ma'; p0 = null;
   setHint('Click to start a measurement');
   updUI();
+}
+
+function doDiam() {
+  if (mode === 'da' || mode === 'db') {
+    mode = 'idle'; p0 = null; mp = null; clearHint(); draw(); updUI(); return;
+  }
+  if (!scFactor) return;
+  mode = 'da'; p0 = null;
+  setHint('Click first point of diameter — Esc to cancel');
+  updUI();
+}
+
+function doAngle() {
+  if (mode === 'aa' || mode === 'ab' || mode === 'ac') {
+    mode = 'idle'; p0 = null; p1 = null; mp = null; clearHint(); draw(); updUI(); return;
+  }
+  if (!scFactor) return;
+  mode = 'aa'; p0 = null; p1 = null;
+  setHint('Click first arm point — Esc to cancel');
+  updUI();
+}
+
+function angleDeg(a, v, b) {
+  const ax = a.x - v.x, ay = a.y - v.y;
+  const bx = b.x - v.x, by = b.y - v.y;
+  const dot = ax * bx + ay * by;
+  const mag = Math.hypot(ax, ay) * Math.hypot(bx, by);
+  return Math.acos(Math.max(-1, Math.min(1, dot / mag))) * 180 / Math.PI;
 }
 
 function clearAll() {
@@ -478,9 +550,13 @@ function updUI() {
   const hasSc   = !!scFactor;
   const isSc    = mode === 'sa' || mode === 'sb' || mode === 'wait';
   const isMeas  = mode === 'ma' || mode === 'mb';
+  const isDiam  = mode === 'da' || mode === 'db';
+  const isAngle = mode === 'aa' || mode === 'ab' || mode === 'ac';
 
   btnScale.disabled   = !hasImg;
   btnMeasure.disabled = !hasSc;
+  btnDiam.disabled    = !hasSc;
+  btnAngle.disabled   = !hasSc;
   btnClear.disabled   = !hasImg;
 
   btnScale.className   = isSc   ? 'btn-scale-active' : '';
@@ -491,6 +567,12 @@ function updUI() {
   btnMeasure.className   = isMeas ? 'btn-meas-active' : '';
   btnMeasure.textContent = isMeas ? 'Stop measuring' : 'Add measurement';
 
+  btnDiam.className   = isDiam  ? 'btn-diam-active' : '';
+  btnDiam.textContent = isDiam  ? 'Stop' : '⌀ Diameter';
+
+  btnAngle.className   = isAngle ? 'btn-angle-active' : '';
+  btnAngle.textContent = isAngle ? 'Stop' : '∠ Angle';
+
   if (hasSc) {
     scaleStatus.textContent = `${(1 / scFactor).toFixed(2)} px\u202f/\u202f${scUnit}`;
     scaleStatus.style.color = '#1D9E75';
@@ -500,7 +582,8 @@ function updUI() {
   }
 
   cv.style.cursor =
-    (mode === 'sa' || mode === 'sb' || mode === 'ma' || mode === 'mb')
+    (mode === 'sa' || mode === 'sb' || mode === 'ma' || mode === 'mb' ||
+     mode === 'da' || mode === 'db' || mode === 'aa' || mode === 'ab' || mode === 'ac')
     ? 'none' : 'default';
 
   /* Results list */
@@ -508,20 +591,35 @@ function updUI() {
   noRes.style.display = meas.length ? 'none' : 'block';
 
   meas.forEach((m, i) => {
-    const real = scFactor ? m.px * scFactor : null;
-    const lbl  = real !== null
-                 ? `${real.toFixed(2)} ${scUnit}`
-                 : `${Math.round(m.px)} px`;
+    let icon, lbl, pxInfo;
+    if (m.type === 'line') {
+      const real = scFactor ? m.px * scFactor : null;
+      icon    = '↔';
+      lbl     = real !== null ? `${real.toFixed(2)} ${scUnit}` : `${Math.round(m.px)} px`;
+      pxInfo  = `${Math.round(m.px)}px`;
+    } else if (m.type === 'diam') {
+      const real = scFactor ? m.r * 2 * scFactor : null;
+      icon    = '⌀';
+      lbl     = real !== null ? `${real.toFixed(2)} ${scUnit}` : `${Math.round(m.r * 2)} px`;
+      pxInfo  = `${Math.round(m.r * 2)}px`;
+    } else if (m.type === 'angle') {
+      icon    = '∠';
+      lbl     = `${m.deg.toFixed(1)}°`;
+      pxInfo  = '';
+    }
+
+    const col = m.type === 'diam' ? '#5DCAA5' : m.type === 'angle' ? '#D4537E' : '#EF9F27';
 
     const d = document.createElement('div');
     d.className = 'res-item';
+    d.style.setProperty('--hcol', col);
     d.innerHTML =
-      `<span class="num">#${i + 1}</span>` +
+      `<span class="num" style="color:${col}">${icon}${i + 1}</span>` +
       `<span class="val">${lbl}</span>` +
-      `<span class="px">${Math.round(m.px)}px</span>` +
+      `<span class="px">${pxInfo}</span>` +
       `<span class="del" title="Delete" onclick="delM(${i})">&times;</span>`;
-    d.addEventListener('mouseenter', () => { hovIdx = i; draw(); updUI(); });
-    d.addEventListener('mouseleave', () => { hovIdx = -1; draw(); updUI(); });
+    d.addEventListener('mouseenter', () => { hovIdx = i; draw(); });
+    d.addEventListener('mouseleave', () => { hovIdx = -1; draw(); });
     resList.appendChild(d);
   });
 }
@@ -544,48 +642,158 @@ function draw() {
   /* Pending scale line (drawn but not confirmed) */
   if (pLine) ann(pLine.x1, pLine.y1, pLine.x2, pLine.y2, '#1D9E75', null, false);
 
-  /* Measurements */
+  /* All measurements */
   meas.forEach((m, i) => {
-    const real = scFactor ? m.px * scFactor : null;
-    const lbl  = real !== null
-                 ? `#${i + 1}  ${real.toFixed(2)} ${scUnit}`
-                 : `#${i + 1}  ${Math.round(m.px)}px`;
-    ann(m.x1, m.y1, m.x2, m.y2, '#EF9F27', lbl, hovIdx === i);
+    const hi = hovIdx === i;
+    if (m.type === 'line') {
+      const real = scFactor ? m.px * scFactor : null;
+      const lbl  = real !== null ? `#${i+1}  ${real.toFixed(2)} ${scUnit}` : `#${i+1}  ${Math.round(m.px)}px`;
+      ann(m.x1, m.y1, m.x2, m.y2, '#EF9F27', lbl, hi);
+    } else if (m.type === 'diam') {
+      const real = scFactor ? m.r * 2 * scFactor : null;
+      const lbl  = real !== null ? `⌀${i+1}  ${real.toFixed(2)} ${scUnit}` : `⌀${i+1}  ${Math.round(m.r*2)}px`;
+      annDiam(m.cx, m.cy, m.r, m.x1, m.y1, m.x2, m.y2, '#5DCAA5', lbl, hi);
+    } else if (m.type === 'angle') {
+      annAngle(m.ax, m.ay, m.vx, m.vy, m.bx, m.by, m.deg, `∠${i+1}  ${m.deg.toFixed(1)}°`, hi);
+    }
   });
 
-  /* Live rubber-band line */
+  /* Live rubber-band previews */
   if (p0 && mp) {
-    const col = mode === 'sb' ? '#1D9E75' : '#EF9F27';
+    if (mode === 'sb') {
+      /* scale line preview */
+      rubberLine(p0, mp, '#1D9E75', null);
+    } else if (mode === 'mb') {
+      /* distance line preview */
+      const d = dst(p0, mp);
+      const txt = scFactor ? `${(d * scFactor).toFixed(2)} ${scUnit}` : `${Math.round(d)} px`;
+      rubberLine(p0, mp, '#EF9F27', txt);
+    } else if (mode === 'db') {
+      /* diameter preview */
+      const r = dst(p0, mp) / 2;
+      const cx = (p0.x + mp.x) / 2, cy = (p0.y + mp.y) / 2;
+      const real = scFactor ? r * 2 * scFactor : null;
+      const txt = real !== null ? `⌀ ${real.toFixed(2)} ${scUnit}` : `⌀ ${Math.round(r*2)} px`;
+      ctx.save();
+      ctx.strokeStyle = '#5DCAA5'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.75;
+      ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      /* diameter axis */
+      ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(mp.x, mp.y); ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#5DCAA5';
+      ctx.beginPath(); ctx.arc(p0.x, p0.y, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(mp.x, mp.y, 3, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+      drawLabel(cx, cy - r - 10, txt, '#5DCAA5');
+    } else if (mode === 'ab') {
+      /* angle: showing first arm, waiting for vertex */
+      rubberLine(p0, mp, '#D4537E', null);
+    } else if (mode === 'ac' && p1) {
+      /* angle: both arms live */
+      const deg = angleDeg(p0, p1, mp);
+      ctx.save();
+      ctx.strokeStyle = '#D4537E'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(mp.x, mp.y); ctx.stroke();
+      /* arc */
+      const a1 = Math.atan2(p0.y - p1.y, p0.x - p1.x);
+      const a2 = Math.atan2(mp.y - p1.y, mp.x - p1.x);
+      const arcR = Math.min(dst(p0,p1), dst(p1,mp)) * 0.3;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.arc(p1.x, p1.y, arcR, a1, a2); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#D4537E';
+      for (const pp of [p0, p1, mp]) { ctx.beginPath(); ctx.arc(pp.x, pp.y, 3, 0, Math.PI*2); ctx.fill(); }
+      ctx.restore();
+      const midA = (a1 + a2) / 2;
+      drawLabel(p1.x + Math.cos(midA) * (arcR + 20), p1.y + Math.sin(midA) * (arcR + 20),
+                `${deg.toFixed(1)}°`, '#D4537E');
+    }
+  }
+
+  /* If in angle mode ac, always draw the first arm from p0 to p1 */
+  if (mode === 'ac' && p0 && p1 && !mp) {
     ctx.save();
-    ctx.strokeStyle = col;
-    ctx.lineWidth   = 1.5;
-    ctx.setLineDash([5, 4]);
-    ctx.globalAlpha = 0.8;
-    ctx.beginPath();
-    ctx.moveTo(p0.x, p0.y);
-    ctx.lineTo(mp.x, mp.y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.globalAlpha = 1;
-    /* Anchor dot */
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.arc(p0.x, p0.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-    /* Live length label */
-    const d   = dst(p0, mp);
-    const txt = (scFactor && mode !== 'sb')
-                ? `${(d * scFactor).toFixed(2)} ${scUnit}`
-                : `${Math.round(d)} px`;
-    drawLabel((p0.x + mp.x) / 2, (p0.y + mp.y) / 2 - 10, txt, col);
+    ctx.strokeStyle = '#D4537E'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+    ctx.fillStyle = '#D4537E';
+    ctx.beginPath(); ctx.arc(p0.x, p0.y, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(p1.x, p1.y, 3, 0, Math.PI*2); ctx.fill();
     ctx.restore();
   }
 
   /* Magnifier lens — shown whenever cursor is over canvas in an active mode */
   if (mp) {
-    const col = (mode === 'sa' || mode === 'sb') ? '#1D9E75' : '#EF9F27';
+    const col = (mode === 'sa' || mode === 'sb') ? '#1D9E75'
+              : (mode === 'da' || mode === 'db') ? '#5DCAA5'
+              : (mode === 'aa' || mode === 'ab' || mode === 'ac') ? '#D4537E'
+              : '#EF9F27';
     drawMagnifier(mp.x, mp.y, col);
   }
+}
+
+/* Simple rubber-band dashed line with optional label */
+function rubberLine(a, b, col, label) {
+  ctx.save();
+  ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+  ctx.setLineDash([5,4]); ctx.globalAlpha = 0.8;
+  ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(a.x, a.y, 4, 0, Math.PI*2); ctx.fill();
+  if (label) drawLabel((a.x+b.x)/2, (a.y+b.y)/2 - 10, label, col);
+  ctx.restore();
+}
+
+/* Diameter annotation: circle + axis line */
+function annDiam(cx, cy, r, x1, y1, x2, y2, col, label, highlight) {
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = highlight ? 2.5 : 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  /* axis */
+  ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.setLineDash([]);
+  /* endpoint dots */
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(x1,y1,4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x2,y2,4,0,Math.PI*2); ctx.fill();
+  /* center cross */
+  const cs = 5;
+  ctx.beginPath(); ctx.moveTo(cx-cs,cy); ctx.lineTo(cx+cs,cy);
+  ctx.moveTo(cx,cy-cs); ctx.lineTo(cx,cy+cs); ctx.stroke();
+  if (label) drawLabel(cx, cy - r - 10, label, col);
+  ctx.restore();
+}
+
+/* Angle annotation: two arms + arc */
+function annAngle(ax, ay, vx, vy, bx, by, deg, label, highlight) {
+  ctx.save();
+  const col = '#D4537E';
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = highlight ? 2.5 : 1.5;
+  /* arms */
+  ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(vx,vy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(vx,vy); ctx.lineTo(bx,by); ctx.stroke();
+  /* arc */
+  const a1 = Math.atan2(ay-vy, ax-vx);
+  const a2 = Math.atan2(by-vy, bx-vx);
+  const arcR = Math.min(Math.hypot(ax-vx,ay-vy), Math.hypot(bx-vx,by-vy)) * 0.3;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.arc(vx, vy, arcR, a1, a2); ctx.stroke();
+  ctx.setLineDash([]);
+  /* dots */
+  ctx.fillStyle = col;
+  for (const [px,py] of [[ax,ay],[vx,vy],[bx,by]]) {
+    ctx.beginPath(); ctx.arc(px,py,4,0,Math.PI*2); ctx.fill();
+  }
+  /* label at arc midpoint */
+  const midA = (a1 + a2) / 2;
+  if (label) drawLabel(vx + Math.cos(midA)*(arcR+20), vy + Math.sin(midA)*(arcR+20), label, col);
+  ctx.restore();
 }
 
 /* Annotated line with tick marks and label */
