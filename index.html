@@ -51,6 +51,8 @@
     padding: 14px 12px;
     gap: 14px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #3a3a3a transparent;
   }
 
   .slbl {
@@ -216,13 +218,15 @@
   .btn-zoom-active   { background: #2e2e2e !important; border-color: #888 !important; color: #e0e0e0 !important; }
   .btn-tog-active    { background: #2e2e2e !important; border-color: #888 !important; color: #e0e0e0 !important; }
 
-  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar { width: 3px; }
   #sidebar::-webkit-scrollbar-track { background: transparent; }
-  #sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  #sidebar::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
   #sidebar::-webkit-scrollbar-thumb:hover { background: #555; }
-  #resList::-webkit-scrollbar { width: 4px; }
+
+  #resList { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+  #resList::-webkit-scrollbar { width: 3px; }
   #resList::-webkit-scrollbar-track { background: transparent; }
-  #resList::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  #resList::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
   #resList::-webkit-scrollbar-thumb:hover { background: #555; }
   .btn-clear-style   { color: #e24b4b; }
   .btn-row { display: flex; gap: 6px; }
@@ -316,28 +320,28 @@
       </svg>
       Drop image here
       <span>or use the Load button</span>
+    </div>
 
-      <div id="adUnit" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:220px;pointer-events:all">
-        <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif">
-          <div style="background:#2a2a3a;width:220px;height:100px;display:flex;align-items:center;justify-content:center">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <rect x="6" y="14" width="36" height="20" rx="3" stroke="#5a7fbf" stroke-width="1.5"/>
-              <line x1="6" y1="34" x2="42" y2="34" stroke="#5a7fbf" stroke-width="1.5"/>
-              <line x1="13" y1="34" x2="13" y2="38" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="24" y1="34" x2="24" y2="36" stroke="#5a7fbf" stroke-width="1" stroke-linecap="round"/>
-              <line x1="35" y1="34" x2="35" y2="38" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="24" cy="24" r="5" stroke="#5a7fbf" stroke-width="1.5"/>
-              <line x1="24" y1="17" x2="24" y2="19" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="24" y1="29" x2="24" y2="31" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="17" y1="24" x2="19" y2="24" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="29" y1="24" x2="31" y2="24" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div style="padding:8px 10px 4px;font-size:11px;color:#999;line-height:1.5">
-            Digital calipers — measure to 0.01mm. Engineers trust Mitutoyo.
-          </div>
-          <div style="padding:0 10px 8px;font-size:9px;color:#444;letter-spacing:.04em">ads via Carbon</div>
+    <div id="adUnit" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:220px;z-index:2">
+      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif">
+        <div style="background:#2a2a3a;width:220px;height:100px;display:flex;align-items:center;justify-content:center">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="14" width="36" height="20" rx="3" stroke="#5a7fbf" stroke-width="1.5"/>
+            <line x1="6" y1="34" x2="42" y2="34" stroke="#5a7fbf" stroke-width="1.5"/>
+            <line x1="13" y1="34" x2="13" y2="38" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="24" y1="34" x2="24" y2="36" stroke="#5a7fbf" stroke-width="1" stroke-linecap="round"/>
+            <line x1="35" y1="34" x2="35" y2="38" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="24" cy="24" r="5" stroke="#5a7fbf" stroke-width="1.5"/>
+            <line x1="24" y1="17" x2="24" y2="19" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="24" y1="29" x2="24" y2="31" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="17" y1="24" x2="19" y2="24" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="29" y1="24" x2="31" y2="24" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
         </div>
+        <div style="padding:8px 10px 4px;font-size:11px;color:#999;line-height:1.5">
+          Digital calipers — measure to 0.01mm. Engineers trust Mitutoyo.
+        </div>
+        <div style="padding:0 10px 8px;font-size:9px;color:#444;letter-spacing:.04em">ads via Carbon</div>
       </div>
     </div>
     <canvas id="cv"></canvas>
