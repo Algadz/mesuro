@@ -199,7 +199,17 @@
   .btn-diam-active   { background: #0F5E6E !important; border-color: #0F5E6E !important; color: #fff !important; }
   .btn-angle-active  { background: #7B2D5A !important; border-color: #7B2D5A !important; color: #fff !important; }
   .btn-area-active   { background: #4A3B8A !important; border-color: #4A3B8A !important; color: #fff !important; }
-  .btn-zoom-active   { background: #1e2e3e !important; border-color: #378ADD !important; color: #88c4f4 !important; }
+  .btn-zoom-active   { background: #2e2e2e !important; border-color: #888 !important; color: #e0e0e0 !important; }
+  .btn-tog-active    { background: #2e2e2e !important; border-color: #888 !important; color: #e0e0e0 !important; }
+
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  #sidebar::-webkit-scrollbar-thumb:hover { background: #555; }
+  #resList::-webkit-scrollbar { width: 4px; }
+  #resList::-webkit-scrollbar-track { background: transparent; }
+  #resList::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+  #resList::-webkit-scrollbar-thumb:hover { background: #555; }
   .btn-clear-style   { color: #e24b4b; }
   .btn-row { display: flex; gap: 6px; }
   .btn-row button { flex: 1; padding: 7px 4px; }
@@ -224,6 +234,21 @@
 <div id="app">
 
   <div id="sidebar">
+    <div style="padding-bottom:4px">
+      <svg width="160" height="36" viewBox="0 0 160 36" fill="none">
+        <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
+          <tspan x="0" y="22" fill="#e0e0e0">mesu</tspan><tspan fill="#666">.ro</tspan>
+        </text>
+        <line x1="0"   y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
+        <line x1="0"   y1="28" x2="0"   y2="34" stroke="#666" stroke-width="1.2"/>
+        <line x1="33"  y1="28" x2="33"  y2="31" stroke="#555" stroke-width="0.75"/>
+        <line x1="65"  y1="28" x2="65"  y2="33" stroke="#666" stroke-width="1"/>
+        <line x1="98"  y1="28" x2="98"  y2="31" stroke="#555" stroke-width="0.75"/>
+        <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
+      </svg>
+      <div style="font-size:10px;color:#555;letter-spacing:.02em;margin-top:5px;font-family:system-ui,-apple-system,sans-serif">measure twice. in pixels.</div>
+    </div>
+
     <div>
       <label id="loadLabel">
         Load image
@@ -249,7 +274,8 @@
 
     <div>
       <div class="slbl">VIEW</div>
-      <button id="btnZoom" onclick="toggleZoom()" disabled>⊕ Zoom &amp; pan <span class="kbd">Z</span></button>
+      <button id="btnZoom" onclick="toggleZoom()" disabled style="margin-bottom:6px">⊕ Zoom &amp; pan <span class="kbd">Z</span></button>
+      <button id="btnMag"  onclick="toggleMag()"  disabled>◎ Cursor zoom <span class="kbd">C</span></button>
     </div>
 
     <div style="flex:1;min-height:0;overflow-y:auto">
@@ -307,6 +333,7 @@ const btnDiam     = document.getElementById('btnDiam');
 const btnAngle    = document.getElementById('btnAngle');
 const btnArea     = document.getElementById('btnArea');
 const btnZoom     = document.getElementById('btnZoom');
+const btnMag      = document.getElementById('btnMag');
 const btnUndo     = document.getElementById('btnUndo');
 const btnClear    = document.getElementById('btnClear');
 const btnExport   = document.getElementById('btnExport');
@@ -331,6 +358,7 @@ let meas = [], pLine = null, hovIdx = -1, history = [];
 let zoomEnabled = true, zoom = 1, panX = 0, panY = 0;
 let isPanning = false, panStart = null;
 let spaceDown = false;
+let magEnabled = true;
 
 /* ── drag ── */
 const DRAG_R = 10;
@@ -393,6 +421,7 @@ function clampPan() {
   panY=Math.max(ca.clientHeight*.1-cv.height*zoom, Math.min(ca.clientHeight*.9, panY));
 }
 function toggleZoom() { zoomEnabled=!zoomEnabled; if (!zoomEnabled) { zoom=1; panX=0; panY=0; draw(); } updUI(); }
+function toggleMag()  { magEnabled=!magEnabled; draw(); updUI(); }
 function resetZoom() { zoom=1; panX=0; panY=0; draw(); }
 
 /* ── drag targets ── */
@@ -560,6 +589,7 @@ document.addEventListener('keydown', e => {
     if ((e.key==='a'||e.key==='A')&&img&&scFactor) doAngle();
     if ((e.key==='r'||e.key==='R')&&img&&scFactor) doArea();
     if ((e.key==='z'||e.key==='Z')&&img) toggleZoom();
+    if ((e.key==='c'||e.key==='C')&&img) toggleMag();
     if (e.key==='0'&&img) resetZoom();
   }
 });
@@ -610,7 +640,7 @@ function updUI() {
 
   btnScale.disabled=!hasImg; btnMeasure.disabled=!hasSc; btnDiam.disabled=!hasSc;
   btnAngle.disabled=!hasSc; btnArea.disabled=!hasSc; btnZoom.disabled=!hasImg;
-  btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
+  btnMag.disabled=!hasImg; btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
   btnExport.disabled=!hasImg; btnExportCSV.disabled=!hasImg;
 
   btnScale.className=isSc?'btn-scale-active':'';
@@ -625,9 +655,11 @@ function updUI() {
   btnArea.innerHTML=isArea?'Stop':'⬡ <span class="kbd">R</span>';
   btnZoom.className=zoomEnabled?'btn-zoom-active':'';
   btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Zoom &amp; pan <span class="kbd">Z</span>`;
+  btnMag.className=magEnabled?'btn-tog-active':'';
+  btnMag.innerHTML=`${magEnabled?'◉':'◎'} Cursor zoom <span class="kbd">C</span>`;
 
   const activeTool=isMeas||isDiam||isAngle||isArea||isSc;
-  cv.style.cursor=activeTool?'none':mode==='drag'?'grabbing':'default';
+  cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':'default';
 
   if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f/\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; }
   else { scaleStatus.textContent='Not set'; scaleStatus.style.color=''; }
@@ -752,7 +784,7 @@ function draw() {
 
   // magnifier in screen space
   const am=['sa','sb','ma','mb','da','db','aa','ab','ac','pa'];
-  if (mp&&am.includes(mode)) {
+  if (mp&&am.includes(mode)&&magEnabled) {
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
     drawMagnifier(sc.x,sc.y,mp.x,mp.y,col);
