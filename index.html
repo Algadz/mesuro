@@ -353,6 +353,12 @@
         <button id="btnExport"    onclick="exportImg()" disabled>PNG</button>
         <button id="btnExportCSV" onclick="exportCSV()" disabled>CSV</button>
       </div>
+      <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #333;display:flex;align-items:center;justify-content:space-between">
+        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' style="display:flex;align-items:center;opacity:.7;transition:opacity .15s" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7">
+          <img height='28' style='border:0;height:28px;display:block' src='https://storage.ko-fi.com/cdn/kofi3.png?v=6' alt='Buy Me a Coffee at ko-fi.com'/>
+        </a>
+        <span id="coffeeCount" style="font-size:10px;color:#555;font-family:system-ui,-apple-system,sans-serif">☕ <span style="color:#888">0</span> offered</span>
+      </div>
     </div>
   </div>
 
@@ -1092,7 +1098,10 @@ function exportCSV() {
 }
 
 updUI();
-setTimeout(() => { const ad = document.getElementById('adUnit'); if (ad) ad.style.display = 'block'; }, 400);
+setTimeout(() => {
+  const ad = document.getElementById('adUnit');
+  if (ad) { ad.style.display='block'; ad.style.opacity='0'; ad.style.transition='opacity .4s'; requestAnimationFrame(() => { ad.style.opacity='1'; }); }
+}, 300);
 </script>
 </body>
 </html>
