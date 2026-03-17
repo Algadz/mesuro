@@ -9,7 +9,7 @@
 <meta name="author" content="mesu.ro">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Crect width='32' height='32' fill='%23242424'/%3E%3Ctext x='2' y='22' font-family='system-ui,-apple-system,sans-serif' font-size='20' font-weight='700' fill='%23e0e0e0'%3Em%3C/text%3E%3Cline x1='3' y1='25' x2='30' y2='25' stroke='%23e0e0e0' stroke-width='1'/%3E%3Cline x1='3' y1='25' x2='3' y2='29' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='10' y1='25' x2='10' y2='27' stroke='%23888' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='16' y1='25' x2='16' y2='28' stroke='%23e0e0e0' stroke-width='1.2' stroke-linecap='round'/%3E%3Cline x1='22' y1='25' x2='22' y2='27' stroke='%23888' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='30' y1='25' x2='30' y2='29' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cstyle%3Etext%2Cline%7Bfill:%23222%3Bstroke:%23222%7D%40media(prefers-color-scheme:dark)%7Btext%2Cline%7Bfill:%23fff%3Bstroke:%23fff%7D%7D%3C/style%3E%3Ctext x='2' y='23' font-family='system-ui,-apple-system,sans-serif' font-size='22' font-weight='800' fill='%23222'%3Em%3C/text%3E%3Cline x1='2' y1='27' x2='30' y2='27' stroke='%23222' stroke-width='1.5'/%3E%3Cline x1='2' y1='24' x2='2' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='30' y1='24' x2='30' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mesu.ro/">
 <meta property="og:title" content="mesu.ro — measure anything in an image">
@@ -258,7 +258,7 @@
 <div id="app">
 
   <div id="sidebar">
-    <div style="padding-bottom:4px">
+    <div style="padding-bottom:12px;border-bottom:0.5px solid #333">
       <svg width="160" height="36" viewBox="0 0 160 36" fill="none">
         <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
           <tspan x="0" y="22" fill="#e0e0e0">mesu</tspan><tspan fill="#666">.ro</tspan>
@@ -280,7 +280,7 @@
           <input type="file" id="fileInput" accept="image/*" style="display:none">
         </label>
         <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title=""
-          onmouseenter="showProjTip('save project as .mesuro')"
+          onmouseenter="showProjTip('save .mesuro')"
           onmouseleave="hideProjTip()">
           <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
             <line x1="6" y1="3" x2="6" y2="20" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
@@ -295,7 +295,7 @@
           </svg>
         </button>
         <button onclick="document.getElementById('projectInput').click()" style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title=""
-          onmouseenter="showProjTip('load .mesuro project')"
+          onmouseenter="showProjTip('load .mesuro')"
           onmouseleave="hideProjTip()">
           <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
             <line x1="6" y1="21" x2="6" y2="4" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
@@ -311,10 +311,10 @@
         </button>
         <input type="file" id="projectInput" accept=".mesuro" style="display:none">
       </div>
-      <div id="projTip" style="font-size:10px;color:#555;font-style:italic;margin-top:4px;opacity:0;transition:opacity .2s;min-height:14px;font-family:system-ui,-apple-system,sans-serif"></div>
+      <div id="projTip" style="font-size:10px;color:#555;font-style:italic;text-align:right;opacity:0;transition:opacity .15s;margin-top:2px;line-height:1;font-family:system-ui,-apple-system,sans-serif">&nbsp;</div>
     </div>
 
-    <div>
+    <div style="margin-top:-6px">
       <div class="slbl">SCALE</div>
       <div class="btn-row">
         <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
