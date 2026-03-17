@@ -86,9 +86,10 @@
     position: relative;
     background: #111;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible;
   }
 
   #dz {
@@ -278,34 +279,39 @@
           Load image
           <input type="file" id="fileInput" accept="image/*" style="display:none">
         </label>
-        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title="Save project">
+        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title=""
+          onmouseenter="showProjTip('save project as .mesuro')"
+          onmouseleave="hideProjTip()">
           <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
             <line x1="6" y1="3" x2="6" y2="20" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
             <polyline points="1,15 6,21 11,15" stroke="#d0d0d0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             <text x="15" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#d0d0d0">S</text>
-            <line x1="3" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
-            <line x1="3"  y1="26" x2="3"  y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-            <line x1="13" y1="26" x2="13" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
-            <line x1="20" y1="26" x2="20" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="27" y1="26" x2="27" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="16" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
+            <line x1="16" y1="26" x2="16" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="22" y1="26" x2="22" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="27" y1="26" x2="27" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="32" y1="26" x2="32" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
             <line x1="37" y1="26" x2="37" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title="Load project">
+        <button onclick="document.getElementById('projectInput').click()" style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title=""
+          onmouseenter="showProjTip('load .mesuro project')"
+          onmouseleave="hideProjTip()">
           <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
             <line x1="6" y1="21" x2="6" y2="4" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
             <polyline points="1,9 6,3 11,9" stroke="#d0d0d0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             <text x="15" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#d0d0d0">L</text>
-            <line x1="3" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
-            <line x1="3"  y1="26" x2="3"  y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-            <line x1="13" y1="26" x2="13" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
-            <line x1="20" y1="26" x2="20" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="27" y1="26" x2="27" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="16" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
+            <line x1="16" y1="26" x2="16" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="22" y1="26" x2="22" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
+            <line x1="27" y1="26" x2="27" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="32" y1="26" x2="32" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
             <line x1="37" y1="26" x2="37" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </button>
         <input type="file" id="projectInput" accept=".mesuro" style="display:none">
       </div>
+      <div id="projTip" style="font-size:10px;color:#555;font-style:italic;margin-top:4px;opacity:0;transition:opacity .2s;min-height:14px;font-family:system-ui,-apple-system,sans-serif"></div>
     </div>
 
     <div>
@@ -356,13 +362,17 @@
         <circle cx="22" cy="22" r="21" fill="none" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
         <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Drop image or .mesu project here
+      Drop image or .mesuro project here
       <span>or use the buttons above</span>
     </div>
 
-    <div id="adUnit" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:220px;z-index:2">
+    <canvas id="cv"></canvas>
+    <div id="hint"></div>
+    <div id="toast"></div>
+
+    <div id="adUnit" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:230px;z-index:10;pointer-events:all">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif">
-        <div style="background:#2a2a3a;width:220px;height:100px;display:flex;align-items:center;justify-content:center">
+        <div style="background:#2a2a3a;width:100%;height:90px;display:flex;align-items:center;justify-content:center">
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
             <rect x="6" y="14" width="36" height="20" rx="3" stroke="#5a7fbf" stroke-width="1.5"/>
             <line x1="6" y1="34" x2="42" y2="34" stroke="#5a7fbf" stroke-width="1.5"/>
@@ -376,15 +386,11 @@
             <line x1="29" y1="24" x2="31" y2="24" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
-        <div style="padding:8px 10px 4px;font-size:11px;color:#999;line-height:1.5">
-          Digital calipers — measure to 0.01mm. Engineers trust Mitutoyo.
-        </div>
+        <div style="padding:8px 10px 4px;font-size:11px;color:#999;line-height:1.5">Digital calipers — measure to 0.01mm. Engineers trust Mitutoyo.</div>
         <div style="padding:0 10px 8px;font-size:9px;color:#444;letter-spacing:.04em">ads via Carbon</div>
       </div>
     </div>
-    <canvas id="cv"></canvas>
-    <div id="hint"></div>
-    <div id="toast"></div>
+
     <div id="scaleModal">
       <div class="modal-box">
         <h3>Define scale</h3>
@@ -1041,6 +1047,9 @@ function loadProject(file) {
 
 function setHint(t)  { hint.textContent=t; hint.style.display='block'; }
 function clearHint() { hint.style.display='none'; }
+
+function showProjTip(msg) { const t=document.getElementById('projTip'); if(t){t.textContent=msg; t.style.opacity='1';} }
+function hideProjTip()    { const t=document.getElementById('projTip'); if(t) t.style.opacity='0'; }
 
 /* ── export PNG ── */
 function exportImg() {
