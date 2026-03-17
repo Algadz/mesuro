@@ -1098,10 +1098,6 @@ function exportCSV() {
 }
 
 updUI();
-setTimeout(() => {
-  const ad = document.getElementById('adUnit');
-  if (ad) { ad.style.display='block'; ad.style.opacity='0'; ad.style.transition='opacity .4s'; requestAnimationFrame(() => { ad.style.opacity='1'; }); }
-}, 300);
 </script>
 </body>
 </html>
