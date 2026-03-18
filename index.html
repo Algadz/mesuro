@@ -259,7 +259,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  applause-button .count-container { color: #555 !important; font-size: 10px !important; font-family: system-ui,-apple-system,sans-serif !important; }
   applause-button svg { fill: #444 !important; }
   applause-button.clapped svg { fill: #1D9E75 !important; }
   applause-button .shockwave { border-color: #1D9E75 !important; }
@@ -395,11 +394,12 @@
         <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' style="display:flex;align-items:center;pointer-events:all">
           <img height='28' style='border:0;height:28px;display:block' src='https://storage.ko-fi.com/cdn/kofi3.png?v=6' alt='Support mesu.ro on Ko-fi — Buy Me a Coffee'/>
         </a>
-        <span style="font-size:11px;color:#555">☕ <span id="coffeeCount" style="color:#777">0</span></span>
         <span style="color:#333;font-size:11px">|</span>
         <div style="display:flex;align-items:center;gap:6px;pointer-events:all">
-          <applause-button color="#555" multiclap="false" url="https://mesu.ro/" style="width:28px;height:28px;"></applause-button>
-          <span style="font-size:11px;color:#555">thanks</span>
+          <div style="width:22px;height:22px;overflow:hidden;position:relative;flex-shrink:0">
+            <applause-button color="#555" multiclap="true" url="https://mesu.ro/" style="width:22px;height:22px;position:absolute;bottom:0"></applause-button>
+          </div>
+          <span id="applauseCount" style="font-size:10px;color:#555">0</span>
         </div>
       </div>
     </div>
@@ -1378,6 +1378,35 @@ setTimeout(() => {
   const p = document.getElementById('kofiPopup');
   if (p) { p.style.display='block'; requestAnimationFrame(() => { p.style.opacity='1'; p.style.pointerEvents='all'; }); }
 }, 400);
+
+// fetch applause count + hide shadow DOM native counter
+function loadApplauseCount() {
+  fetch('https://api.applause-button.com/get-claps?url=mesu.ro/', {referrer:'https://mesu.ro/', referrerPolicy:'unsafe-url'})
+    .then(r=>r.text()).then(n=>{
+      const el=document.getElementById('applauseCount');
+      const v=parseInt(n);
+      if(el && !isNaN(v)) el.textContent=v;
+    }).catch(()=>{});
+}
+loadApplauseCount();
+setTimeout(()=>{
+  const ab=document.querySelector('applause-button');
+  if(!ab) return;
+  function hideCount(){
+    if(ab.shadowRoot){
+      // inject persistent style
+      if(!ab.shadowRoot.querySelector('#hide-count')){
+        const st=document.createElement('style');
+        st.id='hide-count';
+        st.textContent='.count-container{display:none!important;visibility:hidden!important}';
+        ab.shadowRoot.appendChild(st);
+      }
+    }
+  }
+  hideCount();
+  if(ab.shadowRoot) new MutationObserver(hideCount).observe(ab.shadowRoot,{childList:true,subtree:true});
+  ab.addEventListener('clapped',()=>setTimeout(loadApplauseCount,600));
+},800);
 </script>
 </body>
 </html>
