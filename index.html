@@ -231,7 +231,7 @@
   @media (max-width: 767px) {
     body { height: auto; overflow-y: auto; }
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
-    body.m-noscroll { overflow:hidden; }
+    body.m-noscroll { overflow:hidden; overscroll-behavior-y: contain; }
     #sidebar { display: none; }
 
     #mobileTopbar {
@@ -266,10 +266,11 @@
     .m-tbtn.m-pe { background:rgba(240,153,74,.12); } .m-tbtn.m-pe .m-ti,.m-tbtn.m-pe .m-tt { color:#F0994A; }
 
     #canvasArea { flex:1; min-height:0; }
-    #dz { font-size:16px; color:#3a3a3a; gap:4px; }
+    #dz { pointer-events:all; cursor:pointer; font-size:16px; color:#3a3a3a; gap:4px; }
     #dz span { display:none; }
     #dz svg { display:none; }
     #dzMain { font-size:15px; color:#3a3a3a; }
+    #cv { max-width:100%; max-height:100%; }
 
     #mobileSheet {
       display:flex; flex-direction:column;
@@ -785,16 +786,26 @@ function loadImg(file) {
 function fitImg() {
   const isMobile = window.innerWidth <= 767;
   const pad = isMobile ? 0 : 20;
+  const dpr = isMobile ? (window.devicePixelRatio || 1) : 1;
   const aw = ca.clientWidth - pad, ah = ca.clientHeight - pad;
   const r = Math.min(aw / img.width, ah / img.height, 1);
-  cv.width = Math.round(img.width * r); cv.height = Math.round(img.height * r);
+  // buffer at device pixels for sharpness
+  cv.width  = Math.round(img.width  * r * dpr);
+  cv.height = Math.round(img.height * r * dpr);
+  // display at CSS pixels
+  cv.style.width  = Math.round(img.width  * r) + 'px';
+  cv.style.height = Math.round(img.height * r) + 'px';
   cv.style.display = 'block'; draw();
 }
 
 /* ── coords ── */
 function canvasPx(e) {
-  const rc=cv.getBoundingClientRect();
-  return { x:(e.clientX-rc.left)*cv.width/rc.width, y:(e.clientY-rc.top)*cv.height/rc.height };
+  const rc = cv.getBoundingClientRect();
+  const dpr = (window.innerWidth <= 767) ? (window.devicePixelRatio || 1) : 1;
+  return {
+    x: (e.clientX - rc.left) * (cv.width / dpr) / rc.width,
+    y: (e.clientY - rc.top)  * (cv.height / dpr) / rc.height
+  };
 }
 function pt(e) { const c=canvasPx(e); return { x:(c.x-panX)/zoom, y:(c.y-panY)/zoom }; }
 function w2c(wx,wy) { return { x:wx*zoom+panX, y:wy*zoom+panY }; }
@@ -1555,14 +1566,33 @@ function toggleMobileSheet() {
   const expanding = !s.classList.contains('expanded');
   s.classList.toggle('expanded');
   if (expanding) {
-    // after animation, unlock body scroll
     setTimeout(() => { document.body.classList.remove('m-noscroll'); }, 320);
   } else {
     document.body.classList.add('m-noscroll');
-    // scroll back to top
     window.scrollTo({ top: 0 });
   }
 }
+
+// close sheet when user scrolls up from top of sheet content
+(function() {
+  let sheetTouchStartY = 0;
+  const sheetContent = document.getElementById('mobileSheetContent');
+  const sheet = document.getElementById('mobileSheet');
+  if (!sheetContent || !sheet) return;
+  sheetContent.addEventListener('touchstart', e => {
+    sheetTouchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  sheetContent.addEventListener('touchmove', e => {
+    if (!sheet.classList.contains('expanded')) return;
+    const dy = e.touches[0].clientY - sheetTouchStartY;
+    // scrolled to top and pulling down → close sheet
+    if (sheetContent.scrollTop === 0 && dy > 40) {
+      sheet.classList.remove('expanded');
+      document.body.classList.add('m-noscroll');
+      window.scrollTo({ top: 0 });
+    }
+  }, { passive: true });
+})();
 
 // close sheet on canvas tap (when expanded)
 document.getElementById('cv').addEventListener('click', () => {
@@ -1572,10 +1602,11 @@ document.getElementById('cv').addEventListener('click', () => {
 
 /* ── TOUCH DRAG for mobile measurements ── */
 function getTouchPt(e) {
-  const t = e.touches[0] || e.changedTouches[0];
+  const touch = e.touches[0] || e.changedTouches[0];
   const rc = cv.getBoundingClientRect();
-  const cx = (t.clientX - rc.left) * cv.width / rc.width;
-  const cy = (t.clientY - rc.top) * cv.height / rc.height;
+  const dpr = window.devicePixelRatio || 1;
+  const cx = (touch.clientX - rc.left) * (cv.width / dpr) / rc.width;
+  const cy = (touch.clientY - rc.top)  * (cv.height / dpr) / rc.height;
   return { x: (cx - panX) / zoom, y: (cy - panY) / zoom };
 }
 
