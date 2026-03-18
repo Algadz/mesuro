@@ -228,82 +228,61 @@
   #mobileTopbar { display: none; }
   #mobileSheet  { display: none; }
   @media (max-width: 767px) {
-    #mobileTopbar { display: flex !important; }
-    #mobileSheet  { display: flex !important; }
-    body { height: auto; overflow-y: auto; }
-    #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
+    body { height: auto; overflow-y: auto; scroll-snap-type: y proximity; }
+    #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; scroll-snap-align: start; scroll-snap-stop: always; }
     #sidebar { display: none; }
+    #mobileTopbar { display: none !important; }
+    #mobileSheet  { display: none !important; }
 
-    #mobileTopbar {
-      display:flex; align-items:center;
-      background:#242424; border-bottom:0.5px solid #2a2a2a;
-      flex-shrink:0; z-index:20;
-    }
-    #mobileLogoSection { padding:8px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; }
-    #mobileLogo { font-size:14px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
-    #mobileLogo span { color:#444; }
-    #mobileToolsScroll {
-      display:flex; align-items:center; gap:3px; padding:6px 8px;
-      overflow-x:auto; scrollbar-width:none; flex:1;
-    }
-    #mobileToolsScroll::-webkit-scrollbar { display:none; }
+    #canvasArea { flex:1; min-height:0; position:relative; cursor:pointer; }
 
-    .m-tbtn {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:3px; padding:6px 10px; border-radius:7px; cursor:pointer; flex-shrink:0;
-      border:none; background:#2a2a2a; transition:background .15s;
-      width:auto; text-align:center; font-family:inherit;
+    /* dz — full canvas overlay, centered text, tap anywhere to load */
+    #dz {
+      pointer-events: all !important;
+      cursor: pointer;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0;
     }
-    .m-tbtn:disabled { opacity:.35; cursor:default; }
-    .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
-    .m-tbtn .m-ti { font-size:18px; line-height:1; color:#666; }
-    .m-tbtn .m-tt { font-size:9px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
-    .m-tbtn.m-sc { background:rgba(29,158,117,.15); } .m-tbtn.m-sc .m-ti,.m-tbtn.m-sc .m-tt { color:#1D9E75; }
-    .m-tbtn.m-di { background:rgba(239,159,39,.18); } .m-tbtn.m-di .m-ti,.m-tbtn.m-di .m-tt { color:#EF9F27; }
-    .m-tbtn.m-dm { background:rgba(93,202,165,.12); } .m-tbtn.m-dm .m-ti,.m-tbtn.m-dm .m-tt { color:#5DCAA5; }
-    .m-tbtn.m-an { background:rgba(212,83,126,.12); } .m-tbtn.m-an .m-ti,.m-tbtn.m-an .m-tt { color:#D4537E; }
-    .m-tbtn.m-ar { background:rgba(159,119,221,.12); } .m-tbtn.m-ar .m-ti,.m-tbtn.m-ar .m-tt { color:#9F77DD; }
-    .m-tbtn.m-pe { background:rgba(240,153,74,.12); } .m-tbtn.m-pe .m-ti,.m-tbtn.m-pe .m-tt { color:#F0994A; }
-
-    #canvasArea { flex:1; min-height:0; }
-    #dz { pointer-events:all; cursor:pointer; font-size:16px; color:#3a3a3a; gap:4px; }
     #dz span { display:none; }
-    #dz svg { display:none; }
-    #dzMain { font-size:15px; color:#3a3a3a; }
+    #dz svg  { display:none; }
+    #dzMain  { font-size: 15px; color: #3a3a3a; letter-spacing: .01em; }
     #cv { max-width:100%; max-height:100%; }
 
-    #mobileSheet {
-      display:flex; flex-direction:column;
-      background:#1e1e1e; border-top:0.5px solid #333;
-      flex-shrink:0; z-index:20;
-      transition:height .3s cubic-bezier(.4,0,.2,1);
-      height:64px; overflow:hidden;
+    /* bottom bar — always visible, shows last measure */
+    #mobileBar {
+      display:flex !important; flex-shrink:0;
+      align-items:center; gap:10px;
+      background:#1a1a1a; border-top:0.5px solid #222;
+      padding:10px 14px 14px;
+      position:relative;
     }
-    #mobileSheet.expanded { height:50vh; }
-    #mobileSheetHandle { display:flex; justify-content:center; padding:8px 0 5px; cursor:pointer; flex-shrink:0; }
-    .m-handle-bar { width:32px; height:3px; background:#333; border-radius:2px; }
-    #mobileLastMeas { display:flex; align-items:center; gap:10px; padding:0 14px 10px; flex-shrink:0; cursor:pointer; }
-    #mobileLastMeas .m-chip { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+    /* gradient fade at bottom of canvas hinting scroll */
+    #mobileBar::before {
+      content:'';
+      position:absolute; top:-48px; left:0; right:0; height:48px;
+      background:linear-gradient(to bottom, transparent, rgba(17,17,17,0.9));
+      pointer-events:none;
+    }
+    #mLastChip { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
     #mLastVal { font-size:15px; font-weight:500; }
     #mLastSub { font-size:9px; color:#444; margin-top:1px; }
-    #mSwipeHint { margin-left:auto; font-size:8px; color:#2e2e2e; text-align:right; line-height:1.5; }
+    #mScrollHint { margin-left:auto; font-size:9px; color:#3a3a3a; text-align:right; line-height:1.5; }
 
-    #mobileSheetContent { flex:1; overflow-y:auto; padding:0 14px 16px; }
-    .m-section { font-size:8px; color:#3a3a3a; letter-spacing:.08em; margin:10px 0 6px; }
+    /* SEO section snaps too */
+    #mobileSeoSection { scroll-snap-align: start; }
+
+    /* mobile measurements in SEO area */
+    #mobileMeasSection { display:block; }
     .m-res-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:0.5px solid #222; }
-    .m-res-row:last-child { border:none; }
     .m-res-icon { font-size:12px; width:18px; flex-shrink:0; }
-    .m-res-val { font-size:11px; flex:1; }
+    .m-res-val { font-size:12px; flex:1; }
     .m-res-px { font-size:9px; color:#333; }
-    .m-action-row { display:flex; gap:4px; margin-top:6px; }
-    .m-abtn {
-      flex:1; height:28px; border-radius:6px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:10px; background:#252525; color:#666;
-      border:none; cursor:pointer; font-family:inherit; transition:background .15s;
-    }
-    .m-abtn:active { transform:scale(0.97); }
-    .m-abtn.m-primary { background:rgba(29,158,117,.15); color:#1D9E75; }
+
     #kofiPopup { display:none !important; }
   }
 
@@ -474,7 +453,7 @@
         <circle cx="22" cy="22" r="21" fill="none" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
         <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span id="dzMain">Drop image or .mesuro project here</span>
+      <span id="dzMain">Tap to load image</span>
       <span>or use the buttons above</span>
     </div>
     <canvas id="cv"></canvas>
@@ -520,42 +499,26 @@
     </div>
   </div>
 
-  <!-- mobile bottom sheet (hidden on desktop via CSS) -->
-  <div id="mobileSheet">
-    <div id="mobileSheetHandle" onclick="toggleMobileSheet()">
-      <div class="m-handle-bar"></div>
+  <!-- mobile bottom bar — last measure always visible (hidden on desktop) -->
+  <div id="mobileBar">
+    <div id="mLastChip" style="background:#222;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+      <span id="mLastIcon" style="font-size:10px;color:#333;">—</span>
     </div>
-    <div id="mobileLastMeas" onclick="toggleMobileSheet()">
-      <div class="m-chip" id="mLastChip" style="background:#222;">
-        <span id="mLastIcon" style="font-size:10px;color:#333;">—</span>
-      </div>
-      <div>
-        <div id="mLastVal" style="font-size:13px;color:#444;font-style:italic;">Tap to load image</div>
-        <div id="mLastSub"></div>
-      </div>
-      <div id="mSwipeHint">↑ for more</div>
+    <div style="flex:1;min-width:0;">
+      <div id="mLastVal" style="font-size:13px;font-weight:500;color:#333;font-style:italic;">No measurements yet</div>
+      <div id="mLastSub" style="font-size:9px;color:#444;margin-top:1px;"></div>
     </div>
-    <div id="mobileSheetContent">
-      <div class="m-section">ALL MEASUREMENTS</div>
-      <div id="mResList"></div>
-      <div id="mNoRes" style="font-size:11px;color:#333;padding:4px 0;">No measurements yet</div>
-      <div class="m-section">LOAD</div>
-      <div class="m-action-row">
-        <label class="m-abtn m-primary" style="cursor:pointer;justify-content:center;">
-          Load image
-          <input type="file" id="mFileInput" accept="image/*" style="display:none">
-        </label>
-      </div>
-      <div class="m-section">EXPORT</div>
-      <div class="m-action-row">
-        <button class="m-abtn m-primary" id="mBtnExport" onclick="exportImg()" disabled>Export PNG</button>
-      </div>
-      <div class="m-action-row" style="margin-top:4px;">
-        <button class="m-abtn" id="mBtnUndo" onclick="undoLast()" disabled>↩ Undo</button>
-        <button class="m-abtn" id="mBtnClear" onclick="clearAll()" disabled style="color:#e24b4b;">✕ Clear</button>
-      </div>
-    </div>
+    <div id="mScrollHint" style="font-size:9px;color:#2a2a2a;text-align:right;line-height:1.5;flex-shrink:0;">↓ scroll<br>for more</div>
   </div>
+
+  <!-- hidden inputs for mobile, kept for JS refs -->
+  <input type="file" id="mFileInput" accept="image/*" style="display:none">
+  <div id="mResList" style="display:none"></div>
+  <div id="mNoRes" style="display:none"></div>
+  <div id="mBtnExport" style="display:none"></div>
+  <div id="mBtnUndo" style="display:none"></div>
+  <div id="mBtnClear" style="display:none"></div>
+  <div id="mobileSheet" style="display:none"></div>
 
   <div id="adUnit" style="position:fixed;bottom:24px;right:24px;width:230px;z-index:100;pointer-events:all;display:none">
 
@@ -582,7 +545,20 @@
 </div>
 
 <!-- ── SEO content ── -->
-<div style="max-width:860px;margin:0 auto;padding:60px 32px 80px;font-family:system-ui,-apple-system,sans-serif;color:#bbb;line-height:1.8">
+<div id="mobileSeoSection" style="max-width:860px;margin:0 auto;padding:60px 32px 80px;font-family:system-ui,-apple-system,sans-serif;color:#bbb;line-height:1.8">
+
+  <!-- mobile only: measurements + export at top of scroll zone -->
+  <div id="mobileMeasSection" style="display:none;margin-bottom:40px;">
+    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-bottom:10px;">MEASUREMENTS</div>
+    <div id="mMeasList" style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px;"></div>
+    <div id="mMeasEmpty" style="font-size:13px;color:#333;margin-bottom:16px;">No measurements yet.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="mExportBtn" onclick="exportImg()" disabled style="flex:1;min-width:120px;height:40px;background:#252525;color:#555;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">Export PNG</button>
+      <button id="mUndoBtn" onclick="undoLast()" disabled style="height:40px;width:56px;background:#252525;color:#555;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">↩</button>
+      <button id="mClearBtn" onclick="clearAll()" disabled style="height:40px;width:56px;background:#252525;color:#e24b4b;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">✕</button>
+    </div>
+    <div style="height:1px;background:#222;margin:32px 0;"></div>
+  </div>
 
   <h1 style="font-size:22px;font-weight:600;color:#e0e0e0;margin-bottom:6px">mesu.ro — image measurement tool</h1>
   <p style="font-size:14px;color:#666;margin-bottom:56px">Measure distances, angles, areas and diameters in any image. Set a real-world scale and get precise measurements instantly — no upload, no install, no account.</p>
@@ -1537,127 +1513,76 @@ setTimeout(() => {
 /* ── MOBILE ── */
 const isMob = () => window.innerWidth <= 767;
 
-// mobile file input
+// show/hide mobile elements
+function applyMobileLayout() {
+  const mob = isMob();
+  const bar = document.getElementById('mobileBar');
+  const ms  = document.getElementById('mobileMeasSection');
+  if (bar) bar.style.display = mob ? 'flex' : 'none';
+  if (ms)  ms.style.display  = mob ? 'block' : 'none';
+}
+applyMobileLayout();
+window.addEventListener('resize', applyMobileLayout);
+
+// file inputs
 document.getElementById('mFileInput').onchange = e => {
   if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value=''; }
 };
 
-// tap anywhere on canvas area to load image on mobile when no image
+// tap empty canvas to load
 document.getElementById('canvasArea').addEventListener('click', () => {
   if (isMob() && !img) document.getElementById('mFileInput').click();
 });
 
-// toggle bottom sheet
-function toggleMobileSheet() {
-  if (!isMob()) return;
-  const s = document.getElementById('mobileSheet');
-  s.classList.toggle('expanded');
-}
+function toggleMobileSheet() {}
 
-// swipe handle on sheet content — pull down from top closes sheet
-(function(){
-  let startY = 0;
-  const sc = document.getElementById('mobileSheetContent');
-  const sh = document.getElementById('mobileSheet');
-  if (!sc||!sh) return;
-  sc.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive:true});
-  sc.addEventListener('touchmove', e => {
-    if (!sh.classList.contains('expanded')) return;
-    if (sc.scrollTop === 0 && e.touches[0].clientY - startY > 50) sh.classList.remove('expanded');
-  }, {passive:true});
-})();
-
-// close sheet when tapping canvas
-document.getElementById('cv').addEventListener('click', () => {
-  if (!isMob()) return;
-  const s = document.getElementById('mobileSheet');
-  if (s && s.classList.contains('expanded')) s.classList.remove('expanded');
-}, true);
-
-/* touch events for measurements */
-function getTouchPt(touch) {
-  const rc = cv.getBoundingClientRect();
-  // cv.width is in CSS pixels (we removed dpr scaling to fix coordinate bugs)
-  const x = (touch.clientX - rc.left) * cv.width / rc.width;
-  const y = (touch.clientY - rc.top)  * cv.height / rc.height;
-  return { x: (x - panX)/zoom, y: (y - panY)/zoom };
-}
-
-let touchStartX = 0, touchStartY = 0, touchMoved = false;
-
-cv.addEventListener('touchstart', e => {
-  if (!isMob() || !img) return;
-  const t = e.touches[0];
-  touchStartX = t.clientX; touchStartY = t.clientY; touchMoved = false;
-  const wp = getTouchPt(t);
-  if (mode === 'idle') {
-    const drag = findDrag(wp);
-    if (drag) { pushHistory(); dragState = drag; mode = 'drag'; e.preventDefault(); }
-  }
-}, {passive:false});
-
-cv.addEventListener('touchmove', e => {
-  if (!isMob() || !img) return;
-  const t = e.touches[0];
-  if (Math.abs(t.clientX-touchStartX)>5 || Math.abs(t.clientY-touchStartY)>5) touchMoved = true;
-  if (mode === 'drag' && dragState) {
-    e.preventDefault();
-    applyDrag(getTouchPt(t)); draw(); updUI();
-  } else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) {
-    e.preventDefault();
-    mp = getTouchPt(t); draw();
-  }
-}, {passive:false});
-
-cv.addEventListener('touchend', e => {
-  if (!isMob() || !img) return;
-  if (mode === 'drag') { mode='idle'; dragState=null; updUI(); draw(); return; }
-  if (touchMoved) return; // was a scroll, not a tap
-  // fire a synthetic click at touch position for tool placement
-  const t = e.changedTouches[0];
-  const evt = new MouseEvent('click', {
-    clientX: t.clientX, clientY: t.clientY,
-    bubbles: true, cancelable: true, ctrlKey: false
-  });
-  cv.dispatchEvent(evt);
-}, {passive:true});
-
-
-
-// update mobile last measure + results list
+// update mobile UI
 function updMobile() {
-  if (window.innerWidth > 767) return;
-  const hasImg = !!img, hasSc = !!scFactor;
+  if (!isMob()) return;
+  const hasImg = !!img;
+  const colMap  = {line:'#EF9F27',diam:'#5DCAA5',angle:'#D4537E',area:'#9F77DD',perim:'#F0994A'};
+  const iconMap = {line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠'};
 
-  // sync tool button states
-  const map = [
-    ['mBtnScale', !hasImg], ['mBtnMeasure', !hasSc],
-    ['mBtnDiam', !hasSc], ['mBtnAngle', !hasSc],
-    ['mBtnArea', !hasSc], ['mBtnPerim', !hasSc]
-  ];
-  map.forEach(([id, dis]) => { const b=document.getElementById(id); if(b) b.disabled=dis; });
-  const mb = document.getElementById('mBtnExport');
-  const mu = document.getElementById('mBtnUndo');
-  const mcl = document.getElementById('mBtnClear');
-  if(mb) mb.disabled=!hasImg;
-  if(mu) mu.disabled=!history.length;
-  if(mcl) mcl.disabled=!hasImg;
+  // export/undo/clear buttons
+  const eb = document.getElementById('mExportBtn');
+  const ub = document.getElementById('mUndoBtn');
+  const cb = document.getElementById('mClearBtn');
+  if (eb) { eb.disabled=!hasImg; eb.style.color=hasImg?'#1D9E75':'#555'; eb.style.background=hasImg?'rgba(29,158,117,.15)':'#252525'; }
+  if (ub) { ub.disabled=!history.length; ub.style.color=history.length?'#aaa':'#555'; }
+  if (cb) { cb.disabled=!hasImg; }
 
-  // last measure
+  // measurements list in SEO section
+  const ml = document.getElementById('mMeasList');
+  const me = document.getElementById('mMeasEmpty');
+  if (ml) {
+    ml.innerHTML='';
+    if (me) me.style.display = meas.length ? 'none' : 'block';
+    meas.forEach((m,i) => {
+      const col = colMap[m.type]||'#888';
+      let v='';
+      if(m.type==='line') v=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;
+      else if(m.type==='diam') v=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;
+      else if(m.type==='angle') v=`${m.deg.toFixed(1)}°`;
+      else if(m.type==='area') v=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;
+      else if(m.type==='perim') v=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;
+      const row=document.createElement('div'); row.className='m-res-row';
+      row.innerHTML=`<div class="m-res-icon" style="color:${col}">${iconMap[m.type]||'?'}</div><div class="m-res-val" style="color:${col}">${v}</div>`;
+      ml.appendChild(row);
+    });
+  }
+
+  // bottom bar last measure
   const chip = document.getElementById('mLastChip');
   const icon = document.getElementById('mLastIcon');
   const val  = document.getElementById('mLastVal');
   const sub  = document.getElementById('mLastSub');
-  const hint = document.getElementById('mSwipeHint');
-
+  const sh   = document.getElementById('mScrollHint');
+  if (!chip) return;
   if (meas.length > 0) {
-    const m = meas[meas.length-1], i = meas.length-1;
-    const colMap = {line:'#EF9F27',diam:'#5DCAA5',angle:'#D4537E',area:'#9F77DD',perim:'#F0994A'};
-    const iconMap = {line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠'};
+    const m = meas[meas.length-1], idx=meas.length-1;
     const col = colMap[m.type]||'#888';
-    chip.style.background = col+'22';
-    icon.textContent = iconMap[m.type]||'?';
-    icon.style.color = col; icon.style.fontSize='13px';
+    chip.style.background=col+'22'; icon.textContent=iconMap[m.type]||'?';
+    icon.style.color=col; icon.style.fontSize='13px';
     let v='';
     if(m.type==='line') v=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;
     else if(m.type==='diam') v=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;
@@ -1665,44 +1590,55 @@ function updMobile() {
     else if(m.type==='area') v=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;
     else if(m.type==='perim') v=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;
     val.textContent=v; val.style.color=col; val.style.fontStyle='normal';
-    sub.textContent=`${iconMap[m.type]} #${i+1}`;
-    if(hint) hint.style.color='#2e2e2e';
+    sub.textContent=`${iconMap[m.type]} #${idx+1}`;
+    if(sh){sh.innerHTML='↓ more'; sh.style.color='#3a3a3a';}
   } else if (hasImg) {
     chip.style.background='#222'; icon.textContent='—'; icon.style.color='#333'; icon.style.fontSize='10px';
     val.textContent='No measurements yet'; val.style.color='#444'; val.style.fontStyle='italic';
-    sub.textContent=''; if(hint) hint.style.color='#222';
+    sub.textContent=''; if(sh){sh.innerHTML='↓ more'; sh.style.color='#2e2e2e';}
   } else {
     chip.style.background='#222'; icon.textContent='—'; icon.style.color='#333'; icon.style.fontSize='10px';
-    val.textContent='Tap to load image'; val.style.color='#444'; val.style.fontStyle='italic';
-    sub.textContent=''; if(hint) hint.style.color='#222';
+    val.textContent=''; val.style.color='#333'; val.style.fontStyle='normal';
+    sub.textContent=''; if(sh){sh.innerHTML=''; sh.style.color='#1a1a1a';}
   }
-
-  // results list in sheet
-  const rl = document.getElementById('mResList');
-  const nr = document.getElementById('mNoRes');
-  if (!rl) return;
-  rl.innerHTML='';
-  nr.style.display = meas.length?'none':'block';
-  const colMap2={line:'#EF9F27',diam:'#5DCAA5',angle:'#D4537E',area:'#9F77DD',perim:'#F0994A'};
-  const iconMap2={line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠'};
-  meas.forEach((m,i)=>{
-    const col=colMap2[m.type]||'#888';
-    let v='', px='';
-    if(m.type==='line'){v=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;px=`${Math.round(m.px)}px`;}
-    else if(m.type==='diam'){v=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;px=`${Math.round(m.r*2)}px`;}
-    else if(m.type==='angle'){v=`${m.deg.toFixed(1)}°`;}
-    else if(m.type==='area'){v=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;}
-    else if(m.type==='perim'){v=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;}
-    const row=document.createElement('div'); row.className='m-res-row';
-    row.innerHTML=`<div class="m-res-icon" style="color:${col}">${iconMap2[m.type]||'?'}</div><div class="m-res-val" style="color:${col}">${v}</div><div class="m-res-px">${px}</div>`;
-    rl.appendChild(row);
-  });
 }
 
-// patch updUI to also call updMobile
 const _origUpdUI = updUI;
 window.updUI = function() { _origUpdUI(); updMobile(); };
 updMobile();
+
+/* touch for measurements */
+function getTouchPt(touch) {
+  const rc=cv.getBoundingClientRect();
+  const x=(touch.clientX-rc.left)*cv.width/rc.width;
+  const y=(touch.clientY-rc.top)*cv.height/rc.height;
+  return {x:(x-panX)/zoom, y:(y-panY)/zoom};
+}
+let touchStartX=0, touchStartY=0, touchMoved=false;
+
+cv.addEventListener('touchstart', e => {
+  if (!isMob()||!img) return;
+  const t=e.touches[0]; touchStartX=t.clientX; touchStartY=t.clientY; touchMoved=false;
+  if (mode==='idle') { const d=findDrag(getTouchPt(t)); if(d){pushHistory();dragState=d;mode='drag';e.preventDefault();} }
+}, {passive:false});
+
+cv.addEventListener('touchmove', e => {
+  if (!isMob()||!img) return;
+  const t=e.touches[0];
+  if (Math.abs(t.clientX-touchStartX)>8||Math.abs(t.clientY-touchStartY)>8) touchMoved=true;
+  if (mode==='drag'&&dragState){e.preventDefault();applyDrag(getTouchPt(t));draw();updUI();}
+  else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)){e.preventDefault();mp=getTouchPt(t);draw();}
+}, {passive:false});
+
+cv.addEventListener('touchend', e => {
+  if (!isMob()||!img) return;
+  if (mode==='drag'){mode='idle';dragState=null;updUI();draw();return;}
+  if (touchMoved) return;
+  const t=e.changedTouches[0];
+  cv.dispatchEvent(new MouseEvent('click',{clientX:t.clientX,clientY:t.clientY,bubbles:true,cancelable:true}));
+}, {passive:true});
+
+
 
 
 // clap button
