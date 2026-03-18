@@ -387,13 +387,11 @@
 
     <div id="kofiPopup" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;opacity:0;transition:opacity .5s;pointer-events:none;display:none">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:14px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
-        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' style="display:flex;align-items:center;pointer-events:all">
-          <img height='28' style='border:0;height:28px;display:block' src='https://storage.ko-fi.com/cdn/kofi3.png?v=6' alt='Support mesu.ro on Ko-fi — Buy Me a Coffee'/>
-        </a>
+        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:flex;align-items:center;pointer-events:all;text-decoration:none;font-size:11px;color:#666;white-space:nowrap;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Offer an espresso</a>
         <span style="color:#333;font-size:11px">|</span>
         <div style="display:flex;align-items:center;gap:6px;pointer-events:all">
-          <button id="clapBtn" onclick="doClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s" onmouseenter="this.style.opacity=this.dataset.clapped?1:.7" onmouseleave="this.style.opacity=this.dataset.clapped?1:.45">
-            <svg id="clapSvg" viewBox="0 0 64 64" width="22" height="22" xmlns="http://www.w3.org/2000/svg" fill="none">
+          <button id="clapBtn" onclick="doClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s" onmouseenter="this.style.opacity=this.dataset.clapped?1:.7" onmouseleave="this.style.opacity=this.dataset.clapped?1:.45">
+            <svg id="clapSvg" viewBox="0 0 64 64" width="28" height="28" xmlns="http://www.w3.org/2000/svg" fill="none">
               <!-- back hand — no fill, drawn first -->
               <path d="M47.2,24.83a2.56,2.56,0,0,0-3.47,1L41.84,29.3l-10.6-5.41L35.51,16a3,3,0,0,0-5.23-2.85l-3.46,6.35-.21.38-4.68,8.59-4.16-3.62a4.79,4.79,0,0,0-6.78,0,1.16,1.16,0,0,0,0,1.64l2.34,2.37c3.33,3.36,4,4.66,3.36,8.83l-1,5.83,16.44,9,2-3.77a5.59,5.59,0,0,0,4.48-2.89l8.73-16,.82-1.49A2.56,2.56,0,0,0,47.2,24.83Z" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M34.84,29.72,43.18,14.4a3,3,0,0,0-1.19-4h0a3,3,0,0,0-4,1.19L29.61,26.87" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -626,6 +624,8 @@ ca.addEventListener('drop', e => {
   else if (f.type.startsWith('image/')) loadImg(f);
 });
 
+function t(event) { try { if(typeof umami!=='undefined') umami.track(event); } catch(e){} }
+
 function loadImg(file) {
   const r = new FileReader();
   r.onload = ev => {
@@ -635,6 +635,7 @@ function loadImg(file) {
       meas=[]; history=[]; areaPts=[]; mode='idle'; p0=null; p1=null;
       zoom=1; panX=0; panY=0;
       fitImg();
+      t('load_image');
       document.getElementById('dz').style.display='none';
       const ad = document.getElementById('adUnit');
       if (ad) ad.style.display='none';
@@ -907,11 +908,11 @@ document.addEventListener('keydown', e => {
 /* ── tools ── */
 function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; clearHint(); draw(); updUI(); }
 function doScale()   { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line'); updUI(); }
-function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
-function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
-function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!scFactor)return; stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — Enter to close shape — Esc to save as open path'); updUI(); }
+function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance'); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
+function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter'); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
+function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!scFactor)return; t('tool_angle'); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area'); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter'); stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — Enter to close shape — Esc to save as open path'); updUI(); }
 function closePerim() {
   pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx:polyPerim(areaPts),open:false});
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
@@ -938,7 +939,7 @@ function confirmScale() {
   sv.style.borderColor='';
   scUnit=document.getElementById('sUnit').value.trim()||'mm';
   scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
-  pLine=null; modal.style.display='none'; stopTool();
+  pLine=null; modal.style.display='none'; t('set_scale'); stopTool();
 }
 document.getElementById('sVal').addEventListener('keydown', e => { if(e.key==='Enter')confirmScale(); if(e.key==='Escape')cancelScale(); });
 
@@ -1281,6 +1282,7 @@ function drawMagnifier(scx,scy,wx,wy,col) {
 /* ─── Project save / load ────────────────────────────────────────────────── */
 function saveProject() {
   if (!img) return;
+  t('save_project');
   const ec = document.createElement('canvas');
   ec.width = img.width; ec.height = img.height;
   ec.getContext('2d').drawImage(img, 0, 0);
@@ -1335,6 +1337,7 @@ function hideProjTip()    { const t=document.getElementById('projTip'); if(t) t.
 /* ── export PNG ── */
 function exportImg() {
   if (!img) return;
+  t('export_'+document.getElementById('exportFmt').value);
   const fmt = document.getElementById('exportFmt').value;
   const mime = fmt==='jpg'?'image/jpeg':fmt==='webp'?'image/webp':'image/png';
   const quality = fmt==='jpg'?0.92:fmt==='webp'?0.92:1;
@@ -1365,6 +1368,7 @@ function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strok
 /* ── export CSV ── */
 function exportCSV() {
   if (!meas.length) return;
+  t('export_csv');
   const ir=img.width/cv.width, ir2=img.height/cv.height;
   const rows=[['#','type','value','unit','px_value','x1','y1','x2','y2','cx','cy','radius_px','vertex_x','vertex_y','arm1_x','arm1_y','arm2_x','arm2_y','area_pts']];
   meas.forEach((m,i)=>{
@@ -1406,7 +1410,7 @@ function doClap() {
   setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
   btn.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
   localStorage.setItem('mesu_clapped', '1');
-  if (typeof umami !== 'undefined') umami.track('clap');
+  t('clap');
 }
 </script>
 </body>
