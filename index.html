@@ -232,6 +232,11 @@
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; scroll-snap-align: start; scroll-snap-stop: always; }
     #sidebar { display: none; }
     #mobileTopbar { display: flex; align-items:center; background:#242424; border-bottom:0.5px solid #2a2a2a; flex-shrink:0; z-index:20; }
+    @keyframes mScalePulse {
+      0%,100% { box-shadow: 0 0 0 1.5px #1D9E75; }
+      50%      { box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
+    }
+    #mBtnScale.needs-scale { animation: mScalePulse 1.6s ease-in-out infinite; }
     #mobileBar    { display: flex !important; }
     #mobileLogoSection { padding:8px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; }
     #mobileLogo { font-size:14px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
@@ -264,9 +269,9 @@
       flex-direction: column;
       gap: 0;
     }
-    #dz span { display:none; }
-    #dz svg  { display:none; }
-    #dzMain  { font-size: 15px; color: #3a3a3a; letter-spacing: .01em; }
+    #dz span:not(#dzMain) { display:none; }
+    #dz svg  { display:block; opacity:.35; }
+    #dzMain  { font-size: 16px; color: #888; letter-spacing: .01em; }
     #cv { max-width:100%; max-height:100%; }
 
     /* bottom bar — always visible, shows last measure */
@@ -1545,19 +1550,43 @@ document.getElementById('mFileInput').onchange = e => {
   if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value=''; }
 };
 
-// tap empty canvas to load
-document.getElementById('canvasArea').addEventListener('click', () => {
-  if (isMob() && !img) document.getElementById('mFileInput').click();
-});
+// tap empty canvas to load — touch devices only
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  document.getElementById('canvasArea').addEventListener('click', e => {
+    if (!img && e.target !== cv) document.getElementById('mFileInput').click();
+  });
+}
 
 function toggleMobileSheet() {}
 
 // update mobile UI
 function updMobile() {
   if (!isMob()) return;
-  const hasImg = !!img;
+  const hasImg = !!img, hasSc = !!scFactor;
   const colMap  = {line:'#EF9F27',diam:'#5DCAA5',angle:'#D4537E',area:'#9F77DD',perim:'#F0994A'};
   const iconMap = {line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠'};
+
+  // sync mobile tool buttons
+  const ids = ['mBtnScale','mBtnMeasure','mBtnDiam','mBtnAngle','mBtnArea','mBtnPerim'];
+  const dis  = [!hasImg,    !hasSc,       !hasSc,    !hasSc,     !hasSc,    !hasSc];
+  ids.forEach((id,i) => { const b=document.getElementById(id); if(b) b.disabled=dis[i]; });
+
+  // pulse Scale button when image loaded but no scale yet
+  const scBtn = document.getElementById('mBtnScale');
+  if (scBtn) {
+    if (hasImg && !hasSc) {
+      scBtn.classList.add('needs-scale');
+      scBtn.style.background = 'rgba(29,158,117,.3)';
+      scBtn.querySelector('.m-ti').style.color = '#1D9E75';
+      scBtn.querySelector('.m-tt').style.color = '#1D9E75';
+    } else {
+      scBtn.classList.remove('needs-scale');
+      scBtn.style.background = '';
+      scBtn.style.boxShadow  = '';
+      scBtn.querySelector('.m-ti').style.color = '';
+      scBtn.querySelector('.m-tt').style.color = '';
+    }
+  }
 
   // export/undo/clear buttons
   const eb = document.getElementById('mExportBtn');
@@ -1609,9 +1638,10 @@ function updMobile() {
     sub.textContent=`${iconMap[m.type]} #${idx+1}`;
     if(sh){sh.innerHTML='↓ more'; sh.style.color='#3a3a3a';}
   } else if (hasImg) {
-    chip.style.background='#222'; icon.textContent='—'; icon.style.color='#333'; icon.style.fontSize='10px';
-    val.textContent='No measurements yet'; val.style.color='#444'; val.style.fontStyle='italic';
-    sub.textContent=''; if(sh){sh.innerHTML='↓ more'; sh.style.color='#2e2e2e';}
+    chip.style.background = 'rgba(29,158,117,.15)';
+    icon.textContent = '⊘'; icon.style.color = '#1D9E75'; icon.style.fontSize = '13px';
+    val.textContent = 'Set scale first'; val.style.color = '#1D9E75'; val.style.fontStyle = 'italic';
+    sub.textContent = ''; if(sh){sh.innerHTML='↓ more'; sh.style.color='#2e2e2e';}
   } else {
     chip.style.background='#222'; icon.textContent='—'; icon.style.color='#333'; icon.style.fontSize='10px';
     val.textContent=''; val.style.color='#333'; val.style.fontStyle='normal';
@@ -1630,16 +1660,28 @@ function getTouchPt(touch) {
   const y=(touch.clientY-rc.top)*cv.height/rc.height;
   return {x:(x-panX)/zoom, y:(y-panY)/zoom};
 }
-let touchStartX=0, touchStartY=0, touchMoved=false;
+
+let touchStartX=0, touchStartY=0, touchMoved=false, lastTouchEnd=0;
+
+// Only wire touch logic on real touch-capable devices
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+
+// block browser ghost click that fires ~300ms after touchend
+cv.addEventListener('click', e => {
+  if (Date.now()-lastTouchEnd < 600) { e.stopImmediatePropagation(); e.preventDefault(); }
+}, true);
 
 cv.addEventListener('touchstart', e => {
-  if (!isMob()||!img) return;
+  if (!img) return;
   const t=e.touches[0]; touchStartX=t.clientX; touchStartY=t.clientY; touchMoved=false;
-  if (mode==='idle') { const d=findDrag(getTouchPt(t)); if(d){pushHistory();dragState=d;mode='drag';e.preventDefault();} }
+  if (mode==='idle') {
+    const d=findDrag(getTouchPt(t));
+    if(d){pushHistory();dragState=d;mode='drag';e.preventDefault();}
+  }
 }, {passive:false});
 
 cv.addEventListener('touchmove', e => {
-  if (!isMob()||!img) return;
+  if (!img) return;
   const t=e.touches[0];
   if (Math.abs(t.clientX-touchStartX)>8||Math.abs(t.clientY-touchStartY)>8) touchMoved=true;
   if (mode==='drag'&&dragState){e.preventDefault();applyDrag(getTouchPt(t));draw();updUI();}
@@ -1647,12 +1689,56 @@ cv.addEventListener('touchmove', e => {
 }, {passive:false});
 
 cv.addEventListener('touchend', e => {
-  if (!isMob()||!img) return;
+  if (!img) return;
+  lastTouchEnd=Date.now();
   if (mode==='drag'){mode='idle';dragState=null;updUI();draw();return;}
   if (touchMoved) return;
-  const t=e.changedTouches[0];
-  cv.dispatchEvent(new MouseEvent('click',{clientX:t.clientX,clientY:t.clientY,bubbles:true,cancelable:true}));
-}, {passive:true});
+
+  e.preventDefault();
+  const touch=e.changedTouches[0];
+  const p=getTouchPt(touch);
+
+  if (mode==='idle'||mode==='wait'||spaceDown) return;
+
+  if (mode==='sa') { p0=p; mode='sb'; setHint('Tap end point — Esc'); }
+  else if (mode==='sb') {
+    if (dst(p0,p)<3/zoom) return;
+    pLine={x1:p0.x,y1:p0.y,x2:p.x,y2:p.y}; mode='wait'; p0=null; mp=null; draw(); showModal();
+  }
+  else if (mode==='ma') { p0=p; mode='mb'; setHint('Tap end point — Esc'); }
+  else if (mode==='mb') {
+    if (dst(p0,p)<3/zoom) return;
+    pushHistory(); meas.push({type:'line',x1:p0.x,y1:p0.y,x2:p.x,y2:p.y,px:dst(p0,p)});
+    p0=null; mp=null; stopTool(); draw(); updUI();
+  }
+  else if (mode==='da') { p0=p; mode='db'; setHint('Tap edge point — Esc'); }
+  else if (mode==='db') {
+    if (dst(p0,p)<3/zoom) return;
+    pushHistory();
+    const r=dst(p0,p), x2=p0.x-(p.x-p0.x), y2=p0.y-(p.y-p0.y);
+    meas.push({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2,y2});
+    p0=null; mp=null; stopTool(); draw(); updUI();
+  }
+  else if (mode==='aa') { p0=p; mode='ab'; setHint('Tap vertex — Esc'); }
+  else if (mode==='ab') { if(dst(p0,p)<3/zoom)return; p1=p; mode='ac'; setHint('Tap second arm — Esc'); }
+  else if (mode==='ac') {
+    if (dst(p1,p)<3/zoom) return;
+    pushHistory(); meas.push({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)});
+    p0=null; p1=null; mp=null; stopTool(); draw(); updUI();
+  }
+  else if (mode==='pa') {
+    if (areaPts.length>=3) { const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y); if(dst(c0,cm)<DRAG_R){closeArea();return;} }
+    areaPts.push(p); setHint(`${areaPts.length} pt${areaPts.length>1?'s':''} — tap start to close — Esc`); draw();
+  }
+  else if (mode==='pp') {
+    if (areaPts.length>=3) { const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y); if(dst(c0,cm)<DRAG_R){closePerim();return;} }
+    areaPts.push(p); setHint(`${areaPts.length} pt${areaPts.length>1?'s':''} — tap start to close — Esc`); draw();
+  }
+}, {passive:false});
+
+} // end touch-device block
+
+
 
 
 
