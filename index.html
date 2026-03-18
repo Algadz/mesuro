@@ -21,8 +21,6 @@
 <meta name="twitter:title" content="mesu.ro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Distances, angles, areas. No upload, no install.">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
-<link rel="stylesheet" href="https://unpkg.com/applause-button/dist/applause-button.css">
-<script src="https://unpkg.com/applause-button/dist/applause-button.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -259,9 +257,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  applause-button svg { fill: #444 !important; }
-  applause-button.clapped svg { fill: #1D9E75 !important; }
-  applause-button .shockwave { border-color: #1D9E75 !important; }
+
 </style>
 </head>
 <body>
@@ -396,10 +392,21 @@
         </a>
         <span style="color:#333;font-size:11px">|</span>
         <div style="display:flex;align-items:center;gap:6px;pointer-events:all">
-          <div style="width:22px;height:22px;overflow:hidden;position:relative;flex-shrink:0">
-            <applause-button color="#555" multiclap="true" url="https://mesu.ro/" style="width:22px;height:22px;position:absolute;bottom:0"></applause-button>
-          </div>
-          <span id="applauseCount" style="font-size:10px;color:#555">0</span>
+          <button id="clapBtn" onclick="doClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s" onmouseenter="this.style.opacity=this.dataset.clapped?1:.7" onmouseleave="this.style.opacity=this.dataset.clapped?1:.45">
+            <svg id="clapSvg" viewBox="0 0 64 64" width="22" height="22" xmlns="http://www.w3.org/2000/svg" fill="none">
+              <!-- back hand — no fill, drawn first -->
+              <path d="M47.2,24.83a2.56,2.56,0,0,0-3.47,1L41.84,29.3l-10.6-5.41L35.51,16a3,3,0,0,0-5.23-2.85l-3.46,6.35-.21.38-4.68,8.59-4.16-3.62a4.79,4.79,0,0,0-6.78,0,1.16,1.16,0,0,0,0,1.64l2.34,2.37c3.33,3.36,4,4.66,3.36,8.83l-1,5.83,16.44,9,2-3.77a5.59,5.59,0,0,0,4.48-2.89l8.73-16,.82-1.49A2.56,2.56,0,0,0,47.2,24.83Z" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M34.84,29.72,43.18,14.4a3,3,0,0,0-1.19-4h0a3,3,0,0,0-4,1.19L29.61,26.87" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- front hand — fill bg to occlude back hand, drawn on top -->
+              <path d="M56.84,29a2.54,2.54,0,0,0-3.59.33l-2.53,3L41.37,25l5.71-6.87a3,3,0,0,0-4.58-3.81l-4.62,5.56-.28.33-6.25,7.52L28,23.38A4.8,4.8,0,0,0,21.31,22,1.16,1.16,0,0,0,21,23.64l1.83,2.77c2.62,3.95,3,5.35,1.59,9.32l-2.1,5.53,14.4,12,2.74-3.3a5.56,5.56,0,0,0,5-2l11.67-14,1.09-1.31A2.54,2.54,0,0,0,56.84,29Z" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M43.77,31.44,54.93,18a3,3,0,0,0-.39-4.2h0a3,3,0,0,0-4.19.39L39.19,27.63" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M48.54,35,57.85,23.8a2.76,2.76,0,0,0-.71-3.8h0a2.77,2.77,0,0,0-3.87,0L44,31.18" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- sparkles -->
+              <line x1="26.29" y1="11.33" x2="20.2" y2="9.33" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+              <line x1="27.71" y1="8.01" x2="24.97" y2="3.83" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+              <line x1="31.31" y1="8.05" x2="32.61" y2="1.82" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -1379,34 +1386,28 @@ setTimeout(() => {
   if (p) { p.style.display='block'; requestAnimationFrame(() => { p.style.opacity='1'; p.style.pointerEvents='all'; }); }
 }, 400);
 
-// fetch applause count + hide shadow DOM native counter
-function loadApplauseCount() {
-  fetch('https://api.applause-button.com/get-claps?url=mesu.ro/', {referrer:'https://mesu.ro/', referrerPolicy:'unsafe-url'})
-    .then(r=>r.text()).then(n=>{
-      const el=document.getElementById('applauseCount');
-      const v=parseInt(n);
-      if(el && !isNaN(v)) el.textContent=v;
-    }).catch(()=>{});
-}
-loadApplauseCount();
-setTimeout(()=>{
-  const ab=document.querySelector('applause-button');
-  if(!ab) return;
-  function hideCount(){
-    if(ab.shadowRoot){
-      // inject persistent style
-      if(!ab.shadowRoot.querySelector('#hide-count')){
-        const st=document.createElement('style');
-        st.id='hide-count';
-        st.textContent='.count-container{display:none!important;visibility:hidden!important}';
-        ab.shadowRoot.appendChild(st);
-      }
+// clap button
+(function(){
+  const clapped = localStorage.getItem('mesu_clapped');
+  if (clapped) {
+    const btn = document.getElementById('clapBtn');
+    if (btn) {
+      btn.dataset.clapped='1'; btn.style.opacity='1';
+      btn.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
     }
   }
-  hideCount();
-  if(ab.shadowRoot) new MutationObserver(hideCount).observe(ab.shadowRoot,{childList:true,subtree:true});
-  ab.addEventListener('clapped',()=>setTimeout(loadApplauseCount,600));
-},800);
+})();
+function doClap() {
+  const btn = document.getElementById('clapBtn');
+  if (!btn) return;
+  btn.dataset.clapped = '1';
+  btn.style.opacity = '1';
+  btn.style.transform = 'scale(1.3)';
+  setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
+  btn.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
+  localStorage.setItem('mesu_clapped', '1');
+  if (typeof umami !== 'undefined') umami.track('clap');
+}
 </script>
 </body>
 </html>
