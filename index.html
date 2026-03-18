@@ -227,8 +227,9 @@
   #resList::-webkit-scrollbar-thumb:hover { background: #555; }
   #mobileTopbar { display: none; }
   #mobileSheet  { display: none; }
-
   @media (max-width: 767px) {
+    #mobileTopbar { display: flex !important; }
+    #mobileSheet  { display: flex !important; }
     body { height: auto; overflow-y: auto; }
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
     body.m-noscroll { overflow:hidden; overscroll-behavior-y: contain; }
