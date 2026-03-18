@@ -231,7 +231,7 @@
   @media (max-width: 767px) {
     body { height: auto; overflow-y: auto; }
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
-    body.m-noscroll { overflow:hidden; touch-action:none; }
+    body.m-noscroll { overflow:hidden; }
     #sidebar { display: none; }
 
     #mobileTopbar {
@@ -250,14 +250,14 @@
 
     .m-tbtn {
       display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:2px; padding:4px 7px; border-radius:6px; cursor:pointer; flex-shrink:0;
+      gap:3px; padding:6px 10px; border-radius:7px; cursor:pointer; flex-shrink:0;
       border:none; background:#2a2a2a; transition:background .15s;
       width:auto; text-align:center; font-family:inherit;
     }
     .m-tbtn:disabled { opacity:.35; cursor:default; }
     .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
-    .m-tbtn .m-ti { font-size:14px; line-height:1; color:#666; }
-    .m-tbtn .m-tt { font-size:8px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
+    .m-tbtn .m-ti { font-size:18px; line-height:1; color:#666; }
+    .m-tbtn .m-tt { font-size:9px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
     .m-tbtn.m-sc { background:rgba(29,158,117,.15); } .m-tbtn.m-sc .m-ti,.m-tbtn.m-sc .m-tt { color:#1D9E75; }
     .m-tbtn.m-di { background:rgba(239,159,39,.18); } .m-tbtn.m-di .m-ti,.m-tbtn.m-di .m-tt { color:#EF9F27; }
     .m-tbtn.m-dm { background:rgba(93,202,165,.12); } .m-tbtn.m-dm .m-ti,.m-tbtn.m-dm .m-tt { color:#5DCAA5; }
@@ -266,9 +266,10 @@
     .m-tbtn.m-pe { background:rgba(240,153,74,.12); } .m-tbtn.m-pe .m-ti,.m-tbtn.m-pe .m-tt { color:#F0994A; }
 
     #canvasArea { flex:1; min-height:0; }
+    #dz { font-size:16px; color:#3a3a3a; gap:4px; }
+    #dz span { display:none; }
     #dz svg { display:none; }
-    #dz { font-size:14px; color:#3a3a3a; gap:4px; }
-    #dz span { font-size:11px; color:#2e2e2e; }
+    #dzMain { font-size:15px; color:#3a3a3a; }
 
     #mobileSheet {
       display:flex; flex-direction:column;
@@ -543,21 +544,14 @@
           Load image
           <input type="file" id="mFileInput" accept="image/*" style="display:none">
         </label>
-        <button class="m-abtn" onclick="document.getElementById('projectInput').click()">Load .mesuro</button>
       </div>
-      <div class="m-section">EXPORT & SAVE</div>
+      <div class="m-section">EXPORT</div>
       <div class="m-action-row">
-        <button class="m-abtn m-primary" id="mBtnExport" onclick="exportImg()" disabled>PNG</button>
-        <button class="m-abtn" onclick="exportImg('jpg')" disabled>JPG</button>
-        <button class="m-abtn" id="mBtnExportCsv" onclick="exportCSV()" disabled>CSV</button>
-        <button class="m-abtn" id="mBtnSave" onclick="saveProject()" disabled>💾</button>
+        <button class="m-abtn m-primary" id="mBtnExport" onclick="exportImg()" disabled>Export PNG</button>
       </div>
       <div class="m-action-row" style="margin-top:4px;">
         <button class="m-abtn" id="mBtnUndo" onclick="undoLast()" disabled>↩ Undo</button>
         <button class="m-abtn" id="mBtnClear" onclick="clearAll()" disabled style="color:#e24b4b;">✕ Clear</button>
-      </div>
-      <div class="m-action-row" style="margin-top:4px;">
-        <button class="m-abtn" onclick="scrollToSEO()" style="color:#444;">↓ How it works</button>
       </div>
     </div>
   </div>
@@ -765,11 +759,6 @@ ca.addEventListener('drop', e => {
   else if (f.type.startsWith('image/')) loadImg(f);
 });
 
-function scrollToSEO() {
-  document.body.classList.remove('m-noscroll');
-  const seo = document.querySelector('#app + div') || document.querySelector('[style*="max-width:860px"]');
-  if (seo) seo.scrollIntoView({ behavior: 'smooth' });
-}
 
 function loadImg(file) {
   const r = new FileReader();
@@ -1560,10 +1549,19 @@ document.getElementById('dz').addEventListener('click', () => {
   if (window.innerWidth <= 767) document.getElementById('mFileInput').click();
 });
 
-// toggle bottom sheet — unlock scroll when SEO area is accessible
+// toggle bottom sheet — unlock body scroll when expanded so user can scroll to SEO
 function toggleMobileSheet() {
   const s = document.getElementById('mobileSheet');
+  const expanding = !s.classList.contains('expanded');
   s.classList.toggle('expanded');
+  if (expanding) {
+    // after animation, unlock body scroll
+    setTimeout(() => { document.body.classList.remove('m-noscroll'); }, 320);
+  } else {
+    document.body.classList.add('m-noscroll');
+    // scroll back to top
+    window.scrollTo({ top: 0 });
+  }
 }
 
 // close sheet on canvas tap (when expanded)
@@ -1626,12 +1624,10 @@ function updMobile() {
   ];
   map.forEach(([id, dis]) => { const b=document.getElementById(id); if(b) b.disabled=dis; });
   const mb = document.getElementById('mBtnExport');
-  const ms = document.getElementById('mBtnSave');
-  const mc = document.getElementById('mBtnExportCsv');
   const mu = document.getElementById('mBtnUndo');
   const mcl = document.getElementById('mBtnClear');
-  if(mb) mb.disabled=!hasImg; if(ms) ms.disabled=!hasImg;
-  if(mc) mc.disabled=!hasImg; if(mu) mu.disabled=!history.length;
+  if(mb) mb.disabled=!hasImg;
+  if(mu) mu.disabled=!history.length;
   if(mcl) mcl.disabled=!hasImg;
 
   // last measure
