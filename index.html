@@ -231,8 +231,24 @@
     body { height: auto; overflow-y: auto; scroll-snap-type: y proximity; }
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; scroll-snap-align: start; scroll-snap-stop: always; }
     #sidebar { display: none; }
-    #mobileTopbar { display: none !important; }
-    #mobileSheet  { display: none !important; }
+    #mobileTopbar { display: flex; align-items:center; background:#242424; border-bottom:0.5px solid #2a2a2a; flex-shrink:0; z-index:20; }
+    #mobileBar    { display: flex !important; }
+    #mobileLogoSection { padding:8px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; }
+    #mobileLogo { font-size:14px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
+    #mobileLogo span { color:#444; }
+    #mobileToolsScroll { display:flex; align-items:center; gap:3px; padding:6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; }
+    #mobileToolsScroll::-webkit-scrollbar { display:none; }
+    .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:6px 10px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
+    .m-tbtn:disabled { opacity:.35; cursor:default; }
+    .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
+    .m-tbtn .m-ti { font-size:18px; line-height:1; color:#666; }
+    .m-tbtn .m-tt { font-size:9px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
+    .m-tbtn.m-sc { background:rgba(29,158,117,.15); } .m-tbtn.m-sc .m-ti,.m-tbtn.m-sc .m-tt { color:#1D9E75; }
+    .m-tbtn.m-di { background:rgba(239,159,39,.18); } .m-tbtn.m-di .m-ti,.m-tbtn.m-di .m-tt { color:#EF9F27; }
+    .m-tbtn.m-dm { background:rgba(93,202,165,.12); } .m-tbtn.m-dm .m-ti,.m-tbtn.m-dm .m-tt { color:#5DCAA5; }
+    .m-tbtn.m-an { background:rgba(212,83,126,.12); } .m-tbtn.m-an .m-ti,.m-tbtn.m-an .m-tt { color:#D4537E; }
+    .m-tbtn.m-ar { background:rgba(159,119,221,.12); } .m-tbtn.m-ar .m-ti,.m-tbtn.m-ar .m-tt { color:#9F77DD; }
+    .m-tbtn.m-pe { background:rgba(240,153,74,.12); } .m-tbtn.m-pe .m-ti,.m-tbtn.m-pe .m-tt { color:#F0994A; }
 
     #canvasArea { flex:1; min-height:0; position:relative; cursor:pointer; }
 
