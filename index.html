@@ -230,7 +230,8 @@
 
   @media (max-width: 767px) {
     body { height: auto; overflow-y: auto; }
-    #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; }
+    #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
+    body.m-noscroll { overflow:hidden; touch-action:none; }
     #sidebar { display: none; }
 
     #mobileTopbar {
@@ -555,6 +556,9 @@
         <button class="m-abtn" id="mBtnUndo" onclick="undoLast()" disabled>↩ Undo</button>
         <button class="m-abtn" id="mBtnClear" onclick="clearAll()" disabled style="color:#e24b4b;">✕ Clear</button>
       </div>
+      <div class="m-action-row" style="margin-top:4px;">
+        <button class="m-abtn" onclick="scrollToSEO()" style="color:#444;">↓ How it works</button>
+      </div>
     </div>
   </div>
 
@@ -761,7 +765,11 @@ ca.addEventListener('drop', e => {
   else if (f.type.startsWith('image/')) loadImg(f);
 });
 
-function t(event) { try { if(typeof umami!=='undefined') umami.track(event); } catch(e){} }
+function scrollToSEO() {
+  document.body.classList.remove('m-noscroll');
+  const seo = document.querySelector('#app + div') || document.querySelector('[style*="max-width:860px"]');
+  if (seo) seo.scrollIntoView({ behavior: 'smooth' });
+}
 
 function loadImg(file) {
   const r = new FileReader();
@@ -786,10 +794,12 @@ function loadImg(file) {
 }
 
 function fitImg() {
-  const aw=ca.clientWidth-20, ah=ca.clientHeight-20;
-  const r=Math.min(aw/img.width, ah/img.height, 1);
-  cv.width=Math.round(img.width*r); cv.height=Math.round(img.height*r);
-  cv.style.display='block'; draw();
+  const isMobile = window.innerWidth <= 767;
+  const pad = isMobile ? 0 : 20;
+  const aw = ca.clientWidth - pad, ah = ca.clientHeight - pad;
+  const r = Math.min(aw / img.width, ah / img.height, 1);
+  cv.width = Math.round(img.width * r); cv.height = Math.round(img.height * r);
+  cv.style.display = 'block'; draw();
 }
 
 /* ── coords ── */
@@ -951,17 +961,20 @@ cv.addEventListener('click', e => {
     const sp=snapPoint(p0,p,e);
     if (dst(p0,sp)<5/zoom) return;
     pushHistory(); meas.push({type:'line',x1:p0.x,y1:p0.y,x2:sp.x,y2:sp.y,px:dst(p0,sp)});
-    p0=null; mp=null; mode='ma'; setHint('Click next start — Esc to stop'); draw(); updUI();
+    p0=null; mp=null;
+    if (window.innerWidth<=767) { stopTool(); } else { mode='ma'; setHint('Click next start — Esc to stop'); }
+    draw(); updUI();
   }
   else if (mode==='da') { p0=p; mode='db'; setHint('Click edge point for radius — Esc'); }
   else if (mode==='db') {
     if (dst(p0,p)<5/zoom) return;
     pushHistory();
     const r=dst(p0,p);
-    // store center=p0, edge=p, compute second edge point as opposite
     const x2=p0.x-(p.x-p0.x), y2=p0.y-(p.y-p0.y);
     meas.push({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2,y2});
-    p0=null; mp=null; mode='da'; setHint('Click next — Esc to stop'); draw(); updUI();
+    p0=null; mp=null;
+    if (window.innerWidth<=767) { stopTool(); } else { mode='da'; setHint('Click next — Esc to stop'); }
+    draw(); updUI();
   }
   else if (mode==='aa') { p0=p; mode='ab'; setHint('Click vertex — Esc'); }
   else if (mode==='ab') {
@@ -971,7 +984,9 @@ cv.addEventListener('click', e => {
   else if (mode==='ac') {
     if (dst(p1,p)<5/zoom) return;
     pushHistory(); meas.push({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)});
-    p0=null; p1=null; mp=null; mode='aa'; setHint('Click next — Esc to stop'); draw(); updUI();
+    p0=null; p1=null; mp=null;
+    if (window.innerWidth<=767) { stopTool(); } else { mode='aa'; setHint('Click next — Esc to stop'); }
+    draw(); updUI();
   }
   else if (mode==='pa') {
     if (areaPts.length>=3) {
@@ -1528,6 +1543,13 @@ setTimeout(() => {
 }, 400);
 
 /* ── MOBILE ── */
+// lock body scroll on mobile by default
+if (window.innerWidth <= 767) document.body.classList.add('m-noscroll');
+window.addEventListener('resize', () => {
+  if (window.innerWidth <= 767) document.body.classList.add('m-noscroll');
+  else document.body.classList.remove('m-noscroll');
+});
+
 // mobile file input
 document.getElementById('mFileInput').onchange = e => {
   if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value=''; }
@@ -1538,7 +1560,7 @@ document.getElementById('dz').addEventListener('click', () => {
   if (window.innerWidth <= 767) document.getElementById('mFileInput').click();
 });
 
-// toggle bottom sheet
+// toggle bottom sheet — unlock scroll when SEO area is accessible
 function toggleMobileSheet() {
   const s = document.getElementById('mobileSheet');
   s.classList.toggle('expanded');
@@ -1549,6 +1571,47 @@ document.getElementById('cv').addEventListener('click', () => {
   const s = document.getElementById('mobileSheet');
   if (s.classList.contains('expanded')) s.classList.remove('expanded');
 }, true);
+
+/* ── TOUCH DRAG for mobile measurements ── */
+function getTouchPt(e) {
+  const t = e.touches[0] || e.changedTouches[0];
+  const rc = cv.getBoundingClientRect();
+  const cx = (t.clientX - rc.left) * cv.width / rc.width;
+  const cy = (t.clientY - rc.top) * cv.height / rc.height;
+  return { x: (cx - panX) / zoom, y: (cy - panY) / zoom };
+}
+
+cv.addEventListener('touchstart', e => {
+  if (!img || window.innerWidth > 767) return;
+  e.preventDefault();
+  const wp = getTouchPt(e);
+  if (mode === 'idle') {
+    const t = findDrag(wp);
+    if (t) { pushHistory(); dragState = t; mode = 'drag'; }
+  }
+}, { passive: false });
+
+cv.addEventListener('touchmove', e => {
+  if (!img || window.innerWidth > 767) return;
+  e.preventDefault();
+  const wp = getTouchPt(e);
+  if (mode === 'drag' && dragState) { applyDrag(wp); draw(); updUI(); return; }
+  const dm = ['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
+  if (dm.includes(mode)) { mp = wp; draw(); }
+}, { passive: false });
+
+cv.addEventListener('touchend', e => {
+  if (!img || window.innerWidth > 767) return;
+  e.preventDefault();
+  if (mode === 'drag') { mode = 'idle'; dragState = null; updUI(); draw(); return; }
+  // simulate click for tool placement
+  const wp = getTouchPt(e);
+  const synth = { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY, button: 0, ctrlKey: false, metaKey: false };
+  // trigger the existing click logic by dispatching
+  const clickEvt = new MouseEvent('click', { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY, bubbles: true });
+  cv.dispatchEvent(clickEvt);
+}, { passive: false });
+
 
 // update mobile last measure + results list
 function updMobile() {
