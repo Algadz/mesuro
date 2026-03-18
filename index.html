@@ -21,6 +21,8 @@
 <meta name="twitter:title" content="mesu.ro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Distances, angles, areas. No upload, no install.">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
+<link rel="stylesheet" href="https://unpkg.com/applause-button/dist/applause-button.css">
+<script src="https://unpkg.com/applause-button/dist/applause-button.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -46,8 +48,8 @@
   }
 
   #sidebar {
-    width: 200px;
-    min-width: 200px;
+    width: 220px;
+    min-width: 220px;
     background: #242424;
     border-right: 1px solid #333;
     display: flex;
@@ -83,7 +85,7 @@
   button:active:not(:disabled) { transform: scale(0.98); }
   button:disabled { opacity: .4; cursor: default; }
 
-  
+
 
   #canvasArea {
     flex: 1;
@@ -257,6 +259,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  applause-button .count-container { color: #555 !important; font-size: 10px !important; font-family: system-ui,-apple-system,sans-serif !important; }
+  applause-button svg { fill: #444 !important; }
+  applause-button.clapped svg { fill: #1D9E75 !important; }
+  applause-button .shockwave { border-color: #1D9E75 !important; }
 </style>
 </head>
 <body>
@@ -329,12 +335,16 @@
 
     <div>
       <div class="slbl">MEASURE</div>
-      <button id="btnMeasure" onclick="doMeasure()" disabled>↔ Distance <span class="kbd">L</span></button>
-      <div class="btn-row" style="margin-top:6px">
-        <button id="btnDiam"  onclick="doDiam()"  disabled>⌀ <span class="kbd">D</span></button>
-        <button id="btnAngle" onclick="doAngle()" disabled>∠ <span class="kbd">A</span></button>
-        <button id="btnArea"  onclick="doArea()"  disabled>⬡ <span class="kbd">R</span></button>
-        <button id="btnPerim" onclick="doPerim()" disabled>⬠ <span class="kbd">P</span></button>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div class="btn-row">
+          <button id="btnMeasure" onclick="doMeasure()" disabled style="flex:1;font-size:11px">↔ Distance <span class="kbd">L</span></button>
+          <button id="btnDiam"    onclick="doDiam()"    disabled style="flex:1;font-size:11px">⌀ Diameter <span class="kbd">D</span></button>
+        </div>
+        <div class="btn-row">
+          <button id="btnAngle" onclick="doAngle()" disabled style="flex:1;font-size:11px">∠ Angle <span class="kbd">A</span></button>
+          <button id="btnArea"  onclick="doArea()"  disabled style="flex:1;font-size:11px">⬡ Area <span class="kbd">R</span></button>
+        </div>
+        <button id="btnPerim" onclick="doPerim()" disabled style="font-size:11px">⬠ Perimeter / path <span class="kbd">P</span></button>
       </div>
     </div>
 
@@ -381,11 +391,16 @@
     <div id="toast"></div>
 
     <div id="kofiPopup" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;opacity:0;transition:opacity .5s;pointer-events:none;display:none">
-      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
+      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:14px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
         <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' style="display:flex;align-items:center;pointer-events:all">
           <img height='28' style='border:0;height:28px;display:block' src='https://storage.ko-fi.com/cdn/kofi3.png?v=6' alt='Support mesu.ro on Ko-fi — Buy Me a Coffee'/>
         </a>
-        <span style="font-size:11px;color:#666">☕ <span id="coffeeCount" style="color:#888">0</span> offered</span>
+        <span style="font-size:11px;color:#555">☕ <span id="coffeeCount" style="color:#777">0</span></span>
+        <span style="color:#333;font-size:11px">|</span>
+        <div style="display:flex;align-items:center;gap:6px;pointer-events:all">
+          <applause-button color="#555" multiclap="false" url="https://mesu.ro/" style="width:28px;height:28px;"></applause-button>
+          <span style="font-size:11px;color:#555">thanks</span>
+        </div>
       </div>
     </div>
     <div id="scaleModal">
@@ -405,7 +420,7 @@
   </div>
 
   <div id="adUnit" style="position:fixed;bottom:24px;right:24px;width:230px;z-index:100;pointer-events:all;display:none">
-    
+
     <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.5)">
       <div style="background:#2a2a3a;width:100%;height:90px;display:flex;align-items:center;justify-content:center">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -702,13 +717,18 @@ function applyDrag(wp) {
     if (field==='p1'){m.x1=wp.x;m.y1=wp.y;}else{m.x2=wp.x;m.y2=wp.y;}
     m.px=Math.hypot(m.x2-m.x1,m.y2-m.y1);
   } else if (m.type==='diam') {
-    if (field==='p1'){m.x1=wp.x;m.y1=wp.y;}
-    else if (field==='p2'){m.x2=wp.x;m.y2=wp.y;}
-    else if (field==='cx'){
+    if (field==='cx'){
       const dx=wp.x-m.cx, dy=wp.y-m.cy;
       m.cx=wp.x; m.cy=wp.y; m.x1+=dx; m.y1+=dy; m.x2+=dx; m.y2+=dy;
+    } else if (field==='p1'){
+      m.x1=wp.x; m.y1=wp.y;
+      m.r=Math.hypot(m.x1-m.cx,m.y1-m.cy);
+      m.x2=m.cx-(m.x1-m.cx); m.y2=m.cy-(m.y1-m.cy);
+    } else if (field==='p2'){
+      m.x2=wp.x; m.y2=wp.y;
+      m.r=Math.hypot(m.x2-m.cx,m.y2-m.cy);
+      m.x1=m.cx-(m.x2-m.cx); m.y1=m.cy-(m.y2-m.cy);
     }
-    m.r=Math.hypot(m.x1-m.cx,m.y1-m.cy);
   } else if (m.type==='angle') {
     if (field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='v'){m.vx=wp.x;m.vy=wp.y;}else{m.bx=wp.x;m.by=wp.y;}
     m.deg=angleDeg({x:m.ax,y:m.ay},{x:m.vx,y:m.vy},{x:m.bx,y:m.by});
@@ -850,7 +870,7 @@ cv.addEventListener('dblclick', e => {
 
 function closeArea() {
   pushHistory(); meas.push({type:'area',pts:[...areaPts],areaPx:polyArea(areaPts)});
-  areaPts=[]; mp=null; mode='pa'; setHint('Click to start next area — Esc to stop'); draw(); updUI();
+  areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
 }
 
 /* ── keyboard ── */
@@ -883,19 +903,18 @@ function doScale()   { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool
 function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
 function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
 function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!scFactor)return; stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close'); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — Esc to stop and save path — Enter to close shape'); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — Enter to close shape — Esc to save as open path'); updUI(); }
 function closePerim() {
   pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx:polyPerim(areaPts),open:false});
-  areaPts=[]; mp=null; mode='pp'; setHint('Click to start next perimeter — Esc to stop'); draw(); updUI();
+  areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
 }
 function saveOpenPath() {
   if (areaPts.length<2) { mode='idle'; areaPts=[]; clearHint(); draw(); updUI(); return; }
-  // open path: sum of segments without closing
   let perimPx=0;
   for (let i=0;i<areaPts.length-1;i++) perimPx+=Math.hypot(areaPts[i+1].x-areaPts[i].x,areaPts[i+1].y-areaPts[i].y);
   pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx,open:true});
-  areaPts=[]; mp=null; mode='pp'; setHint('Click to start next path — Esc to stop'); draw(); updUI();
+  areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
 }
 function clearAll()  { meas=[]; scLine=null; scPx=null; scFactor=null; history=[]; areaPts=[]; stopTool(); }
 
@@ -956,15 +975,15 @@ function updUI() {
   btnScale.className=isSc?'btn-scale-active':'';
   btnScale.textContent=isSc?'Cancel':(hasSc?'Reset':'Set');
   btnMeasure.className=isMeas?'btn-meas-active':'';
-  btnMeasure.innerHTML=isMeas?'Stop':'↔ Distance <span class="kbd">L</span>';
+  btnMeasure.innerHTML=isMeas?'↔ Distance ◼':'↔ Distance <span class="kbd">L</span>';
   btnDiam.className=isDiam?'btn-diam-active':'';
-  btnDiam.innerHTML=isDiam?'Stop':'⌀ <span class="kbd">D</span>';
+  btnDiam.innerHTML=isDiam?'⌀ Diameter ◼':'⌀ Diameter <span class="kbd">D</span>';
   btnAngle.className=isAngle?'btn-angle-active':'';
-  btnAngle.innerHTML=isAngle?'Stop':'∠ <span class="kbd">A</span>';
+  btnAngle.innerHTML=isAngle?'∠ Angle ◼':'∠ Angle <span class="kbd">A</span>';
   btnArea.className=isArea?'btn-area-active':'';
-  btnArea.innerHTML=isArea?'Stop':'⬡ <span class="kbd">R</span>';
+  btnArea.innerHTML=isArea?'⬡ Area ◼':'⬡ Area <span class="kbd">R</span>';
   btnPerim.className=isPerim?'btn-perim-active':'';
-  btnPerim.innerHTML=isPerim?'Stop':'⬠ <span class="kbd">P</span>';
+  btnPerim.innerHTML=isPerim?'⬠ Perimeter ◼':'⬠ Perimeter / path <span class="kbd">P</span>';
   btnZoom.className=zoomEnabled?'btn-zoom-active':'';
   btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Pan &amp; zoom<br><span class="kbd">Z</span>`;
   btnMag.className=magEnabled?'btn-tog-active':'';
