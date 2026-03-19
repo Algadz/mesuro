@@ -1300,7 +1300,7 @@ function draw() {
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
     const showIt = (!isMobNow && magEnabled && am2.includes(mode))
-                || (isMobNow && longPressActive)
+                || (isMobNow && longPressActive && am2.includes(mode))
                 || (isMobNow && mode==='drag' && !!dragState);
     if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
   }
@@ -1679,9 +1679,8 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     clearLongPress();
     longPressTimer = setTimeout(() => {
       longPressActive = true;
-      // mp already set by touchstart; just redraw to show magnifier
       draw();
-    }, 350);
+    }, 100);
   }
   function clearLongPress() {
     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer=null; }
@@ -1720,7 +1719,6 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     } else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) {
       e.preventDefault();
       mp=getTouchPt(t);
-      if (!longPressActive && moved) { tMoved=true; clearLongPress(); }
       draw();
     } else {
       if (moved) { tMoved=true; clearLongPress(); }
