@@ -266,7 +266,7 @@
     #dzMain  { font-size:16px; color:#888; }
 
     /* canvas: don't override display (JS controls it); add touch-action so browser doesn't steal gestures */
-    #cv { max-width:100%; max-height:100%; touch-action:none; }
+    #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
 
     /* gradient fade above bottom bar */
     #mobileBar::before { content:''; position:absolute; top:-48px; left:0; right:0; height:48px; background:linear-gradient(to bottom,transparent,rgba(17,17,17,.9)); pointer-events:none; }
@@ -1291,18 +1291,18 @@ function draw() {
 
   ctx.restore(); // end world transform
 
-  // magnifier: desktop = magEnabled toggle, mobile = only longPress or drag
-  const am=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
+  // magnifier
   const isMobNow = window.innerWidth<=767;
-  const showMag = mp && (
-    (!isMobNow && magEnabled && am.includes(mode)) ||
-    (isMobNow && longPressActive && am.includes(mode)) ||
-    (isMobNow && mode==='drag' && dragState)
-  );
-  if (showMag) {
+  if (mp) {
+    const am2=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
-    drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
+    // desktop: show when magEnabled + tool active
+    // mobile: show only during longPress or drag
+    const showIt = (!isMobNow && magEnabled && am2.includes(mode))
+                || (isMobNow && longPressActive)
+                || (isMobNow && mode==='drag' && !!dragState);
+    if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
   }
 }
 
