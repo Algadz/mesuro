@@ -260,11 +260,13 @@
     #canvasArea { flex:1; min-height:0; position:relative; }
 
     /* dz — full canvas overlay, centered, tap anywhere to load */
-    #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
+    #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
     #dz span:not(#dzMain) { display:none; }
     #dz svg  { display:block; opacity:.35; }
     #dzMain  { font-size:16px; color:#888; }
-    #cv { max-width:100%; max-height:100%; display:block; }
+
+    /* canvas: don't override display (JS controls it); add touch-action so browser doesn't steal gestures */
+    #cv { max-width:100%; max-height:100%; touch-action:none; }
 
     /* gradient fade above bottom bar */
     #mobileBar::before { content:''; position:absolute; top:-48px; left:0; right:0; height:48px; background:linear-gradient(to bottom,transparent,rgba(17,17,17,.9)); pointer-events:none; }
@@ -517,7 +519,7 @@
   <div id="mobileSheet" style="display:none"></div>
 
   <div id="adUnit" style="position:fixed;bottom:24px;right:24px;width:230px;z-index:100;pointer-events:all;display:none">
-    
+
     <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.5)">
       <div style="background:#2a2a3a;width:100%;height:90px;display:flex;align-items:center;justify-content:center">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -695,6 +697,9 @@ const hint        = document.getElementById('hint');
 const toast       = document.getElementById('toast');
 const modal       = document.getElementById('scaleModal');
 
+/* ── analytics ── */
+function t(event) { try { if(typeof umami!=='undefined') umami.track(event); } catch(e){} }
+
 /* ── state ── */
 let img = null;
 let mode = 'idle'; // idle|sa|sb|wait|ma|mb|da|db|aa|ab|ac|pa|pp|drag
@@ -743,7 +748,8 @@ function loadImg(file) {
       zoom=1; panX=0; panY=0;
       fitImg();
       t('load_image');
-      document.getElementById('dz').style.display='none';
+      const dz = document.getElementById('dz');
+      dz.style.display='none'; dz.style.pointerEvents='none';
       const ad = document.getElementById('adUnit');
       if (ad) ad.style.display='none';
       const p = document.getElementById('kofiPopup');
@@ -1641,6 +1647,9 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   cv.addEventListener('touchstart', e => {
     if (!img) return;
     const t=e.touches[0]; txStart=t.clientX; tyStart=t.clientY; tMoved=false;
+    // prevent browser scroll/zoom claiming this touch when a tool is active
+    const toolModes=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
+    if (toolModes.includes(mode)) { e.preventDefault(); return; }
     if (mode==='idle') {
       const d=findDrag(getTouchPt(t));
       if (d) { e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
