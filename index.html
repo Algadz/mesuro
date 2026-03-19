@@ -781,7 +781,8 @@ function fitImg() {
 /* ── coords ── */
 function canvasPx(e) {
   const rc = cv.getBoundingClientRect();
-  return { x:(e.clientX-rc.left)*cv.width/rc.width, y:(e.clientY-rc.top)*cv.height/rc.height };
+  // Return CSS pixels (world space), NOT buffer pixels
+  return { x: e.clientX - rc.left, y: e.clientY - rc.top };
 }
 function pt(e) { const c=canvasPx(e); return { x:(c.x-panX)/zoom, y:(c.y-panY)/zoom }; }
 function w2c(wx,wy) { return { x:wx*zoom+panX, y:wy*zoom+panY }; }
@@ -799,8 +800,10 @@ cv.addEventListener('wheel', e => {
 }, { passive:false });
 
 function clampPan() {
-  panX=Math.max(ca.clientWidth*.1-cv.width*zoom, Math.min(ca.clientWidth*.9, panX));
-  panY=Math.max(ca.clientHeight*.1-cv.height*zoom, Math.min(ca.clientHeight*.9, panY));
+  const cssW = cv.width / ((window.innerWidth<=767)?(window.devicePixelRatio||1):1);
+  const cssH = cv.height / ((window.innerWidth<=767)?(window.devicePixelRatio||1):1);
+  panX=Math.max(ca.clientWidth*.1-cssW*zoom, Math.min(ca.clientWidth*.9, panX));
+  panY=Math.max(ca.clientHeight*.1-cssH*zoom, Math.min(ca.clientHeight*.9, panY));
 }
 function toggleZoom() { zoomEnabled=!zoomEnabled; localStorage.setItem('mesu_zoom', zoomEnabled); if (!zoomEnabled) { zoom=1; panX=0; panY=0; draw(); } updUI(); }
 function toggleMag()  { magEnabled=!magEnabled;   localStorage.setItem('mesu_mag',  magEnabled);  draw(); updUI(); }
@@ -1647,10 +1650,11 @@ updMobile();
 
 /* ── MOBILE TOUCH ── */
 function getTouchPt(touch) {
-  const rc=cv.getBoundingClientRect();
-  const x=(touch.clientX-rc.left)*cv.width/rc.width;
-  const y=(touch.clientY-rc.top)*cv.height/rc.height;
-  return {x:(x-panX)/zoom, y:(y-panY)/zoom};
+  const rc = cv.getBoundingClientRect();
+  // CSS pixels, matching canvasPx() for mouse
+  const x = touch.clientX - rc.left;
+  const y = touch.clientY - rc.top;
+  return { x: (x-panX)/zoom, y: (y-panY)/zoom };
 }
 
 if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
