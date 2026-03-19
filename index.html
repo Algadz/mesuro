@@ -1174,28 +1174,31 @@ function draw() {
   ctx.clearRect(0,0,cv.width,cv.height);
   if (!img) return;
 
-  ctx.save(); ctx.setTransform(zoom,0,0,zoom,panX,panY);
-  ctx.drawImage(img,0,0,cv.width,cv.height);
+  // DPR scaling: on mobile canvas buffer is cssSize×DPR, so we must scale all sizes accordingly
+  const dpr = (window.innerWidth<=767) ? (window.devicePixelRatio||1) : 1;
 
-  if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false);
-  if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false);
+  ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
+  ctx.drawImage(img,0,0,img.width,img.height);
+
+  if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false,dpr);
+  if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
 
   meas.forEach((m,i) => {
     const hi=hovIdx===i;
     if (m.type==='line') {
       const r=scFactor?m.px*scFactor:null;
-      annLine(m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,hi);
+      annLine(m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,hi,dpr);
     } else if (m.type==='diam') {
       const r=scFactor?m.r*2*scFactor:null;
-      annDiam(m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,hi);
+      annDiam(m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,hi,dpr);
     } else if (m.type==='angle') {
-      annAngle(m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,hi);
+      annAngle(m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,hi,dpr);
     } else if (m.type==='area') {
       const r=scFactor?m.areaPx*scFactor*scFactor:null;
-      annArea(m.pts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,hi);
+      annArea(m.pts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,hi,dpr);
     } else if (m.type==='perim') {
       const r=scFactor?m.perimPx*scFactor:null;
-      annPerim(m.pts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,hi,m.open);
+      annPerim(m.pts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,hi,m.open,dpr);
     }
   });
 
@@ -1274,25 +1277,31 @@ function draw() {
 
   ctx.restore(); // end world transform
 
-  // magnifier in screen space
+  // magnifier in screen space — shown during tool placement and drag
   const am=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
-  if (mp&&am.includes(mode)&&magEnabled) {
+  if (mp && am.includes(mode) && magEnabled) {
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
-    drawMagnifier(sc.x,sc.y,mp.x,mp.y,col);
+    drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
+  }
+  // always show magnifier on mobile during drag
+  if (mode==='drag' && dragState && window.innerWidth<=767 && mp) {
+    const col='#aaa';
+    const sc=w2c(mp.x,mp.y);
+    drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
   }
 }
 
-function rubberLine(a,b,col,label) {
+function rubberLine(a,b,col,label,dpr=1) {
   ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1.5/zoom; ctx.setLineDash([5/zoom,4/zoom]); ctx.globalAlpha=0.8;
   ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
   ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
   ctx.beginPath(); ctx.arc(a.x,a.y,4/zoom,0,Math.PI*2); ctx.fill();
-  if (label) drawLabel((a.x+b.x)/2,(a.y+b.y)/2-10/zoom,label,col);
+  if (label) drawLabel((a.x+b.x)/2,(a.y+b.y)/2-10/zoom,label,col,dpr);
   ctx.restore();
 }
 
-function annLine(x1,y1,x2,y2,col,label,hi) {
+function annLine(x1,y1,x2,y2,col,label,hi,dpr=1) {
   ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
   const angle=Math.atan2(y2-y1,x2-x1)+Math.PI/2, tick=6/zoom;
@@ -1303,23 +1312,23 @@ function annLine(x1,y1,x2,y2,col,label,hi) {
   ctx.fillStyle=col;
   ctx.beginPath(); ctx.arc(x1,y1,4/zoom,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x2,y2,4/zoom,0,Math.PI*2); ctx.fill();
-  if (label) drawLabel((x1+x2)/2,(y1+y2)/2-10/zoom,label,col);
+  if (label) drawLabel((x1+x2)/2,(y1+y2)/2-10/zoom,label,col,dpr);
   ctx.restore();
 }
 
-function annDiam(cx,cy,r,x1,y1,x2,y2,col,label,hi) {
+function annDiam(cx,cy,r,x1,y1,x2,y2,col,label,hi,dpr=1) {
   ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
   ctx.setLineDash([4/zoom,3/zoom]); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
   ctx.setLineDash([]); ctx.fillStyle=col;
-  ctx.beginPath(); ctx.arc(cx,cy,5/zoom,0,Math.PI*2); ctx.fill(); // center larger
+  ctx.beginPath(); ctx.arc(cx,cy,5/zoom,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x1,y1,4/zoom,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x2,y2,4/zoom,0,Math.PI*2); ctx.fill();
-  if (label) drawLabel(cx,cy-r-10/zoom,label,col);
+  if (label) drawLabel(cx,cy-r-10/zoom,label,col,dpr);
   ctx.restore();
 }
 
-function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi) {
+function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1) {
   const col='#D4537E'; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(vx,vy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(vx,vy); ctx.lineTo(bx,by); ctx.stroke();
@@ -1328,11 +1337,11 @@ function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi) {
   ctx.setLineDash([3/zoom,3/zoom]); ctx.beginPath(); ctx.arc(vx,vy,arcR,a1,a2); ctx.stroke();
   ctx.setLineDash([]); ctx.fillStyle=col;
   for (const [px,py] of [[ax,ay],[vx,vy],[bx,by]]){ctx.beginPath();ctx.arc(px,py,4/zoom,0,Math.PI*2);ctx.fill();}
-  if (label) drawLabel(vx+Math.cos((a1+a2)/2)*(arcR+18/zoom),vy+Math.sin((a1+a2)/2)*(arcR+18/zoom),label,col);
+  if (label) drawLabel(vx+Math.cos((a1+a2)/2)*(arcR+18/zoom),vy+Math.sin((a1+a2)/2)*(arcR+18/zoom),label,col,dpr);
   ctx.restore();
 }
 
-function annArea(pts,label,hi) {
+function annArea(pts,label,hi,dpr=1) {
   const col='#9F77DD'; ctx.save();
   ctx.fillStyle='rgba(159,119,221,.1)'; ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
@@ -1341,11 +1350,11 @@ function annArea(pts,label,hi) {
   ctx.fillStyle=col;
   pts.forEach(pp=>{ctx.beginPath();ctx.arc(pp.x,pp.y,4/zoom,0,Math.PI*2);ctx.fill();});
   const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length, cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;
-  if (label) drawLabel(cx,cy,label,col);
+  if (label) drawLabel(cx,cy,label,col,dpr);
   ctx.restore();
 }
 
-function annPerim(pts,label,hi,open) {
+function annPerim(pts,label,hi,open,dpr=1) {
   const col='#F0994A'; ctx.save();
   ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
@@ -1355,12 +1364,13 @@ function annPerim(pts,label,hi,open) {
   ctx.fillStyle=col;
   pts.forEach(pp=>{ctx.beginPath();ctx.arc(pp.x,pp.y,4/zoom,0,Math.PI*2);ctx.fill();});
   const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length, cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;
-  if (label) drawLabel(cx,cy,label,col);
+  if (label) drawLabel(cx,cy,label,col,dpr);
   ctx.restore();
 }
 
-function drawLabel(x,y,text,col) {
-  const s=1/zoom; ctx.save(); ctx.font=`bold ${Math.max(9,11*s)}px monospace`;
+function drawLabel(x,y,text,col,dpr=1) {
+  const s=1/zoom; const fs=Math.max(9,11*s);
+  ctx.save(); ctx.font=`bold ${fs}px monospace`;
   const tw=ctx.measureText(text).width, p=5*s,h=17*s,r=4*s,rx=x-tw/2-p,ry=y-h/2;
   ctx.fillStyle='rgba(0,0,0,.8)'; ctx.beginPath();
   ctx.moveTo(rx+r,ry); ctx.lineTo(rx+tw+p*2-r,ry); ctx.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);
@@ -1371,12 +1381,16 @@ function drawLabel(x,y,text,col) {
 }
 
 /* ── magnifier (screen space) ── */
-function drawMagnifier(scx,scy,wx,wy,col) {
-  const MAG_R=72, ZOOM_F=5, OFFSET=MAG_R+18;
+function drawMagnifier(scx,scy,wx,wy,col,dpr=1) {
+  const MAG_R=72*dpr, ZOOM_F=5, OFFSET=(MAG_R+18);
   const flipX=scx+OFFSET+MAG_R>cv.width, flipY=scy-OFFSET-MAG_R<0;
   const mx=scx+(flipX?-OFFSET:OFFSET), my=scy+(flipY?OFFSET:-OFFSET);
-  const SRC_H=MAG_R/ZOOM_F, ir=img.width/cv.width, ir2=img.height/cv.height;
-  const srcX=(wx-SRC_H)*ir, srcY=(wy-SRC_H)*ir2, srcW=SRC_H*2*ir, srcH=SRC_H*2*ir2;
+  const SRC_H=MAG_R/ZOOM_F;
+  // wx,wy are world coords; map to image pixels
+  const srcX=(wx-SRC_H/dpr)*img.width/(cv.width/dpr);
+  const srcY=(wy-SRC_H/dpr)*img.height/(cv.height/dpr);
+  const srcW=SRC_H*2*img.width/(cv.width/dpr);
+  const srcH=SRC_H*2*img.height/(cv.height/dpr);
 
   ctx.save(); ctx.setTransform(1,0,0,1,0,0);
   ctx.beginPath(); ctx.arc(mx,my,MAG_R,0,Math.PI*2); ctx.clip();
@@ -1386,22 +1400,22 @@ function drawMagnifier(scx,scy,wx,wy,col) {
   ctx.imageSmoothingEnabled=true; ctx.restore();
 
   ctx.save(); ctx.setTransform(1,0,0,1,0,0);
-  ctx.beginPath(); ctx.arc(mx,my,MAG_R,0,Math.PI*2); ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(mx,my,MAG_R+1,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1; ctx.stroke();
-  const ARM=MAG_R-4,GAP=5;
-  ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath();
+  ctx.beginPath(); ctx.arc(mx,my,MAG_R,0,Math.PI*2); ctx.strokeStyle=col; ctx.lineWidth=1.5*dpr; ctx.stroke();
+  ctx.beginPath(); ctx.arc(mx,my,MAG_R+dpr,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=dpr; ctx.stroke();
+  const ARM=MAG_R-4*dpr, GAP=5*dpr;
+  ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.lineWidth=3*dpr; ctx.lineCap='round'; ctx.beginPath();
   ctx.moveTo(mx-ARM,my);ctx.lineTo(mx-GAP,my);ctx.moveTo(mx+GAP,my);ctx.lineTo(mx+ARM,my);
   ctx.moveTo(mx,my-ARM);ctx.lineTo(mx,my-GAP);ctx.moveTo(mx,my+GAP);ctx.lineTo(mx,my+ARM); ctx.stroke();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.beginPath();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5*dpr; ctx.beginPath();
   ctx.moveTo(mx-ARM,my);ctx.lineTo(mx-GAP,my);ctx.moveTo(mx+GAP,my);ctx.lineTo(mx+ARM,my);
   ctx.moveTo(mx,my-ARM);ctx.lineTo(mx,my-GAP);ctx.moveTo(mx,my+GAP);ctx.lineTo(mx,my+ARM); ctx.stroke();
-  ctx.beginPath(); ctx.arc(mx,my,2,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
-  const coordTxt=`${Math.round(wx*ir)}, ${Math.round(wy*ir2)}`;
-  ctx.font='bold 10px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  const tw=ctx.measureText(coordTxt).width,lx=mx,ly=my+MAG_R-12,pw=tw/2+5,ph=8,pr=3;
+  ctx.beginPath(); ctx.arc(mx,my,2*dpr,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
+  const coordTxt=`${Math.round(wx*img.width/(cv.width/dpr))}, ${Math.round(wy*img.height/(cv.height/dpr))}`;
+  ctx.font=`bold ${10*dpr}px monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  const tw=ctx.measureText(coordTxt).width, lx=mx, ly=my+MAG_R-12*dpr, pw=tw/2+5*dpr, ph=8*dpr, pr=3*dpr;
   ctx.fillStyle='rgba(0,0,0,.7)'; ctx.beginPath(); ctx.roundRect(lx-pw,ly-ph,pw*2,ph*2,pr); ctx.fill();
   ctx.fillStyle=col; ctx.fillText(coordTxt,lx,ly);
-  ctx.beginPath(); ctx.arc(scx,scy,3,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(scx,scy,3*dpr,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=2*dpr; ctx.stroke();
   ctx.fillStyle=col; ctx.fill();
   ctx.restore();
 }
@@ -1591,7 +1605,7 @@ function updMobile() {
       else if(m.type==='area') v=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;
       else if(m.type==='perim') v=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;
       const row=document.createElement('div'); row.className='m-res-row';
-      row.innerHTML=`<div class="m-res-icon" style="color:${col}">${iconMap[m.type]||'?'}</div><div class="m-res-val" style="color:${col}">${v}</div>`;
+      row.innerHTML=`<div class="m-res-icon" style="color:${col}">${iconMap[m.type]||'?'}</div><div class="m-res-num" style="font-size:9px;color:#444;flex-shrink:0;width:20px">#${i+1}</div><div class="m-res-val" style="color:${col}">${v}</div>`;
       ml.appendChild(row);
     });
   }
@@ -1660,8 +1674,14 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     if (!img) return;
     const t=e.touches[0];
     if (Math.abs(t.clientX-txStart)>6||Math.abs(t.clientY-tyStart)>6) tMoved=true;
-    if (mode==='drag'&&dragState) { e.preventDefault(); applyDrag(getTouchPt(t)); draw(); updUI(); }
-    else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) { e.preventDefault(); mp=getTouchPt(t); draw(); }
+    if (mode==='drag'&&dragState) {
+      e.preventDefault();
+      const wp=getTouchPt(t);
+      mp=wp; // track for magnifier
+      applyDrag(wp); draw(); updUI();
+    } else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) {
+      e.preventDefault(); mp=getTouchPt(t); draw();
+    }
   }, {passive:false});
 
   cv.addEventListener('touchend', e => {
