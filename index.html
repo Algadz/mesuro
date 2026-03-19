@@ -1205,6 +1205,17 @@ function draw() {
     }
   });
 
+  // show first placed point immediately even before mp exists
+  if (p0 && !mp) {
+    const colP0 = (mode==='sb')?'#1D9E75':(mode==='mb')?'#EF9F27':(mode==='db')?'#5DCAA5':(mode==='ab'||mode==='ac')?'#D4537E':'#aaa';
+    ctx.save(); ctx.fillStyle=colP0;
+    ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill();
+    // pulse ring
+    ctx.strokeStyle=colP0; ctx.lineWidth=1/zoom; ctx.globalAlpha=0.4;
+    ctx.beginPath(); ctx.arc(p0.x,p0.y,10/zoom,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+
   // live previews
   if (p0&&mp) {
     if (mode==='sb') rubberLine(p0,mp,'#1D9E75',null);
@@ -1280,18 +1291,18 @@ function draw() {
 
   ctx.restore(); // end world transform
 
-  // magnifier in screen space — shown during tool placement and drag
+  // magnifier in screen space
   const am=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
-  if (mp && am.includes(mode) && magEnabled) {
+  const showMag = mp && am.includes(mode) && (magEnabled || window.innerWidth<=767);
+  if (showMag) {
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
     drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
   }
   // always show magnifier on mobile during drag
   if (mode==='drag' && dragState && window.innerWidth<=767 && mp) {
-    const col='#aaa';
     const sc=w2c(mp.x,mp.y);
-    drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
+    drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, '#aaa', dpr);
   }
 }
 
@@ -1659,13 +1670,29 @@ function getTouchPt(touch) {
 
 if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   let txStart=0, tyStart=0, tMoved=false;
+  let longPressTimer=null, longPressActive=false;
+
+  function startLongPress(touch) {
+    clearLongPress();
+    longPressTimer = setTimeout(() => {
+      longPressActive = true;
+      mp = getTouchPt(touch);
+      draw(); // show magnifier
+    }, 350);
+  }
+  function clearLongPress() {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer=null; }
+  }
 
   cv.addEventListener('touchstart', e => {
     if (!img) return;
-    const t=e.touches[0]; txStart=t.clientX; tyStart=t.clientY; tMoved=false;
-    // prevent browser scroll/zoom claiming this touch when a tool is active
+    const t=e.touches[0]; txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
     const toolModes=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
-    if (toolModes.includes(mode)) { e.preventDefault(); return; }
+    if (toolModes.includes(mode)) {
+      e.preventDefault();
+      startLongPress(t); // start long-press timer for precision zoom
+      return;
+    }
     if (mode==='idle') {
       const d=findDrag(getTouchPt(t));
       if (d) { e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
@@ -1675,20 +1702,26 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   cv.addEventListener('touchmove', e => {
     if (!img) return;
     const t=e.touches[0];
-    if (Math.abs(t.clientX-txStart)>6||Math.abs(t.clientY-tyStart)>6) tMoved=true;
+    const moved = Math.abs(t.clientX-txStart)>6||Math.abs(t.clientY-tyStart)>6;
+    if (moved) { tMoved=true; clearLongPress(); }
     if (mode==='drag'&&dragState) {
       e.preventDefault();
       const wp=getTouchPt(t);
-      mp=wp; // track for magnifier
+      mp=wp;
       applyDrag(wp); draw(); updUI();
     } else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) {
-      e.preventDefault(); mp=getTouchPt(t); draw();
+      e.preventDefault();
+      mp=getTouchPt(t);
+      draw();
     }
   }, {passive:false});
 
   cv.addEventListener('touchend', e => {
+    clearLongPress();
     if (!img) return;
-    if (mode==='drag') { mode='idle'; dragState=null; updUI(); draw(); return; }
+    if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
+    // if long-press was active, just cancel — user was zooming in to see
+    if (longPressActive) { longPressActive=false; mp=null; draw(); return; }
     if (tMoved) return;
     e.preventDefault();
     const p=getTouchPt(e.changedTouches[0]);
