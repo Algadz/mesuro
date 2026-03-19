@@ -240,16 +240,14 @@
     }
     #mBtnScale.needs-scale { animation: mScalePulse 1.6s ease-in-out infinite; }
     #mobileBar { display: flex; flex-shrink:0; align-items:center; gap:10px; background:#1a1a1a; border-top:0.5px solid #222; padding:10px 14px 14px; position:relative; }
-    #mobileLogoSection { padding:8px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; }
-    #mobileLogo { font-size:14px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
-    #mobileLogo span { color:#444; }
-    #mobileToolsScroll { display:flex; align-items:center; gap:3px; padding:6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; }
+    #mobileLogoSection { padding:6px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; display:flex; align-items:center; }
+    #mobileToolsScroll { display:flex; align-items:center; gap:4px; padding:6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; }
     #mobileToolsScroll::-webkit-scrollbar { display:none; }
-    .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:6px 10px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
+    .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:7px 11px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
     .m-tbtn:disabled { opacity:.35; cursor:default; }
     .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
-    .m-tbtn .m-ti { font-size:18px; line-height:1; color:#666; }
-    .m-tbtn .m-tt { font-size:9px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
+    .m-tbtn .m-ti { font-size:22px; line-height:1; color:#666; }
+    .m-tbtn .m-tt { font-size:10px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
     .m-tbtn.m-sc { background:rgba(29,158,117,.15); } .m-tbtn.m-sc .m-ti,.m-tbtn.m-sc .m-tt { color:#1D9E75; }
     .m-tbtn.m-di { background:rgba(239,159,39,.18); } .m-tbtn.m-di .m-ti,.m-tbtn.m-di .m-tt { color:#EF9F27; }
     .m-tbtn.m-dm { background:rgba(93,202,165,.12); } .m-tbtn.m-dm .m-ti,.m-tbtn.m-dm .m-tt { color:#5DCAA5; }
@@ -324,7 +322,17 @@
   <!-- mobile topbar (hidden on desktop) -->
   <div id="mobileTopbar">
     <div id="mobileLogoSection">
-      <div id="mobileLogo">mesu<span>.ro</span></div>
+      <svg width="96" height="32" viewBox="0 0 160 36" fill="none">
+        <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
+          <tspan x="0" y="22" fill="#e0e0e0">mesu</tspan><tspan fill="#555">.ro</tspan>
+        </text>
+        <line x1="0"   y1="28" x2="130" y2="28" stroke="#444" stroke-width="0.75"/>
+        <line x1="0"   y1="28" x2="0"   y2="34" stroke="#555" stroke-width="1.2"/>
+        <line x1="33"  y1="28" x2="33"  y2="31" stroke="#444" stroke-width="0.75"/>
+        <line x1="65"  y1="28" x2="65"  y2="33" stroke="#555" stroke-width="1"/>
+        <line x1="98"  y1="28" x2="98"  y2="31" stroke="#444" stroke-width="0.75"/>
+        <line x1="130" y1="28" x2="130" y2="34" stroke="#555" stroke-width="1.2"/>
+      </svg>
     </div>
     <div id="mobileToolsScroll">
       <button class="m-tbtn m-sc" id="mBtnScale"   onclick="scFactor?doScaleReset():doScale()"   disabled><span class="m-ti">⊘</span><span class="m-tt">Scale</span></button>
