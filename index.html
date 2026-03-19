@@ -241,6 +241,8 @@
     #mBtnScale.needs-scale { animation: mScalePulse 1.6s ease-in-out infinite; }
     #mobileBar { display: flex; flex-shrink:0; align-items:center; gap:10px; background:#1a1a1a; border-top:0.5px solid #222; padding:10px 14px 14px; position:relative; }
     #mobileLogoSection { padding:6px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; display:flex; align-items:center; }
+    #mobileLogo { font-size:15px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
+    #mobileLogo span { color:#444; }
     #mobileToolsScroll { display:flex; align-items:center; gap:4px; padding:6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; }
     #mobileToolsScroll::-webkit-scrollbar { display:none; }
     .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:7px 11px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
@@ -260,8 +262,8 @@
     /* dz — full canvas overlay, centered, tap anywhere to load */
     #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
     #dz span:not(#dzMain) { display:none; }
-    #dz svg  { display:block; opacity:.35; }
-    #dzMain  { font-size:16px; color:#888; }
+    #dz svg  { display:block; opacity:.4; width:64px; height:64px; }
+    #dzMain  { font-size:17px; color:#888; margin-top:6px; }
 
     /* canvas: don't override display (JS controls it); add touch-action so browser doesn't steal gestures */
     #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
@@ -269,8 +271,8 @@
     /* gradient fade above bottom bar */
     #mobileBar::before { content:''; position:absolute; top:-48px; left:0; right:0; height:48px; background:linear-gradient(to bottom,transparent,rgba(17,17,17,.9)); pointer-events:none; }
     #mLastChip { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
-    #mLastVal { font-size:15px; font-weight:500; }
-    #mLastSub { font-size:9px; color:#444; margin-top:1px; }
+    #mLastVal { font-size:12px; font-weight:500; }
+    #mLastSub { font-size:8px; color:#444; margin-top:1px; }
     #mScrollHint { margin-left:auto; font-size:9px; color:#3a3a3a; text-align:right; line-height:1.5; }
 
     /* mobile measurements in SEO area */
@@ -322,17 +324,7 @@
   <!-- mobile topbar (hidden on desktop) -->
   <div id="mobileTopbar">
     <div id="mobileLogoSection">
-      <svg width="96" height="32" viewBox="0 0 160 36" fill="none">
-        <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
-          <tspan x="0" y="22" fill="#e0e0e0">mesu</tspan><tspan fill="#555">.ro</tspan>
-        </text>
-        <line x1="0"   y1="28" x2="130" y2="28" stroke="#444" stroke-width="0.75"/>
-        <line x1="0"   y1="28" x2="0"   y2="34" stroke="#555" stroke-width="1.2"/>
-        <line x1="33"  y1="28" x2="33"  y2="31" stroke="#444" stroke-width="0.75"/>
-        <line x1="65"  y1="28" x2="65"  y2="33" stroke="#555" stroke-width="1"/>
-        <line x1="98"  y1="28" x2="98"  y2="31" stroke="#444" stroke-width="0.75"/>
-        <line x1="130" y1="28" x2="130" y2="34" stroke="#555" stroke-width="1.2"/>
-      </svg>
+      <div id="mobileLogo">mesu<span>.ro</span></div>
     </div>
     <div id="mobileToolsScroll">
       <button class="m-tbtn m-sc" id="mBtnScale"   onclick="scFactor?doScaleReset():doScale()"   disabled><span class="m-ti">⊘</span><span class="m-tt">Scale</span></button>
