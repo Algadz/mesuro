@@ -1679,10 +1679,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     clearLongPress();
     longPressTimer = setTimeout(() => {
       longPressActive = true;
-      txStart = cx; tyStart = cy; // reset reference so subsequent movement tracks from here
-      const rc = cv.getBoundingClientRect();
-      const x = cx - rc.left, y = cy - rc.top;
-      mp = { x: (x-panX)/zoom, y: (y-panY)/zoom };
+      // mp already set by touchstart; just redraw to show magnifier
       draw();
     }, 350);
   }
@@ -1695,10 +1692,13 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
   cv.addEventListener('touchstart', e => {
     if (!img) return;
-    const t=e.touches[0]; txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
+    const t=e.touches[0];
+    txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
     const toolModes=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
     if (toolModes.includes(mode)) {
       e.preventDefault();
+      // set mp immediately so position is known
+      mp = getTouchPt(t);
       startLongPress(t.clientX, t.clientY);
       return;
     }
@@ -1711,21 +1711,17 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   cv.addEventListener('touchmove', e => {
     if (!img) return;
     const t=e.touches[0];
-    const moved = Math.abs(t.clientX-txStart)>20||Math.abs(t.clientY-tyStart)>20;
+    const dx=Math.abs(t.clientX-txStart), dy=Math.abs(t.clientY-tyStart);
+    const moved = dx>15 || dy>15;
     if (mode==='drag'&&dragState) {
       e.preventDefault();
-      const wp=getTouchPt(t); mp=wp;
-      applyDrag(wp); draw(); updUI();
+      mp=getTouchPt(t);
+      applyDrag(mp); draw(); updUI();
     } else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) {
       e.preventDefault();
-      if (longPressActive) {
-        // zoom is showing — track finger movement to reposition
-        mp = getTouchPt(t);
-        draw();
-      } else {
-        if (moved) { tMoved=true; clearLongPress(); }
-        mp = getTouchPt(t); draw();
-      }
+      mp=getTouchPt(t);
+      if (!longPressActive && moved) { tMoved=true; clearLongPress(); }
+      draw();
     } else {
       if (moved) { tMoved=true; clearLongPress(); }
     }
