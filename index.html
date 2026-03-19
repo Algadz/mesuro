@@ -1178,7 +1178,7 @@ function draw() {
   const dpr = (window.innerWidth<=767) ? (window.devicePixelRatio||1) : 1;
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
-  ctx.drawImage(img,0,0,img.width,img.height);
+  ctx.drawImage(img,0,0,cv.width/dpr,cv.height/dpr);
 
   if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false,dpr);
   if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
@@ -1386,17 +1386,15 @@ function drawMagnifier(scx,scy,wx,wy,col,dpr=1) {
   const flipX=scx+OFFSET+MAG_R>cv.width, flipY=scy-OFFSET-MAG_R<0;
   const mx=scx+(flipX?-OFFSET:OFFSET), my=scy+(flipY?OFFSET:-OFFSET);
   const SRC_H=MAG_R/ZOOM_F;
-  // wx,wy are world coords; map to image pixels
-  const srcX=(wx-SRC_H/dpr)*img.width/(cv.width/dpr);
-  const srcY=(wy-SRC_H/dpr)*img.height/(cv.height/dpr);
-  const srcW=SRC_H*2*img.width/(cv.width/dpr);
-  const srcH=SRC_H*2*img.height/(cv.height/dpr);
+  const cssW=cv.width/dpr, cssH=cv.height/dpr;
+  const ir=img.width/cssW, ir2=img.height/cssH;
+  const srcX=(wx-SRC_H)*ir, srcY=(wy-SRC_H)*ir2, srcW=SRC_H*2*ir, srcH_=SRC_H*2*ir2;
 
   ctx.save(); ctx.setTransform(1,0,0,1,0,0);
   ctx.beginPath(); ctx.arc(mx,my,MAG_R,0,Math.PI*2); ctx.clip();
   ctx.fillStyle='#111'; ctx.fillRect(mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
   ctx.imageSmoothingEnabled=false;
-  ctx.drawImage(img,srcX,srcY,srcW,srcH,mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
+  ctx.drawImage(img,srcX,srcY,srcW,srcH_,mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
   ctx.imageSmoothingEnabled=true; ctx.restore();
 
   ctx.save(); ctx.setTransform(1,0,0,1,0,0);
@@ -1410,7 +1408,7 @@ function drawMagnifier(scx,scy,wx,wy,col,dpr=1) {
   ctx.moveTo(mx-ARM,my);ctx.lineTo(mx-GAP,my);ctx.moveTo(mx+GAP,my);ctx.lineTo(mx+ARM,my);
   ctx.moveTo(mx,my-ARM);ctx.lineTo(mx,my-GAP);ctx.moveTo(mx,my+GAP);ctx.lineTo(mx,my+ARM); ctx.stroke();
   ctx.beginPath(); ctx.arc(mx,my,2*dpr,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
-  const coordTxt=`${Math.round(wx*img.width/(cv.width/dpr))}, ${Math.round(wy*img.height/(cv.height/dpr))}`;
+  const coordTxt=`${Math.round(wx*ir)}, ${Math.round(wy*ir2)}`;
   ctx.font=`bold ${10*dpr}px monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
   const tw=ctx.measureText(coordTxt).width, lx=mx, ly=my+MAG_R-12*dpr, pw=tw/2+5*dpr, ph=8*dpr, pr=3*dpr;
   ctx.fillStyle='rgba(0,0,0,.7)'; ctx.beginPath(); ctx.roundRect(lx-pw,ly-ph,pw*2,ph*2,pr); ctx.fill();
