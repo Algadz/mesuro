@@ -1675,12 +1675,14 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   let txStart=0, tyStart=0, tMoved=false;
   let longPressTimer=null;
 
-  function startLongPress(touch) {
+  function startLongPress(cx, cy) {
     clearLongPress();
     longPressTimer = setTimeout(() => {
       longPressActive = true;
-      mp = getTouchPt(touch);
-      draw(); // show magnifier
+      const rc = cv.getBoundingClientRect();
+      const x = cx - rc.left, y = cy - rc.top;
+      mp = { x: (x-panX)/zoom, y: (y-panY)/zoom };
+      draw();
     }, 350);
   }
   function clearLongPress() {
@@ -1693,7 +1695,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     const toolModes=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
     if (toolModes.includes(mode)) {
       e.preventDefault();
-      startLongPress(t); // start long-press timer for precision zoom
+      startLongPress(t.clientX, t.clientY);
       return;
     }
     if (mode==='idle') {
@@ -1706,16 +1708,22 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     if (!img) return;
     const t=e.touches[0];
     const moved = Math.abs(t.clientX-txStart)>6||Math.abs(t.clientY-tyStart)>6;
-    if (moved) { tMoved=true; clearLongPress(); }
     if (mode==='drag'&&dragState) {
       e.preventDefault();
-      const wp=getTouchPt(t);
-      mp=wp;
+      const wp=getTouchPt(t); mp=wp;
       applyDrag(wp); draw(); updUI();
     } else if (['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'].includes(mode)) {
       e.preventDefault();
-      mp=getTouchPt(t);
-      draw();
+      if (longPressActive) {
+        // zoom is showing — track finger movement to reposition
+        mp = getTouchPt(t);
+        draw();
+      } else {
+        if (moved) { tMoved=true; clearLongPress(); }
+        mp = getTouchPt(t); draw();
+      }
+    } else {
+      if (moved) { tMoved=true; clearLongPress(); }
     }
   }, {passive:false});
 
