@@ -327,7 +327,7 @@
       <div id="mobileLogo">mesu<span>.ro</span></div>
     </div>
     <div id="mobileToolsScroll">
-      <button class="m-tbtn m-sc" id="mBtnScale"   onclick="doScale()"   disabled><span class="m-ti">⊘</span><span class="m-tt">Scale</span></button>
+      <button class="m-tbtn m-sc" id="mBtnScale"   onclick="scFactor?doScaleReset():doScale()"   disabled><span class="m-ti">⊘</span><span class="m-tt">Scale</span></button>
       <button class="m-tbtn m-di" id="mBtnMeasure" onclick="doMeasure()" disabled><span class="m-ti">↔</span><span class="m-tt">Distance</span></button>
       <button class="m-tbtn m-dm" id="mBtnDiam"    onclick="doDiam()"    disabled><span class="m-ti">⌀</span><span class="m-tt">Diameter</span></button>
       <button class="m-tbtn m-an" id="mBtnAngle"   onclick="doAngle()"   disabled><span class="m-ti">∠</span><span class="m-tt">Angle</span></button>
@@ -397,7 +397,7 @@
       <div class="slbl">SCALE</div>
       <div class="btn-row">
         <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
-        <button id="btnScale" onclick="doScale()" disabled style="flex:1">Set</button>
+        <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex:1">Set</button>
       </div>
     </div>
 
@@ -1038,7 +1038,13 @@ document.addEventListener('keydown', e => {
 
 /* ── tools ── */
 function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; clearHint(); draw(); updUI(); }
-function doScale()   { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line'); updUI(); }
+function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line'); updUI(); }
+function doScaleReset() {
+  // reuse existing scLine, just ask for new value
+  if (!scLine) { doScale(); return; }
+  pLine = { x1:scLine.x1, y1:scLine.y1, x2:scLine.x2, y2:scLine.y2 };
+  mode = 'wait'; stopTool(); showModal();
+}
 function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance'); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
 function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter'); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
 function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!scFactor)return; t('tool_angle'); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
