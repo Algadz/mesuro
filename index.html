@@ -263,7 +263,7 @@
     #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
     #dz span:not(#dzMain) { display:none; }
     #dz svg  { display:block; opacity:.4; width:64px; height:64px; }
-    #dzMain  { font-size:17px; color:#888; margin-top:6px; }
+    #dzMain  { font-size:17px; color:#666; margin-top:6px; }
 
     /* canvas: don't override display (JS controls it); add touch-action so browser doesn't steal gestures */
     #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
@@ -555,6 +555,22 @@
       <button id="mUndoBtn" onclick="undoLast()" disabled style="height:40px;width:56px;background:#252525;color:#555;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">↩</button>
       <button id="mClearBtn" onclick="clearAll()" disabled style="height:40px;width:56px;background:#252525;color:#e24b4b;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">✕</button>
     </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:14px;padding:10px 14px;background:#1a1a1a;border-radius:8px;border:0.5px solid #252525;">
+      <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="text-decoration:none;font-size:12px;color:#555;white-space:nowrap;transition:color .15s">Offer an espresso ☕</a>
+      <span style="color:#2a2a2a;font-size:11px">|</span>
+      <button id="mClapBtn" onclick="doMobileClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s">
+        <svg id="mClapSvg" viewBox="0 0 64 64" width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none">
+          <path d="M47.2,24.83a2.56,2.56,0,0,0-3.47,1L41.84,29.3l-10.6-5.41L35.51,16a3,3,0,0,0-5.23-2.85l-3.46,6.35-.21.38-4.68,8.59-4.16-3.62a4.79,4.79,0,0,0-6.78,0,1.16,1.16,0,0,0,0,1.64l2.34,2.37c3.33,3.36,4,4.66,3.36,8.83l-1,5.83,16.44,9,2-3.77a5.59,5.59,0,0,0,4.48-2.89l8.73-16,.82-1.49A2.56,2.56,0,0,0,47.2,24.83Z" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M34.84,29.72,43.18,14.4a3,3,0,0,0-1.19-4h0a3,3,0,0,0-4,1.19L29.61,26.87" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M56.84,29a2.54,2.54,0,0,0-3.59.33l-2.53,3L41.37,25l5.71-6.87a3,3,0,0,0-4.58-3.81l-4.62,5.56-.28.33-6.25,7.52L28,23.38A4.8,4.8,0,0,0,21.31,22,1.16,1.16,0,0,0,21,23.64l1.83,2.77c2.62,3.95,3,5.35,1.59,9.32l-2.1,5.53,14.4,12,2.74-3.3a5.56,5.56,0,0,0,5-2l11.67-14,1.09-1.31A2.54,2.54,0,0,0,56.84,29Z" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M43.77,31.44,54.93,18a3,3,0,0,0-.39-4.2h0a3,3,0,0,0-4.19.39L39.19,27.63" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M48.54,35,57.85,23.8a2.76,2.76,0,0,0-.71-3.8h0a2.77,2.77,0,0,0-3.87,0L44,31.18" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="26.29" y1="11.33" x2="20.2" y2="9.33" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+          <line x1="27.71" y1="8.01" x2="24.97" y2="3.83" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+          <line x1="31.31" y1="8.05" x2="32.61" y2="1.82" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
     <div style="height:1px;background:#222;margin:32px 0;"></div>
   </div>
 
@@ -755,6 +771,8 @@ function loadImg(file) {
       const p = document.getElementById('kofiPopup');
       if (p) { p.style.opacity='0'; p.style.pointerEvents='none'; setTimeout(()=>{ p.style.display='none'; }, 500); }
       updUI();
+      // on mobile, auto-start scale tool so user knows what to do next
+      if (window.innerWidth <= 767) { doScale(); }
     };
     i.src = ev.target.result;
   };
@@ -1488,7 +1506,13 @@ function loadProject(file) {
   r.readAsText(file);
 }
 
-function setHint(t)  { hint.textContent=t; hint.style.display='block'; }
+function setHint(t)  {
+  if (window.innerWidth <= 767) {
+    // strip keyboard shortcut references for mobile
+    t = t.replace(/\s*\(Ctrl=[^)]+\)/g, '').replace(/\s*—\s*Esc(\s*to\s*stop)?/g, '').replace(/\s*Esc$/g, '').replace(/^[A-Z]\s*—\s*/g, '').replace(/\s*Esc\s*to\s*cancel/g, '').replace(/Enter or click/g, 'Tap').replace(/click/gi, 'Tap').replace(/\s{2,}/g, ' ').trim();
+  }
+  hint.textContent=t; hint.style.display='block';
+}
 function clearHint() { hint.style.display='none'; }
 
 function showProjTip(msg) { const t=document.getElementById('projTip'); if(t){t.textContent=msg; t.style.opacity='1';} }
@@ -1799,8 +1823,24 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       btn.dataset.clapped='1'; btn.style.opacity='1';
       btn.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
     }
+    const mb = document.getElementById('mClapBtn');
+    if (mb) {
+      mb.style.opacity='1';
+      mb.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
+    }
   }
 })();
+function doMobileClap() {
+  doClap();
+  const mb = document.getElementById('mClapBtn');
+  if (mb) {
+    mb.style.opacity='1';
+    mb.style.transform='scale(1.3)';
+    setTimeout(()=>{ mb.style.transform='scale(1)'; }, 150);
+    mb.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
+    mb.querySelectorAll('[fill="#1e1e1e"]').forEach(el => el.setAttribute('fill','#1a1a1a'));
+  }
+}
 function doClap() {
   const btn = document.getElementById('clapBtn');
   if (!btn) return;
