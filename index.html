@@ -1720,12 +1720,13 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     clearLongPress();
     if (!img) return;
     if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
-    // if long-press was active, just cancel — user was zooming in to see
-    if (longPressActive) { longPressActive=false; mp=null; draw(); return; }
     if (tMoved) return;
     e.preventDefault();
-    const p=getTouchPt(e.changedTouches[0]);
-    if (mode==='idle'||mode==='wait') return;
+    // use long-press position if active, otherwise tap position
+    const p = longPressActive ? mp : getTouchPt(e.changedTouches[0]);
+    longPressActive = false;
+    if (!p) return;
+    if (mode==='idle'||mode==='wait') { mp=null; draw(); return; }
     if (mode==='sa') { p0=p; mode='sb'; setHint('Tap end of scale line'); draw(); }
     else if (mode==='sb') {
       if (dst(p0,p)<3/zoom) return;
