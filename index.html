@@ -1679,6 +1679,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     clearLongPress();
     longPressTimer = setTimeout(() => {
       longPressActive = true;
+      txStart = cx; tyStart = cy; // reset reference so subsequent movement tracks from here
       const rc = cv.getBoundingClientRect();
       const x = cx - rc.left, y = cy - rc.top;
       mp = { x: (x-panX)/zoom, y: (y-panY)/zoom };
@@ -1688,6 +1689,9 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   function clearLongPress() {
     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer=null; }
   }
+
+  // prevent iOS context menu stealing the long press
+  cv.addEventListener('contextmenu', e => e.preventDefault());
 
   cv.addEventListener('touchstart', e => {
     if (!img) return;
@@ -1707,7 +1711,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   cv.addEventListener('touchmove', e => {
     if (!img) return;
     const t=e.touches[0];
-    const moved = Math.abs(t.clientX-txStart)>6||Math.abs(t.clientY-tyStart)>6;
+    const moved = Math.abs(t.clientX-txStart)>20||Math.abs(t.clientY-tyStart)>20;
     if (mode==='drag'&&dragState) {
       e.preventDefault();
       const wp=getTouchPt(t); mp=wp;
