@@ -486,6 +486,7 @@
       <span>or use the buttons above</span>
     </div>
     <canvas id="cv"></canvas>
+    <canvas id="magOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
     <div id="hint"></div>
     <div id="toast"></div>
 
@@ -799,8 +800,6 @@ function loadImg(file) {
       dz.style.display='none'; dz.style.pointerEvents='none';
       const ad = document.getElementById('adUnit');
       if (ad) ad.style.display='none';
-      const p = document.getElementById('kofiPopup');
-      if (p) { p.style.opacity='0'; p.style.pointerEvents='none'; setTimeout(()=>{ p.style.display='none'; }, 500); }
       updUI();
       // image loaded — user can now interact
     };
@@ -1614,6 +1613,9 @@ function draw() {
                 || (isMobNow && longPressActive && am2.includes(mode))
                 || (isMobNow && mode==='drag' && !!dragState);
     if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
+    else clearMagOverlay();
+  } else {
+    clearMagOverlay();
   }
 }
 
@@ -1707,42 +1709,62 @@ function drawLabel(x,y,text,col,dpr=1) {
 
 /* ── magnifier (screen space) ── */
 function drawMagnifier(scx,scy,wx,wy,col,dpr=1) {
-  const MAG_R=72*dpr, ZOOM_F=5, OFFSET=(MAG_R+18);
-  const flipX=scx+OFFSET+MAG_R>cv.width, flipY=scy-OFFSET-MAG_R<0;
-  const mx=scx+(flipX?-OFFSET:OFFSET), my=scy+(flipY?OFFSET:-OFFSET);
-  const SRC_H=MAG_R/ZOOM_F;
-  const cssW=cv.width/dpr, cssH=cv.height/dpr;
-  const ir=img.width/cssW, ir2=img.height/cssH;
+  const MAG_R=72*dpr, ZOOM_F=5, OFFSET=MAG_R+18;
+  const ov = document.getElementById('magOverlay');
+  if (!ov) return;
+  const caRc = ca.getBoundingClientRect();
+  const ovW = caRc.width * dpr, ovH = caRc.height * dpr;
+  ov.width = ovW; ov.height = ovH;
+  const octx = ov.getContext('2d');
+  octx.clearRect(0,0,ovW,ovH);
+
+  // cursor position in overlay coords
+  const rc = cv.getBoundingClientRect();
+  const cx = (rc.left - caRc.left) * dpr + scx;
+  const cy = (rc.top  - caRc.top)  * dpr + scy;
+
+  const flipX = cx + OFFSET + MAG_R > ovW;
+  const flipY = cy - OFFSET - MAG_R < 0;
+  const mx = cx + (flipX ? -OFFSET : OFFSET);
+  const my = cy + (flipY ? OFFSET  : -OFFSET);
+
+  const cssW = cv.width / dpr, cssH = cv.height / dpr;
+  const ir = img.width / cssW, ir2 = img.height / cssH;
+  const SRC_H = MAG_R / ZOOM_F;
   const srcX=(wx-SRC_H)*ir, srcY=(wy-SRC_H)*ir2, srcW=SRC_H*2*ir, srcH_=SRC_H*2*ir2;
 
-  ctx.save(); ctx.setTransform(1,0,0,1,0,0);
-  ctx.beginPath(); ctx.arc(mx,my,MAG_R,0,Math.PI*2); ctx.clip();
-  ctx.fillStyle='#111'; ctx.fillRect(mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
-  ctx.imageSmoothingEnabled=false;
-  ctx.drawImage(img,srcX,srcY,srcW,srcH_,mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
-  ctx.imageSmoothingEnabled=true; ctx.restore();
+  octx.save(); octx.beginPath(); octx.arc(mx,my,MAG_R,0,Math.PI*2); octx.clip();
+  octx.fillStyle='#111'; octx.fillRect(mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
+  octx.imageSmoothingEnabled=false;
+  octx.drawImage(img,srcX,srcY,srcW,srcH_,mx-MAG_R,my-MAG_R,MAG_R*2,MAG_R*2);
+  octx.imageSmoothingEnabled=true; octx.restore();
 
-  ctx.save(); ctx.setTransform(1,0,0,1,0,0);
-  ctx.beginPath(); ctx.arc(mx,my,MAG_R,0,Math.PI*2); ctx.strokeStyle=col; ctx.lineWidth=1.5*dpr; ctx.stroke();
-  ctx.beginPath(); ctx.arc(mx,my,MAG_R+dpr,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=dpr; ctx.stroke();
+  octx.beginPath(); octx.arc(mx,my,MAG_R,0,Math.PI*2); octx.strokeStyle=col; octx.lineWidth=1.5*dpr; octx.stroke();
+  octx.beginPath(); octx.arc(mx,my,MAG_R+dpr,0,Math.PI*2); octx.strokeStyle='rgba(0,0,0,.5)'; octx.lineWidth=dpr; octx.stroke();
   const ARM=MAG_R-4*dpr, GAP=5*dpr;
-  ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.lineWidth=3*dpr; ctx.lineCap='round'; ctx.beginPath();
-  ctx.moveTo(mx-ARM,my);ctx.lineTo(mx-GAP,my);ctx.moveTo(mx+GAP,my);ctx.lineTo(mx+ARM,my);
-  ctx.moveTo(mx,my-ARM);ctx.lineTo(mx,my-GAP);ctx.moveTo(mx,my+GAP);ctx.lineTo(mx,my+ARM); ctx.stroke();
-  ctx.strokeStyle=col; ctx.lineWidth=1.5*dpr; ctx.beginPath();
-  ctx.moveTo(mx-ARM,my);ctx.lineTo(mx-GAP,my);ctx.moveTo(mx+GAP,my);ctx.lineTo(mx+ARM,my);
-  ctx.moveTo(mx,my-ARM);ctx.lineTo(mx,my-GAP);ctx.moveTo(mx,my+GAP);ctx.lineTo(mx,my+ARM); ctx.stroke();
-  ctx.beginPath(); ctx.arc(mx,my,2*dpr,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
+  octx.strokeStyle='rgba(0,0,0,.55)'; octx.lineWidth=3*dpr; octx.lineCap='round'; octx.beginPath();
+  octx.moveTo(mx-ARM,my);octx.lineTo(mx-GAP,my);octx.moveTo(mx+GAP,my);octx.lineTo(mx+ARM,my);
+  octx.moveTo(mx,my-ARM);octx.lineTo(mx,my-GAP);octx.moveTo(mx,my+GAP);octx.lineTo(mx,my+ARM); octx.stroke();
+  octx.strokeStyle=col; octx.lineWidth=1.5*dpr; octx.beginPath();
+  octx.moveTo(mx-ARM,my);octx.lineTo(mx-GAP,my);octx.moveTo(mx+GAP,my);octx.lineTo(mx+ARM,my);
+  octx.moveTo(mx,my-ARM);octx.lineTo(mx,my-GAP);octx.moveTo(mx,my+GAP);octx.lineTo(mx,my+ARM); octx.stroke();
+  octx.beginPath(); octx.arc(mx,my,2*dpr,0,Math.PI*2); octx.fillStyle=col; octx.fill();
+
   const coordTxt=`${Math.round(wx*ir)}, ${Math.round(wy*ir2)}`;
-  ctx.font=`bold ${10*dpr}px monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
-  const tw=ctx.measureText(coordTxt).width, lx=mx, ly=my+MAG_R-12*dpr, pw=tw/2+5*dpr, ph=8*dpr, pr=3*dpr;
-  ctx.fillStyle='rgba(0,0,0,.7)'; ctx.beginPath(); ctx.roundRect(lx-pw,ly-ph,pw*2,ph*2,pr); ctx.fill();
-  ctx.fillStyle=col; ctx.fillText(coordTxt,lx,ly);
-  ctx.beginPath(); ctx.arc(scx,scy,3*dpr,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.6)'; ctx.lineWidth=2*dpr; ctx.stroke();
-  ctx.fillStyle=col; ctx.fill();
-  ctx.restore();
+  octx.font=`bold ${10*dpr}px monospace`; octx.textAlign='center'; octx.textBaseline='middle';
+  const tw=octx.measureText(coordTxt).width, lx=mx, ly=my+MAG_R-12*dpr, pw=tw/2+5*dpr, ph=8*dpr, pr=3*dpr;
+  octx.fillStyle='rgba(0,0,0,.7)'; octx.beginPath(); octx.roundRect(lx-pw,ly-ph,pw*2,ph*2,pr); octx.fill();
+  octx.fillStyle=col; octx.fillText(coordTxt,lx,ly);
+
+  // crosshair dot on canvas at cursor position
+  octx.beginPath(); octx.arc(cx,cy,3*dpr,0,Math.PI*2); octx.strokeStyle='rgba(0,0,0,.6)'; octx.lineWidth=2*dpr; octx.stroke();
+  octx.fillStyle=col; octx.fill();
 }
 
+function clearMagOverlay() {
+  const ov = document.getElementById('magOverlay');
+  if (ov) { const o=ov.getContext('2d'); o.clearRect(0,0,ov.width,ov.height); }
+}
 /* ── hint ── */
 /* ─── Project save / load ────────────────────────────────────────────────── */
 function saveProject() {
