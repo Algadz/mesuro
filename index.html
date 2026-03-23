@@ -1581,7 +1581,7 @@ function draw() {
   }
 
   // draw straighten overlay
-  if (mode==='st' && stPts.length > 0) {
+  if ((mode==='st' || (mode==='drag' && dragState && dragState.idx===-2)) && stPts.length > 0) {
     ctx.save();
     ctx.strokeStyle='rgba(159,119,221,.7)'; ctx.lineWidth=1.5/zoom; ctx.setLineDash([5/zoom,4/zoom]);
     ctx.beginPath(); ctx.moveTo(stPts[0].x,stPts[0].y);
