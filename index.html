@@ -947,11 +947,18 @@ cv.addEventListener('mousemove', e => {
     panX=panStart.px+(cp.x-panStart.mx); panY=panStart.py+(cp.y-panStart.my);
     clampPan(); draw(); return;
   }
-  if (mode==='drag' && dragState) { applyDrag(wp); draw(); updUI(); return; }
-  const dm=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp','st'];
-  if (dm.includes(mode)) {
+  if (mode==='drag' && dragState) {
+    mp = wp; // keep mp live so magnifier follows
+    applyDrag(wp); draw(); updUI(); return;
+  }
+  const dm=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
+  const stPlacing = mode==='st' && stPts.length < 4;
+  if (dm.includes(mode) || stPlacing) {
     mp = (p0 && (mode==='sb'||mode==='mb')) ? snapPoint(p0, wp, e) : wp;
     draw(); return;
+  }
+  if (mode==='st' && stPts.length >= 4) {
+    mp = null; // 4 points placed — no magnifier until drag
   }
   if (mode==='idle' || mode==='st') {
     const t=findDrag(wp);
@@ -1602,7 +1609,8 @@ function draw() {
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
     const stActive = mode==='st' && stPts.length < 4;
-    const showIt = (!isMobNow && (magEnabled || stActive) && (am2.includes(mode) || (mode==='drag' && dragState && dragState.idx===-2)))
+    const stDragging = mode==='drag' && dragState && dragState.idx===-2;
+    const showIt = (!isMobNow && (magEnabled || stActive || stDragging) && (am2.includes(mode) || stDragging))
                 || (isMobNow && longPressActive && am2.includes(mode))
                 || (isMobNow && mode==='drag' && !!dragState);
     if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
