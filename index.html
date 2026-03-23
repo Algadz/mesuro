@@ -396,30 +396,26 @@
     <div>
       <div class="slbl">RECTIFY</div>
       <div class="btn-row" style="margin-bottom:4px">
-        <button id="btnStraighten" onclick="doStraighten()" disabled style="flex:1;padding:6px 4px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px">
-          <svg width="26" height="20" viewBox="0 0 220 160" fill="none">
-            <!-- distorted quad -->
-            <polygon points="45,8 88,5 65,132 5,138" fill="none" stroke="currentColor" stroke-width="10" stroke-dasharray="18 12" stroke-linejoin="round"/>
-            <circle cx="45"  cy="8"   r="10" fill="#EF9F27"/>
-            <circle cx="88"  cy="5"   r="10" fill="#5DCAA5"/>
-            <circle cx="65"  cy="132" r="10" fill="#D4537E"/>
-            <circle cx="5"   cy="138" r="10" fill="#9F77DD"/>
-            <!-- arrow -->
-            <line x1="104" y1="72" x2="134" y2="72" stroke="currentColor" stroke-width="8"/>
-            <polyline points="126,58 140,72 126,86" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
-            <!-- rect -->
-            <rect x="148" y="5" width="66" height="150" fill="none" stroke="currentColor" stroke-width="10" stroke-linejoin="round"/>
-            <circle cx="148" cy="5"   r="10" fill="#EF9F27"/>
-            <circle cx="214" cy="5"   r="10" fill="#5DCAA5"/>
-            <circle cx="214" cy="155" r="10" fill="#D4537E"/>
-            <circle cx="148" cy="155" r="10" fill="#9F77DD"/>
+        <button id="btnStraighten" onclick="doStraighten()" disabled style="flex:1;display:flex;align-items:center;justify-content:center;padding:6px 4px;">
+          <svg width="80" height="20" viewBox="0 0 390 100" fill="none" style="display:block">
+            <polygon points="5,5 115,5 92,90 28,90" fill="none" stroke="currentColor" stroke-width="10" stroke-dasharray="18 12"/>
+            <circle cx="5"   cy="5"  r="10" fill="#EF9F27"/>
+            <circle cx="115" cy="5"  r="10" fill="#5DCAA5"/>
+            <circle cx="92"  cy="90" r="10" fill="#D4537E"/>
+            <circle cx="28"  cy="90" r="10" fill="#9F77DD"/>
+            <line x1="145" y1="47" x2="220" y2="47" stroke="currentColor" stroke-width="8"/>
+            <polyline points="213,39 223,47 213,55" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+            <rect x="250" y="5" width="90" height="85" fill="none" stroke="currentColor" stroke-width="10"/>
+            <circle cx="250" cy="5"  r="10" fill="#EF9F27"/>
+            <circle cx="340" cy="5"  r="10" fill="#5DCAA5"/>
+            <circle cx="340" cy="90" r="10" fill="#D4537E"/>
+            <circle cx="250" cy="90" r="10" fill="#9F77DD"/>
           </svg>
-          Rectify
         </button>
-        <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:0 0 auto;padding:6px 6px;font-size:10px;color:#888;white-space:nowrap" title="Restore original image">↩ Original</button>
+        <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:1;font-size:11px;color:#888">↩ Original</button>
       </div>
-      <div id="straightenStatus" style="display:none;font-size:10px;color:#555;margin-bottom:4px;line-height:1.5">
-        Click: <span id="stCornerLabel" style="color:#9F77DD">top-left</span><br>
+      <div id="straightenStatus" style="display:none;font-size:10px;color:#555;margin-bottom:4px;line-height:1.6;padding:4px 0">
+        Click <span id="stCornerLabel" style="color:#9F77DD;font-weight:500">top-left</span> corner<br>
         <span id="stDots">○ ○ ○ ○</span>
       </div>
       <div id="straightenApplyRow" style="display:none" class="btn-row">
@@ -1162,7 +1158,11 @@ function updStraightenUI() {
   const btn = document.getElementById('btnStraighten');
   const label = document.getElementById('stCornerLabel');
   const dots = document.getElementById('stDots');
-  if (!status) return;
+  if (!status || !btn) return;
+
+  // toggle active color on button, keep SVG+text intact
+  btn.className = active ? 'btn-area-active' : '';
+
   if (active) {
     status.style.display = 'block';
     if (stPts.length < 4) {
@@ -1171,19 +1171,15 @@ function updStraightenUI() {
       label.style.color = ST_COLORS[stPts.length];
     } else {
       applyRow.style.display = 'flex';
-      label.textContent = 'ready';
+      label.textContent = 'ready — drag to adjust';
       label.style.color = '#1D9E75';
     }
     const filled = ['●','●','●','●'].map((c,i) => i < stPts.length
       ? `<span style="color:${ST_COLORS[i]}">${c}</span>` : '○').join(' ');
     dots.innerHTML = filled;
-    btn.textContent = '✕ Cancel';
-    btn.className = 'btn-scale-active';
   } else {
     status.style.display = 'none';
     applyRow.style.display = 'none';
-    btn.textContent = '⬜ Place 4 corners';
-    btn.className = '';
   }
 }
 
