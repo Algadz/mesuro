@@ -115,7 +115,7 @@
   #hint {
     display: none;
     position: absolute;
-    bottom: 14px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0,0,0,.75);
@@ -317,6 +317,7 @@
   }
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div id="app">
@@ -353,10 +354,13 @@
     </div>
 
     <div>
-      <label id="loadLabel" style="display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
-        Load image
-        <input type="file" id="fileInput" accept="image/*" style="display:none">
-      </label>
+      <div class="btn-row">
+        <label id="loadLabel" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
+          Load image
+          <input type="file" id="fileInput" accept="image/*" style="display:none">
+        </label>
+        <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
+      </div>
       <input type="file" id="projectInput" accept=".mesuro" style="display:none">
     </div>
 
@@ -395,15 +399,7 @@
       <div class="slbl">SCALE</div>
       <div class="btn-row">
         <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
-        <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex:1">Set</button>
-      </div>
-    </div>
-
-    <div>
-      <div class="slbl">IMAGE</div>
-      <div class="btn-row">
-        <button onclick="rotateImg(-90)" disabled id="btnRotL" style="flex:1;font-size:12px" title="Rotate 90° left">↺ 90°</button>
-        <button onclick="rotateImg(90)"  disabled id="btnRotR" style="flex:1;font-size:12px" title="Rotate 90° right">↻ 90°</button>
+        <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
       </div>
     </div>
 
@@ -921,6 +917,8 @@ function findDrag(wp) {
       for (let j=0;j<m.pts.length;j++) if (near(m.pts[j].x,m.pts[j].y)) return {idx:i,field:'pt',ptIdx:j};
     } else if (m.type==='perim') {
       for (let j=0;j<m.pts.length;j++) if (near(m.pts[j].x,m.pts[j].y)) return {idx:i,field:'pt',ptIdx:j};
+    } else if (m.type==='note') {
+      if (near(m.x,m.y)) return {idx:i,field:'pos'};
     }
   }
   if (scLine) {
@@ -966,6 +964,8 @@ function applyDrag(wp) {
     m.pts[ptIdx]={x:wp.x,y:wp.y}; m.areaPx=polyArea(m.pts);
   } else if (m.type==='perim') {
     m.pts[ptIdx]={x:wp.x,y:wp.y}; m.perimPx=polyPerim(m.pts);
+  } else if (m.type==='note') {
+    m.x=wp.x; m.y=wp.y;
   }
 }
 
@@ -1034,6 +1034,7 @@ document.addEventListener('keyup', e => {
 /* ── click ── */
 cv.addEventListener('click', e => {
   if (!img||e.button!==0||isPanning||mode==='drag'||spaceDown) return;
+  const p=pt(e);
   if (mode==='na') {
     notePending = {x:p.x, y:p.y};
     const nm = document.getElementById('noteModal');
@@ -1041,7 +1042,6 @@ cv.addEventListener('click', e => {
     if (nm && ni) { ni.value=''; nm.style.display='flex'; setTimeout(()=>ni.focus(),50); }
     return;
   }
-  const p=pt(e);
   // straighten mode — collect 4 corner points
   if (mode==='st') {
     if (stPts.length < 4) {
@@ -1163,12 +1163,11 @@ document.addEventListener('keydown', e => {
 
 /* ── tools ── */
 function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; stPts=[]; clearHint(); updStraightenUI(); draw(); updUI(); }
-function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line'); updUI(); }
+function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line (Ctrl=snap 45°)'); updUI(); }
 function doScaleReset() {
-  // reuse existing scLine, just ask for new value
-  if (!scLine) { doScale(); return; }
-  pLine = { x1:scLine.x1, y1:scLine.y1, x2:scLine.x2, y2:scLine.y2 };
-  mode = 'wait'; stopTool(); showModal();
+  pushHistory();
+  scLine = null; scPx = null; scFactor = null;
+  draw(); updUI();
 }
 function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance'); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
 
@@ -1491,7 +1490,7 @@ function updUI() {
   resList.innerHTML='';
 
   meas.forEach((m,i) => {
-    const col=m.type==='diam'?'#5DCAA5':m.type==='angle'?'#D4537E':m.type==='area'?'#9F77DD':m.type==='perim'?'#F0994A':'#EF9F27';
+    const col=m.type==='diam'?'#5DCAA5':m.type==='angle'?'#D4537E':m.type==='area'?'#9F77DD':m.type==='perim'?'#F0994A':m.type==='note'?'#F5E642':'#EF9F27';
     let icon,valTxt,pxTxt='';
     if (m.type==='line') {
       icon='↔'; const r=scFactor?m.px*scFactor:null;
@@ -1507,6 +1506,8 @@ function updUI() {
     } else if (m.type==='perim') {
       icon='⬠'; const r=scFactor?m.perimPx*scFactor:null;
       valTxt=r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)} px`; pxTxt=`${Math.round(m.perimPx)}px`;
+    } else if (m.type==='note') {
+      icon='✎'; valTxt=m.text;
     }
     const d=document.createElement('div');
     d.className='res-item';
@@ -1982,6 +1983,7 @@ function confirmNote() {
 function exportPDF() {
   if (!img) return;
   t('export_pdf');
+
   // render annotated image to canvas at full res
   const ec = document.createElement('canvas');
   ec.width = img.width; ec.height = img.height;
@@ -2000,120 +2002,83 @@ function exportPDF() {
   });
 
   const imgDataUrl = ec.toDataURL('image/jpeg', 0.92);
-  const imgW = img.width, imgH = img.height;
 
-  // build measurement table
+  // build measurement table rows
   const rows = [];
   meas.forEach((m,i) => {
     if(m.type==='line'){const r=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;rows.push([`#${i+1}`,'Distance',r]);}
     else if(m.type==='diam'){const r=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;rows.push([`⌀${i+1}`,'Diameter',r]);}
     else if(m.type==='angle'){rows.push([`∠${i+1}`,'Angle',`${m.deg.toFixed(1)}°`]);}
-    else if(m.type==='area'){const r=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`⬡${i+1}`,'Area',r]);}
-    else if(m.type==='perim'){const r=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`⬠${i+1}`,'Perimeter',r]);}
-    else if(m.type==='note'){rows.push([`✎${i+1}`,'Note',m.text]);}
+    else if(m.type==='area'){const r=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`■${i+1}`,'Area',r]);}
+    else if(m.type==='perim'){const r=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`~${i+1}`,'Path',r]);}
+    else if(m.type==='note'){rows.push([`N${i+1}`,'Note',m.text]);}
   });
 
-  // A4 PDF in pt: 595 x 842, margin 40
-  const pw=595, ph=842, mg=40, cw=pw-2*mg;
-  const maxImgH = Math.round(ph * 0.55);
-  const ratio = Math.min(cw/imgW, maxImgH/imgH);
-  const di_w = Math.round(imgW*ratio), di_h = Math.round(imgH*ratio);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const mg = 40;
+
+  // title
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(14);
+  doc.setTextColor(30,30,30);
+  doc.text('mesu.ro — Measurement Report', mg, mg);
+
+  // subtitle
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(100,100,100);
   const now = new Date().toLocaleDateString('en-GB');
   const scaleStr = scFactor ? `Scale: 1 px = ${(1/scFactor).toFixed(3)} ${scUnit}` : 'Scale: not set';
+  doc.text(`${now}   |   ${scaleStr}`, mg, mg+16);
 
-  // escape PDF string
-  function esc(s){return s.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');}
+  // rule
+  doc.setDrawColor(200,200,200);
+  doc.setLineWidth(0.5);
+  doc.line(mg, mg+22, pw-mg, mg+22);
 
-  // convert image to raw bytes for PDF embedding
-  const b64 = imgDataUrl.split(',')[1];
-  const raw = atob(b64);
-  const imgBytes = raw.length;
-
-  // PDF structure
-  const objects = [];
-  let oid = 1;
-  function addObj(content){ objects.push({id:oid++, content}); }
-
-  // obj 1: catalog, obj 2: pages, obj 3: page, obj 4: image, obj 5: font, obj 6: content stream
-  addObj('<< /Type /Catalog /Pages 2 0 R >>');
-  addObj('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-
-  // content stream — build page drawing commands
-  let cs = '';
-  // title
-  cs += `BT /F1 14 Tf ${mg} ${ph-mg-14} Td (mesu.ro — Measurement Report) Tj ET\n`;
-  cs += `BT /F1 9 Tf ${mg} ${ph-mg-28} Td (${esc(now)}  |  ${esc(scaleStr)}) Tj ET\n`;
-  // horizontal rule
-  cs += `${mg} ${ph-mg-36} m ${pw-mg} ${ph-mg-36} l S\n`;
   // image
-  const imgY = ph - mg - 42 - di_h;
-  cs += `q ${di_w} 0 0 ${di_h} ${mg} ${imgY} cm /Im1 Do Q\n`;
+  const cw = pw - 2*mg;
+  const maxImgH = ph * 0.52;
+  const ratio = Math.min(cw / img.width, maxImgH / img.height);
+  const di_w = img.width * ratio, di_h = img.height * ratio;
+  const imgX = mg, imgY = mg + 30;
+  doc.addImage(imgDataUrl, 'JPEG', imgX, imgY, di_w, di_h);
+
   // table
-  let ty = imgY - 24;
-  cs += `BT /F1 10 Tf ${mg} ${ty} Td (#  Type  Value) Tj ET\n`;
-  cs += `${mg} ${ty-4} m ${pw-mg} ${ty-4} l S\n`;
-  ty -= 16;
-  rows.forEach(([n,type,val]) => {
-    if (ty < mg+20) return;
-    cs += `BT /F1 9 Tf ${mg} ${ty} Td (${esc(n)}) Tj ${mg+28} ${ty} Td (${esc(type)}) Tj ${mg+120} ${ty} Td (${esc(val)}) Tj ET\n`;
-    ty -= 14;
+  let ty = imgY + di_h + 20;
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.setTextColor(60,60,60);
+  doc.text('#', mg, ty);
+  doc.text('Type', mg+36, ty);
+  doc.text('Value', mg+130, ty);
+  ty += 4;
+  doc.setDrawColor(180,180,180);
+  doc.line(mg, ty, pw-mg, ty);
+  ty += 11;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  rows.forEach(([n, type, val]) => {
+    if (ty > ph - mg - 20) { doc.addPage(); ty = mg + 20; }
+    doc.setTextColor(80,80,80);
+    doc.text(n, mg, ty);
+    doc.text(type, mg+36, ty);
+    doc.setTextColor(30,30,30);
+    doc.text(val, mg+130, ty);
+    ty += 13;
   });
+
   // footer
-  cs += `BT /F1 8 Tf ${mg} ${mg} Td (Generated by mesu.ro — free online image measurement tool) Tj ET\n`;
+  doc.setFontSize(8);
+  doc.setTextColor(160,160,160);
+  doc.text('Generated by mesu.ro — free online image measurement tool', mg, ph-mg+10);
 
-  const csBytes = new TextEncoder().encode(cs);
-  addObj(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Contents 6 0 R /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 4 0 R >> >> >>`);
-  addObj(`<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes} >>\nstream\n${raw}\nendstream`);
-  addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
-  addObj(`<< /Length ${csBytes.length} >>\nstream\n${cs}\nendstream`);
-
-  // build PDF bytes
-  let pdf = '%PDF-1.4\n';
-  const offsets = [];
-  objects.forEach(o => {
-    offsets.push(pdf.length);
-    if (o.id===4) {
-      // binary image object — write header, then raw bytes
-      const hdr = `${o.id} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes} >>\nstream\n`;
-      pdf += hdr;
-    } else {
-      pdf += `${o.id} 0 obj\n${o.content}\nendobj\n`;
-    }
-  });
-
-  // For the image object we need binary — use a Blob approach
-  const xrefPos = pdf.length;
-  pdf += `xref\n0 ${oid}\n0000000000 65535 f \n`;
-  offsets.forEach(o => { pdf += String(o).padStart(10,'0') + ' 00000 n \n'; });
-  pdf += `trailer\n<< /Size ${oid} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
-
-  // Reconstruct as Uint8Array with real binary image
-  const enc = new TextEncoder();
-  const hdrPart = enc.encode('%PDF-1.4\n');
-  // build proper binary PDF
-  const part1 = enc.encode(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Contents 6 0 R /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 4 0 R >> >> >>\nendobj\n4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes} >>\nstream\n`);
-  const imgBin = new Uint8Array(imgBytes);
-  for(let i=0;i<imgBytes;i++) imgBin[i]=raw.charCodeAt(i);
-  const part2 = enc.encode(`\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n6 0 obj\n<< /Length ${csBytes.length} >>\nstream\n`);
-  const part3 = enc.encode(`\nendstream\nendobj\n`);
-
-  // compute cross-reference
-  let off = hdrPart.length;
-  const offs = [];
-  offs.push(off); off += part1.length;       // obj 1 starts mid-part1 — recalc properly
-  // simpler: just write the whole thing as a blob
-  const totalLen = hdrPart.length + part1.length + imgBin.length + part2.length + csBytes.length + part3.length;
-  const buf = new Uint8Array(totalLen);
-  let pos=0;
-  [hdrPart, part1, imgBin, part2, csBytes, part3].forEach(b=>{buf.set(b,pos);pos+=b.length;});
-
-  const blob = new Blob([buf], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download='mesuro-report.pdf'; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  doc.save('mesuro-report.pdf');
 }
-
 
 function exportCSV() {
   if (!meas.length) return;
