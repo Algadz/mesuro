@@ -1318,13 +1318,58 @@ function applyStraighten() {
   // world coords: (0,0) = top-left of image, (cssW,cssH) = bottom-right
   // That's correct — pt() divides out zoom and pan already
 
-  // compute output dimensions from src quadrilateral
+  // compute output dimensions using Criminisi vanishing-point method
+  // This recovers the true aspect ratio correcting for perspective foreshortening
+  function cross2d(a, b) {
+    return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  }
+  function lineH(p1, p2) { return cross2d([p1[0],p1[1],1],[p2[0],p2[1],1]); }
+  function meetH(l1, l2) { const p=cross2d(l1,l2); return Math.abs(p[2])>1e-9?[p[0]/p[2],p[1]/p[2]]:null; }
+
+  const [TL,TR,BR,BL] = src;
+  const V1 = meetH(lineH(TL,TR), lineH(BL,BR)); // horizontal VP
+  const V2 = meetH(lineH(TL,BL), lineH(TR,BR)); // vertical VP
+
+  // image centre in canvas pixel space
+  const cx = cssW/2, cy = cssH/2;
+
+  let trueAspect = null; // width/height
+  if (V1 && V2) {
+    const f2 = -((V1[0]-cx)*(V2[0]-cx) + (V1[1]-cy)*(V2[1]-cy));
+    if (f2 > 0) {
+      const f = Math.sqrt(f2);
+      const ray = p => [p[0]-cx, p[1]-cy, f];
+      const dist3 = (a,b) => Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+      const rTL=ray(TL), rTR=ray(TR), rBR=ray(BR), rBL=ray(BL);
+      const w3 = (dist3(rTL,rTR)+dist3(rBL,rBR))/2;
+      const h3 = (dist3(rTL,rBL)+dist3(rTR,rBR))/2;
+      if (h3 > 0) trueAspect = w3/h3;
+    }
+  }
+
+  // base size from longest projected edge, then apply true aspect
   const widthTop  = Math.hypot(src[1][0]-src[0][0], src[1][1]-src[0][1]);
   const widthBot  = Math.hypot(src[2][0]-src[3][0], src[2][1]-src[3][1]);
   const heightL   = Math.hypot(src[3][0]-src[0][0], src[3][1]-src[0][1]);
   const heightR   = Math.hypot(src[2][0]-src[1][0], src[2][1]-src[1][1]);
-  const outW = Math.round(Math.max(widthTop, widthBot));
-  const outH = Math.round(Math.max(heightL, heightR));
+  const projW = Math.max(widthTop, widthBot);
+  const projH = Math.max(heightL, heightR);
+
+  let outW, outH;
+  if (trueAspect) {
+    // use the larger projected dimension as reference, correct the other
+    if (projW >= projH) {
+      outW = Math.round(projW);
+      outH = Math.round(projW / trueAspect);
+    } else {
+      outH = Math.round(projH);
+      outW = Math.round(projH * trueAspect);
+    }
+  } else {
+    // fallback: pure projected edges (no perspective correction)
+    outW = Math.round(projW);
+    outH = Math.round(projH);
+  }
   if (outW < 4 || outH < 4) { showToast('Corners too close — try again'); return; }
 
   const dst = [[0,0],[outW,0],[outW,outH],[0,outH]];
