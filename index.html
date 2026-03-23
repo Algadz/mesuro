@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mesu.ro — Free Online Image Measurement Tool | Measure distances, angles & areas</title>
-<meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image. Set a scale and get real-world measurements in mm, cm, inches or any unit. No upload, no install.">
-<meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image">
+<title>mesu.ro — Free Online Image Measurement Tool | Distances, angles, areas, PDF export & perspective correction</title>
+<meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters, diameters in any image. Correct perspective with the rectify tool. Add text notes. Export annotated images or PDF reports. No upload, no install, fully private.">
+<meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image, perspective correction, rectify image, annotate image online, PDF measurement report, image annotation tool">
 <meta name="author" content="mesu.ro">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Angle measurement","Area measurement","Perimeter measurement","Diameter measurement","Scale calibration","PNG export","CSV export","Project save and load"]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Angle measurement","Area measurement","Path/perimeter measurement","Diameter measurement","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Image rotation","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load"]}
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cstyle%3Etext%2Cline%7Bfill:%23222%3Bstroke:%23222%7D%40media(prefers-color-scheme:dark)%7Btext%2Cline%7Bfill:%23fff%3Bstroke:%23fff%7D%7D%3C/style%3E%3Ctext x='2' y='23' font-family='system-ui,-apple-system,sans-serif' font-size='22' font-weight='800' fill='%23222'%3Em%3C/text%3E%3Cline x1='2' y1='27' x2='30' y2='27' stroke='%23222' stroke-width='1.5'/%3E%3Cline x1='2' y1='24' x2='2' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='30' y1='24' x2='30' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mesu.ro/">
 <meta property="og:title" content="mesu.ro — measure anything in an image">
-<meta property="og:description" content="Measure distances, angles, areas and diameters in any image. Set a real-world scale and get precise measurements. Free, instant, no upload.">
+<meta property="og:description" content="Measure distances, angles, areas and diameters in any image. Correct perspective distortion with the rectify tool. Add text notes. Export PDF reports. Free, instant, no upload.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mesu.ro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Distances, angles, areas. No upload, no install.">
@@ -1163,13 +1163,13 @@ document.addEventListener('keydown', e => {
 
 /* ── tools ── */
 function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; stPts=[]; clearHint(); updStraightenUI(); draw(); updUI(); }
-function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line (Ctrl=snap 45°)'); updUI(); }
+function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line (Ctrl=snap 45°) — Esc to cancel'); updUI(); }
 function doScaleReset() {
   pushHistory();
   scLine = null; scPx = null; scFactor = null;
   draw(); updUI();
 }
-function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance'); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
+function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance', {unit:scUnit}); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
 
 /* ── STRAIGHTEN ── */
 let stPts = []; // up to 4 world-space points: TL, TR, BR, BL
@@ -1372,16 +1372,16 @@ function applyStraighten() {
       clearHint();
       updStraightenUI();
       updUI();
-      showToast('Image rectified — set scale to continue');
+      t('rectify'); showToast('Image rectified — set scale to continue');
     };
     newImg.src = outCanvas.toDataURL('image/png');
   }, 30);
 }
 
-function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter'); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
-function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle'); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area'); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter'); stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — Enter to close shape — Esc to save as open path'); updUI(); }
+function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter', {unit:scUnit}); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
+function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle', {has_scale:!!scFactor}); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area', {unit:scUnit}); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter', {unit:scUnit}); stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — click start or Enter to close — Esc to save open path'); updUI(); }
 function closePerim() {
   pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx:polyPerim(areaPts),open:false});
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
@@ -1408,7 +1408,7 @@ function confirmScale() {
   sv.style.borderColor='';
   scUnit=document.getElementById('sUnit').value.trim()||'mm';
   scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
-  pLine=null; modal.style.display='none'; t('set_scale'); stopTool();
+  pLine=null; modal.style.display='none'; t('set_scale', {unit:scUnit, px_per_unit:+(1/scFactor).toFixed(4)}); stopTool();
 }
 document.getElementById('sVal').addEventListener('keydown', e => { if(e.key==='Enter')confirmScale(); if(e.key==='Escape')cancelScale(); });
 
@@ -1861,6 +1861,7 @@ function saveProject() {
 }
 
 function loadProject(file) {
+  t('load_project');
   const r = new FileReader();
   r.onload = ev => {
     try {
@@ -1935,6 +1936,7 @@ function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath
 /* ── rotate image ── */
 function rotateImg(deg) {
   if (!img) return;
+  t('rotate', {deg:deg});
   pushHistory();
   const oc = document.createElement('canvas');
   const abs = Math.abs(deg);
@@ -1961,7 +1963,8 @@ let notePending = null; // {x, y} world coords waiting for text
 function doNote() {
   if (mode==='na') { stopTool(); return; }
   if (!img) return;
-  stopTool(); mode='na'; setHint('Click where to place the note'); updUI();
+  t('tool_note');
+  stopTool(); mode='na'; setHint('N — click where to place the note — Esc to cancel'); updUI();
 }
 
 function cancelNote() {
