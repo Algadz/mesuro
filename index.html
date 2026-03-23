@@ -851,17 +851,36 @@ function loadImg(file) {
 
 function fitImg() {
   const isMobile = window.innerWidth <= 767;
-  const pad = isMobile ? 0 : 20;
-  const aw = ca.clientWidth - pad, ah = ca.clientHeight - pad;
-  const r = Math.min(aw / img.width, ah / img.height, 1);
   const dpr = isMobile ? (window.devicePixelRatio || 1) : 1;
-  const cssW = Math.round(img.width  * r);
-  const cssH = Math.round(img.height * r);
-  // buffer at device pixels for sharp rendering, display at CSS pixels
-  cv.width  = Math.round(cssW * dpr);
-  cv.height = Math.round(cssH * dpr);
-  cv.style.width  = cssW + 'px';
-  cv.style.height = cssH + 'px';
+
+  if (isMobile) {
+    // mobile: canvas = full canvasArea, image fits inside via zoom+pan
+    const cssW = ca.clientWidth;
+    const cssH = ca.clientHeight;
+    cv.width  = Math.round(cssW * dpr);
+    cv.height = Math.round(cssH * dpr);
+    cv.style.width  = cssW + 'px';
+    cv.style.height = cssH + 'px';
+    // fit image inside
+    const r = Math.min(cssW / img.width, cssH / img.height, 1);
+    zoom = r;
+    panX = (cssW - img.width  * r) / 2;
+    panY = (cssH - img.height * r) / 2;
+  } else {
+    // desktop: canvas always fills canvasArea, image centered
+    const cssW = ca.clientWidth;
+    const cssH = ca.clientHeight;
+    cv.width  = cssW;
+    cv.height = cssH;
+    cv.style.width  = cssW + 'px';
+    cv.style.height = cssH + 'px';
+    // fit image inside with small padding
+    const pad = 20;
+    const r = Math.min((cssW - pad) / img.width, (cssH - pad) / img.height, 1);
+    zoom = r;
+    panX = (cssW - img.width  * r) / 2;
+    panY = (cssH - img.height * r) / 2;
+  }
   cv.style.display = 'block';
   draw();
 }
@@ -888,16 +907,32 @@ cv.addEventListener('wheel', e => {
 }, { passive:false });
 
 function clampPan() {
-  const cssW = cv.width / ((window.innerWidth<=767)?(window.devicePixelRatio||1):1);
-  const cssH = cv.height / ((window.innerWidth<=767)?(window.devicePixelRatio||1):1);
-  panX=Math.max(ca.clientWidth*.1-cssW*zoom, Math.min(ca.clientWidth*.9, panX));
-  panY=Math.max(ca.clientHeight*.1-cssH*zoom, Math.min(ca.clientHeight*.9, panY));
+  if (!img) return;
+  const iw = img.width * zoom, ih = img.height * zoom;
+  const cw = ca.clientWidth, ch = ca.clientHeight;
+  panX = Math.max(cw * 0.1 - iw, Math.min(cw * 0.9, panX));
+  panY = Math.max(ch * 0.1 - ih, Math.min(ch * 0.9, panY));
 }
 function toggleZoom() { zoomEnabled=!zoomEnabled; localStorage.setItem('mesu_zoom', zoomEnabled); if (!zoomEnabled) { zoom=1; panX=0; panY=0; draw(); } updUI(); }
 function toggleMag()  { magEnabled=!magEnabled;   localStorage.setItem('mesu_mag',  magEnabled);  draw(); updUI(); }
 function resetZoom()  { zoom=1; panX=0; panY=0; draw(); }
 
 /* ── drag targets ── */
+function defaultLabelPos(m, i) {
+  if (m.type==='line')  return {x:(m.x1+m.x2)/2, y:(m.y1+m.y2)/2-10/zoom};
+  if (m.type==='diam')  return {x:m.cx, y:m.cy-m.r-10/zoom};
+  if (m.type==='angle') {
+    const a1=Math.atan2(m.ay-m.vy,m.ax-m.vx), a2=Math.atan2(m.by-m.vy,m.bx-m.vx);
+    const arcR=Math.min(Math.hypot(m.ax-m.vx,m.ay-m.vy),Math.hypot(m.bx-m.vx,m.by-m.vy))*0.3;
+    return {x:m.vx+Math.cos((a1+a2)/2)*(arcR+18/zoom), y:m.vy+Math.sin((a1+a2)/2)*(arcR+18/zoom)};
+  }
+  if (m.type==='area' || m.type==='perim') {
+    return {x:m.pts.reduce((s,p)=>s+p.x,0)/m.pts.length, y:m.pts.reduce((s,p)=>s+p.y,0)/m.pts.length};
+  }
+  if (m.type==='note') return {x:m.x+8/zoom, y:m.y};
+  return null;
+}
+
 function findDrag(wp) {
   function near(ax,ay) { return dst(wp,{x:ax,y:ay})*zoom<DRAG_R; }
   for (let i=meas.length-1;i>=0;i--) {
@@ -928,12 +963,19 @@ function findDrag(wp) {
   if (mode==='st') {
     for (let i=0;i<stPts.length;i++) if (near(stPts[i].x,stPts[i].y)) return {idx:-2,field:'st',ptIdx:i};
   }
+  // label drag — check last (topmost) first
+  for (let i=meas.length-1;i>=0;i--) {
+    const m=meas[i];
+    const lp=m.lpos||defaultLabelPos(m,i);
+    if (lp && near(lp.x,lp.y)) return {idx:i,field:'label'};
+  }
   return null;
 }
 
 function applyDrag(wp) {
   if (!dragState) return;
   const {idx,field,ptIdx}=dragState;
+  if (field==='label') { meas[idx].lpos = {x:wp.x, y:wp.y}; return; }
   if (idx===-2 && field==='st') { stPts[ptIdx]={x:wp.x,y:wp.y}; return; }
   if (idx===-1 && scLine) {
     if (field==='p1'){scLine.x1=wp.x;scLine.y1=wp.y;}else{scLine.x2=wp.x;scLine.y2=wp.y;}
@@ -1297,132 +1339,103 @@ function invertMatrix3(m) {
 function applyStraighten() {
   if (stPts.length < 4) return;
 
-  // stPts are in world space; convert to canvas pixels for the warp
-  // canvas pixel = world * zoom + pan — but we want them relative to the flat image
-  // so map through w2c to get screen coords, then normalise to source image space
-  const cssW = cv.width, cssH = cv.height;
+  // Work at full original image resolution
+  const iW = img.width, iH = img.height;
+  // stPts are in world space = image pixel space (1:1 after fitImg change)
+  const src = stPts.map(p => [p.x, p.y]);
 
-  // Build a flat (zoom=1, pan=0) temp canvas of the image
-  const srcCanvas = document.createElement('canvas');
-  srcCanvas.width = cssW; srcCanvas.height = cssH;
-  const srcCtx = srcCanvas.getContext('2d');
-  srcCtx.drawImage(img, 0, 0, cssW, cssH);
-  const srcData = srcCtx.getImageData(0, 0, cssW, cssH).data;
-
-  // Convert world coords → flat image pixels (undo zoom/pan)
-  const src = stPts.map(p => [
-    p.x,  // world coords ARE flat image coords when zoom=1,pan=0
-    p.y
-  ]);
-  // But user may have zoomed — world coords are always in image-space regardless of zoom
-  // world coords: (0,0) = top-left of image, (cssW,cssH) = bottom-right
-  // That's correct — pt() divides out zoom and pan already
-
-  // compute output dimensions using Criminisi vanishing-point method
-  // This recovers the true aspect ratio correcting for perspective foreshortening
-  function cross2d(a, b) {
-    return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
-  }
-  function lineH(p1, p2) { return cross2d([p1[0],p1[1],1],[p2[0],p2[1],1]); }
-  function meetH(l1, l2) { const p=cross2d(l1,l2); return Math.abs(p[2])>1e-9?[p[0]/p[2],p[1]/p[2]]:null; }
-
-  const [TL,TR,BR,BL] = src;
-  const V1 = meetH(lineH(TL,TR), lineH(BL,BR)); // horizontal VP
-  const V2 = meetH(lineH(TL,BL), lineH(TR,BR)); // vertical VP
-
-  // image centre in canvas pixel space
-  const cx = cssW/2, cy = cssH/2;
-
-  let trueAspect = null; // width/height
-  if (V1 && V2) {
-    const f2 = -((V1[0]-cx)*(V2[0]-cx) + (V1[1]-cy)*(V2[1]-cy));
-    if (f2 > 0) {
-      const f = Math.sqrt(f2);
-      const ray = p => [p[0]-cx, p[1]-cy, f];
-      const dist3 = (a,b) => Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
-      const rTL=ray(TL), rTR=ray(TR), rBR=ray(BR), rBL=ray(BL);
-      const w3 = (dist3(rTL,rTR)+dist3(rBL,rBR))/2;
-      const h3 = (dist3(rTL,rBL)+dist3(rTR,rBR))/2;
-      if (h3 > 0) trueAspect = w3/h3;
+  // ── Zhang aspect ratio: homography-column method ────────────────────────
+  const unitSq = [[0,0],[1,0],[1,1],[0,1]];
+  const H_fwd = computeHomography(unitSq, src); // maps unit sq → image quad
+  let trueAspect = null;
+  if (H_fwd) {
+    // h1 = H * [1,0,0]^T,  h2 = H * [0,1,0]^T
+    const h1 = [H_fwd[0][0], H_fwd[1][0], H_fwd[2][0]];
+    const h2 = [H_fwd[0][1], H_fwd[1][1], H_fwd[2][1]];
+    const cx = iW / 2, cy = iH / 2;
+    // Orthogonality constraint → focal length:  K^{-T}h1 · K^{-T}h2 = 0
+    const num = (h1[0]-cx*h1[2])*(h2[0]-cx*h2[2]) + (h1[1]-cy*h1[2])*(h2[1]-cy*h2[2]);
+    const den = h1[2] * h2[2];
+    const f2  = (Math.abs(den) > 1e-9) ? -num / den : -1;
+    if (f2 > 1) {
+      const f  = Math.sqrt(f2);
+      const n1 = [(h1[0]-cx*h1[2])/f, (h1[1]-cy*h1[2])/f, h1[2]];
+      const n2 = [(h2[0]-cx*h2[2])/f, (h2[1]-cy*h2[2])/f, h2[2]];
+      const r  = Math.hypot(n1[0],n1[1],n1[2]) / Math.hypot(n2[0],n2[1],n2[2]);
+      if (r > 0.05 && r < 20) trueAspect = r; // w/h
     }
   }
 
-  // base size from longest projected edge, then apply true aspect
-  const widthTop  = Math.hypot(src[1][0]-src[0][0], src[1][1]-src[0][1]);
-  const widthBot  = Math.hypot(src[2][0]-src[3][0], src[2][1]-src[3][1]);
-  const heightL   = Math.hypot(src[3][0]-src[0][0], src[3][1]-src[0][1]);
-  const heightR   = Math.hypot(src[2][0]-src[1][0], src[2][1]-src[1][1]);
-  const projW = Math.max(widthTop, widthBot);
-  const projH = Math.max(heightL, heightR);
+  // Projected edge lengths as size reference
+  const projW = Math.max(
+    Math.hypot(src[1][0]-src[0][0], src[1][1]-src[0][1]),
+    Math.hypot(src[2][0]-src[3][0], src[2][1]-src[3][1])
+  );
+  const projH = Math.max(
+    Math.hypot(src[3][0]-src[0][0], src[3][1]-src[0][1]),
+    Math.hypot(src[2][0]-src[1][0], src[2][1]-src[1][1])
+  );
 
+  const MAX_DIM = 3000;
   let outW, outH;
   if (trueAspect) {
-    // use the larger projected dimension as reference, correct the other
     if (projW >= projH) {
-      outW = Math.round(projW);
-      outH = Math.round(projW / trueAspect);
+      outW = Math.min(Math.round(projW), MAX_DIM);
+      outH = Math.round(outW / trueAspect);
     } else {
-      outH = Math.round(projH);
-      outW = Math.round(projH * trueAspect);
+      outH = Math.min(Math.round(projH), MAX_DIM);
+      outW = Math.round(outH * trueAspect);
     }
   } else {
-    // fallback: pure projected edges (no perspective correction)
-    outW = Math.round(projW);
-    outH = Math.round(projH);
+    outW = Math.min(Math.round(projW), MAX_DIM);
+    outH = Math.min(Math.round(projH), MAX_DIM);
   }
   if (outW < 4 || outH < 4) { showToast('Corners too close — try again'); return; }
 
-  const dst = [[0,0],[outW,0],[outW,outH],[0,outH]];
-
-  // H maps src → dst; we need H_inv to go dst→src for sampling
-  const H = computeHomography(src, dst);
-  if (!H) { showToast('Straighten failed'); return; }
+  const H = computeHomography(src, [[0,0],[outW,0],[outW,outH],[0,outH]]);
+  if (!H) { showToast('Rectify failed'); return; }
   const Hinv = invertMatrix3(H);
-  if (!Hinv) { showToast('Straighten failed'); return; }
+  if (!Hinv) { showToast('Rectify failed'); return; }
 
-  // output canvas
-  const outCanvas = document.createElement('canvas');
-  outCanvas.width = outW; outCanvas.height = outH;
-  const outCtx = outCanvas.getContext('2d');
-  const outData = outCtx.createImageData(outW, outH);
-  const od = outData.data;
+  // Source at full resolution
+  const srcCv = document.createElement('canvas');
+  srcCv.width = iW; srcCv.height = iH;
+  srcCv.getContext('2d').drawImage(img, 0, 0);
+  const sd = srcCv.getContext('2d').getImageData(0, 0, iW, iH).data;
 
-  // inverse warp with bilinear interpolation — use requestAnimationFrame to stay responsive
+  const outCv  = document.createElement('canvas');
+  outCv.width  = outW; outCv.height = outH;
+  const outCtx = outCv.getContext('2d');
+  const outImg = outCtx.createImageData(outW, outH);
+  const od     = outImg.data;
+
   showToast('Processing…');
   setTimeout(() => {
     for (let oy = 0; oy < outH; oy++) {
       for (let ox = 0; ox < outW; ox++) {
         const [sx, sy] = applyHomography(Hinv, ox, oy);
-        const x0 = Math.floor(sx), y0 = Math.floor(sy);
-        const x1 = x0+1, y1 = y0+1;
-        const fx = sx-x0, fy = sy-y0;
-        const inB = (x,y) => x>=0&&x<cssW&&y>=0&&y<cssH;
-        const px = (x,y) => { if(!inB(x,y)) return [0,0,0,0]; const i=(y*cssW+x)*4; return [srcData[i],srcData[i+1],srcData[i+2],srcData[i+3]]; };
-        const p00=px(x0,y0), p10=px(x1,y0), p01=px(x0,y1), p11=px(x1,y1);
-        const oi = (oy*outW+ox)*4;
-        for (let c=0;c<4;c++) od[oi+c]=Math.round(p00[c]*(1-fx)*(1-fy)+p10[c]*fx*(1-fy)+p01[c]*(1-fx)*fy+p11[c]*fx*fy);
+        const x0=Math.floor(sx), y0=Math.floor(sy), x1=x0+1, y1=y0+1;
+        const fx=sx-x0, fy=sy-y0;
+        const px=(x,y)=>{if(x<0||x>=iW||y<0||y>=iH)return[0,0,0,0];const i=(y*iW+x)*4;return[sd[i],sd[i+1],sd[i+2],sd[i+3]];};
+        const p00=px(x0,y0),p10=px(x1,y0),p01=px(x0,y1),p11=px(x1,y1);
+        const oi=(oy*outW+ox)*4;
+        for(let c=0;c<4;c++) od[oi+c]=Math.round(p00[c]*(1-fx)*(1-fy)+p10[c]*fx*(1-fy)+p01[c]*(1-fx)*fy+p11[c]*fx*fy);
       }
     }
-    outCtx.putImageData(outData, 0, 0);
-
-    // replace img with straightened result
+    outCtx.putImageData(outImg, 0, 0);
     pushHistory();
-    const newImg = new Image();
-    newImg.onload = () => {
-      img = newImg;
-      meas = []; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
-      stPts = []; mode = 'idle';
-      zoom=1; panX=0; panY=0;
-      fitImg();
-      clearHint();
-      updStraightenUI();
-      updUI();
-      t('rectify'); showToast('Image rectified — set scale to continue');
+    const ni = new Image();
+    ni.onload = () => {
+      img = ni;
+      meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
+      stPts=[]; mode='idle'; zoom=1; panX=0; panY=0;
+      fitImg(); clearHint(); updStraightenUI();
+      t('rectify'); updUI();
+      showToast('Image rectified — set scale to continue');
     };
-    newImg.src = outCanvas.toDataURL('image/png');
+    ni.src = outCv.toDataURL('image/png');
   }, 30);
 }
-
 function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter', {unit:scUnit}); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
 function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle', {has_scale:!!scFactor}); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
 function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area', {unit:scUnit}); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
@@ -1579,7 +1592,7 @@ function draw() {
   const dpr = (window.innerWidth<=767) ? (window.devicePixelRatio||1) : 1;
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
-  ctx.drawImage(img,0,0,cv.width/dpr,cv.height/dpr);
+  ctx.drawImage(img,0,0,img.width,img.height);
 
   if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false,dpr);
   if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
@@ -1588,18 +1601,18 @@ function draw() {
     const hi=hovIdx===i;
     if (m.type==='line') {
       const r=scFactor?m.px*scFactor:null;
-      annLine(m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,hi,dpr);
+      annLine(m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,hi,dpr,m.lpos||null);
     } else if (m.type==='diam') {
       const r=scFactor?m.r*2*scFactor:null;
-      annDiam(m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,hi,dpr);
+      annDiam(m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,hi,dpr,m.lpos||null);
     } else if (m.type==='angle') {
-      annAngle(m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,hi,dpr);
+      annAngle(m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,hi,dpr,m.lpos||null);
     } else if (m.type==='area') {
       const r=scFactor?m.areaPx*scFactor*scFactor:null;
-      annArea(m.pts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,hi,dpr);
+      annArea(m.pts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,hi,dpr,m.lpos||null);
     } else if (m.type==='perim') {
       const r=scFactor?m.perimPx*scFactor:null;
-      annPerim(m.pts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,hi,m.open,dpr);
+      annPerim(m.pts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,hi,m.open,dpr,m.lpos||null);
     } else if (m.type==='note') {
       ctx.save();
       ctx.fillStyle='#F5E642'; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1/zoom;
@@ -1746,7 +1759,7 @@ function rubberLine(a,b,col,label,dpr=1) {
   ctx.restore();
 }
 
-function annLine(x1,y1,x2,y2,col,label,hi,dpr=1) {
+function annLine(x1,y1,x2,y2,col,label,hi,dpr=1,lpos=null) {
   ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
   const angle=Math.atan2(y2-y1,x2-x1)+Math.PI/2, tick=6/zoom;
@@ -1757,11 +1770,11 @@ function annLine(x1,y1,x2,y2,col,label,hi,dpr=1) {
   ctx.fillStyle=col;
   ctx.beginPath(); ctx.arc(x1,y1,4/zoom,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x2,y2,4/zoom,0,Math.PI*2); ctx.fill();
-  if (label) drawLabel((x1+x2)/2,(y1+y2)/2-10/zoom,label,col,dpr);
+  if (label) { const lx=lpos?lpos.x:(x1+x2)/2, ly=lpos?lpos.y:(y1+y2)/2-10/zoom; if(lpos)drawLeaderLine(lx,ly,(x1+x2)/2,(y1+y2)/2,col); drawLabel(lx,ly,label,col,dpr); }
   ctx.restore();
 }
 
-function annDiam(cx,cy,r,x1,y1,x2,y2,col,label,hi,dpr=1) {
+function annDiam(cx,cy,r,x1,y1,x2,y2,col,label,hi,dpr=1,lpos=null) {
   ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
   ctx.setLineDash([4/zoom,3/zoom]); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
@@ -1769,11 +1782,11 @@ function annDiam(cx,cy,r,x1,y1,x2,y2,col,label,hi,dpr=1) {
   ctx.beginPath(); ctx.arc(cx,cy,5/zoom,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x1,y1,4/zoom,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x2,y2,4/zoom,0,Math.PI*2); ctx.fill();
-  if (label) drawLabel(cx,cy-r-10/zoom,label,col,dpr);
+  if (label) { const lx=lpos?lpos.x:cx, ly=lpos?lpos.y:cy-r-10/zoom; if(lpos)drawLeaderLine(lx,ly,cx,cy-r,col); drawLabel(lx,ly,label,col,dpr); }
   ctx.restore();
 }
 
-function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1) {
+function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1,lpos=null) {
   const col='#D4537E'; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(vx,vy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(vx,vy); ctx.lineTo(bx,by); ctx.stroke();
@@ -1782,11 +1795,12 @@ function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1) {
   ctx.setLineDash([3/zoom,3/zoom]); ctx.beginPath(); ctx.arc(vx,vy,arcR,a1,a2); ctx.stroke();
   ctx.setLineDash([]); ctx.fillStyle=col;
   for (const [px,py] of [[ax,ay],[vx,vy],[bx,by]]){ctx.beginPath();ctx.arc(px,py,4/zoom,0,Math.PI*2);ctx.fill();}
-  if (label) drawLabel(vx+Math.cos((a1+a2)/2)*(arcR+18/zoom),vy+Math.sin((a1+a2)/2)*(arcR+18/zoom),label,col,dpr);
+  const defLx=vx+Math.cos((a1+a2)/2)*(arcR+18/zoom), defLy=vy+Math.sin((a1+a2)/2)*(arcR+18/zoom);
+  if (label) { const lx=lpos?lpos.x:defLx, ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
   ctx.restore();
 }
 
-function annArea(pts,label,hi,dpr=1) {
+function annArea(pts,label,hi,dpr=1,lpos=null) {
   const col='#9F77DD'; ctx.save();
   ctx.fillStyle='rgba(159,119,221,.1)'; ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
@@ -1794,12 +1808,12 @@ function annArea(pts,label,hi,dpr=1) {
   ctx.closePath(); ctx.fill(); ctx.stroke();
   ctx.fillStyle=col;
   pts.forEach(pp=>{ctx.beginPath();ctx.arc(pp.x,pp.y,4/zoom,0,Math.PI*2);ctx.fill();});
-  const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length, cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;
-  if (label) drawLabel(cx,cy,label,col,dpr);
+  const defLx=pts.reduce((s,p)=>s+p.x,0)/pts.length, defLy=pts.reduce((s,p)=>s+p.y,0)/pts.length;
+  if (label) { const lx=lpos?lpos.x:defLx, ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
   ctx.restore();
 }
 
-function annPerim(pts,label,hi,open,dpr=1) {
+function annPerim(pts,label,hi,open,dpr=1,lpos=null) {
   const col='#F0994A'; ctx.save();
   ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
@@ -1808,8 +1822,17 @@ function annPerim(pts,label,hi,open,dpr=1) {
   ctx.stroke();
   ctx.fillStyle=col;
   pts.forEach(pp=>{ctx.beginPath();ctx.arc(pp.x,pp.y,4/zoom,0,Math.PI*2);ctx.fill();});
-  const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length, cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;
-  if (label) drawLabel(cx,cy,label,col,dpr);
+  const defLx=pts.reduce((s,p)=>s+p.x,0)/pts.length, defLy=pts.reduce((s,p)=>s+p.y,0)/pts.length;
+  if (label) { const lx=lpos?lpos.x:defLx, ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
+  ctx.restore();
+}
+
+function drawLeaderLine(lx,ly,ax,ay,col) {
+  const dx=lx-ax, dy=ly-ay, d=Math.hypot(dx,dy);
+  if (d < 8/zoom) return;
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=0.5/zoom;
+  ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
+  ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(lx,ly); ctx.stroke();
   ctx.restore();
 }
 
@@ -1846,8 +1869,8 @@ function drawMagnifier(scx,scy,wx,wy,col,dpr=1) {
   const mx = cx + (flipX ? -OFFSET : OFFSET);
   const my = cy + (flipY ? OFFSET  : -OFFSET);
 
-  const cssW = cv.width / dpr, cssH = cv.height / dpr;
-  const ir = img.width / cssW, ir2 = img.height / cssH;
+  // world coords (wx,wy) are already in image pixel space → ir=1
+  const ir = 1, ir2 = 1;
   const SRC_H = MAG_R / ZOOM_F;
   const srcX=(wx-SRC_H)*ir, srcY=(wy-SRC_H)*ir2, srcW=SRC_H*2*ir, srcH_=SRC_H*2*ir2;
 
@@ -1955,7 +1978,7 @@ function exportImg() {
   const quality = fmt==='jpg'?0.92:fmt==='webp'?0.92:1;
   const ec=document.createElement('canvas'); ec.width=img.width; ec.height=img.height;
   const ec_ctx=ec.getContext('2d'); ec_ctx.drawImage(img,0,0);
-  const sx=img.width/cv.width, sy=img.height/cv.height;
+  const sx=1, sy=1;
   function spt(x,y){return[x*sx,y*sy];}
   if (scLine){const[x1,y1]=spt(scLine.x1,scLine.y1),[x2,y2]=spt(scLine.x2,scLine.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#1D9E75','scale',sx);}
   meas.forEach((m,i)=>{
@@ -2037,7 +2060,7 @@ function exportPDF() {
   ec.width = img.width; ec.height = img.height;
   const ec_ctx = ec.getContext('2d');
   ec_ctx.drawImage(img, 0, 0);
-  const sx = img.width/cv.width, sy = img.height/cv.height;
+  const sx = 1, sy = 1;
   function spt(x,y){return[x*sx,y*sy];}
   if (scLine){const[x1,y1]=spt(scLine.x1,scLine.y1),[x2,y2]=spt(scLine.x2,scLine.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#1D9E75','scale',sx);}
   meas.forEach((m,i)=>{
@@ -2131,7 +2154,7 @@ function exportPDF() {
 function exportCSV() {
   if (!meas.length) return;
   t('export_csv');
-  const ir=img.width/cv.width, ir2=img.height/cv.height;
+  const ir=1, ir2=1;
   const rows=[['#','type','value','unit','px_value','x1','y1','x2','y2','cx','cy','radius_px','vertex_x','vertex_y','arm1_x','arm1_y','arm2_x','arm2_y','area_pts']];
   meas.forEach((m,i)=>{
     const n=i+1;
