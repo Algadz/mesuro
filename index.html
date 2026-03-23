@@ -46,8 +46,8 @@
   }
 
   #sidebar {
-    width: 220px;
-    min-width: 220px;
+    width: 250px;
+    min-width: 250px;
     background: #242424;
     border-right: 1px solid #333;
     display: flex;
@@ -353,44 +353,11 @@
     </div>
 
     <div>
-      <div class="btn-row">
-        <label id="loadLabel" style="flex:1;min-width:0">
-          Load image
-          <input type="file" id="fileInput" accept="image/*" style="display:none">
-        </label>
-        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title=""
-          onmouseenter="showProjTip('save .mesuro')"
-          onmouseleave="hideProjTip()">
-          <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
-            <line x1="6" y1="3" x2="6" y2="20" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-            <polyline points="1,15 6,21 11,15" stroke="#d0d0d0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <text x="15" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#d0d0d0">S</text>
-            <line x1="16" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
-            <line x1="16" y1="26" x2="16" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-            <line x1="22" y1="26" x2="22" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
-            <line x1="27" y1="26" x2="27" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="32" y1="26" x2="32" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
-            <line x1="37" y1="26" x2="37" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:0 0 38px;padding:4px 0;display:flex;align-items:center;justify-content:center" title=""
-          onmouseenter="showProjTip('load .mesuro')"
-          onmouseleave="hideProjTip()">
-          <svg width="24" height="20" viewBox="0 0 40 32" fill="none">
-            <line x1="6" y1="21" x2="6" y2="4" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-            <polyline points="1,9 6,3 11,9" stroke="#d0d0d0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <text x="15" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#d0d0d0">L</text>
-            <line x1="16" y1="26" x2="37" y2="26" stroke="#d0d0d0" stroke-width="1"/>
-            <line x1="16" y1="26" x2="16" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-            <line x1="22" y1="26" x2="22" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
-            <line x1="27" y1="26" x2="27" y2="29" stroke="#bbb"    stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="32" y1="26" x2="32" y2="28" stroke="#888"    stroke-width="1" stroke-linecap="round"/>
-            <line x1="37" y1="26" x2="37" y2="30" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <input type="file" id="projectInput" accept=".mesuro" style="display:none">
-      </div>
-      <div id="projTip" style="font-size:10px;color:#555;font-style:italic;text-align:right;opacity:0;transition:opacity .15s;margin-top:2px;line-height:1;font-family:system-ui,-apple-system,sans-serif">&nbsp;</div>
+      <label id="loadLabel" style="display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
+        Load image
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+      </label>
+      <input type="file" id="projectInput" accept=".mesuro" style="display:none">
     </div>
 
     <div>
@@ -433,25 +400,36 @@
     </div>
 
     <div>
+      <div class="slbl">IMAGE</div>
+      <div class="btn-row">
+        <button onclick="rotateImg(-90)" disabled id="btnRotL" style="flex:1;font-size:12px" title="Rotate 90° left">↺ 90°</button>
+        <button onclick="rotateImg(90)"  disabled id="btnRotR" style="flex:1;font-size:12px" title="Rotate 90° right">↻ 90°</button>
+      </div>
+    </div>
+
+    <div>
       <div class="slbl">MEASURE</div>
       <div style="display:flex;flex-direction:column;gap:4px">
         <div class="btn-row">
-          <button id="btnMeasure" onclick="doMeasure()" disabled style="flex:1;font-size:11px">↔ Distance <span class="kbd">L</span></button>
-          <button id="btnDiam"    onclick="doDiam()"    disabled style="flex:1;font-size:11px">⌀ Diameter <span class="kbd">D</span></button>
+          <button id="btnMeasure" onclick="doMeasure()" disabled style="flex:1;font-size:11px">Distance <span class="kbd">L</span></button>
+          <button id="btnDiam"    onclick="doDiam()"    disabled style="flex:1;font-size:11px">Diameter <span class="kbd">D</span></button>
         </div>
         <div class="btn-row">
-          <button id="btnAngle" onclick="doAngle()" disabled style="flex:1;font-size:11px">∠ Angle <span class="kbd">A</span></button>
-          <button id="btnArea"  onclick="doArea()"  disabled style="flex:1;font-size:11px">⬡ Area <span class="kbd">R</span></button>
+          <button id="btnAngle" onclick="doAngle()" disabled style="flex:1;font-size:11px">Angle <span class="kbd">A</span></button>
+          <button id="btnArea"  onclick="doArea()"  disabled style="flex:1;font-size:11px">Area <span class="kbd">R</span></button>
         </div>
-        <button id="btnPerim" onclick="doPerim()" disabled style="font-size:11px">⬠ Perimeter / path <span class="kbd">P</span></button>
+        <div class="btn-row">
+          <button id="btnPerim" onclick="doPerim()" disabled style="flex:1;font-size:11px"><svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>Path <span class="kbd">P</span></button>
+          <button id="btnNote"  onclick="doNote()"  disabled style="flex:1;font-size:11px"><span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>Note <span class="kbd">N</span></button>
+        </div>
       </div>
     </div>
 
     <div>
       <div class="slbl">VIEW</div>
       <div style="display:flex;gap:6px">
-        <button id="btnZoom" onclick="toggleZoom()" disabled style="flex:1;font-size:11px;text-align:center;white-space:normal;line-height:1.4;padding:5px 4px">⊕ Pan &amp; zoom<br><span class="kbd" style="font-size:10px">Z</span></button>
-        <button id="btnMag"  onclick="toggleMag()"  disabled style="flex:1;font-size:11px;text-align:center;white-space:normal;line-height:1.4;padding:5px 4px">◎ Zoom cursor<br><span class="kbd" style="font-size:10px">C</span></button>
+        <button id="btnZoom" onclick="toggleZoom()" disabled style="flex:1;font-size:11px;white-space:nowrap">⊕ Pan &amp; zoom</button>
+        <button id="btnMag"  onclick="toggleMag()"  disabled style="flex:1;font-size:11px;white-space:nowrap">◎ Zoom cursor</button>
       </div>
     </div>
 
@@ -464,7 +442,7 @@
     <div>
       <button id="btnUndo" onclick="undoLast()" disabled style="margin-bottom:6px">↩ Undo <span class="kbd">Ctrl+Z</span></button>
       <button id="btnClear" class="btn-clear-style" onclick="clearAll()" disabled style="margin-bottom:6px">Clear all</button>
-      <div class="btn-row">
+      <div class="btn-row" style="margin-bottom:4px">
         <button id="btnExport"    onclick="exportImg()" disabled>Export</button>
         <select id="exportFmt" style="flex:0 0 60px;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;font-size:11px;padding:0 4px;cursor:pointer">
           <option value="png">PNG</option>
@@ -472,6 +450,11 @@
           <option value="webp">WebP</option>
         </select>
         <button id="btnExportCSV" onclick="exportCSV()" disabled>CSV</button>
+        <button id="btnExportPDF" onclick="exportPDF()" disabled>PDF</button>
+      </div>
+      <div class="btn-row">
+        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:1;font-size:11px">Save project</button>
+        <button onclick="document.getElementById('projectInput').click()" style="flex:1;font-size:11px">Load project</button>
       </div>
     </div>
   </div>
@@ -524,6 +507,19 @@
         <div class="modal-footer">
           <button onclick="cancelScale()" style="width:auto">Cancel</button>
           <button class="btn-confirm" onclick="confirmScale()" style="width:auto">Set scale</button>
+        </div>
+      </div>
+    </div>
+    <div id="noteModal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30;justify-content:center;align-items:center;">
+      <div class="modal-box">
+        <h3>Add note</h3>
+        <p>Enter the text for this annotation:</p>
+        <div class="modal-inputs">
+          <input type="text" id="noteText" placeholder="e.g. crack, 2mm gap" style="width:100%;flex:1">
+        </div>
+        <div class="modal-footer">
+          <button onclick="cancelNote()" style="width:auto">Cancel</button>
+          <button class="btn-confirm" onclick="confirmNote()" style="width:auto">Add note</button>
         </div>
       </div>
     </div>
@@ -630,7 +626,7 @@
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
       <div style="font-size:11px;color:#D4537E;font-weight:600;letter-spacing:.08em;margin-bottom:8px">∠ ANGLE</div>
-      <div style="font-size:13px;color:#aaa;line-height:1.6">Click three points — first arm, vertex, second arm. The angle is calculated with a live arc preview as you draw.</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Click three points — first arm, vertex, second arm. The angle is calculated with a live arc preview as you draw. No scale required.</div>
     </div>
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
@@ -640,7 +636,22 @@
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
       <div style="font-size:11px;color:#F0994A;font-weight:600;letter-spacing:.08em;margin-bottom:8px">⬠ PERIMETER</div>
-      <div style="font-size:13px;color:#aaa;line-height:1.6">Click polygon vertices to trace any outline. Close the shape to get the total perimeter length in your real-world unit.</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Click polygon vertices to trace any outline. Close the shape for a closed perimeter, or press Esc to save as an open path.</div>
+    </div>
+
+    <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
+      <div style="font-size:11px;color:#F5E642;font-weight:600;letter-spacing:.08em;margin-bottom:8px">✎ NOTE</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Click anywhere on the image to add a free text label. Notes appear as yellow pins with a tooltip and are included in PNG and PDF exports.</div>
+    </div>
+
+    <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
+      <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:.08em;margin-bottom:8px">↺ ROTATE</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Rotate the image 90° left or right before measuring. Useful for portrait photos or images taken in landscape orientation.</div>
+    </div>
+
+    <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
+      <div style="font-size:11px;color:#9F77DD;font-weight:600;letter-spacing:.08em;margin-bottom:8px">⬜ RECTIFY</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Correct perspective distortion by clicking the 4 corners of a known rectangle. The image is warped flat for accurate measurements.</div>
     </div>
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
@@ -655,27 +666,35 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:56px">
     <div style="border-left:2px solid #1D9E75;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Architecture & engineering</div>
-      <div style="font-size:12px;color:#666">Measure floor plans, blueprints and technical drawings with a calibrated scale.</div>
+      <div style="font-size:12px;color:#666">Measure floor plans, blueprints and technical drawings with a calibrated scale. Rectify perspective from oblique shots before measuring.</div>
     </div>
     <div style="border-left:2px solid #5DCAA5;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Science & research</div>
-      <div style="font-size:12px;color:#666">Measure specimens in microscopy images, cell areas, structural angles in research photos.</div>
+      <div style="font-size:12px;color:#666">Measure specimens in microscopy images, cell areas, structural angles in research photos. Export annotated images and CSV data for reports.</div>
     </div>
     <div style="border-left:2px solid #EF9F27;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Product design</div>
-      <div style="font-size:12px;color:#666">Document prototype dimensions, surface areas and component angles from reference photos.</div>
+      <div style="font-size:12px;color:#666">Document prototype dimensions, surface areas and component angles from reference photos. Add notes directly on the image.</div>
     </div>
     <div style="border-left:2px solid #D4537E;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Construction & real estate</div>
-      <div style="font-size:12px;color:#666">Measure wall lengths, room areas and lot perimeters from site photos and listing plans.</div>
+      <div style="font-size:12px;color:#666">Measure wall lengths, room areas and lot perimeters from site photos and listing plans. Export a PDF report with measurements.</div>
     </div>
     <div style="border-left:2px solid #9F77DD;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Quality control</div>
-      <div style="font-size:12px;color:#666">Measure part dimensions, defect areas and assembly angles from inspection photographs.</div>
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Quality control & inspection</div>
+      <div style="font-size:12px;color:#666">Measure part dimensions, defect areas and assembly angles from inspection photographs. Annotate with notes and export as a PDF report.</div>
+    </div>
+    <div style="border-left:2px solid #F0994A;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Medical & dental imaging</div>
+      <div style="font-size:12px;color:#666">Measure structures in X-rays, radiographs and clinical photos. Works with any image format, fully offline — no upload to any server.</div>
     </div>
     <div style="border-left:2px solid #888;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Maps & satellite imagery</div>
-      <div style="font-size:12px;color:#666">Estimate distances and land areas from satellite views or printed maps with a known scale.</div>
+      <div style="font-size:12px;color:#666">Estimate distances and land areas from satellite views or printed maps with a known scale. Polygon area tools handle irregular parcels.</div>
+    </div>
+    <div style="border-left:2px solid #5DCAA5;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Forensics & accident reconstruction</div>
+      <div style="font-size:12px;color:#666">Reconstruct scenes from photos, measure distances and angles, add labelled notes. Runs offline with no data leaving the device.</div>
     </div>
   </div>
 
@@ -690,27 +709,52 @@
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Is my image uploaded to a server?</div>
-      <div style="font-size:13px;color:#666">No. mesu.ro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required.</div>
+      <div style="font-size:13px;color:#666">No. mesu.ro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I save my measurements and come back later?</div>
-      <div style="font-size:13px;color:#666">Yes. Use the Save button to export a .mesuro project file containing your image and all measurements. Load it again anytime to resume exactly where you left off.</div>
+      <div style="font-size:13px;color:#666">Yes. Use the Save button (↓S) to export a .mesuro project file containing your image and all measurements. Load it again anytime to resume exactly where you left off.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What units can I use?</div>
-      <div style="font-size:13px;color:#666">Any unit you want — mm, cm, m, inches, feet, or custom labels. You define the scale once and mesu.ro applies it to all measurements automatically.</div>
+      <div style="font-size:13px;color:#666">Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and mesu.ro applies it to all measurements automatically.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I export my annotated image?</div>
-      <div style="font-size:13px;color:#666">Yes. Export as PNG, JPG or WebP at full original resolution with all annotations, or export measurements as a CSV file for use in Excel, Google Sheets or any data tool.</div>
+      <div style="font-size:13px;color:#666">Yes. Export as PNG, JPG or WebP at full original resolution with all annotations, or export a PDF report with the annotated image and measurement table, or export raw data as CSV.</div>
+    </div>
+
+    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does mesu.ro support?</div>
+      <div style="font-size:13px;color:#666">Distance, diameter (circle), angle, area (polygon), perimeter (polygon outline), and free text notes. Angles work without setting a scale. All measurements can be exported as annotated images, PDF reports, or CSV data.</div>
+    </div>
+
+    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I correct perspective distortion in a photo?</div>
+      <div style="font-size:13px;color:#666">Use the Rectify tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). mesu.ro applies a homographic transform to flatten the perspective before you measure.</div>
+    </div>
+
+    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I add labels or text annotations to the image?</div>
+      <div style="font-size:13px;color:#666">Yes. Use the Note tool (✎ N) to click anywhere on the image and type a label. Notes appear as yellow pins on the canvas and are included in PNG and PDF exports.</div>
+    </div>
+
+    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure an angle without knowing the scale?</div>
+      <div style="font-size:13px;color:#666">The Angle tool works without scale calibration. Click the first arm point, then the vertex, then the second arm. The angle in degrees is displayed immediately.</div>
+    </div>
+
+    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I use mesu.ro on mobile?</div>
+      <div style="font-size:13px;color:#666">Yes. mesu.ro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement.</div>
     </div>
 
     <div>
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does mesu.ro support?</div>
-      <div style="font-size:13px;color:#666">Distance (linear), diameter (circles), angle (three-point), area (polygon), perimeter (polygon outline), and scale calibration. All measurements can be exported as PNG annotations or CSV data.</div>
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How accurate are the measurements?</div>
+      <div style="font-size:13px;color:#666">Accuracy depends on your scale calibration and image resolution. The precision cursor magnifier zooms in 5× to help you place points on exact pixels. For best results, use the longest possible scale reference line.</div>
     </div>
 
   </div>
@@ -737,6 +781,7 @@ const btnClear    = document.getElementById('btnClear');
 const btnExport   = document.getElementById('btnExport');
 const exportFmt   = document.getElementById('exportFmt');
 const btnExportCSV= document.getElementById('btnExportCSV');
+const btnExportPDF= document.getElementById('btnExportPDF');
 const scaleStatus = document.getElementById('scaleStatus');
 const resList     = document.getElementById('resList');
 const noRes       = document.getElementById('noRes');
@@ -750,7 +795,7 @@ function t(event) { try { if(typeof umami!=='undefined') umami.track(event); } c
 
 /* ── state ── */
 let img = null, originalImg = null;
-let mode = 'idle'; // idle|sa|sb|wait|ma|mb|da|db|aa|ab|ac|pa|pp|drag
+let mode = 'idle'; // idle|sa|sb|wait|ma|mb|da|db|aa|ab|ac|pa|pp|drag|st|na
 let p0 = null, p1 = null, mp = null;
 let areaPts = [];
 let scLine = null, scPx = null, scFactor = null, scUnit = 'mm';
@@ -989,7 +1034,13 @@ document.addEventListener('keyup', e => {
 /* ── click ── */
 cv.addEventListener('click', e => {
   if (!img||e.button!==0||isPanning||mode==='drag'||spaceDown) return;
-  if (mode==='idle'||mode==='wait') return;
+  if (mode==='na') {
+    notePending = {x:p.x, y:p.y};
+    const nm = document.getElementById('noteModal');
+    const ni = document.getElementById('noteText');
+    if (nm && ni) { ni.value=''; nm.style.display='flex'; setTimeout(()=>ni.focus(),50); }
+    return;
+  }
   const p=pt(e);
   // straighten mode — collect 4 corner points
   if (mode==='st') {
@@ -1102,7 +1153,7 @@ document.addEventListener('keydown', e => {
     if ((e.key==='l'||e.key==='L')&&img&&scFactor) doMeasure();
     if ((e.key==='d'||e.key==='D')&&img&&scFactor) doDiam();
     if ((e.key==='a'||e.key==='A')&&img&&scFactor) doAngle();
-    if ((e.key==='r'||e.key==='R')&&img&&scFactor) doArea();
+    if ((e.key==='n'||e.key==='N')&&img) doNote();
     if ((e.key==='p'||e.key==='P')&&img&&scFactor) doPerim();
     if ((e.key==='z'||e.key==='Z')&&img) toggleZoom();
     if ((e.key==='c'||e.key==='C')&&img) toggleMag();
@@ -1398,6 +1449,13 @@ function updUI() {
   btnAngle.disabled=!hasImg; btnArea.disabled=!hasSc; btnPerim.disabled=!hasSc; btnZoom.disabled=!hasImg;
   btnMag.disabled=!hasImg; btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
   btnExport.disabled=!hasImg; exportFmt.disabled=!hasImg; btnExportCSV.disabled=!hasImg;
+  if (btnExportPDF) btnExportPDF.disabled=!hasImg;
+  const btnNt=document.getElementById('btnNote'); if(btnNt) btnNt.disabled=!hasImg;
+  const btnRL=document.getElementById('btnRotL'); if(btnRL) btnRL.disabled=!hasImg;
+  const btnRR=document.getElementById('btnRotR'); if(btnRR) btnRR.disabled=!hasImg;
+  const isNote=mode==='na';
+  const btnNtEl=document.getElementById('btnNote');
+  if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':'';
   const btnStr = document.getElementById('btnStraighten');
   if (btnStr) btnStr.disabled = !hasImg;
   const btnRst = document.getElementById('btnRestoreOriginal');
@@ -1413,12 +1471,14 @@ function updUI() {
   btnAngle.innerHTML=isAngle?'∠ Angle ◼':'∠ Angle <span class="kbd">A</span>';
   btnArea.className=isArea?'btn-area-active':'';
   btnArea.innerHTML=isArea?'⬡ Area ◼':'⬡ Area <span class="kbd">R</span>';
+  const pathSvg = `<svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>`;
   btnPerim.className=isPerim?'btn-perim-active':'';
-  btnPerim.innerHTML=isPerim?'⬠ Perimeter ◼':'⬠ Perimeter / path <span class="kbd">P</span>';
+  btnPerim.style.cssText='flex:1;font-size:11px';
+  btnPerim.innerHTML=isPerim?`${pathSvg}Path ◼`:`${pathSvg}Path <span class="kbd">P</span>`;
   btnZoom.className=zoomEnabled?'btn-zoom-active':'';
-  btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Pan &amp; zoom<br><span class="kbd">Z</span>`;
+  btnZoom.style.whiteSpace='nowrap'; btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Pan &amp; zoom`;
   btnMag.className=magEnabled?'btn-tog-active':'';
-  btnMag.innerHTML=`${magEnabled?'◉':'◎'} Zoom cursor<br><span class="kbd">C</span>`;
+  btnMag.style.whiteSpace='nowrap'; btnMag.innerHTML=`${magEnabled?'◉':'◎'} Zoom cursor`;
 
   const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc||(mode==='st');
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':(mode==='st'?'crosshair':'default');
@@ -1494,6 +1554,18 @@ function draw() {
     } else if (m.type==='perim') {
       const r=scFactor?m.perimPx*scFactor:null;
       annPerim(m.pts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,hi,m.open,dpr);
+    } else if (m.type==='note') {
+      ctx.save();
+      ctx.fillStyle='#F5E642'; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1/zoom;
+      ctx.beginPath(); ctx.arc(m.x,m.y,5/zoom,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      const fs=Math.max(9,10/zoom);
+      ctx.font=`bold ${fs}px system-ui`;
+      const tw=ctx.measureText(m.text).width, pad=4/zoom, h=fs*1.4, rx=m.x+8/zoom, ry=m.y-h/2-pad;
+      ctx.fillStyle='rgba(30,30,30,.85)';
+      ctx.beginPath(); ctx.roundRect(rx,ry,tw+pad*2,h+pad*2,3/zoom); ctx.fill();
+      ctx.fillStyle='#F5E642'; ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(m.text, rx+pad, m.y);
+      ctx.restore();
     }
   });
 
@@ -1857,8 +1929,192 @@ function drawDiamOn(ec,cx,cy,r,x1,y1,x2,y2,col,label,s){ec.save();ec.strokeStyle
 function drawAngleOn(ec,ax,ay,vx,vy,bx,by,deg,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(vx,vy);ec.stroke();ec.beginPath();ec.moveTo(vx,vy);ec.lineTo(bx,by);ec.stroke();const a1=Math.atan2(ay-vy,ax-vx),a2=Math.atan2(by-vy,bx-vx),arcR=Math.min(Math.hypot(ax-vx,ay-vy),Math.hypot(bx-vx,by-vy))*0.3;ec.setLineDash([3*s,3*s]);ec.beginPath();ec.arc(vx,vy,arcR,a1,a2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;for(const[px,py]of[[ax,ay],[vx,vy],[bx,by]]){ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();}const midA=(a1+a2)/2;if(label)drawLblOn(ec,vx+Math.cos(midA)*(arcR+20*s),vy+Math.sin(midA)*(arcR+20*s),label,col,s);ec.restore();}
 function drawAreaOn(ec,pts,label,s){const col='#9F77DD';ec.save();ec.fillStyle='rgba(159,119,221,.15)';ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);ec.closePath();ec.fill();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
 function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);if(!open)ec.closePath();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
+function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath();ec.arc(x,y,5*s,0,Math.PI*2);ec.fill();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,pad=4*s,h=fs*1.4,rx=x+8*s;ec.fillStyle='rgba(30,30,30,.9)';ec.beginPath();ec.roundRect(rx,y-h/2-pad,tw+pad*2,h+pad*2,3*s);ec.fill();ec.fillStyle='#F5E642';ec.textAlign='left';ec.textBaseline='middle';ec.fillText(text,rx+pad,y);ec.restore();}
 
-/* ── export CSV ── */
+/* ── rotate image ── */
+function rotateImg(deg) {
+  if (!img) return;
+  pushHistory();
+  const oc = document.createElement('canvas');
+  const abs = Math.abs(deg);
+  oc.width  = abs===90 ? img.height : img.width;
+  oc.height = abs===90 ? img.width  : img.height;
+  const oc_ctx = oc.getContext('2d');
+  oc_ctx.translate(oc.width/2, oc.height/2);
+  oc_ctx.rotate(deg * Math.PI/180);
+  oc_ctx.drawImage(img, -img.width/2, -img.height/2);
+  const ni = new Image();
+  ni.onload = () => {
+    img = ni;
+    meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
+    mode='idle'; zoom=1; panX=0; panY=0;
+    fitImg(); clearHint(); updUI();
+    showToast('Image rotated');
+  };
+  ni.src = oc.toDataURL('image/png');
+}
+
+/* ── note tool ── */
+let notePending = null; // {x, y} world coords waiting for text
+
+function doNote() {
+  if (mode==='na') { stopTool(); return; }
+  if (!img) return;
+  stopTool(); mode='na'; setHint('Click where to place the note'); updUI();
+}
+
+function cancelNote() {
+  notePending=null;
+  document.getElementById('noteModal').style.display='none';
+  stopTool();
+}
+
+function confirmNote() {
+  const txt = document.getElementById('noteText').value.trim();
+  document.getElementById('noteModal').style.display='none';
+  if (!txt || !notePending) { notePending=null; stopTool(); return; }
+  pushHistory();
+  meas.push({type:'note', x:notePending.x, y:notePending.y, text:txt});
+  notePending=null; stopTool(); draw(); updUI();
+}
+
+/* ── PDF export ── */
+function exportPDF() {
+  if (!img) return;
+  t('export_pdf');
+  // render annotated image to canvas at full res
+  const ec = document.createElement('canvas');
+  ec.width = img.width; ec.height = img.height;
+  const ec_ctx = ec.getContext('2d');
+  ec_ctx.drawImage(img, 0, 0);
+  const sx = img.width/cv.width, sy = img.height/cv.height;
+  function spt(x,y){return[x*sx,y*sy];}
+  if (scLine){const[x1,y1]=spt(scLine.x1,scLine.y1),[x2,y2]=spt(scLine.x2,scLine.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#1D9E75','scale',sx);}
+  meas.forEach((m,i)=>{
+    if(m.type==='line'){const r=scFactor?m.px*scFactor:null;const[x1,y1]=spt(m.x1,m.y1),[x2,y2]=spt(m.x2,m.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,sx);}
+    else if(m.type==='diam'){const r=scFactor?m.r*2*scFactor:null;const[cx,cy]=spt(m.cx,m.cy),ra=m.r*sx,[x1,y1]=spt(m.x1,m.y1),[x2,y2]=spt(m.x2,m.y2);drawDiamOn(ec_ctx,cx,cy,ra,x1,y1,x2,y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,sx);}
+    else if(m.type==='angle'){const[ax,ay]=spt(m.ax,m.ay),[vx,vy]=spt(m.vx,m.vy),[bx,by]=spt(m.bx,m.by);drawAngleOn(ec_ctx,ax,ay,vx,vy,bx,by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,sx);}
+    else if(m.type==='area'){const r=scFactor?m.areaPx*scFactor*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx);}
+    else if(m.type==='perim'){const r=scFactor?m.perimPx*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
+    else if(m.type==='note'){drawNoteOn(ec_ctx,m.x*sx,m.y*sy,m.text,sx);}
+  });
+
+  const imgDataUrl = ec.toDataURL('image/jpeg', 0.92);
+  const imgW = img.width, imgH = img.height;
+
+  // build measurement table
+  const rows = [];
+  meas.forEach((m,i) => {
+    if(m.type==='line'){const r=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;rows.push([`#${i+1}`,'Distance',r]);}
+    else if(m.type==='diam'){const r=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;rows.push([`⌀${i+1}`,'Diameter',r]);}
+    else if(m.type==='angle'){rows.push([`∠${i+1}`,'Angle',`${m.deg.toFixed(1)}°`]);}
+    else if(m.type==='area'){const r=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`⬡${i+1}`,'Area',r]);}
+    else if(m.type==='perim'){const r=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`⬠${i+1}`,'Perimeter',r]);}
+    else if(m.type==='note'){rows.push([`✎${i+1}`,'Note',m.text]);}
+  });
+
+  // A4 PDF in pt: 595 x 842, margin 40
+  const pw=595, ph=842, mg=40, cw=pw-2*mg;
+  const maxImgH = Math.round(ph * 0.55);
+  const ratio = Math.min(cw/imgW, maxImgH/imgH);
+  const di_w = Math.round(imgW*ratio), di_h = Math.round(imgH*ratio);
+  const now = new Date().toLocaleDateString('en-GB');
+  const scaleStr = scFactor ? `Scale: 1 px = ${(1/scFactor).toFixed(3)} ${scUnit}` : 'Scale: not set';
+
+  // escape PDF string
+  function esc(s){return s.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');}
+
+  // convert image to raw bytes for PDF embedding
+  const b64 = imgDataUrl.split(',')[1];
+  const raw = atob(b64);
+  const imgBytes = raw.length;
+
+  // PDF structure
+  const objects = [];
+  let oid = 1;
+  function addObj(content){ objects.push({id:oid++, content}); }
+
+  // obj 1: catalog, obj 2: pages, obj 3: page, obj 4: image, obj 5: font, obj 6: content stream
+  addObj('<< /Type /Catalog /Pages 2 0 R >>');
+  addObj('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+
+  // content stream — build page drawing commands
+  let cs = '';
+  // title
+  cs += `BT /F1 14 Tf ${mg} ${ph-mg-14} Td (mesu.ro — Measurement Report) Tj ET\n`;
+  cs += `BT /F1 9 Tf ${mg} ${ph-mg-28} Td (${esc(now)}  |  ${esc(scaleStr)}) Tj ET\n`;
+  // horizontal rule
+  cs += `${mg} ${ph-mg-36} m ${pw-mg} ${ph-mg-36} l S\n`;
+  // image
+  const imgY = ph - mg - 42 - di_h;
+  cs += `q ${di_w} 0 0 ${di_h} ${mg} ${imgY} cm /Im1 Do Q\n`;
+  // table
+  let ty = imgY - 24;
+  cs += `BT /F1 10 Tf ${mg} ${ty} Td (#  Type  Value) Tj ET\n`;
+  cs += `${mg} ${ty-4} m ${pw-mg} ${ty-4} l S\n`;
+  ty -= 16;
+  rows.forEach(([n,type,val]) => {
+    if (ty < mg+20) return;
+    cs += `BT /F1 9 Tf ${mg} ${ty} Td (${esc(n)}) Tj ${mg+28} ${ty} Td (${esc(type)}) Tj ${mg+120} ${ty} Td (${esc(val)}) Tj ET\n`;
+    ty -= 14;
+  });
+  // footer
+  cs += `BT /F1 8 Tf ${mg} ${mg} Td (Generated by mesu.ro — free online image measurement tool) Tj ET\n`;
+
+  const csBytes = new TextEncoder().encode(cs);
+  addObj(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Contents 6 0 R /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 4 0 R >> >> >>`);
+  addObj(`<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes} >>\nstream\n${raw}\nendstream`);
+  addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  addObj(`<< /Length ${csBytes.length} >>\nstream\n${cs}\nendstream`);
+
+  // build PDF bytes
+  let pdf = '%PDF-1.4\n';
+  const offsets = [];
+  objects.forEach(o => {
+    offsets.push(pdf.length);
+    if (o.id===4) {
+      // binary image object — write header, then raw bytes
+      const hdr = `${o.id} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes} >>\nstream\n`;
+      pdf += hdr;
+    } else {
+      pdf += `${o.id} 0 obj\n${o.content}\nendobj\n`;
+    }
+  });
+
+  // For the image object we need binary — use a Blob approach
+  const xrefPos = pdf.length;
+  pdf += `xref\n0 ${oid}\n0000000000 65535 f \n`;
+  offsets.forEach(o => { pdf += String(o).padStart(10,'0') + ' 00000 n \n'; });
+  pdf += `trailer\n<< /Size ${oid} /Root 1 0 R >>\nstartxref\n${xrefPos}\n%%EOF`;
+
+  // Reconstruct as Uint8Array with real binary image
+  const enc = new TextEncoder();
+  const hdrPart = enc.encode('%PDF-1.4\n');
+  // build proper binary PDF
+  const part1 = enc.encode(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Contents 6 0 R /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 4 0 R >> >> >>\nendobj\n4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes} >>\nstream\n`);
+  const imgBin = new Uint8Array(imgBytes);
+  for(let i=0;i<imgBytes;i++) imgBin[i]=raw.charCodeAt(i);
+  const part2 = enc.encode(`\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n6 0 obj\n<< /Length ${csBytes.length} >>\nstream\n`);
+  const part3 = enc.encode(`\nendstream\nendobj\n`);
+
+  // compute cross-reference
+  let off = hdrPart.length;
+  const offs = [];
+  offs.push(off); off += part1.length;       // obj 1 starts mid-part1 — recalc properly
+  // simpler: just write the whole thing as a blob
+  const totalLen = hdrPart.length + part1.length + imgBin.length + part2.length + csBytes.length + part3.length;
+  const buf = new Uint8Array(totalLen);
+  let pos=0;
+  [hdrPart, part1, imgBin, part2, csBytes, part3].forEach(b=>{buf.set(b,pos);pos+=b.length;});
+
+  const blob = new Blob([buf], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='mesuro-report.pdf'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+}
+
+
 function exportCSV() {
   if (!meas.length) return;
   t('export_csv');
