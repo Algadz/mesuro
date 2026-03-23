@@ -787,7 +787,7 @@ const toast       = document.getElementById('toast');
 const modal       = document.getElementById('scaleModal');
 
 /* ── analytics ── */
-function t(event) { try { if(typeof umami!=='undefined') umami.track(event); } catch(e){} }
+function t(event, props) { try { if(typeof umami!=='undefined') umami.track(event, props||undefined); } catch(e){} }
 
 /* ── state ── */
 let img = null, originalImg = null;
