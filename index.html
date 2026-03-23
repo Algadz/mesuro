@@ -802,9 +802,7 @@ function loadImg(file) {
       const p = document.getElementById('kofiPopup');
       if (p) { p.style.opacity='0'; p.style.pointerEvents='none'; setTimeout(()=>{ p.style.display='none'; }, 500); }
       updUI();
-      // on mobile, auto-start scale tool so user knows what to do next
-      // auto-start scale tool so user can immediately draw the reference line
-      setTimeout(() => { doScale(); }, 50);
+      // image loaded — user can now interact
     };
     i.src = ev.target.result;
   };
@@ -966,6 +964,7 @@ cv.addEventListener('mouseup', e => {
   if (mode==='drag') {
     const wasStDrag = dragState && dragState.idx===-2;
     mode = wasStDrag ? 'st' : 'idle';
+    if (wasStDrag) mp = null; // hide magnifier after releasing corner
     dragState=null; cv.style.cursor='default'; updUI(); draw();
   }
 });
@@ -992,7 +991,7 @@ cv.addEventListener('click', e => {
       stPts.push({x:p.x, y:p.y});
       updStraightenUI();
       if (stPts.length < 4) setHint(`Click ${ST_LABELS[stPts.length]} corner`);
-      else { clearHint(); setHint('Drag corners to adjust, then click Apply'); }
+      else { mp=null; clearHint(); setHint('Drag corners to adjust, then click Apply'); }
       draw();
     }
     return;
@@ -1129,7 +1128,6 @@ function restoreOriginal() {
   mode='idle'; zoom=1; panX=0; panY=0;
   fitImg(); clearHint(); updStraightenUI(); updUI();
   showToast('Original image restored');
-  setTimeout(() => { doScale(); }, 100);
 }
 
 function doStraighten() {
@@ -1318,8 +1316,7 @@ function applyStraighten() {
       clearHint();
       updStraightenUI();
       updUI();
-      showToast('Image straightened — set scale to continue');
-      setTimeout(() => { doScale(); }, 100);
+      showToast('Image rectified — set scale to continue');
     };
     newImg.src = outCanvas.toDataURL('image/png');
   }, 30);
@@ -1604,7 +1601,8 @@ function draw() {
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
-    const showIt = (!isMobNow && (magEnabled || mode==='st') && (am2.includes(mode) || (mode==='drag' && dragState && dragState.idx===-2)))
+    const stActive = mode==='st' && stPts.length < 4;
+    const showIt = (!isMobNow && (magEnabled || stActive) && (am2.includes(mode) || (mode==='drag' && dragState && dragState.idx===-2)))
                 || (isMobNow && longPressActive && am2.includes(mode))
                 || (isMobNow && mode==='drag' && !!dragState);
     if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
