@@ -393,6 +393,19 @@
       <div id="projTip" style="font-size:10px;color:#555;font-style:italic;text-align:right;opacity:0;transition:opacity .15s;margin-top:2px;line-height:1;font-family:system-ui,-apple-system,sans-serif">&nbsp;</div>
     </div>
 
+    <div>
+      <div class="slbl">STRAIGHTEN</div>
+      <button id="btnStraighten" onclick="doStraighten()" disabled style="font-size:11px;margin-bottom:4px">⬜ Place 4 corners</button>
+      <div id="straightenStatus" style="display:none;font-size:10px;color:#555;margin-bottom:4px;line-height:1.5">
+        Click: <span id="stCornerLabel" style="color:#9F77DD">top-left</span><br>
+        <span id="stDots">○ ○ ○ ○</span>
+      </div>
+      <div id="straightenApplyRow" style="display:none" class="btn-row">
+        <button class="btn-confirm" onclick="applyStraighten()" style="flex:1;font-size:11px">Apply</button>
+        <button onclick="cancelStraighten()" style="flex:1;font-size:11px">Cancel</button>
+      </div>
+    </div>
+
     <div style="margin-top:-6px">
       <div class="slbl">SCALE</div>
       <div class="btn-row">
@@ -854,12 +867,16 @@ function findDrag(wp) {
     if (near(scLine.x1,scLine.y1)) return {idx:-1,field:'p1'};
     if (near(scLine.x2,scLine.y2)) return {idx:-1,field:'p2'};
   }
+  if (mode==='st') {
+    for (let i=0;i<stPts.length;i++) if (near(stPts[i].x,stPts[i].y)) return {idx:-2,field:'st',ptIdx:i};
+  }
   return null;
 }
 
 function applyDrag(wp) {
   if (!dragState) return;
   const {idx,field,ptIdx}=dragState;
+  if (idx===-2 && field==='st') { stPts[ptIdx]={x:wp.x,y:wp.y}; return; }
   if (idx===-1 && scLine) {
     if (field==='p1'){scLine.x1=wp.x;scLine.y1=wp.y;}else{scLine.x2=wp.x;scLine.y2=wp.y;}
     const newPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1);
@@ -947,6 +964,17 @@ cv.addEventListener('click', e => {
   if (!img||e.button!==0||isPanning||mode==='drag'||spaceDown) return;
   if (mode==='idle'||mode==='wait') return;
   const p=pt(e);
+  // straighten mode — collect 4 corner points
+  if (mode==='st') {
+    if (stPts.length < 4) {
+      stPts.push({x:p.x, y:p.y});
+      updStraightenUI();
+      if (stPts.length < 4) setHint(`Click ${ST_LABELS[stPts.length]} corner`);
+      else { clearHint(); setHint('Drag corners to adjust, then click Apply'); }
+      draw();
+    }
+    return;
+  }
 
   if (mode==='sa') { p0=p; mode='sb'; setHint('Click end point (Ctrl=snap 45°) — Esc'); }
   else if (mode==='sb') {
@@ -1056,7 +1084,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ── tools ── */
-function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; clearHint(); draw(); updUI(); }
+function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; stPts=[]; clearHint(); updStraightenUI(); draw(); updUI(); }
 function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line'); updUI(); }
 function doScaleReset() {
   // reuse existing scLine, just ask for new value
@@ -1065,6 +1093,205 @@ function doScaleReset() {
   mode = 'wait'; stopTool(); showModal();
 }
 function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance'); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
+
+/* ── STRAIGHTEN ── */
+let stPts = []; // up to 4 world-space points: TL, TR, BR, BL
+const ST_LABELS = ['top-left','top-right','bottom-right','bottom-left'];
+const ST_COLORS = ['#EF9F27','#5DCAA5','#D4537E','#9F77DD'];
+
+function doStraighten() {
+  if (mode==='st') { cancelStraighten(); return; }
+  stopTool();
+  stPts = [];
+  mode = 'st';
+  updStraightenUI();
+  setHint('Click top-left corner of the rectangle');
+  updUI();
+}
+
+function cancelStraighten() {
+  stPts = [];
+  mode = 'idle';
+  clearHint();
+  updStraightenUI();
+  draw();
+  updUI();
+}
+
+function updStraightenUI() {
+  const active = mode === 'st';
+  const status = document.getElementById('straightenStatus');
+  const applyRow = document.getElementById('straightenApplyRow');
+  const btn = document.getElementById('btnStraighten');
+  const label = document.getElementById('stCornerLabel');
+  const dots = document.getElementById('stDots');
+  if (!status) return;
+  if (active) {
+    status.style.display = 'block';
+    if (stPts.length < 4) {
+      applyRow.style.display = 'none';
+      label.textContent = ST_LABELS[stPts.length];
+      label.style.color = ST_COLORS[stPts.length];
+    } else {
+      applyRow.style.display = 'flex';
+      label.textContent = 'ready';
+      label.style.color = '#1D9E75';
+    }
+    const filled = ['●','●','●','●'].map((c,i) => i < stPts.length
+      ? `<span style="color:${ST_COLORS[i]}">${c}</span>` : '○').join(' ');
+    dots.innerHTML = filled;
+    btn.textContent = '✕ Cancel';
+    btn.className = 'btn-scale-active';
+  } else {
+    status.style.display = 'none';
+    applyRow.style.display = 'none';
+    btn.textContent = '⬜ Place 4 corners';
+    btn.className = '';
+  }
+}
+
+/* Gaussian elimination to solve Ax=b for homography */
+function solveLinear(A, b) {
+  const n = b.length;
+  // augmented matrix
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let col = 0; col < n; col++) {
+    // pivot
+    let maxRow = col;
+    for (let r = col+1; r < n; r++) if (Math.abs(M[r][col]) > Math.abs(M[maxRow][col])) maxRow = r;
+    [M[col], M[maxRow]] = [M[maxRow], M[col]];
+    if (Math.abs(M[col][col]) < 1e-10) return null;
+    for (let r = col+1; r < n; r++) {
+      const f = M[r][col] / M[col][col];
+      for (let c = col; c <= n; c++) M[r][c] -= f * M[col][c];
+    }
+  }
+  const x = new Array(n).fill(0);
+  for (let i = n-1; i >= 0; i--) {
+    x[i] = M[i][n];
+    for (let j = i+1; j < n; j++) x[i] -= M[i][j] * x[j];
+    x[i] /= M[i][i];
+  }
+  return x;
+}
+
+function computeHomography(src, dst) {
+  // DLT: 4 point correspondences → 3x3 homography matrix (h8=1)
+  const A = [], b = [];
+  for (let i = 0; i < 4; i++) {
+    const [sx,sy] = src[i], [dx,dy] = dst[i];
+    A.push([-sx,-sy,-1,0,0,0,dx*sx,dx*sy]);
+    b.push(-dx);
+    A.push([0,0,0,-sx,-sy,-1,dy*sx,dy*sy]);
+    b.push(-dy);
+  }
+  const h = solveLinear(A, b);
+  if (!h) return null;
+  return [[h[0],h[1],h[2]],[h[3],h[4],h[5]],[h[6],h[7],1]];
+}
+
+function applyHomography(H, x, y) {
+  const [r0,r1,r2] = H;
+  const w = r2[0]*x + r2[1]*y + r2[2];
+  return [(r0[0]*x + r0[1]*y + r0[2])/w, (r1[0]*x + r1[1]*y + r1[2])/w];
+}
+
+function invertMatrix3(m) {
+  const [[a,b,c],[d,e,f],[g,h,i]] = m;
+  const det = a*(e*i-f*h) - b*(d*i-f*g) + c*(d*h-e*g);
+  if (Math.abs(det) < 1e-12) return null;
+  return [
+    [(e*i-f*h)/det, (c*h-b*i)/det, (b*f-c*e)/det],
+    [(f*g-d*i)/det, (a*i-c*g)/det, (c*d-a*f)/det],
+    [(d*h-e*g)/det, (b*g-a*h)/det, (a*e-b*d)/det]
+  ];
+}
+
+function applyStraighten() {
+  if (stPts.length < 4) return;
+
+  // stPts are in world space; convert to canvas pixels for the warp
+  // canvas pixel = world * zoom + pan — but we want them relative to the flat image
+  // so map through w2c to get screen coords, then normalise to source image space
+  const cssW = cv.width, cssH = cv.height;
+
+  // Build a flat (zoom=1, pan=0) temp canvas of the image
+  const srcCanvas = document.createElement('canvas');
+  srcCanvas.width = cssW; srcCanvas.height = cssH;
+  const srcCtx = srcCanvas.getContext('2d');
+  srcCtx.drawImage(img, 0, 0, cssW, cssH);
+  const srcData = srcCtx.getImageData(0, 0, cssW, cssH).data;
+
+  // Convert world coords → flat image pixels (undo zoom/pan)
+  const src = stPts.map(p => [
+    p.x,  // world coords ARE flat image coords when zoom=1,pan=0
+    p.y
+  ]);
+  // But user may have zoomed — world coords are always in image-space regardless of zoom
+  // world coords: (0,0) = top-left of image, (cssW,cssH) = bottom-right
+  // That's correct — pt() divides out zoom and pan already
+
+  // compute output dimensions from src quadrilateral
+  const widthTop  = Math.hypot(src[1][0]-src[0][0], src[1][1]-src[0][1]);
+  const widthBot  = Math.hypot(src[2][0]-src[3][0], src[2][1]-src[3][1]);
+  const heightL   = Math.hypot(src[3][0]-src[0][0], src[3][1]-src[0][1]);
+  const heightR   = Math.hypot(src[2][0]-src[1][0], src[2][1]-src[1][1]);
+  const outW = Math.round(Math.max(widthTop, widthBot));
+  const outH = Math.round(Math.max(heightL, heightR));
+  if (outW < 4 || outH < 4) { showToast('Corners too close — try again'); return; }
+
+  const dst = [[0,0],[outW,0],[outW,outH],[0,outH]];
+
+  // H maps src → dst; we need H_inv to go dst→src for sampling
+  const H = computeHomography(src, dst);
+  if (!H) { showToast('Straighten failed'); return; }
+  const Hinv = invertMatrix3(H);
+  if (!Hinv) { showToast('Straighten failed'); return; }
+
+  // output canvas
+  const outCanvas = document.createElement('canvas');
+  outCanvas.width = outW; outCanvas.height = outH;
+  const outCtx = outCanvas.getContext('2d');
+  const outData = outCtx.createImageData(outW, outH);
+  const od = outData.data;
+
+  // inverse warp with bilinear interpolation — use requestAnimationFrame to stay responsive
+  showToast('Processing…');
+  setTimeout(() => {
+    for (let oy = 0; oy < outH; oy++) {
+      for (let ox = 0; ox < outW; ox++) {
+        const [sx, sy] = applyHomography(Hinv, ox, oy);
+        const x0 = Math.floor(sx), y0 = Math.floor(sy);
+        const x1 = x0+1, y1 = y0+1;
+        const fx = sx-x0, fy = sy-y0;
+        const inB = (x,y) => x>=0&&x<cssW&&y>=0&&y<cssH;
+        const px = (x,y) => { if(!inB(x,y)) return [0,0,0,0]; const i=(y*cssW+x)*4; return [srcData[i],srcData[i+1],srcData[i+2],srcData[i+3]]; };
+        const p00=px(x0,y0), p10=px(x1,y0), p01=px(x0,y1), p11=px(x1,y1);
+        const oi = (oy*outW+ox)*4;
+        for (let c=0;c<4;c++) od[oi+c]=Math.round(p00[c]*(1-fx)*(1-fy)+p10[c]*fx*(1-fy)+p01[c]*(1-fx)*fy+p11[c]*fx*fy);
+      }
+    }
+    outCtx.putImageData(outData, 0, 0);
+
+    // replace img with straightened result
+    pushHistory();
+    const newImg = new Image();
+    newImg.onload = () => {
+      img = newImg;
+      meas = []; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
+      stPts = []; mode = 'idle';
+      zoom=1; panX=0; panY=0;
+      fitImg();
+      clearHint();
+      updStraightenUI();
+      updUI();
+      showToast('Image straightened — set scale to continue');
+      setTimeout(() => { doScale(); }, 100);
+    };
+    newImg.src = outCanvas.toDataURL('image/png');
+  }, 30);
+}
+
 function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter'); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
 function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!scFactor)return; t('tool_angle'); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
 function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area'); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
@@ -1135,6 +1362,8 @@ function updUI() {
   btnAngle.disabled=!hasSc; btnArea.disabled=!hasSc; btnPerim.disabled=!hasSc; btnZoom.disabled=!hasImg;
   btnMag.disabled=!hasImg; btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
   btnExport.disabled=!hasImg; exportFmt.disabled=!hasImg; btnExportCSV.disabled=!hasImg;
+  const btnStr = document.getElementById('btnStraighten');
+  if (btnStr) btnStr.disabled = !hasImg;
 
   btnScale.className=isSc?'btn-scale-active':'';
   btnScale.textContent=isSc?'Cancel':(hasSc?'Reset':'Set');
@@ -1241,7 +1470,23 @@ function draw() {
     ctx.restore();
   }
 
-  // live previews
+  // draw straighten overlay
+  if (mode==='st' && stPts.length > 0) {
+    ctx.save();
+    ctx.strokeStyle='rgba(159,119,221,.7)'; ctx.lineWidth=1.5/zoom; ctx.setLineDash([5/zoom,4/zoom]);
+    ctx.beginPath(); ctx.moveTo(stPts[0].x,stPts[0].y);
+    for (let i=1;i<stPts.length;i++) ctx.lineTo(stPts[i].x,stPts[i].y);
+    if (stPts.length===4) ctx.closePath();
+    ctx.stroke(); ctx.setLineDash([]);
+    if (stPts.length===4) { ctx.fillStyle='rgba(159,119,221,.07)'; ctx.fill(); }
+    stPts.forEach((q,i) => {
+      ctx.fillStyle=ST_COLORS[i];
+      ctx.beginPath(); ctx.arc(q.x,q.y,6/zoom,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1/zoom;
+      ctx.beginPath(); ctx.arc(q.x,q.y,6/zoom,0,Math.PI*2); ctx.stroke();
+    });
+    ctx.restore();
+  }
   if (p0&&mp) {
     if (mode==='sb') rubberLine(p0,mp,'#1D9E75',null);
     else if (mode==='mb') { const d=dst(p0,mp); rubberLine(p0,mp,'#EF9F27',scFactor?`${(d*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d)}px`); }
@@ -1674,6 +1919,11 @@ function updMobile() {
     val.textContent=v; val.style.color=col; val.style.fontStyle='normal';
     sub.textContent=`${iconMap[m.type]} #${idx+1}`;
     if(sh){sh.innerHTML='↓ more'; sh.style.color='#3a3a3a';}
+  } else if (hasImg && hasSc) {
+    chip.style.background = 'rgba(239,159,39,.15)';
+    icon.textContent = '↔'; icon.style.color = '#EF9F27'; icon.style.fontSize = '13px';
+    val.textContent = 'Start measuring'; val.style.color = '#EF9F27'; val.style.fontStyle = 'italic';
+    sub.textContent = ''; if(sh){sh.innerHTML='↓ more'; sh.style.color='#2e2e2e';}
   } else if (hasImg) {
     chip.style.background = 'rgba(29,158,117,.15)';
     icon.textContent = '⊘'; icon.style.color = '#1D9E75'; icon.style.fontSize = '13px';
