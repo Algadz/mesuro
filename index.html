@@ -394,8 +394,30 @@
     </div>
 
     <div>
-      <div class="slbl">STRAIGHTEN</div>
-      <button id="btnStraighten" onclick="doStraighten()" disabled style="font-size:11px;margin-bottom:4px">⬜ Place 4 corners</button>
+      <div class="slbl">RECTIFY</div>
+      <div class="btn-row" style="margin-bottom:4px">
+        <button id="btnStraighten" onclick="doStraighten()" disabled style="flex:1;padding:6px 4px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px">
+          <svg width="26" height="20" viewBox="0 0 220 160" fill="none">
+            <!-- distorted quad -->
+            <polygon points="45,8 88,5 65,132 5,138" fill="none" stroke="currentColor" stroke-width="10" stroke-dasharray="18 12" stroke-linejoin="round"/>
+            <circle cx="45"  cy="8"   r="10" fill="#EF9F27"/>
+            <circle cx="88"  cy="5"   r="10" fill="#5DCAA5"/>
+            <circle cx="65"  cy="132" r="10" fill="#D4537E"/>
+            <circle cx="5"   cy="138" r="10" fill="#9F77DD"/>
+            <!-- arrow -->
+            <line x1="104" y1="72" x2="134" y2="72" stroke="currentColor" stroke-width="8"/>
+            <polyline points="126,58 140,72 126,86" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+            <!-- rect -->
+            <rect x="148" y="5" width="66" height="150" fill="none" stroke="currentColor" stroke-width="10" stroke-linejoin="round"/>
+            <circle cx="148" cy="5"   r="10" fill="#EF9F27"/>
+            <circle cx="214" cy="5"   r="10" fill="#5DCAA5"/>
+            <circle cx="214" cy="155" r="10" fill="#D4537E"/>
+            <circle cx="148" cy="155" r="10" fill="#9F77DD"/>
+          </svg>
+          Rectify
+        </button>
+        <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:0 0 auto;padding:6px 6px;font-size:10px;color:#888;white-space:nowrap" title="Restore original image">↩ Original</button>
+      </div>
       <div id="straightenStatus" style="display:none;font-size:10px;color:#555;margin-bottom:4px;line-height:1.5">
         Click: <span id="stCornerLabel" style="color:#9F77DD">top-left</span><br>
         <span id="stDots">○ ○ ○ ○</span>
@@ -730,7 +752,7 @@ const modal       = document.getElementById('scaleModal');
 function t(event) { try { if(typeof umami!=='undefined') umami.track(event); } catch(e){} }
 
 /* ── state ── */
-let img = null;
+let img = null, originalImg = null;
 let mode = 'idle'; // idle|sa|sb|wait|ma|mb|da|db|aa|ab|ac|pa|pp|drag
 let p0 = null, p1 = null, mp = null;
 let areaPts = [];
@@ -772,7 +794,7 @@ function loadImg(file) {
   r.onload = ev => {
     const i = new Image();
     i.onload = () => {
-      img = i; scLine=null; scPx=null; scFactor=null;
+      img = i; originalImg = i; scLine=null; scPx=null; scFactor=null;
       meas=[]; history=[]; areaPts=[]; mode='idle'; p0=null; p1=null;
       zoom=1; panX=0; panY=0;
       fitImg();
@@ -918,7 +940,7 @@ cv.addEventListener('mousedown', e => {
     cv.style.cursor='grabbing'; e.preventDefault(); return;
   }
   if (e.button!==0) return;
-  if (mode==='idle') {
+  if (mode==='idle' || mode==='st') {
     const t=findDrag(wp);
     if (t) { pushHistory(); dragState=t; mode='drag'; cv.style.cursor='grabbing'; }
   }
@@ -937,15 +959,19 @@ cv.addEventListener('mousemove', e => {
     mp = (p0 && (mode==='sb'||mode==='mb')) ? snapPoint(p0, wp, e) : wp;
     draw(); return;
   }
-  if (mode==='idle') {
+  if (mode==='idle' || mode==='st') {
     const t=findDrag(wp);
-    cv.style.cursor = t ? 'grab' : (spaceDown ? 'grab' : 'default');
+    cv.style.cursor = t ? 'grab' : (spaceDown ? 'grab' : (mode==='st' ? 'crosshair' : 'default'));
   }
 });
 
 cv.addEventListener('mouseup', e => {
   if (isPanning) { isPanning=false; panStart=null; cv.style.cursor=spaceDown?'grab':'default'; return; }
-  if (mode==='drag') { mode='idle'; dragState=null; cv.style.cursor='default'; updUI(); draw(); }
+  if (mode==='drag') {
+    const wasStDrag = dragState && dragState.idx===-2;
+    mode = wasStDrag ? 'st' : 'idle';
+    dragState=null; cv.style.cursor='default'; updUI(); draw();
+  }
 });
 
 cv.addEventListener('mouseleave', () => { if(mp){mp=null;draw();} isPanning=false; panStart=null; });
@@ -1098,6 +1124,17 @@ function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFa
 let stPts = []; // up to 4 world-space points: TL, TR, BR, BL
 const ST_LABELS = ['top-left','top-right','bottom-right','bottom-left'];
 const ST_COLORS = ['#EF9F27','#5DCAA5','#D4537E','#9F77DD'];
+
+function restoreOriginal() {
+  if (!originalImg || originalImg === img) return;
+  pushHistory();
+  img = originalImg;
+  meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; stPts=[]; p0=null; p1=null;
+  mode='idle'; zoom=1; panX=0; panY=0;
+  fitImg(); clearHint(); updStraightenUI(); updUI();
+  showToast('Original image restored');
+  setTimeout(() => { doScale(); }, 100);
+}
 
 function doStraighten() {
   if (mode==='st') { cancelStraighten(); return; }
@@ -1293,7 +1330,7 @@ function applyStraighten() {
 }
 
 function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter'); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
-function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!scFactor)return; t('tool_angle'); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
+function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle'); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
 function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area'); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
 function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter'); stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — Enter to close shape — Esc to save as open path'); updUI(); }
 function closePerim() {
@@ -1359,11 +1396,13 @@ function updUI() {
   const isAngle=mode==='aa'||mode==='ab'||mode==='ac', isArea=mode==='pa', isPerim=mode==='pp';
 
   btnScale.disabled=!hasImg; btnSaveProject.disabled=!hasImg; btnMeasure.disabled=!hasSc; btnDiam.disabled=!hasSc;
-  btnAngle.disabled=!hasSc; btnArea.disabled=!hasSc; btnPerim.disabled=!hasSc; btnZoom.disabled=!hasImg;
+  btnAngle.disabled=!hasImg; btnArea.disabled=!hasSc; btnPerim.disabled=!hasSc; btnZoom.disabled=!hasImg;
   btnMag.disabled=!hasImg; btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
   btnExport.disabled=!hasImg; exportFmt.disabled=!hasImg; btnExportCSV.disabled=!hasImg;
   const btnStr = document.getElementById('btnStraighten');
   if (btnStr) btnStr.disabled = !hasImg;
+  const btnRst = document.getElementById('btnRestoreOriginal');
+  if (btnRst) btnRst.disabled = !(originalImg && originalImg !== img);
 
   btnScale.className=isSc?'btn-scale-active':'';
   btnScale.textContent=isSc?'Cancel':(hasSc?'Reset':'Set');
@@ -1569,7 +1608,7 @@ function draw() {
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
-    const showIt = (!isMobNow && magEnabled && am2.includes(mode))
+    const showIt = (!isMobNow && magEnabled && (am2.includes(mode) || (mode==='drag' && dragState && dragState.idx===-2)))
                 || (isMobNow && longPressActive && am2.includes(mode))
                 || (isMobNow && mode==='drag' && !!dragState);
     if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
@@ -1850,7 +1889,7 @@ function updMobile() {
 
   // sync mobile tool buttons
   const ids = ['mBtnScale','mBtnMeasure','mBtnDiam','mBtnAngle','mBtnArea','mBtnPerim'];
-  const dis  = [!hasImg,    !hasSc,       !hasSc,    !hasSc,     !hasSc,    !hasSc];
+  const dis  = [!hasImg,    !hasSc,       !hasSc,    !hasImg,    !hasSc,    !hasSc];
   ids.forEach((id,i) => { const b=document.getElementById(id); if(b) b.disabled=dis[i]; });
 
   // pulse Scale button when image loaded but no scale yet
