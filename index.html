@@ -1417,8 +1417,8 @@ function updUI() {
   btnMag.className=magEnabled?'btn-tog-active':'';
   btnMag.innerHTML=`${magEnabled?'◉':'◎'} Zoom cursor<br><span class="kbd">C</span>`;
 
-  const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc;
-  cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':'default';
+  const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc||(mode==='st');
+  cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':(mode==='st'?'crosshair':'default');
 
   if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f/\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; }
   else { scaleStatus.textContent='Not set'; scaleStatus.style.color=''; }
@@ -1604,7 +1604,7 @@ function draw() {
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
-    const showIt = (!isMobNow && magEnabled && (am2.includes(mode) || (mode==='drag' && dragState && dragState.idx===-2)))
+    const showIt = (!isMobNow && (magEnabled || mode==='st') && (am2.includes(mode) || (mode==='drag' && dragState && dragState.idx===-2)))
                 || (isMobNow && longPressActive && am2.includes(mode))
                 || (isMobNow && mode==='drag' && !!dragState);
     if (showIt) drawMagnifier(sc.x*dpr, sc.y*dpr, mp.x, mp.y, col, dpr);
