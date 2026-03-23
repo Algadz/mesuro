@@ -950,7 +950,7 @@ cv.addEventListener('mousemove', e => {
     clampPan(); draw(); return;
   }
   if (mode==='drag' && dragState) { applyDrag(wp); draw(); updUI(); return; }
-  const dm=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
+  const dm=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp','st'];
   if (dm.includes(mode)) {
     mp = (p0 && (mode==='sb'||mode==='mb')) ? snapPoint(p0, wp, e) : wp;
     draw(); return;
@@ -1599,8 +1599,8 @@ function draw() {
   // magnifier
   const isMobNow = window.innerWidth<=767;
   if (mp) {
-    const am2=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp'];
-    const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':'#EF9F27';
+    const am2=['sa','sb','ma','mb','da','db','aa','ab','ac','pa','pp','st'];
+    const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':mode==='st'?'#9F77DD':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
