@@ -475,23 +475,41 @@
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:14px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
         <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:flex;align-items:center;pointer-events:all;text-decoration:none;font-size:11px;color:#666;white-space:nowrap;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Offer an espresso</a>
         <span style="color:#333;font-size:11px">|</span>
+        <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Share feedback</button>
+        <span style="color:#333;font-size:11px">|</span>
         <div style="display:flex;align-items:center;gap:6px;pointer-events:all">
           <button id="clapBtn" onclick="doClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s" onmouseenter="this.style.opacity=this.dataset.clapped?1:.7" onmouseleave="this.style.opacity=this.dataset.clapped?1:.45">
             <svg id="clapSvg" viewBox="0 0 64 64" width="28" height="28" xmlns="http://www.w3.org/2000/svg" fill="none">
-              <!-- back hand — no fill, drawn first -->
               <path d="M47.2,24.83a2.56,2.56,0,0,0-3.47,1L41.84,29.3l-10.6-5.41L35.51,16a3,3,0,0,0-5.23-2.85l-3.46,6.35-.21.38-4.68,8.59-4.16-3.62a4.79,4.79,0,0,0-6.78,0,1.16,1.16,0,0,0,0,1.64l2.34,2.37c3.33,3.36,4,4.66,3.36,8.83l-1,5.83,16.44,9,2-3.77a5.59,5.59,0,0,0,4.48-2.89l8.73-16,.82-1.49A2.56,2.56,0,0,0,47.2,24.83Z" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M34.84,29.72,43.18,14.4a3,3,0,0,0-1.19-4h0a3,3,0,0,0-4,1.19L29.61,26.87" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <!-- front hand — fill bg to occlude back hand, drawn on top -->
               <path d="M56.84,29a2.54,2.54,0,0,0-3.59.33l-2.53,3L41.37,25l5.71-6.87a3,3,0,0,0-4.58-3.81l-4.62,5.56-.28.33-6.25,7.52L28,23.38A4.8,4.8,0,0,0,21.31,22,1.16,1.16,0,0,0,21,23.64l1.83,2.77c2.62,3.95,3,5.35,1.59,9.32l-2.1,5.53,14.4,12,2.74-3.3a5.56,5.56,0,0,0,5-2l11.67-14,1.09-1.31A2.54,2.54,0,0,0,56.84,29Z" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M43.77,31.44,54.93,18a3,3,0,0,0-.39-4.2h0a3,3,0,0,0-4.19.39L39.19,27.63" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M48.54,35,57.85,23.8a2.76,2.76,0,0,0-.71-3.8h0a2.77,2.77,0,0,0-3.87,0L44,31.18" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <!-- sparkles -->
               <line x1="26.29" y1="11.33" x2="20.2" y2="9.33" stroke="#888" stroke-width="2" stroke-linecap="round"/>
               <line x1="27.71" y1="8.01" x2="24.97" y2="3.83" stroke="#888" stroke-width="2" stroke-linecap="round"/>
               <line x1="31.31" y1="8.05" x2="32.61" y2="1.82" stroke="#888" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Feedback modal -->
+    <div id="feedbackModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.6)">
+      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span style="font-size:14px;font-weight:500;color:#e0e0e0">Share feedback</span>
+          <button onclick="closeFeedback()" style="background:none;border:none;cursor:pointer;color:#555;font-size:18px;line-height:1;padding:0">×</button>
+        </div>
+        <form id="feedbackForm" action="https://formspree.io/f/mvzvpyad" method="POST" onsubmit="submitFeedback(event)">
+          <textarea name="message" id="feedbackText" placeholder="What could be improved? What do you use mesu.ro for?" required style="width:100%;height:100px;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
+          <input type="email" name="email" placeholder="Your email (optional)" style="width:100%;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button type="button" onclick="closeFeedback()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
+            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Send</button>
+          </div>
+        </form>
+        <div id="feedbackThanks" style="display:none;text-align:center;padding:12px 0;font-size:13px;color:#1D9E75">Thanks for your feedback!</div>
       </div>
     </div>
     <div id="scaleModal">
@@ -2422,7 +2440,44 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
 
 
-// clap button
+function openFeedback() {
+  const m = document.getElementById('feedbackModal');
+  m.style.display = 'flex';
+  document.getElementById('feedbackText').focus();
+  t('feedback_open');
+}
+function closeFeedback() {
+  const m = document.getElementById('feedbackModal');
+  m.style.display = 'none';
+  document.getElementById('feedbackForm').reset();
+  document.getElementById('feedbackThanks').style.display = 'none';
+  document.getElementById('feedbackForm').style.display = 'block';
+}
+async function submitFeedback(e) {
+  e.preventDefault();
+  const btn = document.getElementById('feedbackSubmit');
+  btn.textContent = 'Sending…'; btn.disabled = true;
+  try {
+    const res = await fetch('https://formspree.io/f/mvzvpyad', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(document.getElementById('feedbackForm'))
+    });
+    if (res.ok) {
+      document.getElementById('feedbackForm').style.display = 'none';
+      document.getElementById('feedbackThanks').style.display = 'block';
+      t('feedback_sent');
+      setTimeout(closeFeedback, 2000);
+    } else {
+      btn.textContent = 'Send'; btn.disabled = false;
+      showToast('Could not send — please try again');
+    }
+  } catch { btn.textContent = 'Send'; btn.disabled = false; showToast('Network error'); }
+}
+document.getElementById('feedbackModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('feedbackModal')) closeFeedback();
+});
+
 (function(){
   const clapped = localStorage.getItem('mesu_clapped');
   if (clapped) {
