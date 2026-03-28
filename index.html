@@ -3,20 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mesu.ro — Free Online Image Measurement Tool | Distances, angles, areas, PDF export & perspective correction</title>
-<meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters, diameters in any image. Correct perspective with the rectify tool. Add text notes. Export annotated images or PDF reports. No upload, no install, fully private.">
-<meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image, perspective correction, rectify image, annotate image online, PDF measurement report, image annotation tool">
+<title>mesu.ro — Free Online Image Measurement Tool | Measure images & PDFs, distances, angles, areas</title>
+<meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in images and PDF files. Open any page of a multi-page PDF directly. Correct perspective, add notes, export PDF reports. No upload, no install, fully private.">
+<meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image, perspective correction, rectify image, annotate image online, PDF measurement report, image annotation tool, measure PDF online, PDF ruler, measure distance in PDF, PDF measurement tool">
 <meta name="author" content="mesu.ro">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Angle measurement","Area measurement","Path/perimeter measurement","Diameter measurement","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Image rotation","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load"]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Angle measurement","Area measurement","Path/perimeter measurement","Diameter measurement","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Image rotation","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load"]}
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cstyle%3Etext%2Cline%7Bfill:%23222%3Bstroke:%23222%7D%40media(prefers-color-scheme:dark)%7Btext%2Cline%7Bfill:%23fff%3Bstroke:%23fff%7D%7D%3C/style%3E%3Ctext x='2' y='23' font-family='system-ui,-apple-system,sans-serif' font-size='22' font-weight='800' fill='%23222'%3Em%3C/text%3E%3Cline x1='2' y1='27' x2='30' y2='27' stroke='%23222' stroke-width='1.5'/%3E%3Cline x1='2' y1='24' x2='2' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='30' y1='24' x2='30' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mesu.ro/">
 <meta property="og:title" content="mesu.ro — measure anything in an image">
-<meta property="og:description" content="Measure distances, angles, areas and diameters in any image. Correct perspective distortion with the rectify tool. Add text notes. Export PDF reports. Free, instant, no upload.">
+<meta property="og:description" content="Measure distances, angles, areas and diameters in images and PDF files. Open any page of a multi-page PDF. Correct perspective. Export PDF reports. Free, instant, no upload.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mesu.ro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Distances, angles, areas. No upload, no install.">
@@ -317,7 +317,14 @@
     text-overflow: ellipsis;
   }
 
+  @keyframes scalePulseOnce {
+    0%   { box-shadow: 0 0 0 0 rgba(29,158,117,.7); }
+    50%  { box-shadow: 0 0 0 7px rgba(29,158,117,0); }
+    100% { box-shadow: 0 0 0 0 rgba(29,158,117,0); }
+  }
+  .scale-pulse-once { animation: scalePulseOnce .6s ease-out 2; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"mesu.ro","url":"https://mesu.ro/","logo":{"@type":"ImageObject","url":"https://mesu.ro/favicon.png","width":192,"height":192}}</script>
 </head>
@@ -358,8 +365,8 @@
     <div>
       <div class="btn-row">
         <label id="loadLabel" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
-          Load image
-          <input type="file" id="fileInput" accept="image/*" style="display:none">
+          Load image or PDF
+          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="display:none">
         </label>
         <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
       </div>
@@ -367,7 +374,7 @@
     </div>
 
     <div>
-      <div class="slbl">RECTIFY</div>
+      <div class="slbl" data-i18n="RECTIFY">RECTIFY</div>
       <div class="btn-row" style="margin-bottom:4px">
         <button id="btnStraighten" onclick="doStraighten()" disabled style="flex:1;display:flex;align-items:center;justify-content:center;padding:6px 4px;">
           <svg width="80" height="20" viewBox="0 0 390 100" fill="none" style="display:block">
@@ -385,28 +392,28 @@
             <circle cx="250" cy="90" r="10" fill="#9F77DD"/>
           </svg>
         </button>
-        <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:1;font-size:11px;color:#888">↩ Original</button>
+        <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:1;font-size:11px;color:#888" data-i18n="original">↩ Original</button>
       </div>
       <div id="straightenStatus" style="display:none;font-size:10px;color:#555;margin-bottom:4px;line-height:1.6;padding:4px 0">
         Click <span id="stCornerLabel" style="color:#9F77DD;font-weight:500">top-left</span> corner<br>
         <span id="stDots">○ ○ ○ ○</span>
       </div>
       <div id="straightenApplyRow" style="display:none" class="btn-row">
-        <button class="btn-confirm" onclick="applyStraighten()" style="flex:1;font-size:11px">Apply</button>
+        <button class="btn-confirm" onclick="applyStraighten()" style="flex:1;font-size:11px" data-i18n="apply">Apply</button>
         <button onclick="cancelStraighten()" style="flex:1;font-size:11px">Cancel</button>
       </div>
     </div>
 
     <div style="margin-top:-6px">
-      <div class="slbl">SCALE</div>
+      <div class="slbl" data-i18n="SCALE">SCALE</div>
       <div class="btn-row">
-        <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
+        <div id="scaleStatus" style="flex:1;margin-bottom:0" data-i18n="not_set">Not set</div>
         <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
       </div>
     </div>
 
     <div>
-      <div class="slbl">MEASURE</div>
+      <div class="slbl" data-i18n="MEASURE">MEASURE</div>
       <div style="display:flex;flex-direction:column;gap:4px">
         <div class="btn-row">
           <button id="btnMeasure" onclick="doMeasure()" disabled style="flex:1;font-size:11px">Distance <span class="kbd">L</span></button>
@@ -424,22 +431,23 @@
     </div>
 
     <div>
-      <div class="slbl">VIEW</div>
-      <div style="display:flex;gap:6px">
+      <div class="slbl" data-i18n="VIEW">VIEW</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button id="btnZoom" onclick="toggleZoom()" disabled style="flex:1;font-size:11px;white-space:nowrap">⊕ Pan &amp; zoom</button>
         <button id="btnMag"  onclick="toggleMag()"  disabled style="flex:1;font-size:11px;white-space:nowrap">◎ Zoom cursor</button>
+        <button id="btnSnap" onclick="toggleSnap()" disabled style="flex:1;font-size:11px;white-space:nowrap" title="Snap cursor to detected edges">⌖ Edge snap</button>
       </div>
     </div>
 
     <div style="flex:1;min-height:0;overflow-y:auto">
-      <div class="slbl">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
+      <div class="slbl" data-i18n="RESULTS">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
       <div id="resList"></div>
-      <div id="noRes" style="font-size:12px;color:#555">No measurements yet</div>
+      <div id="noRes" style="font-size:12px;color:#555" data-i18n="no_meas">No measurements yet</div>
     </div>
 
     <div>
-      <button id="btnUndo" onclick="undoLast()" disabled style="margin-bottom:6px">↩ Undo <span class="kbd">Ctrl+Z</span></button>
-      <button id="btnClear" class="btn-clear-style" onclick="clearAll()" disabled style="margin-bottom:6px">Clear all</button>
+      <button id="btnUndo" onclick="undoLast()" disabled style="margin-bottom:6px" data-i18n="undo">↩ Undo <span class="kbd">Ctrl+Z</span></button>
+      <button id="btnClear" class="btn-clear-style" onclick="clearAll()" disabled style="margin-bottom:6px" data-i18n="clear_all">Clear all</button>
       <div class="btn-row" style="margin-bottom:4px">
         <button id="btnExport"    onclick="exportImg()" disabled>Export</button>
         <select id="exportFmt" style="flex:0 0 60px;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;font-size:11px;padding:0 4px;cursor:pointer">
@@ -451,8 +459,8 @@
         <button id="btnExportPDF" onclick="exportPDF()" disabled>PDF</button>
       </div>
       <div class="btn-row">
-        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:1;font-size:11px">Save project</button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:1;font-size:11px">Load project</button>
+        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:1;font-size:11px" data-i18n="save_proj">Save project</button>
+        <button onclick="document.getElementById('projectInput').click()" style="flex:1;font-size:11px" data-i18n="load_proj">Load project</button>
       </div>
     </div>
   </div>
@@ -463,7 +471,7 @@
         <circle cx="22" cy="22" r="21" fill="none" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
         <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span id="dzMain">Click or drop image here</span>
+      <span id="dzMain" data-i18n="drop_main">Click or drop image / PDF here</span>
       <span>or use Load image above</span>
     </div>
     <canvas id="cv"></canvas>
@@ -473,23 +481,18 @@
 
     <div id="kofiPopup" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;opacity:0;transition:opacity .5s;pointer-events:none;display:none">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:14px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
-        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:flex;align-items:center;pointer-events:all;text-decoration:none;font-size:11px;color:#666;white-space:nowrap;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Offer an espresso</a>
+        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:flex;align-items:center;pointer-events:all;text-decoration:none;font-size:11px;color:#666;white-space:nowrap;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="kofi"></a>
         <span style="color:#333;font-size:11px">|</span>
-        <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Share feedback</button>
+        <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback"></button>
         <span style="color:#333;font-size:11px">|</span>
-        <div style="display:flex;align-items:center;gap:6px;pointer-events:all">
-          <button id="clapBtn" onclick="doClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s" onmouseenter="this.style.opacity=this.dataset.clapped?1:.7" onmouseleave="this.style.opacity=this.dataset.clapped?1:.45">
-            <svg id="clapSvg" viewBox="0 0 64 64" width="28" height="28" xmlns="http://www.w3.org/2000/svg" fill="none">
-              <path d="M47.2,24.83a2.56,2.56,0,0,0-3.47,1L41.84,29.3l-10.6-5.41L35.51,16a3,3,0,0,0-5.23-2.85l-3.46,6.35-.21.38-4.68,8.59-4.16-3.62a4.79,4.79,0,0,0-6.78,0,1.16,1.16,0,0,0,0,1.64l2.34,2.37c3.33,3.36,4,4.66,3.36,8.83l-1,5.83,16.44,9,2-3.77a5.59,5.59,0,0,0,4.48-2.89l8.73-16,.82-1.49A2.56,2.56,0,0,0,47.2,24.83Z" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M34.84,29.72,43.18,14.4a3,3,0,0,0-1.19-4h0a3,3,0,0,0-4,1.19L29.61,26.87" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M56.84,29a2.54,2.54,0,0,0-3.59.33l-2.53,3L41.37,25l5.71-6.87a3,3,0,0,0-4.58-3.81l-4.62,5.56-.28.33-6.25,7.52L28,23.38A4.8,4.8,0,0,0,21.31,22,1.16,1.16,0,0,0,21,23.64l1.83,2.77c2.62,3.95,3,5.35,1.59,9.32l-2.1,5.53,14.4,12,2.74-3.3a5.56,5.56,0,0,0,5-2l11.67-14,1.09-1.31A2.54,2.54,0,0,0,56.84,29Z" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M43.77,31.44,54.93,18a3,3,0,0,0-.39-4.2h0a3,3,0,0,0-4.19.39L39.19,27.63" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M48.54,35,57.85,23.8a2.76,2.76,0,0,0-.71-3.8h0a2.77,2.77,0,0,0-3.87,0L44,31.18" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="26.29" y1="11.33" x2="20.2" y2="9.33" stroke="#888" stroke-width="2" stroke-linecap="round"/>
-              <line x1="27.71" y1="8.01" x2="24.97" y2="3.83" stroke="#888" stroke-width="2" stroke-linecap="round"/>
-              <line x1="31.31" y1="8.05" x2="32.61" y2="1.82" stroke="#888" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
+        <div style="display:flex;align-items:center;gap:4px;pointer-events:all">
+          <select id="langSelect" onchange="setLang(this.value)" style="background:#1e1e1e;border:0.5px solid #333;border-radius:4px;color:#666;font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit;outline:none">
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="es">ES</option>
+            <option value="de">DE</option>
+            <option value="it">IT</option>
+          </select>
         </div>
       </div>
     </div>
@@ -498,44 +501,65 @@
     <div id="feedbackModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.6)">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <span style="font-size:14px;font-weight:500;color:#e0e0e0">Share feedback</span>
+          <span style="font-size:14px;font-weight:500;color:#e0e0e0" data-i18n="feedback_title">Share feedback</span>
           <button onclick="closeFeedback()" style="background:none;border:none;cursor:pointer;color:#555;font-size:18px;line-height:1;padding:0">×</button>
         </div>
         <form id="feedbackForm" action="https://formspree.io/f/mvzvpyad" method="POST" onsubmit="submitFeedback(event)">
-          <textarea name="message" id="feedbackText" placeholder="What could be improved? What do you use mesu.ro for?" required style="width:100%;height:100px;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
-          <input type="email" name="email" placeholder="Your email (optional)" style="width:100%;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
+          <textarea name="message" id="feedbackText" data-i18n-placeholder="feedback_placeholder" placeholder="What could be improved? What do you use mesu.ro for?" required style="width:100%;height:100px;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
+          <input type="email" name="email" data-i18n-placeholder="email_optional" placeholder="Your email (optional)" style="width:100%;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button type="button" onclick="closeFeedback()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
-            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Send</button>
+            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit" data-i18n="send">Send</button>
           </div>
         </form>
-        <div id="feedbackThanks" style="display:none;text-align:center;padding:12px 0;font-size:13px;color:#1D9E75">Thanks for your feedback!</div>
+        <div id="feedbackThanks" style="display:none;text-align:center;padding:12px 0;font-size:13px;color:#1D9E75" data-i18n="thanks_feedback">Thanks for your feedback!</div>
       </div>
     </div>
-    <div id="scaleModal">
+    <!-- PDF page picker modal -->
+    <div id="pdfModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.6)">
+      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:420px;max-width:92vw;font-family:system-ui,-apple-system,sans-serif">
+        <div style="font-size:14px;font-weight:500;color:#e0e0e0;margin-bottom:6px">PDF — select page</div>
+        <div id="pdfPageCount" style="font-size:12px;color:#555;margin-bottom:14px"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <button id="pdfPagePrev" onclick="pdfChangePage(-1)" style="flex:0 0 36px;height:36px;font-size:18px;background:#2a2a2a;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">‹</button>
+          <div style="flex:1;text-align:center">
+            <div id="pdfThumb" style="background:#111;border-radius:6px;overflow:hidden;margin-bottom:8px;display:flex;align-items:center;justify-content:center;min-height:120px">
+              <canvas id="pdfThumbCanvas" style="max-width:100%;max-height:260px;display:block"></canvas>
+            </div>
+            <div style="font-size:12px;color:#888">Page <span id="pdfPageNum">1</span> / <span id="pdfPageTotal">?</span></div>
+          </div>
+          <button id="pdfPageNext" onclick="pdfChangePage(1)" style="flex:0 0 36px;height:36px;font-size:18px;background:#2a2a2a;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">›</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button onclick="closePdfModal()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
+          <button onclick="pdfLoadPage()" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit" data-i18n="load_page">Load this page</button>
+        </div>
+      </div>
+    </div>
+        <div id="scaleModal">
       <div class="modal-box">
-        <h3>Define scale</h3>
-        <p>The line you drew represents:</p>
+        <h3 data-i18n="define_scale">Define scale</h3>
+        <p data-i18n="line_represents">The line you drew represents:</p>
         <div class="modal-inputs">
           <input type="number" id="sVal" placeholder="e.g. 100" min="0.001" step="any">
           <input type="text" id="sUnit" value="mm">
         </div>
         <div class="modal-footer">
           <button onclick="cancelScale()" style="width:auto">Cancel</button>
-          <button class="btn-confirm" onclick="confirmScale()" style="width:auto">Set scale</button>
+          <button class="btn-confirm" onclick="confirmScale()" style="width:auto" data-i18n="set_scale_btn">Set scale</button>
         </div>
       </div>
     </div>
     <div id="noteModal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30;justify-content:center;align-items:center;">
       <div class="modal-box">
-        <h3>Add note</h3>
-        <p>Enter the text for this annotation:</p>
+        <h3 data-i18n="add_note">Add note</h3>
+        <p data-i18n="note_placeholder_p">Enter the text for this annotation:</p>
         <div class="modal-inputs">
           <input type="text" id="noteText" placeholder="e.g. crack, 2mm gap" style="width:100%;flex:1">
         </div>
         <div class="modal-footer">
           <button onclick="cancelNote()" style="width:auto">Cancel</button>
-          <button class="btn-confirm" onclick="confirmNote()" style="width:auto">Add note</button>
+          <button class="btn-confirm" onclick="confirmNote()" style="width:auto" data-i18n="add_note_btn">Add note</button>
         </div>
       </div>
     </div>
@@ -631,6 +655,11 @@
     </div>
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
+      <div style="font-size:11px;color:#888;font-weight:600;letter-spacing:.08em;margin-bottom:8px">📄 PDF SUPPORT</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Load images or PDF files directly. For multi-page PDFs, choose which page to open. The page is rendered at high resolution for accurate measurements.</div>
+    </div>
+
+    <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
       <div style="font-size:11px;color:#EF9F27;font-weight:600;letter-spacing:.08em;margin-bottom:8px">↔ DISTANCE</div>
       <div style="font-size:13px;color:#aaa;line-height:1.6">Click two points to measure the distance between them. Drag endpoints to adjust. Results shown in your chosen unit.</div>
     </div>
@@ -682,7 +711,7 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:56px">
     <div style="border-left:2px solid #1D9E75;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Architecture & engineering</div>
-      <div style="font-size:12px;color:#666">Measure floor plans, blueprints and technical drawings with a calibrated scale. Rectify perspective from oblique shots before measuring.</div>
+      <div style="font-size:12px;color:#666">Measure floor plans, blueprints and technical drawings — load PDF files directly or images. Rectify perspective from oblique shots before measuring.</div>
     </div>
     <div style="border-left:2px solid #5DCAA5;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Science & research</div>
@@ -717,6 +746,11 @@
   <!-- faq -->
   <h2 style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:20px">Frequently asked questions</h2>
   <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:56px">
+
+    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure distances in a PDF file?</div>
+      <div style="font-size:13px;color:#666">Yes. mesu.ro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open. The page is rendered at high resolution so measurements remain precise.</div>
+    </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure a distance in an image online?</div>
@@ -780,6 +814,407 @@
 </div>
 
 <script>
+
+/* ── i18n ── */
+var LANGS = {
+  en: {
+    SCALE:'SCALE', RECTIFY:'RECTIFY', MEASURE:'MEASURE', VIEW:'VIEW', RESULTS:'RESULTS', IMAGE:'IMAGE',
+    not_set:'Not set', undo:'↩ Undo', clear_all:'Clear all', no_meas:'No measurements yet',
+    save_proj:'Save project', load_proj:'Load project', original:'↩ Original',
+    load_img:'Load image or PDF', rotate:'↻ 90°',
+    scale_set:'Set', scale_reset:'Reset', scale_cancel:'Cancel',
+    define_scale:'Define scale', line_represents:'The line you drew represents:',
+    set_scale_btn:'Set scale',
+    add_note:'Add note', note_placeholder_p:'Enter the text for this annotation:',
+    note_placeholder:'e.g. crack, 2mm gap', add_note_btn:'Add note',
+    apply:'Apply', cancel:'Cancel',
+    drop_main:'Click or drop image / PDF here', drop_sub:'or use Load image above',
+    kofi:'Offer an espresso', feedback:'Share feedback',
+    feedback_title:'Share feedback',
+    feedback_placeholder:'What could be improved? What do you use mesu.ro for?',
+    email_optional:'Your email (optional)',
+    send:'Send', thanks_feedback:'Thanks for your feedback!',
+    pdf_pages_lbl:'pages — choose which one to measure',
+    load_page:'Load this page',
+    pan_zoom:'⊕ Pan & zoom', zoom_cursor:'◎ Zoom cursor', edge_snap:'⌖ Edge snap',
+    distance:'Distance', diameter:'Diameter', angle:'Angle', area:'Area', path:'Path', note:'Note',
+    // toasts
+    meas_deleted:'Measurement deleted', img_rotated:'Image rotated',
+    img_restored:'Original image restored', corners_close:'Corners too close — try again',
+    rectify_failed:'Rectify failed', processing:'Processing…',
+    img_rectified:'Image rectified — set scale to continue',
+    proj_saved:'Project saved', proj_loaded:'Project loaded',
+    proj_error:'Could not read project file', proj_invalid:'Invalid .mesu file',
+    loading_pdf:'Loading PDF…', pdf_not_loaded:'PDF.js not loaded yet — try again',
+    copied:'Copied: ',
+    // hints
+    h_scale_a:'Click start of scale line (Ctrl=snap 45°) — Esc to cancel',
+    h_scale_b:'Click end point (Ctrl=snap 45°) — Esc',
+    h_dist_a:'L — click start point (Ctrl=snap 45°)',
+    h_dist_b:'Click end point (Ctrl=snap 45°) — Esc',
+    h_dist_next:'Click next start — Esc to stop',
+    h_diam_a:'D — click center point',
+    h_diam_b:'Click edge point for radius — Esc',
+    h_diam_next:'Click next — Esc to stop',
+    h_angle_a:'A — click first arm point',
+    h_angle_b:'Click vertex — Esc',
+    h_angle_c:'Click second arm — Esc',
+    h_angle_next:'Click next — Esc to stop',
+    h_area_close:(n)=>`${n} pt${n>1?'s':''} — click start or Enter to close — Esc`,
+    h_perim_close:(n)=>`${n} pt${n>1?'s':''} — click start or Enter to close — Esc to save open path`,
+    h_note:'N — click where to place the note — Esc to cancel',
+    h_rect_start:'Click top-left corner of the rectangle',
+    h_rect_corner:(lbl)=>`Click ${lbl} corner`,
+    h_rect_ready:'Drag corners to adjust, then click Apply',
+    st_labels:['top-left','top-right','bottom-right','bottom-left'],
+    // mobile hints
+    mh_scale_a:'Tap start of scale line', mh_scale_b:'Tap end of scale line',
+    mh_dist_a:'Tap start point', mh_dist_b:'Tap end point',
+    mh_diam_a:'Tap center', mh_diam_b:'Tap edge point',
+    mh_angle_a:'Tap first arm', mh_angle_b:'Tap vertex', mh_angle_c:'Tap second arm',
+    mh_area:(n)=>`${n} pt — tap start to close`,
+    // export
+    exp_report:'mesu.ro — Measurement Report',
+    exp_scale:(px,u)=>`Scale: 1 px = ${px} ${u}`, exp_no_scale:'Scale: not set',
+    exp_num:'#', exp_type:'Type', exp_value:'Value',
+    exp_footer:'Generated by mesu.ro — free online image measurement tool',
+    exp_type_dist:'Distance', exp_type_diam:'Diameter', exp_type_angle:'Angle',
+    exp_type_area:'Area', exp_type_perim:'Path', exp_type_note:'Note',
+  },
+  fr: {
+    SCALE:'ÉCHELLE', RECTIFY:'RECTIFIER', MEASURE:'MESURER', VIEW:'VUE', RESULTS:'RÉSULTATS', IMAGE:'IMAGE',
+    not_set:'Non définie', undo:'↩ Annuler', clear_all:'Tout effacer', no_meas:'Aucune mesure',
+    save_proj:'Sauvegarder projet', load_proj:'Charger projet', original:'↩ Original',
+    load_img:'Charger image ou PDF', rotate:'↻ 90°',
+    scale_set:'Définir', scale_reset:'Réinitialiser', scale_cancel:'Annuler',
+    define_scale:'Définir l\'échelle', line_represents:'La ligne tracée représente :',
+    set_scale_btn:'Définir l\'échelle',
+    add_note:'Ajouter une note', note_placeholder_p:'Texte de l\'annotation :',
+    note_placeholder:'ex. fissure, 2mm', add_note_btn:'Ajouter',
+    apply:'Appliquer', cancel:'Annuler',
+    drop_main:'Cliquer ou déposer une image / PDF', drop_sub:'ou utiliser le bouton ci-dessus',
+    kofi:'Offrir un expresso', feedback:'Envoyer un retour',
+    feedback_title:'Envoyer un retour',
+    feedback_placeholder:'Que pourrait-on améliorer ? Pour quoi utilisez-vous mesu.ro ?',
+    email_optional:'Votre email (optionnel)',
+    send:'Envoyer', thanks_feedback:'Merci pour votre retour !',
+    pdf_pages_lbl:'pages — choisissez laquelle mesurer',
+    load_page:'Charger cette page',
+    pan_zoom:'⊕ Déplacer & zoomer', zoom_cursor:'◎ Curseur zoom', edge_snap:'⌖ Snap bords',
+    distance:'Distance', diameter:'Diamètre', angle:'Angle', area:'Aire', path:'Tracé', note:'Note',
+    meas_deleted:'Mesure supprimée', img_rotated:'Image tournée',
+    img_restored:'Image originale restaurée', corners_close:'Coins trop proches — réessayez',
+    rectify_failed:'Rectification échouée', processing:'Traitement…',
+    img_rectified:'Image rectifiée — définissez l\'échelle pour continuer',
+    proj_saved:'Projet sauvegardé', proj_loaded:'Projet chargé',
+    proj_error:'Impossible de lire le fichier', proj_invalid:'Fichier .mesu invalide',
+    loading_pdf:'Chargement du PDF…', pdf_not_loaded:'PDF.js non chargé — réessayez',
+    copied:'Copié : ',
+    h_scale_a:'Cliquez le début de la ligne d\'échelle (Ctrl=snap 45°) — Échap',
+    h_scale_b:'Cliquez l\'extrémité (Ctrl=snap 45°) — Échap',
+    h_dist_a:'L — cliquez le point de départ (Ctrl=snap 45°)',
+    h_dist_b:'Cliquez le point d\'arrivée (Ctrl=snap 45°) — Échap',
+    h_dist_next:'Cliquez le prochain départ — Échap',
+    h_diam_a:'D — cliquez le centre',
+    h_diam_b:'Cliquez un point du bord — Échap',
+    h_diam_next:'Cliquez le suivant — Échap',
+    h_angle_a:'A — cliquez le premier bras',
+    h_angle_b:'Cliquez le sommet — Échap',
+    h_angle_c:'Cliquez le second bras — Échap',
+    h_angle_next:'Cliquez le suivant — Échap',
+    h_area_close:(n)=>`${n} pt${n>1?'s':''} — cliquez départ ou Entrée pour fermer — Échap`,
+    h_perim_close:(n)=>`${n} pt${n>1?'s':''} — cliquez départ ou Entrée — Échap pour tracé ouvert`,
+    h_note:'N — cliquez où placer la note — Échap',
+    h_rect_start:'Cliquez le coin haut-gauche du rectangle',
+    h_rect_corner:(lbl)=>`Cliquez le coin ${lbl}`,
+    h_rect_ready:'Glissez les coins pour ajuster, puis Appliquer',
+    st_labels:['haut-gauche','haut-droit','bas-droit','bas-gauche'],
+    mh_scale_a:'Touchez le début de la ligne', mh_scale_b:'Touchez la fin',
+    mh_dist_a:'Touchez le départ', mh_dist_b:'Touchez l\'arrivée',
+    mh_diam_a:'Touchez le centre', mh_diam_b:'Touchez le bord',
+    mh_angle_a:'Touchez le premier bras', mh_angle_b:'Touchez le sommet', mh_angle_c:'Touchez le second bras',
+    mh_area:(n)=>`${n} pt — touchez le départ pour fermer`,
+    exp_report:'mesu.ro — Rapport de mesures',
+    exp_scale:(px,u)=>`Échelle : 1 px = ${px} ${u}`, exp_no_scale:'Échelle : non définie',
+    exp_num:'N°', exp_type:'Type', exp_value:'Valeur',
+    exp_footer:'Généré par mesu.ro — outil de mesure d\'images gratuit',
+    exp_type_dist:'Distance', exp_type_diam:'Diamètre', exp_type_angle:'Angle',
+    exp_type_area:'Aire', exp_type_perim:'Tracé', exp_type_note:'Note',
+  },
+  es: {
+    SCALE:'ESCALA', RECTIFY:'RECTIFICAR', MEASURE:'MEDIR', VIEW:'VISTA', RESULTS:'RESULTADOS', IMAGE:'IMAGEN',
+    not_set:'No definida', undo:'↩ Deshacer', clear_all:'Borrar todo', no_meas:'Sin medidas',
+    save_proj:'Guardar proyecto', load_proj:'Cargar proyecto', original:'↩ Original',
+    load_img:'Cargar imagen o PDF', rotate:'↻ 90°',
+    scale_set:'Definir', scale_reset:'Restablecer', scale_cancel:'Cancelar',
+    define_scale:'Definir escala', line_represents:'La línea trazada representa:',
+    set_scale_btn:'Definir escala',
+    add_note:'Añadir nota', note_placeholder_p:'Texto de la anotación:',
+    note_placeholder:'ej. grieta, 2mm', add_note_btn:'Añadir',
+    apply:'Aplicar', cancel:'Cancelar',
+    drop_main:'Clic o soltar imagen / PDF aquí', drop_sub:'o usar el botón de arriba',
+    kofi:'Invitar a un café', feedback:'Enviar opinión',
+    feedback_title:'Enviar opinión',
+    feedback_placeholder:'¿Qué podría mejorar? ¿Para qué usa mesu.ro?',
+    email_optional:'Su correo (opcional)',
+    send:'Enviar', thanks_feedback:'¡Gracias por su opinión!',
+    pdf_pages_lbl:'páginas — elija cuál medir',
+    load_page:'Cargar esta página',
+    pan_zoom:'⊕ Mover & zoom', zoom_cursor:'◎ Cursor zoom', edge_snap:'⌖ Snap bordes',
+    distance:'Distancia', diameter:'Diámetro', angle:'Ángulo', area:'Área', path:'Trayecto', note:'Nota',
+    meas_deleted:'Medida eliminada', img_rotated:'Imagen girada',
+    img_restored:'Imagen original restaurada', corners_close:'Esquinas muy cercanas — reintente',
+    rectify_failed:'Error al rectificar', processing:'Procesando…',
+    img_rectified:'Imagen rectificada — defina la escala para continuar',
+    proj_saved:'Proyecto guardado', proj_loaded:'Proyecto cargado',
+    proj_error:'No se pudo leer el archivo', proj_invalid:'Archivo .mesu inválido',
+    loading_pdf:'Cargando PDF…', pdf_not_loaded:'PDF.js no cargado — reintente',
+    copied:'Copiado: ',
+    h_scale_a:'Clic en inicio de línea de escala (Ctrl=ajuste 45°) — Esc',
+    h_scale_b:'Clic en extremo (Ctrl=ajuste 45°) — Esc',
+    h_dist_a:'L — clic en punto inicial (Ctrl=ajuste 45°)',
+    h_dist_b:'Clic en punto final (Ctrl=ajuste 45°) — Esc',
+    h_dist_next:'Clic en siguiente inicio — Esc',
+    h_diam_a:'D — clic en centro', h_diam_b:'Clic en borde — Esc', h_diam_next:'Clic siguiente — Esc',
+    h_angle_a:'A — clic en primer brazo', h_angle_b:'Clic en vértice — Esc', h_angle_c:'Clic en segundo brazo — Esc', h_angle_next:'Clic siguiente — Esc',
+    h_area_close:(n)=>`${n} pt — clic inicio o Enter para cerrar — Esc`,
+    h_perim_close:(n)=>`${n} pt — clic inicio o Enter — Esc para trayecto abierto`,
+    h_note:'N — clic para colocar la nota — Esc',
+    h_rect_start:'Clic en esquina superior izquierda del rectángulo',
+    h_rect_corner:(lbl)=>`Clic en esquina ${lbl}`,
+    h_rect_ready:'Arrastre esquinas para ajustar, luego Aplicar',
+    st_labels:['sup-izq','sup-der','inf-der','inf-izq'],
+    mh_scale_a:'Toque inicio de línea', mh_scale_b:'Toque el final',
+    mh_dist_a:'Toque el inicio', mh_dist_b:'Toque el final',
+    mh_diam_a:'Toque el centro', mh_diam_b:'Toque el borde',
+    mh_angle_a:'Toque primer brazo', mh_angle_b:'Toque vértice', mh_angle_c:'Toque segundo brazo',
+    mh_area:(n)=>`${n} pt — toque inicio para cerrar`,
+    exp_report:'mesu.ro — Informe de medidas',
+    exp_scale:(px,u)=>`Escala: 1 px = ${px} ${u}`, exp_no_scale:'Escala: no definida',
+    exp_num:'Nº', exp_type:'Tipo', exp_value:'Valor',
+    exp_footer:'Generado por mesu.ro — herramienta gratuita de medición de imágenes',
+    exp_type_dist:'Distancia', exp_type_diam:'Diámetro', exp_type_angle:'Ángulo',
+    exp_type_area:'Área', exp_type_perim:'Trayecto', exp_type_note:'Nota',
+  },
+  de: {
+    SCALE:'MAßSTAB', RECTIFY:'ENTZERREN', MEASURE:'MESSEN', VIEW:'ANSICHT', RESULTS:'ERGEBNISSE', IMAGE:'BILD',
+    not_set:'Nicht gesetzt', undo:'↩ Rückgängig', clear_all:'Alles löschen', no_meas:'Keine Messungen',
+    save_proj:'Projekt speichern', load_proj:'Projekt laden', original:'↩ Original',
+    load_img:'Bild oder PDF laden', rotate:'↻ 90°',
+    scale_set:'Setzen', scale_reset:'Zurücksetzen', scale_cancel:'Abbrechen',
+    define_scale:'Maßstab definieren', line_represents:'Die gezeichnete Linie entspricht:',
+    set_scale_btn:'Maßstab setzen',
+    add_note:'Notiz hinzufügen', note_placeholder_p:'Text der Anmerkung:',
+    note_placeholder:'z.B. Riss, 2mm', add_note_btn:'Hinzufügen',
+    apply:'Anwenden', cancel:'Abbrechen',
+    drop_main:'Bild / PDF hier klicken oder ablegen', drop_sub:'oder Schaltfläche oben verwenden',
+    kofi:'Einen Espresso spendieren', feedback:'Feedback senden',
+    feedback_title:'Feedback senden',
+    feedback_placeholder:'Was könnte verbessert werden? Wofür nutzen Sie mesu.ro?',
+    email_optional:'Ihre E-Mail (optional)',
+    send:'Senden', thanks_feedback:'Danke für Ihr Feedback!',
+    pdf_pages_lbl:'Seiten — wählen Sie eine zum Messen',
+    load_page:'Diese Seite laden',
+    pan_zoom:'⊕ Verschieben & Zoom', zoom_cursor:'◎ Zoom-Cursor', edge_snap:'⌖ Kanten-Snap',
+    distance:'Distanz', diameter:'Durchmesser', angle:'Winkel', area:'Fläche', path:'Pfad', note:'Notiz',
+    meas_deleted:'Messung gelöscht', img_rotated:'Bild gedreht',
+    img_restored:'Originalbild wiederhergestellt', corners_close:'Ecken zu nah — erneut versuchen',
+    rectify_failed:'Entzerrung fehlgeschlagen', processing:'Verarbeitung…',
+    img_rectified:'Bild entzerrt — Maßstab festlegen um fortzufahren',
+    proj_saved:'Projekt gespeichert', proj_loaded:'Projekt geladen',
+    proj_error:'Datei konnte nicht gelesen werden', proj_invalid:'Ungültige .mesu Datei',
+    loading_pdf:'PDF wird geladen…', pdf_not_loaded:'PDF.js nicht geladen — erneut versuchen',
+    copied:'Kopiert: ',
+    h_scale_a:'Startpunkt der Maßstablinie klicken (Strg=45° Raster) — Esc',
+    h_scale_b:'Endpunkt klicken (Strg=45° Raster) — Esc',
+    h_dist_a:'L — Startpunkt klicken (Strg=45° Raster)',
+    h_dist_b:'Endpunkt klicken (Strg=45° Raster) — Esc',
+    h_dist_next:'Nächsten Start klicken — Esc',
+    h_diam_a:'D — Mittelpunkt klicken', h_diam_b:'Randpunkt klicken — Esc', h_diam_next:'Nächsten klicken — Esc',
+    h_angle_a:'A — ersten Arm klicken', h_angle_b:'Scheitelpunkt klicken — Esc', h_angle_c:'zweiten Arm klicken — Esc', h_angle_next:'Nächsten klicken — Esc',
+    h_area_close:(n)=>`${n} Pkt — Start oder Enter zum Schließen — Esc`,
+    h_perim_close:(n)=>`${n} Pkt — Start oder Enter — Esc für offenen Pfad`,
+    h_note:'N — klicken zum Platzieren der Notiz — Esc',
+    h_rect_start:'Obere linke Ecke des Rechtecks klicken',
+    h_rect_corner:(lbl)=>`Ecke ${lbl} klicken`,
+    h_rect_ready:'Ecken ziehen zum Anpassen, dann Anwenden',
+    st_labels:['oben-links','oben-rechts','unten-rechts','unten-links'],
+    mh_scale_a:'Startpunkt antippen', mh_scale_b:'Endpunkt antippen',
+    mh_dist_a:'Startpunkt antippen', mh_dist_b:'Endpunkt antippen',
+    mh_diam_a:'Mittelpunkt antippen', mh_diam_b:'Randpunkt antippen',
+    mh_angle_a:'Ersten Arm antippen', mh_angle_b:'Scheitelpunkt antippen', mh_angle_c:'Zweiten Arm antippen',
+    mh_area:(n)=>`${n} Pkt — Start antippen zum Schließen`,
+    exp_report:'mesu.ro — Messbericht',
+    exp_scale:(px,u)=>`Maßstab: 1 px = ${px} ${u}`, exp_no_scale:'Maßstab: nicht gesetzt',
+    exp_num:'Nr.', exp_type:'Typ', exp_value:'Wert',
+    exp_footer:'Erstellt mit mesu.ro — kostenloses Online-Bildmesswerkzeug',
+    exp_type_dist:'Distanz', exp_type_diam:'Durchmesser', exp_type_angle:'Winkel',
+    exp_type_area:'Fläche', exp_type_perim:'Pfad', exp_type_note:'Notiz',
+  },
+  it: {
+    SCALE:'SCALA', RECTIFY:'RETTIFICARE', MEASURE:'MISURARE', VIEW:'VISTA', RESULTS:'RISULTATI', IMAGE:'IMMAGINE',
+    not_set:'Non definita', undo:'↩ Annulla', clear_all:'Cancella tutto', no_meas:'Nessuna misura',
+    save_proj:'Salva progetto', load_proj:'Carica progetto', original:'↩ Originale',
+    load_img:'Carica immagine o PDF', rotate:'↻ 90°',
+    scale_set:'Definisci', scale_reset:'Reimposta', scale_cancel:'Annulla',
+    define_scale:'Definisci scala', line_represents:'La linea tracciata rappresenta:',
+    set_scale_btn:'Imposta scala',
+    add_note:'Aggiungi nota', note_placeholder_p:'Testo dell\'annotazione:',
+    note_placeholder:'es. crepa, 2mm', add_note_btn:'Aggiungi',
+    apply:'Applica', cancel:'Annulla',
+    drop_main:'Clic o trascina immagine / PDF qui', drop_sub:'o usa il pulsante sopra',
+    kofi:'Offri un espresso', feedback:'Invia feedback',
+    feedback_title:'Invia feedback',
+    feedback_placeholder:'Cosa si potrebbe migliorare? Per cosa usa mesu.ro?',
+    email_optional:'La tua email (opzionale)',
+    send:'Invia', thanks_feedback:'Grazie per il tuo feedback!',
+    pdf_pages_lbl:'pagine — scegli quale misurare',
+    load_page:'Carica questa pagina',
+    pan_zoom:'⊕ Sposta & zoom', zoom_cursor:'◎ Cursore zoom', edge_snap:'⌖ Snap bordi',
+    distance:'Distanza', diameter:'Diametro', angle:'Angolo', area:'Area', path:'Percorso', note:'Nota',
+    meas_deleted:'Misura eliminata', img_rotated:'Immagine ruotata',
+    img_restored:'Immagine originale ripristinata', corners_close:'Angoli troppo vicini — riprova',
+    rectify_failed:'Rettifica fallita', processing:'Elaborazione…',
+    img_rectified:'Immagine rettificata — definisci la scala per continuare',
+    proj_saved:'Progetto salvato', proj_loaded:'Progetto caricato',
+    proj_error:'Impossibile leggere il file', proj_invalid:'File .mesu non valido',
+    loading_pdf:'Caricamento PDF…', pdf_not_loaded:'PDF.js non caricato — riprova',
+    copied:'Copiato: ',
+    h_scale_a:'Clic sul punto iniziale della linea di scala (Ctrl=griglia 45°) — Esc',
+    h_scale_b:'Clic sul punto finale (Ctrl=griglia 45°) — Esc',
+    h_dist_a:'L — clic sul punto iniziale (Ctrl=griglia 45°)',
+    h_dist_b:'Clic sul punto finale (Ctrl=griglia 45°) — Esc',
+    h_dist_next:'Clic sul prossimo inizio — Esc',
+    h_diam_a:'D — clic sul centro', h_diam_b:'Clic sul bordo — Esc', h_diam_next:'Clic successivo — Esc',
+    h_angle_a:'A — clic sul primo braccio', h_angle_b:'Clic sul vertice — Esc', h_angle_c:'Clic sul secondo braccio — Esc', h_angle_next:'Clic successivo — Esc',
+    h_area_close:(n)=>`${n} pt — clic inizio o Invio per chiudere — Esc`,
+    h_perim_close:(n)=>`${n} pt — clic inizio o Invio — Esc per percorso aperto`,
+    h_note:'N — clic per posizionare la nota — Esc',
+    h_rect_start:'Clic sull\'angolo in alto a sinistra del rettangolo',
+    h_rect_corner:(lbl)=>`Clic sull\'angolo ${lbl}`,
+    h_rect_ready:'Trascina gli angoli per regolare, poi Applica',
+    st_labels:['alto-sin','alto-des','basso-des','basso-sin'],
+    mh_scale_a:'Tocca inizio linea', mh_scale_b:'Tocca la fine',
+    mh_dist_a:'Tocca il punto iniziale', mh_dist_b:'Tocca il punto finale',
+    mh_diam_a:'Tocca il centro', mh_diam_b:'Tocca il bordo',
+    mh_angle_a:'Tocca il primo braccio', mh_angle_b:'Tocca il vertice', mh_angle_c:'Tocca il secondo braccio',
+    mh_area:(n)=>`${n} pt — tocca inizio per chiudere`,
+    exp_report:'mesu.ro — Rapporto di misure',
+    exp_scale:(px,u)=>`Scala: 1 px = ${px} ${u}`, exp_no_scale:'Scala: non definita',
+    exp_num:'N.', exp_type:'Tipo', exp_value:'Valore',
+    exp_footer:'Generato da mesu.ro — strumento gratuito di misurazione immagini',
+    exp_type_dist:'Distanza', exp_type_diam:'Diametro', exp_type_angle:'Angolo',
+    exp_type_area:'Area', exp_type_perim:'Percorso', exp_type_note:'Nota',
+  }
+};
+
+var currentLang = localStorage.getItem('mesu_lang') ||
+  (['fr','es','de','it'].includes(navigator.language.slice(0,2)) ? navigator.language.slice(0,2) : 'en');
+
+function L(k) {
+  const t = LANGS[currentLang] || LANGS.en;
+  const v = t[k] !== undefined ? t[k] : LANGS.en[k];
+  return v !== undefined ? v : k;
+}
+function LF(k) {
+  const fn = L(k);
+  return typeof fn === 'function' ? fn : () => k;
+}
+
+function setLang(code) {
+  currentLang = code;
+  localStorage.setItem('mesu_lang', code);
+  const sel = document.getElementById('langSelect');
+  if (sel) sel.value = code;
+  applyLang();
+}
+
+function applyLang() {
+  const tr = LANGS[currentLang]||LANGS.en;
+  const sel = document.getElementById('langSelect');
+  if (sel) sel.value = currentLang;
+  // data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (tr[k] !== undefined && typeof tr[k] === 'string') el.textContent = tr[k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.getAttribute('data-i18n-placeholder');
+    if (tr[k]) el.placeholder = tr[k];
+  });
+  // Load image label (inside a label element)
+  const loadLabel = document.getElementById('loadLabel');
+  if (loadLabel) {
+    const inp = loadLabel.querySelector('input');
+    loadLabel.textContent = tr.load_img;
+    if (inp) loadLabel.appendChild(inp);
+  }
+  // Drop zone
+  const dzMain = document.getElementById('dzMain');
+  if (dzMain) dzMain.textContent = tr.drop_main;
+  // scale status if not set
+  if (!scFactor) { const ss = document.getElementById('scaleStatus'); if(ss) ss.textContent = tr.not_set; }
+  // btnScale text
+  if (btnScale) {
+    const _isSc = mode==='sa'||mode==='sb'||mode==='wait';
+    const _hasSc = !!scFactor;
+    btnScale.textContent = _isSc ? tr.scale_cancel : (_hasSc ? tr.scale_reset : tr.scale_set);
+  }
+  // tool buttons
+  if (btnMeasure) btnMeasure.innerHTML = `↔ ${tr.distance} <span class="kbd">L</span>`;
+  if (btnDiam)    btnDiam.innerHTML    = `⌀ ${tr.diameter} <span class="kbd">D</span>`;
+  if (btnAngle)   btnAngle.innerHTML   = `∠ ${tr.angle} <span class="kbd">A</span>`;
+  if (btnArea)    btnArea.innerHTML    = `⬡ ${tr.area} <span class="kbd">R</span>`;
+  if (btnUndo)    btnUndo.innerHTML    = `${tr.undo} <span class="kbd">Ctrl+Z</span>`;
+  if (btnClear)   btnClear.textContent = tr.clear_all;
+  // btnPerim — keep SVG
+  const pathSvg2 = `<svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>`;
+  if (btnPerim)   { btnPerim.innerHTML = `${pathSvg2}${tr.path} <span class="kbd">P</span>`; btnPerim.style.cssText='flex:1;font-size:11px'; }
+  // note button
+  const btnNt2 = document.getElementById('btnNote');
+  if (btnNt2) btnNt2.innerHTML = `<span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>${tr.note} <span class="kbd">N</span>`;
+  // zoom buttons
+  if (btnZoom) { btnZoom.style.whiteSpace='nowrap'; btnZoom.textContent = tr.pan_zoom; }
+  if (btnMag)  { btnMag.style.whiteSpace='nowrap';  btnMag.textContent  = tr.zoom_cursor; }
+  const btnSnap2 = document.getElementById('btnSnap');
+  if (btnSnap2) { btnSnap2.style.whiteSpace='nowrap'; btnSnap2.textContent = tr.edge_snap||'⌖ Edge snap'; }
+  // restore btn
+  const btnRst2 = document.getElementById('btnRestoreOriginal');
+  if (btnRst2) btnRst2.textContent = tr.original;
+  // save/load project
+  const bsp = document.getElementById('btnSaveProject');
+  if (bsp) bsp.textContent = tr.save_proj;
+  // note modal placeholder
+  const nti = document.getElementById('noteText');
+  if (nti) nti.placeholder = tr.note_placeholder;
+  // PDF modal page count label
+  const ppc = document.getElementById('pdfPageCount');
+  if (ppc && pdfDoc) ppc.textContent = `${pdfDoc.numPages} ${tr.pdf_pages_lbl}`;
+  // Update ST_LABELS
+  ST_LABELS.splice(0, 4, ...tr.st_labels);
+  // mobile section
+  updMobileLang();
+}
+
+function updMobileLang() {
+  const tr = LANGS[currentLang]||LANGS.en;
+  const mBtns = {
+    mBtnScale: 'Scale', mBtnMeasure: tr.distance, mBtnDiam: tr.diameter,
+    mBtnAngle: tr.angle, mBtnArea: tr.area, mBtnPerim: tr.path, mBtnNote: tr.note
+  };
+  Object.entries(mBtns).forEach(([id, label]) => {
+    const b = document.getElementById(id);
+    if (b) { const tt = b.querySelector('.m-tt'); if (tt) tt.textContent = label; }
+  });
+}
+
+let pdfDoc = null, pdfCurrentPage = 1;
+
+function isPDF(file) {
+  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+}
+
+
 const cv  = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 const ca  = document.getElementById('canvasArea');
@@ -830,12 +1265,16 @@ const DRAG_R = 10;
 let dragState = null;
 
 /* ── file loading ── */
-document.getElementById('fileInput').onchange = e => { if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value=''; } };
+document.getElementById('fileInput').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (isPDF(f)) loadPDF(f); else loadImg(f);
+  e.target.value = '';
+};
 document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { loadProject(e.target.files[0]); e.target.value=''; } };
 
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('click', e => {
-  if (e.target.closest('#kofiPopup') || e.target.closest('#feedbackModal')) return;
+  if (e.target.closest('#kofiPopup') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal')) return;
   if (!img) document.getElementById('fileInput').click();
 });
 ca.addEventListener('dragleave', () => { ca.style.outline=''; });
@@ -844,6 +1283,7 @@ ca.addEventListener('drop', e => {
   const f = e.dataTransfer.files[0];
   if (!f) return;
   if (f.name.endsWith('.mesuro')) loadProject(f);
+  else if (isPDF(f)) loadPDF(f);
   else if (f.type.startsWith('image/')) loadImg(f);
 });
 
@@ -856,13 +1296,20 @@ function loadImg(file) {
       img = i; originalImg = i; scLine=null; scPx=null; scFactor=null;
       meas=[]; history=[]; areaPts=[]; mode='idle'; p0=null; p1=null;
       zoom=1; panX=0; panY=0;
+      edgeMap=null; snapPt=null;
       fitImg();
       t('load_image');
+      if (snapEnabled) computeEdges();
       const dz = document.getElementById('dz');
       dz.style.display='none'; dz.style.pointerEvents='none';
       const ad = document.getElementById('adUnit');
       if (ad) ad.style.display='none';
       updUI();
+      // pulse scale button once to guide the user
+      setTimeout(() => {
+        const bs = document.getElementById('btnScale');
+        if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+      }, 300);
       // image loaded — user can now interact
     };
     i.src = ev.target.result;
@@ -912,7 +1359,17 @@ function canvasPx(e) {
   // Return CSS pixels (world space), NOT buffer pixels
   return { x: e.clientX - rc.left, y: e.clientY - rc.top };
 }
-function pt(e) { const c=canvasPx(e); return { x:(c.x-panX)/zoom, y:(c.y-panY)/zoom }; }
+function pt(e) {
+  const c=canvasPx(e);
+  const raw = { x:(c.x-panX)/zoom, y:(c.y-panY)/zoom };
+  if (snapEnabled) {
+    const snapped = findEdgeSnap(raw);
+    snapPt = snapped;
+    return snapped || raw;
+  }
+  snapPt = null;
+  return raw;
+}
 function w2c(wx,wy) { return { x:wx*zoom+panX, y:wy*zoom+panY }; }
 function dst(a,b) { return Math.hypot(b.x-a.x, b.y-a.y); }
 
@@ -921,7 +1378,9 @@ cv.addEventListener('wheel', e => {
   if (!img || !zoomEnabled) return;
   e.preventDefault();
   const c=canvasPx(e), f=e.deltaY<0?1.12:1/1.12;
-  const nz=Math.max(0.5, Math.min(20, zoom*f));
+  // min zoom = fit zoom (image fills canvas)
+  const fitZoom = Math.min(ca.clientWidth/img.width, ca.clientHeight/img.height, 1);
+  const nz=Math.max(fitZoom, Math.min(20, zoom*f));
   panX = c.x-(c.x-panX)*(nz/zoom);
   panY = c.y-(c.y-panY)*(nz/zoom);
   zoom=nz; clampPan(); draw();
@@ -931,12 +1390,230 @@ function clampPan() {
   if (!img) return;
   const iw = img.width * zoom, ih = img.height * zoom;
   const cw = ca.clientWidth, ch = ca.clientHeight;
-  panX = Math.max(cw * 0.1 - iw, Math.min(cw * 0.9, panX));
-  panY = Math.max(ch * 0.1 - ih, Math.min(ch * 0.9, panY));
+  // If image fits inside canvas, center it
+  if (iw <= cw) panX = (cw - iw) / 2;
+  else panX = Math.max(cw - iw, Math.min(0, panX));
+  if (ih <= ch) panY = (ch - ih) / 2;
+  else panY = Math.max(ch - ih, Math.min(0, panY));
 }
-function toggleZoom() { zoomEnabled=!zoomEnabled; localStorage.setItem('mesu_zoom', zoomEnabled); if (!zoomEnabled) { zoom=1; panX=0; panY=0; draw(); } updUI(); }
+function toggleZoom() {
+  zoomEnabled=!zoomEnabled;
+  localStorage.setItem('mesu_zoom', zoomEnabled);
+  if (!zoomEnabled) { fitImg(); }
+  updUI();
+}
 function toggleMag()  { magEnabled=!magEnabled;   localStorage.setItem('mesu_mag',  magEnabled);  draw(); updUI(); }
 function resetZoom()  { zoom=1; panX=0; panY=0; draw(); }
+
+/* ── Edge detection & snap ── */
+let snapEnabled = localStorage.getItem('mesu_snap') === 'true';
+let edgeGx = null, edgeGy = null, edgeBlurred = null; // for subpixel snap
+let edgeMap = null;
+let edgeW = 0, edgeH = 0;
+let snapPt = null;
+
+function toggleSnap() {
+  snapEnabled = !snapEnabled;
+  localStorage.setItem('mesu_snap', snapEnabled);
+  if (snapEnabled && img && !edgeMap) computeEdges();
+  updUI();
+}
+
+function computeEdges() {
+  if (!img) return;
+  showToast('Computing edges…');
+  // Defer to let toast render before blocking CPU
+  setTimeout(_doComputeEdges, 30);
+}
+function _doComputeEdges() {
+  if (!img) return;
+  // For high-res PDFs, use full resolution up to 5000px — precision matters more than speed
+  const MAX = 5000;
+  const sc = Math.min(1, MAX / Math.max(img.width, img.height));
+  edgeW = Math.round(img.width * sc);
+  edgeH = Math.round(img.height * sc);
+
+  const oc = document.createElement('canvas');
+  oc.width = edgeW; oc.height = edgeH;
+  const octx = oc.getContext('2d');
+  octx.drawImage(img, 0, 0, edgeW, edgeH);
+  const pixels = octx.getImageData(0, 0, edgeW, edgeH).data;
+
+  // 1. Grayscale
+  const gray = new Float32Array(edgeW * edgeH);
+  for (let i = 0; i < edgeW * edgeH; i++)
+    gray[i] = 0.299*pixels[i*4] + 0.587*pixels[i*4+1] + 0.114*pixels[i*4+2];
+
+  // 2. Gaussian blur 5×5 (better than 3×3 for noise)
+  const blurred = new Float32Array(edgeW * edgeH);
+  const K = [2,4,5,4,2, 4,9,12,9,4, 5,12,15,12,5, 4,9,12,9,4, 2,4,5,4,2];
+  const Ksum = 159;
+  for (let y = 2; y < edgeH-2; y++) {
+    for (let x = 2; x < edgeW-2; x++) {
+      let s = 0;
+      for (let ky = -2; ky <= 2; ky++)
+        for (let kx = -2; kx <= 2; kx++)
+          s += gray[(y+ky)*edgeW+(x+kx)] * K[(ky+2)*5+(kx+2)];
+      blurred[y*edgeW+x] = s / Ksum;
+    }
+  }
+
+  // 3. Sobel — compute Gx, Gy, magnitude
+  const Gx = new Float32Array(edgeW * edgeH);
+  const Gy = new Float32Array(edgeW * edgeH);
+  const mag = new Float32Array(edgeW * edgeH);
+  let maxG = 0;
+  for (let y = 1; y < edgeH-1; y++) {
+    for (let x = 1; x < edgeW-1; x++) {
+      const gx = -blurred[(y-1)*edgeW+(x-1)] + blurred[(y-1)*edgeW+(x+1)]
+               - 2*blurred[y*edgeW+(x-1)]    + 2*blurred[y*edgeW+(x+1)]
+               - blurred[(y+1)*edgeW+(x-1)]   + blurred[(y+1)*edgeW+(x+1)];
+      const gy = -blurred[(y-1)*edgeW+(x-1)] - 2*blurred[(y-1)*edgeW+x] - blurred[(y-1)*edgeW+(x+1)]
+               +  blurred[(y+1)*edgeW+(x-1)] + 2*blurred[(y+1)*edgeW+x] + blurred[(y+1)*edgeW+(x+1)];
+      Gx[y*edgeW+x] = gx; Gy[y*edgeW+x] = gy;
+      const g = Math.sqrt(gx*gx + gy*gy);
+      mag[y*edgeW+x] = g;
+      if (g > maxG) maxG = g;
+    }
+  }
+
+  // 4. Non-Maximum Suppression — thin edges to 1px
+  // For each pixel, interpolate magnitude in the gradient direction
+  // and keep only if it's a local maximum
+  const nms = new Float32Array(edgeW * edgeH);
+  for (let y = 1; y < edgeH-1; y++) {
+    for (let x = 1; x < edgeW-1; x++) {
+      const m = mag[y*edgeW+x];
+      if (m === 0) continue;
+      const nx = Gx[y*edgeW+x] / m; // unit normal direction
+      const ny = Gy[y*edgeW+x] / m;
+
+      // Interpolate magnitude at +normal and -normal positions
+      const x1 = x + nx, y1 = y + ny;
+      const x2 = x - nx, y2 = y - ny;
+
+      // Bilinear interpolation helper
+      function interp(fx, fy) {
+        const ix = Math.floor(fx), iy = Math.floor(fy);
+        if (ix < 0 || ix >= edgeW-1 || iy < 0 || iy >= edgeH-1) return 0;
+        const wx = fx-ix, wy = fy-iy;
+        return mag[iy*edgeW+ix]*(1-wx)*(1-wy)
+             + mag[iy*edgeW+ix+1]*wx*(1-wy)
+             + mag[(iy+1)*edgeW+ix]*(1-wx)*wy
+             + mag[(iy+1)*edgeW+ix+1]*wx*wy;
+      }
+
+      const m1 = interp(x1, y1), m2 = interp(x2, y2);
+      if (m >= m1 && m >= m2) nms[y*edgeW+x] = m;
+    }
+  }
+
+  // 5. Detect image contrast profile (B&W plans vs photos)
+  // High maxG relative to range → likely B&W technical drawing → use higher threshold
+  let sumPx = 0;
+  for (let i = 0; i < edgeW*edgeH; i++) sumPx += gray[i];
+  const meanPx = sumPx / (edgeW*edgeH);
+  let variance = 0;
+  for (let i = 0; i < edgeW*edgeH; i++) variance += (gray[i]-meanPx)**2;
+  variance /= edgeW*edgeH;
+  const stdDev = Math.sqrt(variance);
+  // B&W image: high std deviation (bimodal), use strict thresholds
+  const isBW = stdDev > 80;
+  const hiThr = maxG * (isBW ? 0.40 : 0.20);
+  const loThr = maxG * (isBW ? 0.20 : 0.08);
+
+  // 6. Double threshold + hysteresis
+  edgeMap = new Uint8Array(edgeW * edgeH);
+  const strong = new Uint8Array(edgeW * edgeH);
+  for (let i = 0; i < edgeW*edgeH; i++) {
+    if (nms[i] >= hiThr) { edgeMap[i] = 255; strong[i] = 1; }
+    else if (nms[i] >= loThr) edgeMap[i] = 128;
+  }
+  // Hysteresis: promote weak pixels connected to strong ones
+  for (let y = 1; y < edgeH-1; y++) {
+    for (let x = 1; x < edgeW-1; x++) {
+      if (edgeMap[y*edgeW+x] === 128) {
+        let hasStrong = false;
+        for (let dy = -1; dy <= 1 && !hasStrong; dy++)
+          for (let dx = -1; dx <= 1 && !hasStrong; dx++)
+            if (strong[(y+dy)*edgeW+(x+dx)]) hasStrong = true;
+        edgeMap[y*edgeW+x] = hasStrong ? 255 : 0;
+      }
+    }
+  }
+
+  // 7. Remove isolated edge pixels (speckles from JPEG artifacts)
+  // A pixel with fewer than 2 edge neighbours is noise — suppress it
+  const cleaned = new Uint8Array(edgeW * edgeH);
+  for (let y = 1; y < edgeH-1; y++) {
+    for (let x = 1; x < edgeW-1; x++) {
+      if (edgeMap[y*edgeW+x] !== 255) continue;
+      let neighbours = 0;
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++)
+          if (!(dy===0 && dx===0) && edgeMap[(y+dy)*edgeW+(x+dx)] === 255) neighbours++;
+      if (neighbours >= 2) cleaned[y*edgeW+x] = 255;
+    }
+  }
+  edgeMap = cleaned;
+  edgeGx = Gx; edgeGy = Gy; edgeBlurred = blurred;
+
+  showToast('Edge map ready');
+}
+
+function findEdgeSnap(wp) {
+  if (!edgeMap || !snapEnabled) return null;
+  const sc = edgeW / img.width;
+  const ex = wp.x * sc, ey = wp.y * sc;
+  // 15 screen pixels → image pixels → edge-map pixels
+  const screenRadius = 15; // pixels on screen
+  const imgRadius = screenRadius / zoom; // image pixel space
+  const RADIUS = imgRadius * sc; // edge-map pixel space
+  const r = Math.ceil(RADIUS);
+  let bestDist = RADIUS * RADIUS, bestX = -1, bestY = -1;
+  const x0 = Math.max(1, Math.floor(ex-r)), x1 = Math.min(edgeW-2, Math.ceil(ex+r));
+  const y0 = Math.max(1, Math.floor(ey-r)), y1 = Math.min(edgeH-2, Math.ceil(ey+r));
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if (edgeMap[y*edgeW+x] === 255) {
+        const d = (x-ex)*(x-ex) + (y-ey)*(y-ey);
+        if (d < bestDist) { bestDist=d; bestX=x; bestY=y; }
+      }
+    }
+  }
+  if (bestX < 0) return null;
+
+  // Subpixel refinement: find exact zero-crossing (50% intensity)
+  // along the gradient direction at the found edge pixel
+  let rx = bestX, ry = bestY;
+  if (edgeGx && edgeGy && edgeBlurred) {
+    const idx = bestY * edgeW + bestX;
+    const gx = edgeGx[idx], gy = edgeGy[idx];
+    const gm = Math.sqrt(gx*gx + gy*gy);
+    if (gm > 1e-3) {
+      const nx = gx / gm, ny = gy / gm; // unit normal (gradient direction)
+      // Sample intensity at ±1 pixel along normal
+      const sampleAt = (fx, fy) => {
+        const ix = Math.max(0, Math.min(edgeW-1, Math.round(fx)));
+        const iy = Math.max(0, Math.min(edgeH-1, Math.round(fy)));
+        return edgeBlurred[iy * edgeW + ix];
+      };
+      const iCenter = edgeBlurred[idx];
+      const iPos = sampleAt(bestX + nx, bestY + ny); // toward brighter side
+      const iNeg = sampleAt(bestX - nx, bestY - ny); // toward darker side
+      // midpoint intensity between the two sides
+      const iMid = (iPos + iNeg) / 2;
+      // Linear interpolation to find exact subpixel crossing
+      if (Math.abs(iPos - iNeg) > 2) {
+        const t = (iMid - iCenter) / (iPos - iNeg); // in [-0.5, 0.5]
+        rx = bestX + t * nx;
+        ry = bestY + t * ny;
+      }
+    }
+  }
+
+  return { x: rx / sc, y: ry / sc };
+}
 
 /* ── drag targets ── */
 function defaultLabelPos(m, i) {
@@ -1036,7 +1713,7 @@ function applyDrag(wp) {
 cv.addEventListener('mousedown', e => {
   if (!img) return;
   const cp=canvasPx(e), wp=pt(e);
-  if (e.button===1 || (e.button===0 && spaceDown)) {
+  if (e.button===1 || (e.button===0 && spaceDown) || (e.button===0 && zoomEnabled && mode==='idle')) {
     isPanning=true; panStart={mx:cp.x,my:cp.y,px:panX,py:panY};
     cv.style.cursor='grabbing'; e.preventDefault(); return;
   }
@@ -1069,7 +1746,8 @@ cv.addEventListener('mousemove', e => {
   }
   if (mode==='idle' || mode==='st') {
     const t=findDrag(wp);
-    cv.style.cursor = t ? 'grab' : (spaceDown ? 'grab' : (mode==='st' ? 'crosshair' : 'default'));
+    cv.style.cursor = t ? 'grab' : (spaceDown ? 'grab' : (mode==='st' ? 'crosshair' : zoomEnabled ? 'grab' : 'default'));
+    if (snapEnabled && snapPt) { mp = wp; draw(); } else { if (mp) { mp=null; draw(); } }
   }
 });
 
@@ -1086,8 +1764,17 @@ cv.addEventListener('mouseup', e => {
 cv.addEventListener('mouseleave', () => { if(mp){mp=null;draw();} isPanning=false; panStart=null; });
 
 document.addEventListener('keydown', e => {
-  if (e.code==='Space' && !e.target.matches('input') && mode==='idle') {
+  if (e.code==='Space' && !e.target.matches('input,textarea') && mode==='idle') {
     spaceDown=true; if(img) cv.style.cursor='grab'; e.preventDefault();
+  }
+  // Arrow key panning
+  if (img && zoomEnabled && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code) && !e.target.matches('input,textarea')) {
+    const step = 80;
+    if (e.code==='ArrowLeft')  panX += step;
+    if (e.code==='ArrowRight') panX -= step;
+    if (e.code==='ArrowUp')    panY += step;
+    if (e.code==='ArrowDown')  panY -= step;
+    clampPan(); draw(); e.preventDefault();
   }
 });
 document.addEventListener('keyup', e => {
@@ -1110,29 +1797,29 @@ cv.addEventListener('click', e => {
     if (stPts.length < 4) {
       stPts.push({x:p.x, y:p.y});
       updStraightenUI();
-      if (stPts.length < 4) setHint(`Click ${ST_LABELS[stPts.length]} corner`);
-      else { mp=null; clearHint(); setHint('Drag corners to adjust, then click Apply'); }
+      if (stPts.length < 4) setHint(LF('h_rect_corner')(ST_LABELS[stPts.length]));
+      else { mp=null; clearHint(); setHint(L('h_rect_ready')); }
       draw();
     }
     return;
   }
 
-  if (mode==='sa') { p0=p; mode='sb'; setHint('Click end point (Ctrl=snap 45°) — Esc'); }
+  if (mode==='sa') { p0=p; mode='sb'; setHint(L('h_scale_b')); }
   else if (mode==='sb') {
     const sp=snapPoint(p0,p,e);
     if (dst(p0,sp)<5/zoom) return;
     pLine={x1:p0.x,y1:p0.y,x2:sp.x,y2:sp.y}; mode='wait'; p0=null; mp=null; draw(); showModal();
   }
-  else if (mode==='ma') { p0=p; mode='mb'; setHint('Click end point (Ctrl=snap 45°) — Esc'); }
+  else if (mode==='ma') { p0=p; mode='mb'; setHint(L('h_scale_b')); }
   else if (mode==='mb') {
     const sp=snapPoint(p0,p,e);
     if (dst(p0,sp)<5/zoom) return;
     pushHistory(); meas.push({type:'line',x1:p0.x,y1:p0.y,x2:sp.x,y2:sp.y,px:dst(p0,sp)});
     p0=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='ma'; setHint('Click next start — Esc to stop'); }
+    if (window.innerWidth<=767) { stopTool(); } else { mode='ma'; setHint(L('h_dist_next')); }
     draw(); updUI();
   }
-  else if (mode==='da') { p0=p; mode='db'; setHint('Click edge point for radius — Esc'); }
+  else if (mode==='da') { p0=p; mode='db'; setHint(L('h_diam_b')); }
   else if (mode==='db') {
     if (dst(p0,p)<5/zoom) return;
     pushHistory();
@@ -1140,19 +1827,19 @@ cv.addEventListener('click', e => {
     const x2=p0.x-(p.x-p0.x), y2=p0.y-(p.y-p0.y);
     meas.push({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2,y2});
     p0=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='da'; setHint('Click next — Esc to stop'); }
+    if (window.innerWidth<=767) { stopTool(); } else { mode='da'; setHint(L('h_diam_next')); }
     draw(); updUI();
   }
-  else if (mode==='aa') { p0=p; mode='ab'; setHint('Click vertex — Esc'); }
+  else if (mode==='aa') { p0=p; mode='ab'; setHint(L('h_angle_b')); }
   else if (mode==='ab') {
     if (dst(p0,p)<5/zoom) return;
-    p1=p; mode='ac'; setHint('Click second arm — Esc');
+    p1=p; mode='ac'; setHint(L('h_angle_c'));
   }
   else if (mode==='ac') {
     if (dst(p1,p)<5/zoom) return;
     pushHistory(); meas.push({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)});
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='aa'; setHint('Click next — Esc to stop'); }
+    if (window.innerWidth<=767) { stopTool(); } else { mode='aa'; setHint(L('h_diam_next')); }
     draw(); updUI();
   }
   else if (mode==='pa') {
@@ -1161,7 +1848,7 @@ cv.addEventListener('click', e => {
       if (dst(c0,cm)<DRAG_R) { closeArea(); return; }
     }
     areaPts.push(p);
-    setHint(`${areaPts.length} pt${areaPts.length>1?'s':''} — click start or Enter to close — Esc`);
+    setHint(LF('h_area_close')(areaPts.length));
     draw();
   } else if (mode==='pp') {
     if (areaPts.length>=3) {
@@ -1169,7 +1856,7 @@ cv.addEventListener('click', e => {
       if (dst(c0,cm)<DRAG_R) { closePerim(); return; }
     }
     areaPts.push(p);
-    setHint(`${areaPts.length} pt${areaPts.length>1?'s':''} — click start or Enter to close — Esc`);
+    setHint(LF('h_area_close')(areaPts.length));
     draw();
   }
 });
@@ -1186,7 +1873,7 @@ cv.addEventListener('contextmenu', e => {
     else if (m.type==='diam'&&(near(m.cx,m.cy)||near(m.x1,m.y1)||near(m.x2,m.y2))) hit=true;
     else if (m.type==='angle'&&(near(m.ax,m.ay)||near(m.vx,m.vy)||near(m.bx,m.by))) hit=true;
     else if ((m.type==='area'||m.type==='perim')&&m.pts.some(pp=>near(pp.x,pp.y))) hit=true;
-    if (hit) { delM(i); showToast('Measurement deleted'); return; }
+    if (hit) { delM(i); showToast(L('meas_deleted')); return; }
   }
 });
 
@@ -1226,13 +1913,13 @@ document.addEventListener('keydown', e => {
 
 /* ── tools ── */
 function stopTool() { mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; stPts=[]; clearHint(); updStraightenUI(); draw(); updUI(); }
-function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint('Click start of scale line (Ctrl=snap 45°) — Esc to cancel'); updUI(); }
+function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint(L('h_scale_a')); updUI(); }
 function doScaleReset() {
   pushHistory();
   scLine = null; scPx = null; scFactor = null;
   draw(); updUI();
 }
-function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance', {unit:scUnit}); stopTool(); mode='ma'; setHint('L — click start point (Ctrl=snap 45°)'); updUI(); }
+function doMeasure() { if(mode==='ma'||mode==='mb'){stopTool();return;} if(!scFactor)return; t('tool_distance', {unit:scUnit}); stopTool(); mode='ma'; setHint(L('h_dist_a')); updUI(); }
 
 /* ── STRAIGHTEN ── */
 let stPts = []; // up to 4 world-space points: TL, TR, BR, BL
@@ -1246,7 +1933,12 @@ function restoreOriginal() {
   meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; stPts=[]; p0=null; p1=null;
   mode='idle'; zoom=1; panX=0; panY=0;
   fitImg(); clearHint(); updStraightenUI(); updUI();
-  showToast('Original image restored');
+  showToast(L('img_restored'));
+      // pulse scale button
+      setTimeout(() => {
+        const bs = document.getElementById('btnScale');
+        if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+      }, 300);
 }
 
 function doStraighten() {
@@ -1255,7 +1947,7 @@ function doStraighten() {
   stPts = [];
   mode = 'st';
   updStraightenUI();
-  setHint('Click top-left corner of the rectangle');
+  setHint(L('h_rect_start'));
   updUI();
 }
 
@@ -1411,12 +2103,12 @@ function applyStraighten() {
     outW = Math.min(Math.round(projW), MAX_DIM);
     outH = Math.min(Math.round(projH), MAX_DIM);
   }
-  if (outW < 4 || outH < 4) { showToast('Corners too close — try again'); return; }
+  if (outW < 4 || outH < 4) { showToast(L('corners_close')); return; }
 
   const H = computeHomography(src, [[0,0],[outW,0],[outW,outH],[0,outH]]);
-  if (!H) { showToast('Rectify failed'); return; }
+  if (!H) { showToast(L('rectify_failed')); return; }
   const Hinv = invertMatrix3(H);
-  if (!Hinv) { showToast('Rectify failed'); return; }
+  if (!Hinv) { showToast(L('rectify_failed')); return; }
 
   // Source at full resolution
   const srcCv = document.createElement('canvas');
@@ -1430,7 +2122,7 @@ function applyStraighten() {
   const outImg = outCtx.createImageData(outW, outH);
   const od     = outImg.data;
 
-  showToast('Processing…');
+  showToast(L('processing'));
   setTimeout(() => {
     for (let oy = 0; oy < outH; oy++) {
       for (let ox = 0; ox < outW; ox++) {
@@ -1452,15 +2144,20 @@ function applyStraighten() {
       stPts=[]; mode='idle'; zoom=1; panX=0; panY=0;
       fitImg(); clearHint(); updStraightenUI();
       t('rectify'); updUI();
-      showToast('Image rectified — set scale to continue');
+      showToast(L('img_rectified'));
+      // pulse scale button
+      setTimeout(() => {
+        const bs = document.getElementById('btnScale');
+        if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+      }, 300);
     };
     ni.src = outCv.toDataURL('image/png');
   }, 30);
 }
-function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter', {unit:scUnit}); stopTool(); mode='da'; setHint('D — click center point'); updUI(); }
-function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle', {has_scale:!!scFactor}); stopTool(); mode='aa'; setHint('A — click first arm point'); updUI(); }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area', {unit:scUnit}); stopTool(); mode='pa'; areaPts=[]; setHint('R — click points — Enter or click start to close — Esc to cancel'); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter', {unit:scUnit}); stopTool(); mode='pp'; areaPts=[]; setHint('P — click points — click start or Enter to close — Esc to save open path'); updUI(); }
+function doDiam()    { if(mode==='da'||mode==='db'){stopTool();return;} if(!scFactor)return; t('tool_diameter', {unit:scUnit}); stopTool(); mode='da'; setHint(L('h_diam_a')); updUI(); }
+function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle', {has_scale:!!scFactor}); stopTool(); mode='aa'; setHint(L('h_angle_a')); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area', {unit:scUnit}); stopTool(); mode='pa'; areaPts=[]; setHint(LF('h_area_close')(1)); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter', {unit:scUnit}); stopTool(); mode='pp'; areaPts=[]; setHint(LF('h_perim_close')(1)); updUI(); }
 function closePerim() {
   pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx:polyPerim(areaPts),open:false});
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
@@ -1479,16 +2176,36 @@ function pushHistory() { history.push(JSON.parse(JSON.stringify(meas))); if(hist
 function undoLast()    { if(!history.length)return; meas=history.pop(); draw(); updUI(); }
 
 /* ── modal ── */
-function showModal() { modal.style.display='flex'; const sv=document.getElementById('sVal'); sv.value=''; sv.style.borderColor=''; sv.focus(); }
+function showModal() {
+  modal.style.display='flex';
+  const sv = document.getElementById('sVal');
+  const su = document.getElementById('sUnit');
+  // pre-fill with last used value, or 1 mm as default
+  const lastVal  = localStorage.getItem('mesu_last_scale_val')  || '1';
+  const lastUnit = localStorage.getItem('mesu_last_scale_unit') || 'mm';
+  sv.value = lastVal;
+  su.value = lastUnit;
+  sv.style.borderColor = '';
+  sv.select(); // select all so user can just type to replace
+  document.querySelector('#scaleModal h3').textContent = L('define_scale');
+  document.querySelector('#scaleModal p').textContent  = L('line_represents');
+  document.querySelector('#scaleModal .btn-confirm').textContent = L('set_scale_btn');
+}
 function cancelScale() { modal.style.display='none'; pLine=null; stopTool(); }
 function confirmScale() {
   const sv=document.getElementById('sVal'), val=parseFloat(sv.value);
   if (!val||val<=0) { sv.style.borderColor='#E24B4A'; sv.focus(); return; }
   sv.style.borderColor='';
   scUnit=document.getElementById('sUnit').value.trim()||'mm';
+  // remember for next time
+  localStorage.setItem('mesu_last_scale_val',  sv.value);
+  localStorage.setItem('mesu_last_scale_unit', scUnit);
   scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
   pLine=null; modal.style.display='none'; t('set_scale', {unit:scUnit, px_per_unit:+(1/scFactor).toFixed(4)}); stopTool();
 }
+// click-to-clear preset value, restore on blur if empty
+document.getElementById('sVal').addEventListener('click', function() { this.select(); });
+document.getElementById('sVal').addEventListener('focus', function() { this.select(); });
 document.getElementById('sVal').addEventListener('keydown', e => { if(e.key==='Enter')confirmScale(); if(e.key==='Escape')cancelScale(); });
 
 function snapPoint(from, to, e) {
@@ -1533,39 +2250,41 @@ function updUI() {
   const btnRR=document.getElementById('btnRotR'); if(btnRR) btnRR.disabled=!hasImg;
   const isNote=mode==='na';
   const btnNtEl=document.getElementById('btnNote');
-  if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':'';
+  if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':''; btnNtEl.innerHTML=`<span style='position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px'>Aa</span>${L('note')} <span class='kbd'>N</span>`;
   const btnStr = document.getElementById('btnStraighten');
   if (btnStr) btnStr.disabled = !hasImg;
   const btnRst = document.getElementById('btnRestoreOriginal');
   if (btnRst) btnRst.disabled = !(originalImg && originalImg !== img);
+  const btnSnap = document.getElementById('btnSnap');
+  if (btnSnap) { btnSnap.disabled = !hasImg; btnSnap.className = snapEnabled ? 'btn-tog-active' : ''; }
 
   btnScale.className=isSc?'btn-scale-active':'';
-  btnScale.textContent=isSc?'Cancel':(hasSc?'Reset':'Set');
+  btnScale.textContent=isSc?L('scale_cancel'):(hasSc?L('scale_reset'):L('scale_set'));
   btnMeasure.className=isMeas?'btn-meas-active':'';
-  btnMeasure.innerHTML=isMeas?'↔ Distance ◼':'↔ Distance <span class="kbd">L</span>';
+  btnMeasure.innerHTML=isMeas?`↔ ${L('distance')} ◼`:`↔ ${L('distance')} <span class="kbd">L</span>`;
   btnDiam.className=isDiam?'btn-diam-active':'';
-  btnDiam.innerHTML=isDiam?'⌀ Diameter ◼':'⌀ Diameter <span class="kbd">D</span>';
+  btnDiam.innerHTML=isDiam?`⌀ ${L('diameter')} ◼`:`⌀ ${L('diameter')} <span class="kbd">D</span>`;
   btnAngle.className=isAngle?'btn-angle-active':'';
-  btnAngle.innerHTML=isAngle?'∠ Angle ◼':'∠ Angle <span class="kbd">A</span>';
+  btnAngle.innerHTML=isAngle?`∠ ${L('angle')} ◼`:`∠ ${L('angle')} <span class="kbd">A</span>`;
   btnArea.className=isArea?'btn-area-active':'';
-  btnArea.innerHTML=isArea?'⬡ Area ◼':'⬡ Area <span class="kbd">R</span>';
+  btnArea.innerHTML=isArea?`⬡ ${L('area')} ◼`:`⬡ ${L('area')} <span class="kbd">R</span>`;
   const pathSvg = `<svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>`;
   btnPerim.className=isPerim?'btn-perim-active':'';
   btnPerim.style.cssText='flex:1;font-size:11px';
-  btnPerim.innerHTML=isPerim?`${pathSvg}Path ◼`:`${pathSvg}Path <span class="kbd">P</span>`;
+  btnPerim.innerHTML=isPerim?`${pathSvg}${L('path')} ◼`:`${pathSvg}${L('path')} <span class="kbd">P</span>`;
   btnZoom.className=zoomEnabled?'btn-zoom-active':'';
-  btnZoom.style.whiteSpace='nowrap'; btnZoom.innerHTML=`${zoomEnabled?'⊖':'⊕'} Pan &amp; zoom`;
+  btnZoom.style.whiteSpace='nowrap'; btnZoom.textContent=`${zoomEnabled?'⊖':'⊕'} ${L('pan_zoom').slice(2)}`;
   btnMag.className=magEnabled?'btn-tog-active':'';
-  btnMag.style.whiteSpace='nowrap'; btnMag.innerHTML=`${magEnabled?'◉':'◎'} Zoom cursor`;
+  btnMag.style.whiteSpace='nowrap'; btnMag.textContent=`${magEnabled?'◉':'◎'} ${L('zoom_cursor').slice(2)}`;
 
   const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc||(mode==='st');
-  cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':(mode==='st'?'crosshair':'default');
+  cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):mode==='drag'?'grabbing':(mode==='st'?'crosshair':zoomEnabled?'grab':'default');
 
   if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f/\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; }
-  else { scaleStatus.textContent='Not set'; scaleStatus.style.color=''; }
+  else { scaleStatus.textContent=L('not_set'); scaleStatus.style.color=''; }
 
   measCount.textContent=meas.length?`(${meas.length})`:'';
-  noRes.style.display=meas.length?'none':'block';
+  noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
   resList.innerHTML='';
 
   meas.forEach((m,i) => {
@@ -1596,12 +2315,13 @@ function updUI() {
     d.addEventListener('mouseleave',()=>{hovIdx=-1;draw();});
     resList.appendChild(d);
   });
+  applyLang();
 }
 
 function delM(i) { pushHistory(); meas.splice(i,1); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); }
 
 let toastTimer;
-function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast('Copied: '+txt); }
+function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
 function showToast(msg) { toast.textContent=msg; toast.style.display='block'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toast.style.display='none';},1800); }
 
 /* ── draw ── */
@@ -1657,6 +2377,14 @@ function draw() {
     // pulse ring
     ctx.strokeStyle=colP0; ctx.lineWidth=1/zoom; ctx.globalAlpha=0.4;
     ctx.beginPath(); ctx.arc(p0.x,p0.y,10/zoom,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+
+  // snap indicator — draw crosshair square when snapped to edge
+  if (snapPt && mp) {
+    ctx.save(); ctx.strokeStyle='#00e5ff'; ctx.lineWidth=1.5/zoom;
+    const s = 7/zoom;
+    ctx.strokeRect(snapPt.x-s/2, snapPt.y-s/2, s, s);
     ctx.restore();
   }
 
@@ -1946,7 +2674,7 @@ function saveProject() {
   const a = document.createElement('a');
   a.download = `mesu-${new Date().toISOString().slice(0,10)}.mesuro`;
   a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
-  showToast('Project saved');
+  showToast(L('proj_saved'));
 }
 
 function loadProject(file) {
@@ -1955,7 +2683,7 @@ function loadProject(file) {
   r.onload = ev => {
     try {
       const p = JSON.parse(ev.target.result);
-      if (p.format !== 'mesu') { showToast('Invalid .mesu file'); return; }
+      if (p.format !== 'mesu') { showToast(L('proj_invalid')); return; }
       const i = new Image();
       i.onload = () => {
         img = i;
@@ -1970,10 +2698,10 @@ function loadProject(file) {
         document.getElementById('dz').style.display = 'none';
         const ad = document.getElementById('adUnit');
         if (ad) ad.style.display = 'none';
-        updUI(); showToast('Project loaded');
+        updUI(); showToast(L('proj_loaded'));
       };
       i.src = p.image;
-    } catch(e) { showToast('Could not read project file'); }
+    } catch(e) { showToast(L('proj_error')); }
   };
   r.readAsText(file);
 }
@@ -2041,7 +2769,12 @@ function rotateImg(deg) {
     meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
     mode='idle'; zoom=1; panX=0; panY=0;
     fitImg(); clearHint(); updUI();
-    showToast('Image rotated');
+    showToast(L('img_rotated'));
+      // pulse scale button
+      setTimeout(() => {
+        const bs = document.getElementById('btnScale');
+        if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+      }, 300);
   };
   ni.src = oc.toDataURL('image/png');
 }
@@ -2053,7 +2786,7 @@ function doNote() {
   if (mode==='na') { stopTool(); return; }
   if (!img) return;
   t('tool_note');
-  stopTool(); mode='na'; setHint('N — click where to place the note — Esc to cancel'); updUI();
+  stopTool(); mode='na'; setHint(L('h_note')); updUI();
 }
 
 function cancelNote() {
@@ -2071,7 +2804,106 @@ function confirmNote() {
   notePending=null; stopTool(); draw(); updUI();
 }
 
-/* ── PDF export ── */
+async function loadPDF(file) {
+  showToast(L('loading_pdf'));
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
+  if (!pdfjsLib) { showToast(L('pdf_not_loaded')); return; }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const ab = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: ab }).promise;
+  pdfCurrentPage = 1;
+
+  if (pdfDoc.numPages === 1) {
+    await renderPDFPage(1);
+  } else {
+    openPdfModal();
+  }
+}
+
+function openPdfModal() {
+  document.getElementById('pdfPageTotal').textContent = pdfDoc.numPages;
+  document.getElementById('pdfPageNum').textContent = pdfCurrentPage;
+  document.getElementById('pdfPageCount').textContent = `${pdfDoc.numPages} pages — choose which one to measure`;
+  document.getElementById('pdfModal').style.display = 'flex';
+  renderPDFThumb(pdfCurrentPage);
+}
+
+function closePdfModal() {
+  document.getElementById('pdfModal').style.display = 'none';
+  pdfDoc = null;
+}
+
+async function pdfChangePage(delta) {
+  pdfCurrentPage = Math.max(1, Math.min(pdfDoc.numPages, pdfCurrentPage + delta));
+  document.getElementById('pdfPageNum').textContent = pdfCurrentPage;
+  document.getElementById('pdfPagePrev').disabled = pdfCurrentPage === 1;
+  document.getElementById('pdfPageNext').disabled = pdfCurrentPage === pdfDoc.numPages;
+  renderPDFThumb(pdfCurrentPage);
+}
+
+async function renderPDFThumb(pageNum) {
+  const page = await pdfDoc.getPage(pageNum);
+  const vp = page.getViewport({ scale: 1.2 });
+  const tc = document.getElementById('pdfThumbCanvas');
+  tc.width = vp.width; tc.height = vp.height;
+  tc.style.maxWidth = '360px'; tc.style.maxHeight = '260px';
+  await page.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
+}
+
+async function pdfLoadPage() {
+  document.getElementById('pdfModal').style.display = 'none';
+  await renderPDFPage(pdfCurrentPage);
+  pdfDoc = null;
+}
+
+async function renderPDFPage(pageNum) {
+  const page = await pdfDoc.getPage(pageNum);
+  // Target ~400dpi for technical drawings — PDF native is 72dpi
+  // Use scale 6 → A4 ≈ 3508×2480px (~420dpi), capped at 8000px on longest side
+  const SCALE_TARGET = 6;
+  const vpNative = page.getViewport({ scale: 1 });
+  const maxPx = 8000;
+  const scaleCap = maxPx / Math.max(vpNative.width, vpNative.height);
+  const SCALE = Math.min(SCALE_TARGET, scaleCap);
+  const vp = page.getViewport({ scale: SCALE });
+
+  showToast(L('processing'));
+
+  const oc = document.createElement('canvas');
+  oc.width = vp.width; oc.height = vp.height;
+  const ocCtx = oc.getContext('2d', { alpha: false });
+  // White background for technical drawings (avoids transparent → black)
+  ocCtx.fillStyle = '#ffffff';
+  ocCtx.fillRect(0, 0, oc.width, oc.height);
+  await page.render({ canvasContext: ocCtx, viewport: vp }).promise;
+  const ni = new Image();
+  ni.onload = () => {
+    loadImgFromImage(ni);
+    t('load_pdf', { page: pageNum, scale: Math.round(SCALE*10)/10, dpi: Math.round(SCALE*72) });
+  };
+  ni.src = oc.toDataURL('image/png');
+}
+
+function loadImgFromImage(imgEl) {
+  img = imgEl;
+  originalImg = imgEl;
+  edgeMap = null; edgeGx = null; edgeGy = null; edgeBlurred = null; snapPt = null;
+  scLine = null; scPx = null; scFactor = null;
+  meas = []; areaPts = []; stPts = []; p0 = null; p1 = null; mode = 'idle';
+  const ad = document.getElementById('adUnit');
+  if (ad) ad.style.display = 'none';
+  dz.style.display = 'none'; dz.style.pointerEvents = 'none';
+  fitImg(); updUI();
+  if (snapEnabled) computeEdges();
+  setTimeout(() => {
+    const bs = document.getElementById('btnScale');
+    if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+  }, 300);
+  t('load_image');
+}
+
+
 function exportPDF() {
   if (!img) return;
   t('export_pdf');
@@ -2098,12 +2930,12 @@ function exportPDF() {
   // build measurement table rows
   const rows = [];
   meas.forEach((m,i) => {
-    if(m.type==='line'){const r=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;rows.push([`#${i+1}`,'Distance',r]);}
-    else if(m.type==='diam'){const r=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;rows.push([`⌀${i+1}`,'Diameter',r]);}
-    else if(m.type==='angle'){rows.push([`∠${i+1}`,'Angle',`${m.deg.toFixed(1)}°`]);}
-    else if(m.type==='area'){const r=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`■${i+1}`,'Area',r]);}
-    else if(m.type==='perim'){const r=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`~${i+1}`,'Path',r]);}
-    else if(m.type==='note'){rows.push([`N${i+1}`,'Note',m.text]);}
+    if(m.type==='line'){const r=scFactor?`${(m.px*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.px)}px`;rows.push([`#${i+1}`,L('exp_type_dist'),r]);}
+    else if(m.type==='diam'){const r=scFactor?`${(m.r*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)}px`;rows.push([`⌀${i+1}`,L('exp_type_diam'),r]);}
+    else if(m.type==='angle'){rows.push([`∠${i+1}`,L('exp_type_angle'),`${m.deg.toFixed(1)}°`]);}
+    else if(m.type==='area'){const r=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`■${i+1}`,L('exp_type_area'),r]);}
+    else if(m.type==='perim'){const r=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`~${i+1}`,L('exp_type_perim'),r]);}
+    else if(m.type==='note'){rows.push([`N${i+1}`,L('exp_type_note'),m.text]);}
   });
 
   const { jsPDF } = window.jspdf;
@@ -2116,14 +2948,14 @@ function exportPDF() {
   doc.setFont('helvetica','bold');
   doc.setFontSize(14);
   doc.setTextColor(30,30,30);
-  doc.text('mesu.ro — Measurement Report', mg, mg);
+  doc.text(L('exp_report'), mg, mg);
 
   // subtitle
   doc.setFont('helvetica','normal');
   doc.setFontSize(9);
   doc.setTextColor(100,100,100);
   const now = new Date().toLocaleDateString('en-GB');
-  const scaleStr = scFactor ? `Scale: 1 px = ${(1/scFactor).toFixed(3)} ${scUnit}` : 'Scale: not set';
+  const scaleStr = scFactor ? LF('exp_scale')((1/scFactor).toFixed(3), scUnit) : L('exp_no_scale');
   doc.text(`${now}   |   ${scaleStr}`, mg, mg+16);
 
   // rule
@@ -2144,9 +2976,9 @@ function exportPDF() {
   doc.setFont('helvetica','bold');
   doc.setFontSize(9);
   doc.setTextColor(60,60,60);
-  doc.text('#', mg, ty);
-  doc.text('Type', mg+36, ty);
-  doc.text('Value', mg+130, ty);
+  doc.text(L('exp_num'), mg, ty);
+  doc.text(L('exp_type'), mg+36, ty);
+  doc.text(L('exp_value'), mg+130, ty);
   ty += 4;
   doc.setDrawColor(180,180,180);
   doc.line(mg, ty, pw-mg, ty);
@@ -2167,7 +2999,7 @@ function exportPDF() {
   // footer
   doc.setFontSize(8);
   doc.setTextColor(160,160,160);
-  doc.text('Generated by mesu.ro — free online image measurement tool', mg, ph-mg+10);
+  doc.text(L('exp_footer'), mg, ph-mg+10);
 
   doc.save('mesuro-report.pdf');
 }
@@ -2191,6 +3023,8 @@ function exportCSV() {
 }
 
 updUI();
+// init language
+setLang(currentLang);
 setTimeout(() => {
   const p = document.getElementById('kofiPopup');
   if (p) { p.style.display='block'; requestAnimationFrame(() => { p.style.opacity='1'; p.style.pointerEvents='all'; }); }
@@ -2395,26 +3229,26 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     longPressActive = false;
     if (!p) { mp=null; draw(); return; }
     if (mode==='idle'||mode==='wait') { mp=null; draw(); return; }
-    if (mode==='sa') { p0=p; mode='sb'; mp=null; setHint('Tap end of scale line'); draw(); }
+    if (mode==='sa') { p0=p; mode='sb'; mp=null; setHint(L('mh_scale_b')); draw(); }
     else if (mode==='sb') {
       if (dst(p0,p)<3/zoom) return;
       pLine={x1:p0.x,y1:p0.y,x2:p.x,y2:p.y}; mode='wait'; p0=null; mp=null; draw(); showModal();
     }
-    else if (mode==='ma') { p0=p; mode='mb'; mp=null; setHint('Tap end point'); draw(); }
+    else if (mode==='ma') { p0=p; mode='mb'; mp=null; setHint(L('mh_dist_b')); draw(); }
     else if (mode==='mb') {
       if (dst(p0,p)<3/zoom) return;
       pushHistory(); meas.push({type:'line',x1:p0.x,y1:p0.y,x2:p.x,y2:p.y,px:dst(p0,p)});
       p0=null; mp=null; stopTool(); draw(); updUI();
     }
-    else if (mode==='da') { p0=p; mode='db'; mp=null; setHint('Tap edge point'); draw(); }
+    else if (mode==='da') { p0=p; mode='db'; mp=null; setHint(L('mh_diam_b')); draw(); }
     else if (mode==='db') {
       if (dst(p0,p)<3/zoom) return;
       pushHistory(); const r=dst(p0,p);
       meas.push({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2:p0.x-(p.x-p0.x),y2:p0.y-(p.y-p0.y)});
       p0=null; mp=null; stopTool(); draw(); updUI();
     }
-    else if (mode==='aa') { p0=p; mode='ab'; mp=null; setHint('Tap vertex'); draw(); }
-    else if (mode==='ab') { if(dst(p0,p)<3/zoom)return; p1=p; mode='ac'; mp=null; setHint('Tap second arm'); draw(); }
+    else if (mode==='aa') { p0=p; mode='ab'; mp=null; setHint(L('mh_angle_b')); draw(); }
+    else if (mode==='ab') { if(dst(p0,p)<3/zoom)return; p1=p; mode='ac'; mp=null; setHint(L('mh_angle_c')); draw(); }
     else if (mode==='ac') {
       if (dst(p1,p)<3/zoom) return;
       pushHistory(); meas.push({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)});
@@ -2422,11 +3256,11 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
     else if (mode==='pa') {
       if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R){closeArea();return;}}
-      areaPts.push(p); setHint(`${areaPts.length} pt — tap start to close`); draw();
+      areaPts.push(p); setHint(LF('mh_area')(areaPts.length)); draw();
     }
     else if (mode==='pp') {
       if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R){closePerim();return;}}
-      areaPts.push(p); setHint(`${areaPts.length} pt — tap start to close`); draw();
+      areaPts.push(p); setHint(LF('mh_area')(areaPts.length)); draw();
     }
   }, {passive:false});
 
@@ -2466,7 +3300,7 @@ async function submitFeedback(e) {
     });
     if (res.ok) {
       document.getElementById('feedbackForm').style.display = 'none';
-      document.getElementById('feedbackThanks').style.display = 'block';
+      document.getElementById('feedbackThanks').textContent=L('thanks_feedback'); document.getElementById('feedbackThanks').style.display = 'block';
       t('feedback_sent');
       setTimeout(closeFeedback, 2000);
     } else {
