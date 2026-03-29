@@ -493,10 +493,13 @@
 
   <div id="canvasArea">
     <!-- Magic wand threshold slider -->
-    <div id="wandBar" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:20;background:rgba(20,20,20,.88);border:0.5px solid #333;border-radius:8px;padding:6px 14px;display:none;align-items:center;gap:10px;font-family:system-ui,-apple-system,sans-serif;pointer-events:all">
+    <div id="wandBar" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:20;background:rgba(20,20,20,.88);border:0.5px solid #333;border-radius:8px;padding:6px 14px;align-items:center;gap:10px;font-family:system-ui,-apple-system,sans-serif;pointer-events:all">
       <span style="font-size:11px;color:#888;white-space:nowrap">Threshold</span>
       <input type="range" id="wandThreshold" min="1" max="120" value="30" style="width:120px;accent-color:#9F77DD;cursor:pointer">
       <span id="wandThreshVal" style="font-size:11px;color:#9F77DD;width:26px;text-align:right">30</span>
+      <span style="font-size:11px;color:#333">|</span>
+      <button id="wandConfirmBtn" onclick="confirmWand()" style="display:none;font-size:11px;padding:3px 10px;background:#9F77DD;border:none;border-radius:4px;color:#fff;cursor:pointer;font-family:inherit">✓ Confirm</button>
+      <span id="wandHint" style="font-size:11px;color:#555;white-space:nowrap">Click image to select</span>
     </div>
     <div id="dz">
       <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
@@ -507,6 +510,7 @@
       <span>or use Load image above</span>
     </div>
     <canvas id="cv"></canvas>
+    <canvas id="wandOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.55"></canvas>
     <canvas id="magOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
     <div id="hint"></div>
     <div id="toast"></div>
@@ -2075,6 +2079,7 @@ document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
     closeSubPanels();
     const _wb=document.getElementById('wandBar'); if(_wb) _wb.style.display='none';
+    _wandState=null; _clearWandOverlay();
     if (mode==='sa'||mode==='sb'||mode==='wait') cancelScale();
     else if (mode==='pp' && areaPts.length>=2) { saveOpenPath(); }
     else if (mode!=='idle') { areaCps=[]; mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; clearHint(); draw(); updUI(); }
@@ -2082,6 +2087,7 @@ document.addEventListener('keydown', e => {
   }
   if (e.key==='Enter'&&mode==='pa'&&areaPts.length>=3) { closeArea(); return; }
   if (e.key==='Enter'&&mode==='pp'&&areaPts.length>=2) { closePerim(); return; }
+  if (e.key==='Enter'&&_wandState&&_wandState.simplified) { confirmWand(); return; }
   if (!e.ctrlKey&&!e.metaKey&&!e.altKey) {
     if ((e.key==='l'||e.key==='L')&&img&&scFactor) doMeasure();
     if ((e.key==='d'||e.key==='D')&&img&&scFactor) doDiam();
@@ -2509,7 +2515,7 @@ function setSegMode(tool, mode) {
   // show/hide wand bar
   const wb = document.getElementById('wandBar');
   if (wb) wb.style.display = mode==='wand' ? 'flex' : 'none';
-  if (mode!=='wand') { const _wb2=document.getElementById('wandBar'); if(_wb2) _wb2.style.display='none'; }
+
   // set hint
   if (mode==='wand') setHint('Click on the image to select by similar color');
 }
@@ -2719,199 +2725,110 @@ function bezierPolyArea(pts, cps) {
 }
 
 /* ── Magic wand ── */
+let _wandState = null; // { sx, sy, mask, simplified, debounceTimer }
+
 document.getElementById('wandThreshold').addEventListener('input', function() {
   document.getElementById('wandThreshVal').textContent = this.value;
+  if (_wandState) {
+    clearTimeout(_wandState.debounceTimer);
+    _wandState.debounceTimer = setTimeout(() => {
+      _recomputeWandPreview();
+    }, 80);
+  }
 });
 
 function getWandThreshold() {
   return parseInt(document.getElementById('wandThreshold').value) || 30;
 }
 
-function floodFill(imageData, sx, sy, threshold) {
-  const {data, width, height} = imageData;
-  const si=(sy*width+sx)*4;
-  const sr=data[si], sg=data[si+1], sb=data[si+2];
-  // Use squared threshold to avoid sqrt in hot loop
-  const thr2 = threshold*threshold;
-  const mask = new Uint8Array(width*height);
-  // Stack as flat Int32Array for speed
-  const stack = new Int32Array(width*height*2);
-  let sp = 0;
-  stack[sp++]=sx; stack[sp++]=sy;
-  mask[sy*width+sx]=1;
-  while (sp>0) {
-    const y=stack[--sp], x=stack[--sp];
-    // Scanline fill
-    let x1=x, x2=x;
-    while (x1>0) {
-      const i=(y*width+(x1-1))*4;
-      const dr=data[i]-sr, dg=data[i+1]-sg, db=data[i+2]-sb;
-      if(dr*dr+dg*dg+db*db<=thr2&&!mask[y*width+(x1-1)]) x1--;
-      else break;
-    }
-    while (x2<width-1) {
-      const i=(y*width+(x2+1))*4;
-      const dr=data[i]-sr, dg=data[i+1]-sg, db=data[i+2]-sb;
-      if(dr*dr+dg*dg+db*db<=thr2&&!mask[y*width+(x2+1)]) x2++;
-      else break;
-    }
-    for (let xi=x1;xi<=x2;xi++) mask[y*width+xi]=1;
-    for (let xi=x1;xi<=x2;xi++) {
-      if (y>0&&!mask[(y-1)*width+xi]) {
-        const i=((y-1)*width+xi)*4; const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb;
-        if(dr*dr+dg*dg+db*db<=thr2) { stack[sp++]=xi; stack[sp++]=y-1; mask[(y-1)*width+xi]=1; }
-      }
-      if (y<height-1&&!mask[(y+1)*width+xi]) {
-        const i=((y+1)*width+xi)*4; const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb;
-        if(dr*dr+dg*dg+db*db<=thr2) { stack[sp++]=xi; stack[sp++]=y+1; mask[(y+1)*width+xi]=1; }
-      }
-    }
-  }
-  return mask;
+function _setWandHint(txt, showConfirm) {
+  const h = document.getElementById('wandHint');
+  const b = document.getElementById('wandConfirmBtn');
+  if (h) h.textContent = txt;
+  if (b) b.style.display = showConfirm ? 'inline-block' : 'none';
 }
 
-// Marching Squares contour extraction
-// Works on a (width+1) × (height+1) grid of corner values
-// Each cell value = number of filled pixels in its 4 corners
-function marchingSquaresContours(mask, width, height) {
-  // Build corner grid: corner[y][x] = 1 if pixel (x-1,y-1) is filled (with boundary padding)
-  // We trace iso-lines at level 0.5 between filled/unfilled pixels
-  
-  function pixelFilled(x,y) {
-    if (x<0||x>=width||y<0||y>=height) return 0;
-    return mask[y*width+x]?1:0;
-  }
-  
-  // For each cell (cx,cy) in [0..width-1] x [0..height-1]:
-  // corners: tl=(cx,cy), tr=(cx+1,cy), br=(cx+1,cy+1), bl=(cx,cy+1)
-  // cell index = 8*tl + 4*tr + 2*br + bl
-  
-  // Edge midpoints (world coords = pixel coords + 0.5 offset)
-  const edgeMid = (x1,y1,x2,y2) => ({x:(x1+x2)/2, y:(y1+y2)/2});
-  
-  // Marching squares lookup: for each case (0-15), list of line segments [entry edge, exit edge]
-  // Edges: 0=top, 1=right, 2=bottom, 3=left
-  const MS = [
-    [],          // 0000
-    [[2,3]],     // 0001 bl
-    [[1,2]],     // 0010 br
-    [[1,3]],     // 0011 b
-    [[0,1]],     // 0100 tr
-    [[0,2],[1,3]], // 0101 saddle (use majority)
-    [[0,2]],     // 0110 r
-    [[0,3]],     // 0111 tl missing
-    [[3,0]],     // 1000 tl
-    [[2,0]],     // 1001 l
-    [[3,1],[0,2]], // 1010 saddle
-    [[2,1]],     // 1011 tr missing
-    [[3,1]],     // 1100 t
-    [[2,1]],     // 1101 br missing — same as 1011
-    [[3,0]],     // 1110 bl missing
-    [],          // 1111
-  ];
-  // Fix ambiguous saddle cases using center value
-  
-  // Collect all segments
-  const segments = []; // [{x1,y1,x2,y2}]
-  
-  for (let cy=0;cy<height;cy++) {
-    for (let cx=0;cx<width;cx++) {
-      const tl=pixelFilled(cx,cy), tr=pixelFilled(cx+1,cy);
-      const br=pixelFilled(cx+1,cy+1), bl=pixelFilled(cx,cy+1);
-      const idx = (tl<<3)|(tr<<2)|(br<<1)|bl;
-      if (idx===0||idx===15) continue;
-      
-      // Edge midpoints in pixel space
-      // +0.5 offset: contour centered on pixel grid (pixel (x,y) has center at x+0.5, y+0.5)
-      const top   = {x:cx+1.0, y:cy+0.5};
-      const right  = {x:cx+1.5, y:cy+1.0};
-      const bottom = {x:cx+1.0, y:cy+1.5};
-      const left   = {x:cx+0.5, y:cy+1.0};
-      const pts    = [top,right,bottom,left];
-      
-      let cases = MS[idx];
-      // Handle saddle cases (5 and 10) by center majority
-      if (idx===5||idx===10) {
-        const center = (tl+tr+br+bl)/4;
-        if (idx===5)  cases = center>=0.5 ? [[0,3],[1,2]] : [[0,1],[2,3]]; // was [[0,2],[1,3]]
-        if (idx===10) cases = center>=0.5 ? [[0,1],[2,3]] : [[0,3],[1,2]];
-      }
-      
-      for (const [e1,e2] of cases) {
-        const p1=pts[e1], p2=pts[e2];
-        segments.push({x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y});
-      }
-    }
-  }
-  
-  if (!segments.length) return [];
-  
-  // Chain segments into closed polygons
-  // Build adjacency: segment endpoint → next segments
-  const KEY = (x,y) => `${Math.round(x*2)}_${Math.round(y*2)}`;
-  const adj = new Map(); // key → [{x,y,segIdx,end}]
-  segments.forEach((s,i) => {
-    const k1=KEY(s.x1,s.y1), k2=KEY(s.x2,s.y2);
-    if (!adj.has(k1)) adj.set(k1,[]);
-    if (!adj.has(k2)) adj.set(k2,[]);
-    adj.get(k1).push({x:s.x2,y:s.y2,i,used:false});
-    adj.get(k2).push({x:s.x1,y:s.y1,i,used:false});
-  });
-  
-  const usedSeg = new Uint8Array(segments.length);
-  const contours = [];
-  
-  for (let si=0;si<segments.length;si++) {
-    if (usedSeg[si]) continue;
-    usedSeg[si]=1;
-    const contour = [{x:segments[si].x1,y:segments[si].y1}];
-    let cx=segments[si].x2, cy=segments[si].y2;
-    const startX=segments[si].x1, startY=segments[si].y1;
-    let steps=0;
-    while (steps++<segments.length*2) {
-      contour.push({x:cx,y:cy});
-      const k=KEY(cx,cy);
-      const nexts=adj.get(k)||[];
-      let found=false;
-      for (const n of nexts) {
-        if (!usedSeg[n.i]) {
-          usedSeg[n.i]=1; cx=n.x; cy=n.y; found=true; break;
-        }
-      }
-      if (!found) break;
-      if (Math.abs(cx-startX)<0.1&&Math.abs(cy-startY)<0.1) break;
-    }
-    if (contour.length>=4) contours.push(contour);
-  }
-  
-  return contours;
+function _clearWandOverlay() {
+  const ov = document.getElementById('wandOverlay');
+  if (!ov) return;
+  const oc = ov.getContext('2d');
+  oc.clearRect(0,0,ov.width,ov.height);
 }
 
-// Ramer-Douglas-Peucker simplification
-function rdp(pts, eps) {
-  if (pts.length<=2) return pts;
-  let maxD=0, maxI=0;
-  const [p1,p2] = [pts[0],pts[pts.length-1]];
-  const dx=p2.x-p1.x, dy=p2.y-p1.y, len=Math.hypot(dx,dy);
-  for (let i=1;i<pts.length-1;i++) {
-    const d = len>0 ? Math.abs(dy*pts[i].x-dx*pts[i].y+p2.x*p1.y-p2.y*p1.x)/len : Math.hypot(pts[i].x-p1.x,pts[i].y-p1.y);
-    if (d>maxD) { maxD=d; maxI=i; }
+function _drawWandPreview(mask, simplified) {
+  const ov = document.getElementById('wandOverlay');
+  if (!ov || !img) return;
+  // Size overlay to match canvas
+  const caRc = ca.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  ov.width  = caRc.width  * dpr;
+  ov.height = caRc.height * dpr;
+  ov.style.width  = caRc.width  + 'px';
+  ov.style.height = caRc.height + 'px';
+  const oc = ov.getContext('2d');
+  oc.clearRect(0,0,ov.width,ov.height);
+
+  // Draw filled mask as magenta overlay in world space
+  oc.save();
+  oc.scale(dpr, dpr);
+  // Map world→canvas
+  oc.setTransform(zoom*dpr, 0, 0, zoom*dpr, panX*dpr, panY*dpr);
+
+  // Draw mask pixels via small temporary canvas
+  const mc = document.createElement('canvas');
+  mc.width = img.width; mc.height = img.height;
+  const mctx = mc.getContext('2d');
+  const id = mctx.createImageData(img.width, img.height);
+  for (let i=0; i<mask.length; i++) {
+    if (mask[i]) {
+      id.data[i*4]   = 159;
+      id.data[i*4+1] = 119;
+      id.data[i*4+2] = 221;
+      id.data[i*4+3] = 140;
+    }
   }
-  if (maxD>eps) {
-    const l=rdp(pts.slice(0,maxI+1),eps), r=rdp(pts.slice(maxI),eps);
-    return [...l.slice(0,-1),...r];
+  mctx.putImageData(id, 0, 0);
+  oc.drawImage(mc, 0, 0);
+
+  // Draw contour outlines
+  if (simplified && simplified.length) {
+    oc.strokeStyle = '#9F77DD';
+    oc.lineWidth = 1.5 / zoom;
+    oc.setLineDash([4/zoom, 3/zoom]);
+    simplified.forEach(pts => {
+      if (pts.length < 2) return;
+      oc.beginPath();
+      oc.moveTo(pts[0].x, pts[0].y);
+      pts.forEach((p,i) => { if(i>0) oc.lineTo(p.x,p.y); });
+      oc.closePath();
+      oc.stroke();
+    });
+    oc.setLineDash([]);
   }
-  return [pts[0],pts[pts.length-1]];
+  oc.restore();
 }
 
-// Determine if contour is clockwise (positive = CW in canvas coords where Y goes down)
-function contourArea(pts) {
-  let a=0; for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;a+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;} return a/2;
+function _recomputeWandPreview() {
+  if (!_wandState || !img) return;
+  const { sx, sy } = _wandState;
+  const threshold = getWandThreshold();
+  const mask = floodFill(_wandImgData, sx, sy, threshold);
+  const rawContours = marchingSquaresContours(mask, img.width, img.height);
+  const eps = Math.max(1, Math.min(img.width, img.height) * 0.002);
+  const simplified = rawContours.map(c => rdp(c, eps)).filter(c => c.length >= 3);
+  _wandState.mask = mask;
+  _wandState.simplified = simplified;
+  _drawWandPreview(mask, simplified);
+  if (simplified.length) {
+    _setWandHint(`${simplified.length} contour${simplified.length>1?'s':''} — Enter or ✓ to confirm`, true);
+  } else {
+    _setWandHint('No region found — adjust threshold', false);
+  }
 }
 
 function doMagicWand(wx, wy) {
   if (!img) return;
-  // Use cached imageData (rebuilt when image changes)
+  // Ensure imageData cached
   if (_wandImg !== img) {
     const oc = document.createElement('canvas');
     oc.width = img.width; oc.height = img.height;
@@ -2919,77 +2836,53 @@ function doMagicWand(wx, wy) {
     _wandImgData = oc.getContext('2d').getImageData(0, 0, img.width, img.height);
     _wandImg = img;
   }
-  const imageData = _wandImgData;
-  const sx = Math.round(Math.max(0,Math.min(img.width-1, wx)));
-  const sy = Math.round(Math.max(0,Math.min(img.height-1, wy)));
-  const threshold = getWandThreshold();
-
-  showToast('Selecting…');
+  const sx = Math.round(Math.max(0, Math.min(img.width-1,  wx)));
+  const sy = Math.round(Math.max(0, Math.min(img.height-1, wy)));
+  _wandState = { sx, sy, mask: null, simplified: null, debounceTimer: null };
+  _setWandHint('Selecting…', false);
   setTimeout(() => {
-    const mask = floodFill(imageData, sx, sy, threshold);
-    const rawContours = marchingSquaresContours(mask, img.width, img.height);
-    
-    if (!rawContours.length) { showToast('No region found — try adjusting threshold'); return; }
-    
-    const eps = Math.max(1, Math.min(img.width, img.height) * 0.002);
-    const isBez = (mode==='pa') ? segMode.area==='bezier' : segMode.perim==='bezier';
-    const isArea = mode==='pa';
-    
-    // Simplify all contours
-    const simplified = rawContours
-      .map(c => rdp(c, eps))
-      .filter(c => c.length >= 3);
-    
-    if (!simplified.length) { showToast('Region too small — try adjusting threshold'); return; }
-    
-    pushHistory();
-    
-    if (isArea && simplified.length > 1) {
-      // Multi-contour: single measurement with evenodd fill
-      // Sort by area descending (largest = outer boundary first)
-      simplified.sort((a,b) => Math.abs(contourArea(b))-Math.abs(contourArea(a)));
-      
-      const contours = simplified.map(pts => {
-        const cps = isBez ? naturalSpline(pts, true) : null;
-        return {pts, cps};
-      });
-      
-      // Total area = sum of signed areas with evenodd (outer positive, holes negative)
-      let totalArea = 0;
-      contours.forEach((c,i) => {
-        const a = c.cps ? bezierPolyArea(c.pts,c.cps) : polyArea(c.pts);
-        totalArea += (i===0) ? a : -a; // outer + holes
-      });
-      
-      meas.push({
-        type:'area',
-        pts: contours[0].pts,
-        areaPx: Math.abs(totalArea),
-        cps: contours[0].cps,
-        contours // full multi-contour data
-      });
-    } else {
-      // Single contour per measurement
-      simplified.forEach(pts => {
-        const cps = isBez ? naturalSpline(pts, true) : null;
-        if (isArea) {
-          const areaPx = cps ? bezierPolyArea(pts,cps) : polyArea(pts);
-          meas.push({type:'area', pts, areaPx, cps});
-        } else {
-          const perimPx = cps ? bezierPolyPerim(pts,cps,false) : polyPerim(pts);
-          meas.push({type:'perim', pts, perimPx, open:false, cps});
-        }
-      });
-    }
-    
-    areaPts=[]; areaCps=[]; mp=null;
-    // Keep wand active — don't close panels, let user click again or press Escape
-    clearHint();
-    setHint('Click again to add more — Escape to finish');
-    draw(); updUI();
-    showToast(`${simplified.length} contour${simplified.length>1?'s':''} created`);
-  }, 30);
+    _recomputeWandPreview();
+  }, 20);
 }
+
+function confirmWand() {
+  if (!_wandState || !_wandState.simplified || !_wandState.simplified.length) return;
+  const { simplified } = _wandState;
+  const isBez = (mode==='pa') ? segMode.area==='bezier' : segMode.perim==='bezier';
+  const isArea = mode==='pa';
+  pushHistory();
+  if (isArea && simplified.length > 1) {
+    simplified.sort((a,b) => Math.abs(contourArea(b)) - Math.abs(contourArea(a)));
+    const contours = simplified.map(pts => {
+      const cps = isBez ? naturalSpline(pts, true) : null;
+      return {pts, cps};
+    });
+    let totalArea = 0;
+    contours.forEach((c,i) => {
+      const a = c.cps ? bezierPolyArea(c.pts,c.cps) : polyArea(c.pts);
+      totalArea += (i===0) ? a : -a;
+    });
+    meas.push({ type:'area', pts:contours[0].pts, areaPx:Math.abs(totalArea), cps:contours[0].cps, contours });
+  } else {
+    simplified.forEach(pts => {
+      const cps = isBez ? naturalSpline(pts, true) : null;
+      if (isArea) {
+        const areaPx = cps ? bezierPolyArea(pts,cps) : polyArea(pts);
+        meas.push({type:'area', pts, areaPx, cps});
+      } else {
+        const perimPx = cps ? bezierPolyPerim(pts,cps,false) : polyPerim(pts);
+        meas.push({type:'perim', pts, perimPx, open:false, cps});
+      }
+    });
+  }
+  _wandState = null;
+  _clearWandOverlay();
+  _setWandHint('Click image to select', false);
+  draw(); updUI();
+  showToast(`${simplified.length} contour${simplified.length>1?'s':''} created`);
+}
+
+
 function updUI() {
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
@@ -3858,7 +3751,7 @@ function loadImgFromImage(imgEl) {
   img = imgEl;
   originalImg = imgEl;
   edgeMap = null; edgeGx = null; edgeGy = null; edgeBlurred = null; snapPt = null;
-  _wandImgData = null; _wandImg = null;
+  _wandImgData = null; _wandImg = null; _wandState=null; _clearWandOverlay();
   scLine = null; scPx = null; scFactor = null;
   meas = []; areaPts = []; stPts = []; p0 = null; p1 = null; mode = 'idle';
   const ad = document.getElementById('adUnit');
