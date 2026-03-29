@@ -235,6 +235,8 @@
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
     #sidebar { display: none; }
     #mobileTopbar { display: flex; align-items:center; background:#242424; border-bottom:0.5px solid #2a2a2a; flex-shrink:0; z-index:20; }
+    #mobileSubRow { flex-shrink:0; z-index:19; }
+    #mobileSettings { flex-shrink:0; z-index:18; }
     @keyframes mScalePulse {
       0%,100% { box-shadow: 0 0 0 1.5px #1D9E75; }
       50%      { box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
@@ -257,6 +259,15 @@
     .m-tbtn.m-an { background:rgba(212,83,126,.12); } .m-tbtn.m-an .m-ti,.m-tbtn.m-an .m-tt { color:#D4537E; }
     .m-tbtn.m-ar { background:rgba(159,119,221,.12); } .m-tbtn.m-ar .m-ti,.m-tbtn.m-ar .m-tt { color:#9F77DD; }
     .m-tbtn.m-pe { background:rgba(240,153,74,.12); } .m-tbtn.m-pe .m-ti,.m-tbtn.m-pe .m-tt { color:#F0994A; }
+    .m-tbtn.m-no { background:rgba(245,230,66,.10); } .m-tbtn.m-no .m-ti,.m-tbtn.m-no .m-tt { color:#F5E642; }
+    .m-tbtn.m-pc { background:rgba(93,202,165,.10); } .m-tbtn.m-pc .m-ti,.m-tbtn.m-pc .m-tt { color:#5DCAA5; }
+    .m-tbtn.m-active .m-ti, .m-tbtn.m-active .m-tt { opacity:1; }
+    #mobileSubRow::-webkit-scrollbar { display:none; }
+    .m-sub { display:inline-flex;align-items:center;justify-content:center;padding:5px 12px;border-radius:6px;cursor:pointer;border:none;font-size:11px;white-space:nowrap;font-family:inherit;transition:background .15s;background:#2a2a2a;color:#888; }
+    .m-sub.active { color:#fff; }
+    #mBtnSettings.active { color:#aaa; background:#333; }
+    #mobileSettings button[disabled] { opacity:.35; cursor:default; }
+    .msett-active { color:#d0d0d0 !important; background:#333 !important; }
 
     #canvasArea { flex:1; min-height:0; position:relative; }
 
@@ -338,11 +349,41 @@
     </div>
     <div id="mobileToolsScroll">
       <button class="m-tbtn m-sc" id="mBtnScale"   onclick="scFactor?doScaleReset():doScale()"   disabled><span class="m-ti">⊘</span><span class="m-tt">Scale</span></button>
-      <button class="m-tbtn m-di" id="mBtnMeasure" onclick="doMeasure()" disabled><span class="m-ti">↔</span><span class="m-tt">Distance</span></button>
-      <button class="m-tbtn m-dm" id="mBtnDiam"    onclick="doDiam()"    disabled><span class="m-ti">⌀</span><span class="m-tt">Diameter</span></button>
-      <button class="m-tbtn m-an" id="mBtnAngle"   onclick="doAngle()"   disabled><span class="m-ti">∠</span><span class="m-tt">Angle</span></button>
-      <button class="m-tbtn m-ar" id="mBtnArea"    onclick="doArea()"    disabled><span class="m-ti">⬡</span><span class="m-tt">Area</span></button>
-      <button class="m-tbtn m-pe" id="mBtnPerim"   onclick="doPerim()"   disabled><span class="m-ti">⬠</span><span class="m-tt">Perim.</span></button>
+      <button class="m-tbtn m-di" id="mBtnMeasure" onclick="mToolTap('dist')"  disabled><span class="m-ti">↔</span><span class="m-tt">Distance</span></button>
+      <button class="m-tbtn m-dm" id="mBtnDiam"    onclick="mToolTap('diam')"  disabled><span class="m-ti">⌀</span><span class="m-tt">Diameter</span></button>
+      <button class="m-tbtn m-an" id="mBtnAngle"   onclick="mToolTap('angle')" disabled><span class="m-ti">∠</span><span class="m-tt">Angle</span></button>
+      <button class="m-tbtn m-ar" id="mBtnArea"    onclick="mToolTap('area')"  disabled><span class="m-ti">⬡</span><span class="m-tt">Area</span></button>
+      <button class="m-tbtn m-pe" id="mBtnPerim"   onclick="mToolTap('perim')" disabled><span class="m-ti">⬠</span><span class="m-tt">Path</span></button>
+      <button class="m-tbtn m-no" id="mBtnNote"    onclick="doNote()"          disabled><span class="m-ti" style="font-size:16px;font-weight:700">Aa</span><span class="m-tt">Note</span></button>
+      <button class="m-tbtn m-pc" id="mBtnPtCoord" onclick="mToolTap('ptc')"   disabled><span class="m-ti">⊙</span><span class="m-tt">Pt Coord</span></button>
+    </div>
+    <button id="mBtnSettings" onclick="toggleMobileSettings()" style="flex-shrink:0;margin:0 6px;padding:6px 10px;background:#2a2a2a;border:none;border-radius:7px;color:#666;font-size:18px;cursor:pointer;font-family:inherit;">⚙</button>
+  </div>
+
+  <!-- Mobile sub-tool row (Level 2) -->
+  <div id="mobileSubRow" style="display:none;background:#1e1e1e;border-bottom:0.5px solid #2a2a2a;overflow-x:auto;scrollbar-width:none;">
+    <div id="mobileSubScroll" style="display:flex;gap:4px;padding:5px 8px;min-width:max-content;">
+    </div>
+  </div>
+
+  <!-- Mobile settings panel -->
+  <div id="mobileSettings" style="display:none;background:#1a1a1a;border-bottom:0.5px solid #2a2a2a;padding:10px 12px;flex-direction:column;gap:8px;">
+    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-bottom:2px;">VIEW &amp; SETTINGS</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button id="mBtnZoom"   onclick="toggleZoom();updMobileSettings()"   disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">⊕ Pan &amp; zoom</button>
+      <button id="mBtnMag"    onclick="toggleMag();updMobileSettings()"    disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">◎ Zoom cursor</button>
+      <button id="mBtnSnap2"  onclick="toggleSnap();updMobileSettings()"   disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">⌖ Edge detect</button>
+      <button id="mBtnPtSnap2" onclick="togglePtSnap();updMobileSettings()" disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">◎ Snap point</button>
+    </div>
+    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-top:4px;">EXPORT</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button onclick="exportImg('png')"  disabled id="mExpPng"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">PNG</button>
+      <button onclick="exportImg('jpg')"  disabled id="mExpJpg"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">JPG</button>
+      <button onclick="exportImg('webp')" disabled id="mExpWebp" style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">WebP</button>
+      <button onclick="exportCSV()"       disabled id="mExpCsv"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">CSV</button>
+      <button onclick="exportPDF()"       disabled id="mExpPdf"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">PDF</button>
+      <button onclick="saveProject()"     disabled id="mExpSave" style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">💾 Save</button>
+      <button onclick="document.getElementById('projectInput').click()" style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">📂 Load</button>
     </div>
   </div>
 
@@ -423,6 +464,7 @@
         <div id="subDist" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #EF9F27">
           <button id="btnDistPP"  onclick="setDistMode('pp')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="dist_pp">↔ Point to point</button>
           <button id="btnDistCE"  onclick="setDistMode('ce')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="dist_ce">⊕ Center to edge (sym.)</button>
+          <button id="btnDistPL"  onclick="setDistMode('pl')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⊥ Point to line</button>
         </div>
         <!-- Diameter sub-tools -->
         <div id="subDiam" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #5DCAA5">
@@ -434,6 +476,11 @@
           <button id="btnAngle" onclick="doAngle()" disabled style="flex:1;font-size:11px">∠ Angle <span class="kbd">A</span></button>
           <button id="btnArea"  onclick="doArea()"  disabled style="flex:1;font-size:11px">⬡ Area <span class="kbd">R</span></button>
         </div>
+        <!-- Angle sub-tools -->
+        <div id="subAngle" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #D4537E">
+          <button id="btnAngle3" onclick="setAngleMode('3p')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#D4537E;cursor:pointer">∠ 3 points (vertex)</button>
+          <button id="btnAngle4" onclick="setAngleMode('4p')" style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">∡ 4 points (2 lines)</button>
+        </div>
         <!-- Area sub-tools -->
         <div id="subArea" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #9F77DD">
           <button id="btnAreaStr" onclick="setSegMode('area','straight')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#9F77DD;cursor:pointer">— Straight segments</button>
@@ -443,6 +490,14 @@
         <div class="btn-row">
           <button id="btnPerim" onclick="doPerim()" disabled style="flex:1;font-size:11px"><svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>Path <span class="kbd">P</span></button>
           <button id="btnNote"  onclick="doNote()"  disabled style="flex:1;font-size:11px"><span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>Note <span class="kbd">N</span></button>
+        </div>
+        <div class="btn-row">
+          <button id="btnPtCoord" onclick="doPtCoord()" disabled style="flex:1;font-size:11px">⊙ Pt coord</button>
+        </div>
+        <!-- Point coordinate sub-tools -->
+        <div id="subPtCoord" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #5DCAA5">
+          <button id="btnSetOrigin" onclick="setPtCoordMode('origin')" style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⊕ Set origin</button>
+          <button id="btnPlacePoint" onclick="setPtCoordMode('point')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#5DCAA5;cursor:pointer">⊙ Place point</button>
         </div>
         <!-- Path sub-tools -->
         <div id="subPerim" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #F0994A">
@@ -1628,7 +1683,10 @@ function findPointSnap(wp, excludeIdx=-1) {
       if(m.cps) m.cps.forEach(cp=>{check(cp.cp1.x,cp.cp1.y);check(cp.cp2.x,cp.cp2.y);});
     }
     if (m.type==='arc')   { check(m.cx,m.cy); check(m.p1.x,m.p1.y); check(m.p2.x,m.p2.y); }
-    if (m.type==='note')  { check(m.x,m.y); }
+    if (m.type==='note')   { check(m.x,m.y); }
+    if (m.type==='angle4') { check(m.ax,m.ay);check(m.bx,m.by);check(m.cx,m.cy);check(m.dx,m.dy); }
+    if (m.type==='ptline') { check(m.lx1,m.ly1);check(m.lx2,m.ly2);check(m.px,m.py); }
+    if (m.type==='ptcoord'){ check(m.px,m.py); if(m.ox!==undefined) check(m.ox,m.oy); }
   });
   return bestPt;
 }
@@ -1700,7 +1758,10 @@ function defaultLabelPos(m, i) {
     return {x:m.pts.reduce((s,p)=>s+p.x,0)/m.pts.length, y:m.pts.reduce((s,p)=>s+p.y,0)/m.pts.length};
   }
   if (m.type==='arc') { const amid=m.a1+m.sweep/2; return {x:m.cx+Math.cos(amid)*(m.r+14/zoom), y:m.cy+Math.sin(amid)*(m.r+14/zoom)}; }
-  if (m.type==='note') return {x:m.x+8/zoom, y:m.y};
+  if (m.type==='note')    return {x:m.x+8/zoom, y:m.y};
+  if (m.type==='angle4') { return {x:(m.ax+m.bx+m.cx+m.dx)/4, y:(m.ay+m.by+m.cy+m.dy)/4-12/zoom}; }
+  if (m.type==='ptline') { return {x:(m.px+m.fx)/2, y:(m.py+m.fy)/2-10/zoom}; }
+  if (m.type==='ptcoord'){ return {x:m.px+12/zoom, y:m.py-8/zoom}; }
   return null;
 }
 
@@ -1737,6 +1798,14 @@ function findDrag(wp) {
       if (near(m.p2.x,m.p2.y)) return {idx:i,field:'p2'};
     } else if (m.type==='note') {
       if (near(m.x,m.y)) return {idx:i,field:'pos'};
+    } else if (m.type==='angle4') {
+      if (near(m.ax,m.ay)) return {idx:i,field:'a'}; if (near(m.bx,m.by)) return {idx:i,field:'b'};
+      if (near(m.cx,m.cy)) return {idx:i,field:'c'}; if (near(m.dx,m.dy)) return {idx:i,field:'d'};
+    } else if (m.type==='ptline') {
+      if (near(m.lx1,m.ly1)) return {idx:i,field:'l1'}; if (near(m.lx2,m.ly2)) return {idx:i,field:'l2'};
+      if (near(m.px,m.py)) return {idx:i,field:'pt'};
+    } else if (m.type==='ptcoord') {
+      if (near(m.px,m.py)) return {idx:i,field:'pt'};
     }
   }
   if (scLine) {
@@ -1824,6 +1893,21 @@ function applyDrag(wp) {
     }
   } else if (m.type==='note') {
     m.x=wp.x; m.y=wp.y;
+  } else if (m.type==='angle4') {
+    if(field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='b'){m.bx=wp.x;m.by=wp.y;}
+    else if(field==='c'){m.cx=wp.x;m.cy=wp.y;}else{m.dx=wp.x;m.dy=wp.y;}
+    const dAx=m.bx-m.ax,dAy=m.by-m.ay,dBx=m.dx-m.cx,dBy=m.dy-m.cy;
+    let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
+    m.deg=ang>90?180-ang:ang;
+  } else if (m.type==='ptline') {
+    if(field==='l1'){m.lx1=wp.x;m.ly1=wp.y;}else if(field==='l2'){m.lx2=wp.x;m.ly2=wp.y;}
+    else{m.px=wp.x;m.py=wp.y;}
+    const dx=m.lx2-m.lx1,dy=m.ly2-m.ly1,len=Math.hypot(dx,dy);
+    if(len>0){m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.lx1*0-m.ly2*m.lx1*0+m.lx2*m.ly1-m.ly2*m.lx1)/len;
+    m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.ly1-m.ly2*m.lx1)/len;
+    const t2=((m.px-m.lx1)*dx+(m.py-m.ly1)*dy)/(len*len);m.fx=m.lx1+t2*dx;m.fy=m.ly1+t2*dy;}
+  } else if (m.type==='ptcoord') {
+    m.px=wp.x;m.py=wp.y;m.cx=(m.px-m.ox)*(scFactor||1);m.cy=-(m.py-m.oy)*(scFactor||1);
   }
 }
 
@@ -1861,7 +1945,7 @@ cv.addEventListener('mousemove', e => {
     mp = wp;
     applyDrag(wp); draw(); updUI(); return;
   }
-  const dm=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','pa','pp'];
+  const dm=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','pa','pp','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc'];
   const stPlacing = mode==='st' && stPts.length < 4;
   if (dm.includes(mode) || stPlacing) {
     mp = (p0 && (mode==='sb'||mode==='mb')) ? snapPoint(p0, wp, e) : wp;
@@ -2022,6 +2106,60 @@ cv.addEventListener('click', e => {
     if (window.innerWidth<=767) { stopTool(); } else { mode='aa'; setHint(L('h_diam_next')); }
     draw(); updUI();
   }
+  // Protractor: 4 points, 2 independent lines
+  else if (mode==='p4a') { p0=p; mode='p4b'; setHint('Click 2nd point of line A'); }
+  else if (mode==='p4b') {
+    if (dst(p0,p)<5/zoom) return;
+    p1=p; mode='p4c'; setHint('Click 1st point of line B');
+  }
+  else if (mode==='p4c') {
+    window._p4p2=p; mode='p4d'; setHint('Click 2nd point of line B');
+  }
+  else if (mode==='p4d') {
+    const p2=window._p4p2;
+    if (!p2||dst(p2,p)<5/zoom) return;
+    const dAx=p1.x-p0.x,dAy=p1.y-p0.y,dBx=p.x-p2.x,dBy=p.y-p2.y;
+    let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
+    if (ang>90) ang=180-ang;
+    pushHistory();
+    meas.push({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang});
+    p0=null; p1=null; window._p4p2=null; mp=null;
+    if (window.innerWidth<=767) { stopTool(); } else { mode='p4a'; setHint('Click 1st point of line A'); }
+    draw(); updUI();
+  }
+  // Point-to-line distance
+  else if (mode==='pl1') { p0=p; mode='pl2'; setHint('Click 2nd point of reference line'); }
+  else if (mode==='pl2') {
+    if (dst(p0,p)<5/zoom) return;
+    p1=p; mode='pl3'; setHint('Click point to measure from line');
+  }
+  else if (mode==='pl3') {
+    const dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
+    if (len<1) return;
+    const distPx=Math.abs(dy*p.x-dx*p.y+p1.x*p0.y-p1.y*p0.x)/len;
+    const t2=((p.x-p0.x)*dx+(p.y-p0.y)*dy)/(len*len);
+    const foot={x:p0.x+t2*dx,y:p0.y+t2*dy};
+    pushHistory();
+    meas.push({type:'ptline',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,px:p.x,py:p.y,fx:foot.x,fy:foot.y,distPx});
+    p0=null; p1=null; mp=null;
+    if (window.innerWidth<=767) { stopTool(); } else { mode='pl1'; setHint('Click 1st point of reference line'); }
+    draw(); updUI();
+  }
+  // Point coordinate
+  else if (mode==='ptc') {
+    if (ptCoordMode==='origin') {
+      ptCoordOrigin={x:p.x,y:p.y};
+      setHint('Origin set — click to place coordinate points');
+      setPtCoordMode('point');
+    } else {
+      const ox=ptCoordOrigin?ptCoordOrigin.x:0, oy=ptCoordOrigin?ptCoordOrigin.y:0;
+      const cx2=(p.x-ox)*(scFactor||1), cy2=-(p.y-oy)*(scFactor||1);
+      const u=scFactor?scUnit:'px';
+      pushHistory();
+      meas.push({type:'ptcoord',px:p.x,py:p.y,ox,oy,cx:cx2,cy:cy2,unit:u});
+      draw(); updUI();
+    }
+  }
   else if (mode==='pa') {
     if (segMode.area==='wand') { doMagicWand(p.x, p.y); return; }
     if (areaPts.length>=3) {
@@ -2126,18 +2264,6 @@ function doMeasure() {
   sub.style.display = 'flex';
     // default to last used or point-to-point
   setDistMode(window._lastDistMode || 'pp');
-}
-
-function setDistMode(m) {
-  window._lastDistMode = m;
-  p0=null; p1=null; mp=null; clearHint();
-  document.getElementById('btnDistPP').style.background = m==='pp' ? '#2a2a2a' : 'none';
-  document.getElementById('btnDistCE').style.background = m==='ce' ? '#2a2a2a' : 'none';
-  document.getElementById('btnDistPP').style.color = m==='pp' ? '#EF9F27' : '#aaa';
-  document.getElementById('btnDistCE').style.color = m==='ce' ? '#EF9F27' : '#aaa';
-  if (m==='pp') { mode='ma'; setHint(L('h_dist_a')); }
-  else          { mode='ce1'; setHint(L('h_ce1')); }
-  draw(); updUI();
 }
 
 function doDiam() {
@@ -2411,7 +2537,71 @@ function applyStraighten() {
   }, 30);
 }
 // doDiam now defined above with sub-tool support
-function doAngle()   { if(mode==='aa'||mode==='ab'||mode==='ac'){stopTool();return;} if(!img)return; t('tool_angle', {has_scale:!!scFactor}); stopTool(); mode='aa'; setHint(L('h_angle_a')); updUI(); }
+function doAngle() {
+  const active = mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d';
+  if (active) { stopTool(); return; }
+  if (!img) return;
+  t('tool_angle', {has_scale:!!scFactor});
+  closeSubPanels(); stopTool();
+  document.getElementById('subAngle').style.display='flex';
+  setAngleMode(window._lastAngleMode||'3p');
+  updUI();
+}
+
+function setAngleMode(m) {
+  window._lastAngleMode = m;
+  p0=null; p1=null; mp=null; clearHint();
+  const c='#D4537E';
+  const b3=document.getElementById('btnAngle3'), b4=document.getElementById('btnAngle4');
+  if(b3){b3.style.background=m==='3p'?'#2a2a2a':'none';b3.style.color=m==='3p'?c:'#aaa';}
+  if(b4){b4.style.background=m==='4p'?'#2a2a2a':'none';b4.style.color=m==='4p'?c:'#aaa';}
+  if (m==='3p') { mode='aa'; setHint(L('h_angle_a')); }
+  else          { mode='p4a'; setHint('Click 1st point of line A'); }
+  draw(); updUI();
+}
+
+// ── Point-to-line distance ──────────────────────────────────────────────────
+function setDistMode(m) {
+  window._lastDistMode = m;
+  p0=null; p1=null; mp=null; clearHint();
+  document.getElementById('btnDistPP').style.background = m==='pp' ? '#2a2a2a' : 'none';
+  document.getElementById('btnDistCE').style.background = m==='ce' ? '#2a2a2a' : 'none';
+  document.getElementById('btnDistPL').style.background = m==='pl' ? '#2a2a2a' : 'none';
+  document.getElementById('btnDistPP').style.color = m==='pp' ? '#EF9F27' : '#aaa';
+  document.getElementById('btnDistCE').style.color = m==='ce' ? '#EF9F27' : '#aaa';
+  document.getElementById('btnDistPL').style.color = m==='pl' ? '#EF9F27' : '#aaa';
+  if (m==='pp')  { mode='ma';  setHint(L('h_dist_a')); }
+  else if (m==='ce') { mode='ce1'; setHint(L('h_ce1')); }
+  else           { mode='pl1'; setHint('Click 1st point of reference line'); }
+  draw(); updUI();
+}
+
+// ── Point coordinate tool ────────────────────────────────────────────────────
+let ptCoordOrigin = null; // {x,y} in image pixels
+let ptCoordMode = 'point'; // 'origin' or 'point'
+
+function doPtCoord() {
+  const active = mode==='ptc';
+  if (active) { stopTool(); return; }
+  if (!img) return;
+  closeSubPanels(); stopTool();
+  mode = 'ptc'; ptCoordMode = 'point';
+  document.getElementById('subPtCoord').style.display='flex';
+  setPtCoordMode('point');
+  updUI();
+}
+
+function setPtCoordMode(m) {
+  ptCoordMode = m;
+  p0=null; mp=null; clearHint();
+  const c='#5DCAA5';
+  const bo=document.getElementById('btnSetOrigin'), bp=document.getElementById('btnPlacePoint');
+  if(bo){bo.style.background=m==='origin'?'#2a2a2a':'none';bo.style.color=m==='origin'?c:'#aaa';}
+  if(bp){bp.style.background=m==='point'?'#2a2a2a':'none';bp.style.color=m==='point'?c:'#5DCAA5';}
+  if (m==='origin') setHint('Click to set coordinate origin (0,0)');
+  else              setHint(ptCoordOrigin ? 'Click to place a coordinate point' : 'Click to place a point (no origin set — will use image corner)');
+  mode = 'ptc'; draw(); updUI();
+}
 function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area',{unit:scUnit}); closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
 function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter',{unit:scUnit}); closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
 function closePerim() {
@@ -2886,7 +3076,10 @@ function updUI() {
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
   const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2';
   const isDiam=mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3';
-  const isAngle=mode==='aa'||mode==='ab'||mode==='ac', isArea=mode==='pa', isPerim=mode==='pp';
+  const isAngle=mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d';
+  const isPtLine=mode==='pl1'||mode==='pl2'||mode==='pl3';
+  const isPtCoordMode=mode==='ptc';
+  const isArea=mode==='pa', isPerim=mode==='pp';
 
   btnScale.disabled=!hasImg; btnSaveProject.disabled=!hasImg; btnMeasure.disabled=!hasSc; btnDiam.disabled=!hasSc;
   btnAngle.disabled=!hasImg; btnArea.disabled=!hasSc; btnPerim.disabled=!hasSc; btnZoom.disabled=!hasImg;
@@ -2905,8 +3098,11 @@ function updUI() {
   if (btnRst) btnRst.disabled = !(originalImg && originalImg !== img);
   const btnSnap = document.getElementById('btnSnap');
   if (btnSnap) { btnSnap.disabled = !hasImg; btnSnap.className = snapEnabled ? 'btn-tog-active' : ''; }
+  const btnPtCoord = document.getElementById('btnPtCoord');
+  if (btnPtCoord) { btnPtCoord.disabled=!hasImg; btnPtCoord.className=isPtCoordMode?'btn-meas-active':''; }
   const btnPtSnap = document.getElementById('btnPtSnap');
   if (btnPtSnap) { btnPtSnap.disabled = !hasImg; btnPtSnap.className = ptSnapEnabled ? 'btn-tog-active' : ''; }
+  const btnPtC = document.getElementById('btnPtCoord'); if(btnPtC) btnPtC.disabled=!hasImg;
 
   btnScale.className=isSc?'btn-scale-active':'';
   btnScale.textContent=isSc?L('scale_cancel'):(hasSc?L('scale_reset'):L('scale_set'));
@@ -2915,6 +3111,7 @@ function updUI() {
   btnDiam.className=isDiam?'btn-diam-active':'';
   btnDiam.innerHTML=isDiam?`⌀ ${L('diameter')} ◼`:`⌀ ${L('diameter')} <span class="kbd">D</span>`;
   btnAngle.className=isAngle?'btn-angle-active':'';
+  btnMeasure.className=(isMeas||isPtLine)?'btn-meas-active':'';
   btnAngle.innerHTML=isAngle?`∠ ${L('angle')} ◼`:`∠ ${L('angle')} <span class="kbd">A</span>`;
   btnArea.className=isArea?'btn-area-active':'';
   btnArea.innerHTML=isArea?`⬡ ${L('area')} ◼`:`⬡ ${L('area')} <span class="kbd">R</span>`;
@@ -2961,6 +3158,12 @@ function updUI() {
       valTxt=r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.arcLen)} px`; pxTxt=`${Math.round(m.arcLen)}px`;
     } else if (m.type==='note') {
       icon='✎'; valTxt=m.text;
+    } else if (m.type==='angle4') {
+      icon='∡'; valTxt=`${m.deg.toFixed(1)}°`;
+    } else if (m.type==='ptline') {
+      icon='⊥'; const r=scFactor?m.distPx*scFactor:null; valTxt=r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)} px`; pxTxt=`${Math.round(m.distPx)}px`;
+    } else if (m.type==='ptcoord') {
+      icon='⊙'; const u=m.unit||'px'; valTxt=`X:${m.cx.toFixed(2)} Y:${m.cy.toFixed(2)} ${u}`;
     }
     const d=document.createElement('div');
     d.className='res-item';
@@ -3023,6 +3226,13 @@ function draw() {
       }
     } else if (m.type==='angle') {
       annAngle(m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,hi,dpr,m.lpos||null);
+    } else if (m.type==='angle4') {
+      annAngle4(m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy,m.deg,`∡${i+1}  ${m.deg.toFixed(1)}°`,hi,dpr,m.lpos||null);
+    } else if (m.type==='ptline') {
+      const r=scFactor?m.distPx*scFactor:null;
+      annPtLine(m.lx1,m.ly1,m.lx2,m.ly2,m.px,m.py,m.fx,m.fy,`⊥${i+1}  ${r!==null?r.toFixed(2)+' '+scUnit:Math.round(m.distPx)+'px'}`,hi,dpr,m.lpos||null);
+    } else if (m.type==='ptcoord') {
+      const u=m.unit||'px'; annPtCoord(m.px,m.py,m.ox,m.oy,`⊙${i+1}  X:${m.cx.toFixed(2)} Y:${m.cy.toFixed(2)} ${u}`,hi,dpr,m.lpos||null);
     } else if (m.type==='area') {
       const r=scFactor?m.areaPx*scFactor*scFactor:null;
       annArea(m.pts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,hi,dpr,m.lpos||null,m.cps||null,m.contours||null);
@@ -3058,6 +3268,9 @@ function draw() {
     ctx.beginPath(); ctx.arc(p0.x,p0.y,10/zoom,0,Math.PI*2); ctx.stroke();
     ctx.restore();
   }
+
+  // new modes rubber band
+  drawNewModeRubber();
 
   // snap indicator
   if (snapPt && mp) {
@@ -3245,7 +3458,7 @@ function draw() {
   // magnifier
   const isMobNow = window.innerWidth<=767;
   if (mp) {
-    const am2=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','pa','pp','st'];
+    const am2=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc','pa','pp','st'];
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':mode==='st'?'#9F77DD':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
@@ -3320,6 +3533,114 @@ function annArc(cx,cy,r,a1,a2,sweep,p1,p2,label,hi,dpr=1,lpos=null) {
   if(lpos) drawLeaderLine(lx,ly,cx+Math.cos(amid)*r,cy+Math.sin(amid)*r,col);
   if(label) drawLabel(lx,ly,label,col,dpr);
   ctx.restore();
+}
+
+function annAngle4(ax,ay,bx,by,cx,cy,dx,dy,deg,label,hi,dpr=1,lpos=null) {
+  const col='#D4537E'; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
+  ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(dx,dy); ctx.stroke();
+  // Draw arc at intersection of extended lines
+  // Find intersection
+  const d1x=bx-ax,d1y=by-ay,d2x=dx-cx,d2y=dy-cy;
+  const denom=d1x*d2y-d1y*d2x;
+  ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
+  if (Math.abs(denom)>0.001) {
+    const t=((cx-ax)*d2y-(cy-ay)*d2x)/denom;
+    const ix=ax+t*d1x, iy=ay+t*d1y;
+    const a1=Math.atan2(by-iy,bx-ix), a2=Math.atan2(dy-iy,dx-ix);
+    const arcR=40/zoom;
+    ctx.beginPath(); ctx.arc(ix,iy,arcR,a1,a2); ctx.stroke();
+    ctx.fillStyle=col; ctx.globalAlpha=1; ctx.beginPath(); ctx.arc(ix,iy,3/zoom,0,Math.PI*2); ctx.fill();
+  }
+  ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
+  [[ax,ay],[bx,by],[cx,cy],[dx,dy]].forEach(([px,py])=>{ctx.beginPath();ctx.arc(px,py,4/zoom,0,Math.PI*2);ctx.fill();});
+  const defLx=(ax+bx+cx+dx)/4, defLy=(ay+by+cy+dy)/4-12/zoom;
+  if (label) { const lx=lpos?lpos.x:defLx,ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
+  ctx.restore();
+}
+
+function annPtLine(lx1,ly1,lx2,ly2,px,py,fx,fy,label,hi,dpr=1,lpos=null) {
+  const col='#EF9F27'; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
+  // Reference line
+  ctx.beginPath(); ctx.moveTo(lx1,ly1); ctx.lineTo(lx2,ly2); ctx.stroke();
+  // Perpendicular drop
+  ctx.setLineDash([4/zoom,3/zoom]); ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(fx,fy); ctx.stroke();
+  ctx.setLineDash([]);
+  // Right angle mark at foot
+  const dx=lx2-lx1,dy=ly2-ly1,len=Math.hypot(dx,dy);
+  if (len>0) {
+    const nx=dx/len,ny=dy/len,s=6/zoom;
+    ctx.beginPath(); ctx.moveTo(fx+nx*s,fy+ny*s); ctx.lineTo(fx+nx*s-(py-fy)/len*s,fy+ny*s+(px-fx)/len*s); ctx.lineTo(fx-(py-fy)/len*s,fy+(px-fx)/len*s); ctx.stroke();
+  }
+  ctx.fillStyle=col;
+  [[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,4/zoom,0,Math.PI*2);ctx.fill();});
+  const defLx=(px+fx)/2, defLy=(py+fy)/2-10/zoom;
+  if (label) { const lx=lpos?lpos.x:defLx,ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
+  ctx.restore();
+}
+
+function annPtCoord(px,py,ox,oy,label,hi,dpr=1,lpos=null) {
+  const col='#5DCAA5'; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
+  // Draw axes from origin if set
+  if (ox!==undefined&&oy!==undefined&&(ox!==0||oy!==0)) {
+    ctx.globalAlpha=0.3; ctx.setLineDash([3/zoom,3/zoom]);
+    ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(px,py); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha=1;
+    ctx.fillStyle='#888'; ctx.beginPath(); ctx.arc(ox,oy,4/zoom,0,Math.PI*2); ctx.fill();
+  }
+  // Crosshair at point
+  const s=8/zoom;
+  ctx.globalAlpha=1; ctx.strokeStyle=col;
+  ctx.beginPath(); ctx.moveTo(px-s,py); ctx.lineTo(px+s,py); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px,py-s); ctx.lineTo(px,py+s); ctx.stroke();
+  ctx.fillStyle=col; ctx.beginPath(); ctx.arc(px,py,3/zoom,0,Math.PI*2); ctx.fill();
+  const defLx=px+12/zoom, defLy=py-8/zoom;
+  if (label) { const lx=lpos?lpos.x:defLx,ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
+  ctx.restore();
+}
+
+// Rubber-band for new modes
+function drawNewModeRubber() {
+  if (!mp) return;
+  if (mode==='p4a'&&p0) rubberLine(p0,mp,'#D4537E','');
+  if (mode==='p4b'&&p0) { rubberLine(p0,mp,'#D4537E',''); }
+  if (mode==='p4c'&&p0&&p1) {
+    ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.6;
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
+    ctx.restore();
+    rubberLine(mp,mp,'#D4537E','');
+  }
+  if (mode==='p4d'&&window._p4p2) {
+    const p2=window._p4p2;
+    if (p0&&p1){ctx.save();ctx.strokeStyle='#D4537E';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.6;ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();ctx.restore();}
+    const dAx=p1?p1.x-p0.x:0,dAy=p1?p1.y-p0.y:0,dBx=mp.x-p2.x,dBy=mp.y-p2.y;
+    let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
+    if(ang>90) ang=180-ang;
+    rubberLine(p2,mp,'#D4537E',`∡ ${ang.toFixed(1)}°`);
+  }
+  if (mode==='pl1'&&p0) rubberLine(p0,mp,'#EF9F27','');
+  if (mode==='pl2'&&p0) rubberLine(p0,mp,'#EF9F27','');
+  if (mode==='pl3'&&p0&&p1) {
+    const dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
+    ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.7;
+    ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
+    if(len>0){
+      const distPx=Math.abs(dy*mp.x-dx*mp.y+p1.x*p0.y-p1.y*p0.x)/len;
+      const t2=((mp.x-p0.x)*dx+(mp.y-p0.y)*dy)/(len*len);
+      const fx=p0.x+t2*dx,fy=p0.y+t2*dy;
+      ctx.setLineDash([4/zoom,3/zoom]);ctx.beginPath();ctx.moveTo(mp.x,mp.y);ctx.lineTo(fx,fy);ctx.stroke();ctx.setLineDash([]);
+      const r=scFactor?distPx*scFactor:null;
+      ctx.restore();
+      rubberLine(mp,{x:fx,y:fy},'#EF9F27',r?`${r.toFixed(2)} ${scUnit}`:`${Math.round(distPx)}px`);
+    } else ctx.restore();
+  }
+  if (mode==='ptc'&&ptCoordMode==='point') {
+    // show crosshair at cursor
+    const s=8/zoom; ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.8;
+    ctx.beginPath();ctx.moveTo(mp.x-s,mp.y);ctx.lineTo(mp.x+s,mp.y);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(mp.x,mp.y-s);ctx.lineTo(mp.x,mp.y+s);ctx.stroke();
+    ctx.restore();
+  }
 }
 
 function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1,lpos=null) {
@@ -3913,6 +4234,104 @@ document.getElementById('mFileInput').onchange = e => {
 function toggleMobileSheet() {}
 
 // update mobile UI
+/* ── Mobile two-level toolbar ── */
+let _mActiveSubTool = {};
+
+const M_SUB_DEFS = {
+  dist: [
+    {label:'↔ Point-point', fn:()=>setDistMode('pp'), key:'pp', col:'#EF9F27'},
+    {label:'⊕ Center-edge', fn:()=>setDistMode('ce'), key:'ce', col:'#EF9F27'},
+    {label:'⊥ Pt to line',  fn:()=>setDistMode('pl'), key:'pl', col:'#EF9F27'},
+  ],
+  diam: [
+    {label:'⊙ Ctr+radius',  fn:()=>setDiamMode('cr'),  key:'cr',  col:'#5DCAA5'},
+    {label:'◉ 3 points',    fn:()=>setDiamMode('3p'),  key:'3p',  col:'#5DCAA5'},
+  ],
+  angle: [
+    {label:'∠ 3 pts (vertex)', fn:()=>setAngleMode('3p'), key:'3p', col:'#D4537E'},
+    {label:'∡ 4 pts (2 lines)',fn:()=>setAngleMode('4p'), key:'4p', col:'#D4537E'},
+  ],
+  area: [
+    {label:'— Straight',  fn:()=>setSegMode('area','straight'), key:'straight', col:'#9F77DD'},
+    {label:'⌒ Bezier',   fn:()=>setSegMode('area','bezier'),   key:'bezier',   col:'#9F77DD'},
+    {label:'⬡ Wand',     fn:()=>setSegMode('area','wand'),     key:'wand',     col:'#9F77DD'},
+  ],
+  perim: [
+    {label:'— Straight',  fn:()=>setSegMode('perim','straight'), key:'straight', col:'#F0994A'},
+    {label:'⌒ Bezier',   fn:()=>setSegMode('perim','bezier'),   key:'bezier',   col:'#F0994A'},
+    {label:'⬡ Wand',     fn:()=>setSegMode('perim','wand'),     key:'wand',     col:'#F0994A'},
+  ],
+  ptc: [
+    {label:'✚ Set origin', fn:()=>setPtCoordMode('origin'), key:'origin', col:'#5DCAA5'},
+    {label:'⊙ Place point',fn:()=>setPtCoordMode('point'),  key:'point',  col:'#5DCAA5'},
+  ],
+};
+
+function mToolTap(tool) {
+  // If already active and no sub-tools, just stop
+  const fnMap = {dist:doMeasure, diam:doDiam, angle:doAngle, area:doArea, perim:doPerim, ptc:doPtCoord};
+  // Show sub row
+  const subRow = document.getElementById('mobileSubRow');
+  const subScroll = document.getElementById('mobileSubScroll');
+  const defs = M_SUB_DEFS[tool];
+  if (!defs) { fnMap[tool]?.(); return; }
+  // Toggle off if same tool already showing sub row
+  if (subRow.style.display !== 'none' && subRow.dataset.tool === tool) {
+    fnMap[tool]?.(); // toggle off
+    subRow.style.display='none'; subRow.dataset.tool='';
+    return;
+  }
+  // Activate the tool with last sub-mode
+  fnMap[tool]?.();
+  // Build sub row
+  subRow.dataset.tool = tool;
+  subScroll.innerHTML='';
+  const lastKey = _mActiveSubTool[tool];
+  defs.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'm-sub' + (d.key===lastKey?' active':'');
+    if (d.key===lastKey) btn.style.background=d.col+'22', btn.style.color=d.col;
+    btn.textContent = d.label;
+    btn.onclick = () => {
+      _mActiveSubTool[tool] = d.key;
+      d.fn();
+      // Update active state
+      subScroll.querySelectorAll('.m-sub').forEach(b=>{ b.classList.remove('active'); b.style.background='#2a2a2a'; b.style.color='#888'; });
+      btn.classList.add('active'); btn.style.background=d.col+'22'; btn.style.color=d.col;
+    };
+    subScroll.appendChild(btn);
+  });
+  subRow.style.display='flex';
+}
+
+function toggleMobileSettings() {
+  const ms = document.getElementById('mobileSettings');
+  const btn = document.getElementById('mBtnSettings');
+  const show = ms.style.display === 'none' || ms.style.display === '';
+  ms.style.display = show ? 'flex' : 'none';
+  if (btn) btn.classList.toggle('active', show);
+  if (show) updMobileSettings();
+}
+
+function updMobileSettings() {
+  const hasImg = !!img;
+  const pairs = [
+    ['mBtnZoom',    zoomEnabled],
+    ['mBtnMag',     magEnabled],
+    ['mBtnSnap2',   snapEnabled],
+    ['mBtnPtSnap2', ptSnapEnabled],
+  ];
+  pairs.forEach(([id, active]) => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.disabled = !hasImg;
+    b.classList.toggle('msett-active', active && hasImg);
+  });
+  ['mExpPng','mExpJpg','mExpWebp','mExpCsv','mExpPdf','mExpSave'].forEach(id => {
+    const b = document.getElementById(id); if(b) b.disabled=!hasImg;
+  });
+}
+
 function updMobile() {
   if (!isMob()) return;
   const hasImg = !!img, hasSc = !!scFactor;
@@ -3920,9 +4339,10 @@ function updMobile() {
   const iconMap = {line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠'};
 
   // sync mobile tool buttons
-  const ids = ['mBtnScale','mBtnMeasure','mBtnDiam','mBtnAngle','mBtnArea','mBtnPerim'];
-  const dis  = [!hasImg,    !hasSc,       !hasSc,    !hasImg,    !hasSc,    !hasSc];
+  const ids = ['mBtnScale','mBtnMeasure','mBtnDiam','mBtnAngle','mBtnArea','mBtnPerim','mBtnNote','mBtnPtCoord'];
+  const dis  = [!hasImg,    !hasSc,       !hasSc,    !hasImg,    !hasSc,    !hasSc,    !hasImg,   !hasImg];
   ids.forEach((id,i) => { const b=document.getElementById(id); if(b) b.disabled=dis[i]; });
+  updMobileSettings();
 
   // pulse Scale button when image loaded but no scale yet
   const scBtn = document.getElementById('mBtnScale');
