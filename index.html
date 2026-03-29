@@ -2768,10 +2768,7 @@ function _drawWandPreview(mask, simplified) {
   const oc = ov.getContext('2d');
   oc.clearRect(0,0,ov.width,ov.height);
 
-  // Draw filled mask as magenta overlay in world space
-  oc.save();
-  oc.scale(dpr, dpr);
-  // Map world→canvas
+  // Draw in world coords: image px → canvas CSS px → overlay buffer px
   oc.setTransform(zoom*dpr, 0, 0, zoom*dpr, panX*dpr, panY*dpr);
 
   // Draw mask pixels via small temporary canvas
@@ -2790,6 +2787,7 @@ function _drawWandPreview(mask, simplified) {
   mctx.putImageData(id, 0, 0);
   oc.drawImage(mc, 0, 0);
 
+  oc.save();
   // Draw contour outlines
   if (simplified && simplified.length) {
     oc.strokeStyle = '#9F77DD';
@@ -2809,7 +2807,7 @@ function _drawWandPreview(mask, simplified) {
 }
 
 function _recomputeWandPreview() {
-  if (!_wandState || !img) return;
+  if (!_wandState || !img || !_wandImgData) return;
   const { sx, sy } = _wandState;
   const threshold = getWandThreshold();
   const mask = floodFill(_wandImgData, sx, sy, threshold);
@@ -2877,7 +2875,7 @@ function confirmWand() {
   }
   _wandState = null;
   _clearWandOverlay();
-  _setWandHint('Click image to select', false);
+  _setWandHint('Click again to select another area', false);
   draw(); updUI();
   showToast(`${simplified.length} contour${simplified.length>1?'s':''} created`);
 }
