@@ -2934,6 +2934,94 @@ function getWandThreshold() {
   return parseInt(document.getElementById('wandThreshold').value) || 30;
 }
 
+/* ── Flood fill (scanline, squared threshold, typed stack) ── */
+function floodFill(imageData, sx, sy, threshold) {
+  const {data, width, height} = imageData;
+  const si=(sy*width+sx)*4;
+  const sr=data[si], sg=data[si+1], sb=data[si+2];
+  const thr2 = threshold*threshold;
+  const mask = new Uint8Array(width*height);
+  const stack = new Int32Array(width*height*2);
+  let sp=0;
+  stack[sp++]=sx; stack[sp++]=sy;
+  mask[sy*width+sx]=1;
+  while (sp>0) {
+    const y=stack[--sp], x=stack[--sp];
+    let x1=x, x2=x;
+    while (x1>0) { const i=(y*width+(x1-1))*4; const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb; if(dr*dr+dg*dg+db*db<=thr2&&!mask[y*width+(x1-1)])x1--; else break; }
+    while (x2<width-1) { const i=(y*width+(x2+1))*4; const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb; if(dr*dr+dg*dg+db*db<=thr2&&!mask[y*width+(x2+1)])x2++; else break; }
+    for (let xi=x1;xi<=x2;xi++) mask[y*width+xi]=1;
+    for (let xi=x1;xi<=x2;xi++) {
+      if (y>0&&!mask[(y-1)*width+xi]) { const i=((y-1)*width+xi)*4; const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb; if(dr*dr+dg*dg+db*db<=thr2){stack[sp++]=xi;stack[sp++]=y-1;mask[(y-1)*width+xi]=1;} }
+      if (y<height-1&&!mask[(y+1)*width+xi]) { const i=((y+1)*width+xi)*4; const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb; if(dr*dr+dg*dg+db*db<=thr2){stack[sp++]=xi;stack[sp++]=y+1;mask[(y+1)*width+xi]=1;} }
+    }
+  }
+  return mask;
+}
+
+/* ── Marching Squares contour extraction ── */
+function marchingSquaresContours(mask, width, height) {
+  function pf(x,y) { return (x>=0&&x<width&&y>=0&&y<height) ? (mask[y*width+x]?1:0) : 0; }
+  const MS=[[],[[2,3]],[[1,2]],[[1,3]],[[0,1]],[[0,2],[1,3]],[[0,2]],[[0,3]],[[3,0]],[[2,0]],[[3,1],[0,2]],[[2,1]],[[3,1]],[[2,1]],[[3,0]],[]];
+  const segments=[];
+  for (let cy=0;cy<height;cy++) for (let cx=0;cx<width;cx++) {
+    const tl=pf(cx,cy),tr=pf(cx+1,cy),br=pf(cx+1,cy+1),bl=pf(cx,cy+1);
+    const idx=(tl<<3)|(tr<<2)|(br<<1)|bl;
+    if(idx===0||idx===15) continue;
+    const top={x:cx+1.0,y:cy+0.5},right={x:cx+1.5,y:cy+1.0},bottom={x:cx+1.0,y:cy+1.5},left={x:cx+0.5,y:cy+1.0};
+    const pts=[top,right,bottom,left];
+    let cases=MS[idx];
+    if(idx===5||idx===10){ const center=(tl+tr+br+bl)/4; cases=idx===5?(center>=0.5?[[0,3],[1,2]]:[[0,1],[2,3]]):(center>=0.5?[[0,1],[2,3]]:[[0,3],[1,2]]); }
+    for(const[e1,e2] of cases) segments.push({x1:pts[e1].x,y1:pts[e1].y,x2:pts[e2].x,y2:pts[e2].y});
+  }
+  if(!segments.length) return [];
+  const KEY=(x,y)=>`${Math.round(x*2)}_${Math.round(y*2)}`;
+  const adj=new Map();
+  segments.forEach((s,i)=>{
+    const k1=KEY(s.x1,s.y1),k2=KEY(s.x2,s.y2);
+    if(!adj.has(k1))adj.set(k1,[]); if(!adj.has(k2))adj.set(k2,[]);
+    adj.get(k1).push({x:s.x2,y:s.y2,i}); adj.get(k2).push({x:s.x1,y:s.y1,i});
+  });
+  const usedSeg=new Uint8Array(segments.length);
+  const contours=[];
+  for(let si=0;si<segments.length;si++){
+    if(usedSeg[si]) continue;
+    usedSeg[si]=1;
+    const contour=[{x:segments[si].x1,y:segments[si].y1}];
+    let cx=segments[si].x2,cy=segments[si].y2;
+    const sx2=segments[si].x1,sy2=segments[si].y1;
+    let steps=0;
+    while(steps++<segments.length*2){
+      contour.push({x:cx,y:cy});
+      const nexts=adj.get(KEY(cx,cy))||[];
+      let found=false;
+      for(const n of nexts){ if(!usedSeg[n.i]){usedSeg[n.i]=1;cx=n.x;cy=n.y;found=true;break;} }
+      if(!found||( Math.abs(cx-sx2)<0.1&&Math.abs(cy-sy2)<0.1)) break;
+    }
+    if(contour.length>=4) contours.push(contour);
+  }
+  return contours;
+}
+
+/* ── RDP simplification ── */
+function rdp(pts, eps) {
+  if(pts.length<=2) return pts;
+  let maxD=0,maxI=0;
+  const p1=pts[0],p2=pts[pts.length-1];
+  const dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.hypot(dx,dy);
+  for(let i=1;i<pts.length-1;i++){
+    const d=len>0?Math.abs(dy*pts[i].x-dx*pts[i].y+p2.x*p1.y-p2.y*p1.x)/len:Math.hypot(pts[i].x-p1.x,pts[i].y-p1.y);
+    if(d>maxD){maxD=d;maxI=i;}
+  }
+  if(maxD>eps){ const l=rdp(pts.slice(0,maxI+1),eps),r=rdp(pts.slice(maxI),eps); return[...l.slice(0,-1),...r]; }
+  return[pts[0],pts[pts.length-1]];
+}
+
+/* ── Contour signed area ── */
+function contourArea(pts) {
+  let a=0; for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;a+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;} return a/2;
+}
+
 function _setWandHint(txt, showConfirm) {
   const h = document.getElementById('wandHint');
   const b = document.getElementById('wandConfirmBtn');
