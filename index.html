@@ -3091,14 +3091,51 @@ function drawWandOnCtx() {
   }
 }
 
+
+/* ── Morphological operations for mask smoothing ── */
+function morphErode(mask, width, height, r) {
+  const out = new Uint8Array(width*height);
+  for (let y=r; y<height-r; y++) for (let x=r; x<width-r; x++) {
+    let ok=1;
+    for (let dy=-r; dy<=r && ok; dy++) for (let dx=-r; dx<=r && ok; dx++)
+      if (!mask[(y+dy)*width+(x+dx)]) ok=0;
+    out[y*width+x]=ok;
+  }
+  return out;
+}
+function morphDilate(mask, width, height, r) {
+  const out = new Uint8Array(width*height);
+  for (let y=r; y<height-r; y++) for (let x=r; x<width-r; x++) {
+    let ok=0;
+    for (let dy=-r; dy<=r && !ok; dy++) for (let dx=-r; dx<=r && !ok; dx++)
+      if (mask[(y+dy)*width+(x+dx)]) ok=1;
+    out[y*width+x]=ok;
+  }
+  return out;
+}
+// Opening = erode then dilate (removes small protrusions/noise without shrinking much)
+function morphOpen(mask, width, height, r) {
+  return morphDilate(morphErode(mask, width, height, r), width, height, r);
+}
+
 function _recomputeWandPreview() {
   if (!_wandState || !img || !_wandImgData) return;
   const { sx, sy } = _wandState;
   const threshold = getWandThreshold();
-  const mask = floodFill(_wandImgData, sx, sy, threshold);
+  const rawMask = floodFill(_wandImgData, sx, sy, threshold);
+  // Morphological closing then opening: fills holes, removes noise speckles
+  const r = Math.max(2, Math.round(Math.min(img.width, img.height) * 0.003));
+  const closedMask = morphDilate(morphErode(rawMask, img.width, img.height, r), img.width, img.height, r); // close
+  const mask = morphDilate(morphErode(closedMask, img.width, img.height, r), img.width, img.height, r);   // open
   const rawContours = marchingSquaresContours(mask, img.width, img.height);
-  const eps = Math.max(1, Math.min(img.width, img.height) * 0.002);
-  const simplified = rawContours.map(c => rdp(c, eps)).filter(c => c.length >= 3);
+  const eps = Math.max(2, Math.min(img.width, img.height) * 0.004);
+  let simplified = rawContours.map(c => rdp(c, eps)).filter(c => c.length >= 3);
+  // Keep only contours with area >= 2% of the largest — drop noise patches
+  if (simplified.length > 1) {
+    const areas = simplified.map(pts => Math.abs(contourArea(pts)));
+    const maxArea = Math.max(...areas);
+    simplified = simplified.filter((_,i) => areas[i] >= maxArea * 0.02);
+  }
   _wandState.mask = mask;
   _wandState.simplified = simplified;
   _drawWandPreview(mask, simplified);
@@ -3141,34 +3178,37 @@ function confirmWand() {
   const isBez = (mode==='pa') ? segMode.area==='bezier' : segMode.perim==='bezier';
   const isArea = mode==='pa';
   pushHistory();
-  if (isArea && simplified.length > 1) {
+
+  if (isArea) {
+    // Always produce a single measurement, multi-contour with evenodd for holes
     simplified.sort((a,b) => Math.abs(contourArea(b)) - Math.abs(contourArea(a)));
-    const contours = simplified.map(pts => {
-      const cps = isBez ? naturalSpline(pts, true) : null;
-      return {pts, cps};
-    });
+    const contours = simplified.map(pts => ({
+      pts,
+      cps: isBez ? naturalSpline(pts, true) : null
+    }));
     let totalArea = 0;
     contours.forEach((c,i) => {
       const a = c.cps ? bezierPolyArea(c.pts,c.cps) : polyArea(c.pts);
       totalArea += (i===0) ? a : -a;
     });
-    meas.push({ type:'area', pts:contours[0].pts, areaPx:Math.abs(totalArea), cps:contours[0].cps, contours });
+    if (contours.length === 1) {
+      meas.push({ type:'area', pts:contours[0].pts, areaPx:Math.abs(totalArea), cps:contours[0].cps });
+    } else {
+      meas.push({ type:'area', pts:contours[0].pts, areaPx:Math.abs(totalArea), cps:contours[0].cps, contours });
+    }
   } else {
+    // Path: one measurement per contour (makes more sense for perimeter)
     simplified.forEach(pts => {
       const cps = isBez ? naturalSpline(pts, true) : null;
-      if (isArea) {
-        const areaPx = cps ? bezierPolyArea(pts,cps) : polyArea(pts);
-        meas.push({type:'area', pts, areaPx, cps});
-      } else {
-        const perimPx = cps ? bezierPolyPerim(pts,cps,false) : polyPerim(pts);
-        meas.push({type:'perim', pts, perimPx, open:false, cps});
-      }
+      const perimPx = cps ? bezierPolyPerim(pts,cps,false) : polyPerim(pts);
+      meas.push({type:'perim', pts, perimPx, open:false, cps});
     });
   }
+
   _wandState = null;
-  _clearWandOverlay();
-  stopTool();
-  showToast(`${simplified.length} contour${simplified.length>1?'s':''} created`);
+  _wandMaskCanvas = null;
+  stopTool(); // closes sub-panels and wand bar via closeSubPanels
+  showToast(`Area created from ${simplified.length} contour${simplified.length>1?'s':''}`);
 }
 
 
