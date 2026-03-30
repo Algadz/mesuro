@@ -3030,33 +3030,20 @@ function _setWandHint(txt, showConfirm) {
 }
 
 function _clearWandOverlay() {
+  _wandMaskCanvas = null;
   const ov = document.getElementById('wandOverlay');
-  if (!ov) return;
-  const oc = ov.getContext('2d');
-  oc.clearRect(0,0,ov.width,ov.height);
+  if (ov) { const oc=ov.getContext('2d'); oc.clearRect(0,0,ov.width,ov.height); }
+  draw();
 }
 
-function _drawWandPreview(mask, simplified) {
-  const ov = document.getElementById('wandOverlay');
-  if (!ov || !img) return;
-  // Size overlay to match canvas
-  const caRc = ca.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  ov.width  = caRc.width  * dpr;
-  ov.height = caRc.height * dpr;
-  ov.style.width  = caRc.width  + 'px';
-  ov.style.height = caRc.height + 'px';
-  const oc = ov.getContext('2d');
-  oc.clearRect(0,0,ov.width,ov.height);
+// Cached mask canvas for wand preview — rebuilt when mask changes
+let _wandMaskCanvas = null;
 
-  // Draw in world coords: image px → canvas CSS px → overlay buffer px
-  oc.setTransform(zoom*dpr, 0, 0, zoom*dpr, panX*dpr, panY*dpr);
-
-  // Draw mask pixels via small temporary canvas
+function _buildWandMaskCanvas(mask, width, height) {
   const mc = document.createElement('canvas');
-  mc.width = img.width; mc.height = img.height;
+  mc.width = width; mc.height = height;
   const mctx = mc.getContext('2d');
-  const id = mctx.createImageData(img.width, img.height);
+  const id = mctx.createImageData(width, height);
   for (let i=0; i<mask.length; i++) {
     if (mask[i]) {
       id.data[i*4]   = 159;
@@ -3066,25 +3053,42 @@ function _drawWandPreview(mask, simplified) {
     }
   }
   mctx.putImageData(id, 0, 0);
-  oc.drawImage(mc, 0, 0);
+  return mc;
+}
 
-  oc.save();
-  // Draw contour outlines
+function _drawWandPreview(mask, simplified) {
+  // Just cache the mask canvas; actual drawing happens in draw() via drawWandOnCtx()
+  if (mask && img) _wandMaskCanvas = _buildWandMaskCanvas(mask, img.width, img.height);
+  else _wandMaskCanvas = null;
+}
+
+// Called from draw() in world-transform context — always in sync with zoom/pan
+function drawWandOnCtx() {
+  if (!_wandState || !img) return;
+  if (_wandMaskCanvas) {
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.drawImage(_wandMaskCanvas, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+  const simplified = _wandState.simplified;
   if (simplified && simplified.length) {
-    oc.strokeStyle = '#9F77DD';
-    oc.lineWidth = 1.5 / zoom;
-    oc.setLineDash([4/zoom, 3/zoom]);
+    ctx.save();
+    ctx.strokeStyle = '#9F77DD';
+    ctx.lineWidth = 1.5 / zoom;
+    ctx.setLineDash([4/zoom, 3/zoom]);
     simplified.forEach(pts => {
       if (pts.length < 2) return;
-      oc.beginPath();
-      oc.moveTo(pts[0].x, pts[0].y);
-      pts.forEach((p,i) => { if(i>0) oc.lineTo(p.x,p.y); });
-      oc.closePath();
-      oc.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      pts.forEach((p,i) => { if(i>0) ctx.lineTo(p.x, p.y); });
+      ctx.closePath();
+      ctx.stroke();
     });
-    oc.setLineDash([]);
+    ctx.setLineDash([]);
+    ctx.restore();
   }
-  oc.restore();
 }
 
 function _recomputeWandPreview() {
@@ -4166,7 +4170,7 @@ function loadImgFromImage(imgEl) {
   img = imgEl;
   originalImg = imgEl;
   edgeMap = null; edgeGx = null; edgeGy = null; edgeBlurred = null; snapPt = null;
-  _wandImgData = null; _wandImg = null; _wandState=null; _clearWandOverlay();
+  _wandImgData = null; _wandImg = null; _wandState=null; _wandMaskCanvas=null;
   scLine = null; scPx = null; scFactor = null;
   meas = []; areaPts = []; stPts = []; p0 = null; p1 = null; mode = 'idle';
   const ad = document.getElementById('adUnit');
