@@ -3036,56 +3036,63 @@ function _clearWandOverlay() {
   draw();
 }
 
-// Cached mask canvas for wand preview — rebuilt when mask changes
-let _wandMaskCanvas = null;
-
-function _buildWandMaskCanvas(mask, width, height) {
-  const mc = document.createElement('canvas');
-  mc.width = width; mc.height = height;
-  const mctx = mc.getContext('2d');
-  const id = mctx.createImageData(width, height);
-  for (let i=0; i<mask.length; i++) {
-    if (mask[i]) {
-      id.data[i*4]   = 159;
-      id.data[i*4+1] = 119;
-      id.data[i*4+2] = 221;
-      id.data[i*4+3] = 140;
-    }
-  }
-  mctx.putImageData(id, 0, 0);
-  return mc;
-}
-
 function _drawWandPreview(mask, simplified) {
-  // Just cache the mask canvas; actual drawing happens in draw() via drawWandOnCtx()
-  if (mask && img) _wandMaskCanvas = _buildWandMaskCanvas(mask, img.width, img.height);
-  else _wandMaskCanvas = null;
+  _wandMaskCanvas = null; // force rebuild in drawWandOnCtx
 }
 
 // Called from draw() in world-transform context — always in sync with zoom/pan
 function drawWandOnCtx() {
   if (!_wandState || !img) return;
-  if (_wandMaskCanvas) {
+  const { mask, simplified } = _wandState;
+
+  // Draw fill overlay directly from mask — no caching, always current
+  if (mask) {
+    // Build mask imagedata
+    if (!_wandMaskCanvas || _wandMaskCanvas._forMask !== mask) {
+      const mc = document.createElement('canvas');
+      mc.width = img.width; mc.height = img.height;
+      const mctx = mc.getContext('2d');
+      const id = mctx.createImageData(img.width, img.height);
+      for (let i = 0; i < mask.length; i++) {
+        if (mask[i]) {
+          id.data[i*4]   = 159;
+          id.data[i*4+1] = 119;
+          id.data[i*4+2] = 221;
+          id.data[i*4+3] = 130;
+        }
+      }
+      mctx.putImageData(id, 0, 0);
+      mc._forMask = mask;
+      _wandMaskCanvas = mc;
+    }
     ctx.save();
-    ctx.globalAlpha = 0.55;
-    ctx.drawImage(_wandMaskCanvas, 0, 0);
     ctx.globalAlpha = 1;
+    ctx.drawImage(_wandMaskCanvas, 0, 0);
     ctx.restore();
   }
-  const simplified = _wandState.simplified;
+
+  // Draw only the OUTER contour (largest by area) as marching ants
+  // Skip island holes — they look "selected" if outlined
   if (simplified && simplified.length) {
+    // Find outer contour = largest absolute area (not point count — RDP reduces large shapes more)
+    let outer = simplified[0];
+    let outerArea = Math.abs(contourArea(simplified[0]));
+    for (const c of simplified) {
+      const a = Math.abs(contourArea(c));
+      if (a > outerArea) { outerArea = a; outer = c; }
+    }
     ctx.save();
-    ctx.strokeStyle = '#9F77DD';
+    ctx.strokeStyle = '#fff';
     ctx.lineWidth = 1.5 / zoom;
     ctx.setLineDash([4/zoom, 3/zoom]);
-    simplified.forEach(pts => {
-      if (pts.length < 2) return;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      pts.forEach((p,i) => { if(i>0) ctx.lineTo(p.x, p.y); });
-      ctx.closePath();
-      ctx.stroke();
-    });
+    ctx.beginPath();
+    ctx.moveTo(outer[0].x, outer[0].y);
+    for (let i = 1; i < outer.length; i++) ctx.lineTo(outer[i].x, outer[i].y);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.strokeStyle = '#9F77DD';
+    ctx.lineDashOffset = 4/zoom;
+    ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
   }
