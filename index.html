@@ -3102,6 +3102,7 @@ function _recomputeWandPreview() {
   _wandState.mask = mask;
   _wandState.simplified = simplified;
   _drawWandPreview(mask, simplified);
+  draw();
   if (simplified.length) {
     _setWandHint(`${simplified.length} contour${simplified.length>1?'s':''} — Enter or ✓ to confirm`, true);
   } else {
@@ -3292,6 +3293,7 @@ function draw() {
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
   ctx.drawImage(img,0,0,img.width,img.height);
+  drawWandOnCtx();
 
   if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false,dpr);
   if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
