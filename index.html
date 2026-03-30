@@ -2219,8 +2219,6 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undoLast(); return; }
   if (e.key==='Escape') {
     closeSubPanels();
-    const _wb=document.getElementById('wandBar'); if(_wb) _wb.style.display='none';
-    _wandState=null; _clearWandOverlay();
     if (mode==='sa'||mode==='sb'||mode==='wait') cancelScale();
     else if (mode==='pp' && areaPts.length>=2) { saveOpenPath(); }
     else if (mode!=='idle') { areaCps=[]; mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; clearHint(); draw(); updUI(); }
@@ -2246,9 +2244,9 @@ function stopTool() {
   mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; areaCps=[]; stPts=[]; clearHint(); closeSubPanels(); updStraightenUI(); draw(); updUI();
 }
 function closeSubPanels() {
-  const ids = ['subDist','subDiam','subArea','subPerim'];
-  // wandBar closed separately on tool change / Escape
+  const ids = ['subDist','subDiam','subArea','subPerim','subAngle','subPtCoord','wandBar'];
   ids.forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+  if (typeof _wandState !== 'undefined' && _wandState) { _wandState=null; _wandMaskCanvas=null; }
 }
 function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint(L('h_scale_a')); updUI(); }
 function doScaleReset() {
@@ -3186,6 +3184,7 @@ function confirmWand() {
   const isArea = mode==='pa';
   pushHistory();
 
+  console.log('[wand confirm] simplified contours:', simplified.length, simplified.map(s=>s.length));
   if (isArea) {
     // Always produce a single measurement, multi-contour with evenodd for holes
     simplified.sort((a,b) => Math.abs(contourArea(b)) - Math.abs(contourArea(a)));
@@ -3214,7 +3213,8 @@ function confirmWand() {
 
   _wandState = null;
   _wandMaskCanvas = null;
-  stopTool(); // closes sub-panels and wand bar via closeSubPanels
+  draw(); // draw confirmed measurement immediately
+  stopTool(); // closes sub-panels and wand bar
   showToast(`Area created from ${simplified.length} contour${simplified.length>1?'s':''}`);
 }
 
@@ -3808,7 +3808,7 @@ function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1,lpos=null) {
 
 function annArea(pts,label,hi,dpr=1,lpos=null,cps=null,contours=null) {
   const col='#9F77DD'; ctx.save();
-  ctx.fillStyle='rgba(159,119,221,.1)'; ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
+  ctx.fillStyle='rgba(159,119,221,.18)'; ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
   ctx.beginPath();
   if (contours && contours.length > 1) {
     // Multi-contour: use evenodd fill rule for holes
