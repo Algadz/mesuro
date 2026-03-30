@@ -447,7 +447,7 @@
     <div style="margin-top:-6px">
       <div class="slbl" data-i18n="SCALE">SCALE</div>
       <div class="btn-row">
-        <div id="scaleStatus" style="flex:1;margin-bottom:0" data-i18n="not_set">Not set</div>
+        <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
         <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
       </div>
     </div>
@@ -484,7 +484,6 @@
         <div id="subArea" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #9F77DD">
           <button id="btnAreaStr" onclick="setSegMode('area','straight')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#9F77DD;cursor:pointer">— Straight segments</button>
           <button id="btnAreaBez" onclick="setSegMode('area','bezier')"   style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⌒ Bezier segments</button>
-          <button id="btnAreaWand" onclick="setSegMode('area','wand')"   style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⬡ Magic wand</button>
         </div>
         <div class="btn-row">
           <button id="btnPerim" onclick="doPerim()" disabled style="flex:1;font-size:11px"><svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>Path <span class="kbd">P</span></button>
@@ -508,11 +507,11 @@
 
     <div>
       <div class="slbl" data-i18n="VIEW">VIEW</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button id="btnZoom"     onclick="toggleZoom()"      disabled style="flex:1;font-size:11px;white-space:nowrap">⊕ Pan &amp; zoom</button>
-        <button id="btnMag"      onclick="toggleMag()"       disabled style="flex:1;font-size:11px;white-space:nowrap">◎ Zoom cursor</button>
-        <button id="btnSnap"     onclick="toggleSnap()"      disabled style="flex:1;font-size:11px;white-space:nowrap" title="Detect edges for snapping">⌖ Edge detect</button>
-        <button id="btnPtSnap"   onclick="togglePtSnap()"    disabled style="flex:1;font-size:11px;white-space:nowrap" title="Snap to existing measurement points">◎ Snap point</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button id="btnZoom"   onclick="toggleZoom()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">⊕ Pan &amp; zoom</button>
+        <button id="btnMag"    onclick="toggleMag()"    disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">◎ Zoom cursor</button>
+        <button id="btnSnap"   onclick="toggleSnap()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Detect edges for snapping">⌖ Edge detect</button>
+        <button id="btnPtSnap" onclick="togglePtSnap()" disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Snap to existing measurement points">◎ Snap point</button>
       </div>
     </div>
 
@@ -1044,7 +1043,7 @@ var LANGS = {
     send:'Envoyer', thanks_feedback:'Merci pour votre retour !',
     pdf_pages_lbl:'pages — choisissez laquelle mesurer',
     load_page:'Charger cette page',
-    pan_zoom:'⊕ Déplacer & zoomer', zoom_cursor:'◎ Curseur zoom', dist_pp:'↔ Point à point', dist_ce:'⊕ Centre vers bord', diam_cr:'⊙ Centre + rayon', diam_3p:'◉ 3 points sur le périmètre', diam_arc:'⌒ Longueur d\'arc', edge_snap:'⌖ Détect. bords', pt_snap:'◎ Snap point',
+    pan_zoom:'⊕ Déplacer & zoom', zoom_cursor:'◎ Curseur zoom', dist_pp:'↔ Point à point', dist_ce:'⊕ Centre vers bord', diam_cr:'⊙ Centre + rayon', diam_3p:'◉ 3 points sur le périmètre', diam_arc:'⌒ Longueur d\'arc', edge_snap:'⌖ Détect. bords', pt_snap:'◎ Snap point',
     distance:'Distance', diameter:'Diamètre', angle:'Angle', area:'Aire', path:'Tracé', note:'Note',
     meas_deleted:'Mesure supprimée', img_rotated:'Image tournée',
     img_restored:'Image originale restaurée', corners_close:'Coins trop proches — réessayez',
@@ -1159,7 +1158,7 @@ var LANGS = {
     send:'Senden', thanks_feedback:'Danke für Ihr Feedback!',
     pdf_pages_lbl:'Seiten — wählen Sie eine zum Messen',
     load_page:'Diese Seite laden',
-    pan_zoom:'⊕ Verschieben & Zoom', zoom_cursor:'◎ Zoom-Cursor', dist_pp:'↔ Punkt zu Punkt', dist_ce:'⊕ Mitte zu Kante', diam_cr:'⊙ Mitte + Radius', diam_3p:'◉ 3 Punkte auf Umfang', diam_arc:'⌒ Bogenlänge', edge_snap:'⌖ Kanten-Detect', pt_snap:'◎ Snap point',
+    pan_zoom:'⊕ Verschieb. & Zoom', zoom_cursor:'◎ Zoom-Cursor', dist_pp:'↔ Punkt zu Punkt', dist_ce:'⊕ Mitte zu Kante', diam_cr:'⊙ Mitte + Radius', diam_3p:'◉ 3 Punkte auf Umfang', diam_arc:'⌒ Bogenlänge', edge_snap:'⌖ Kanten-Detect', pt_snap:'◎ Snap point',
     distance:'Distanz', diameter:'Durchmesser', angle:'Winkel', area:'Fläche', path:'Pfad', note:'Notiz',
     meas_deleted:'Messung gelöscht', img_rotated:'Bild gedreht',
     img_restored:'Originalbild wiederhergestellt', corners_close:'Ecken zu nah — erneut versuchen',
@@ -1296,8 +1295,7 @@ function applyLang() {
   // Drop zone
   const dzMain = document.getElementById('dzMain');
   if (dzMain) dzMain.textContent = tr.drop_main;
-  // scale status if not set
-  if (!scFactor) { const ss = document.getElementById('scaleStatus'); if(ss) ss.textContent = tr.not_set; }
+  // scale status is managed entirely by updUI()
   // btnScale text
   if (btnScale) {
     const _isSc = mode==='sa'||mode==='sb'||mode==='wait';
@@ -1318,10 +1316,10 @@ function applyLang() {
   const btnNt2 = document.getElementById('btnNote');
   if (btnNt2) btnNt2.innerHTML = `<span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>${tr.note} <span class="kbd">N</span>`;
   // zoom buttons
-  if (btnZoom) { btnZoom.style.whiteSpace='nowrap'; btnZoom.textContent = tr.pan_zoom; }
-  if (btnMag)  { btnMag.style.whiteSpace='nowrap';  btnMag.textContent  = tr.zoom_cursor; }
+  if (btnZoom) btnZoom.textContent = tr.pan_zoom;
+  if (btnMag)  btnMag.textContent  = tr.zoom_cursor;
   const btnSnap2 = document.getElementById('btnSnap');
-  if (btnSnap2) { btnSnap2.style.whiteSpace='nowrap'; btnSnap2.textContent = tr.edge_snap||'⌖ Edge snap'; }
+  if (btnSnap2) btnSnap2.textContent = tr.edge_snap||'⌖ Edge detect';
   // restore btn
   const btnRst2 = document.getElementById('btnRestoreOriginal');
   if (btnRst2) btnRst2.textContent = tr.original;
@@ -2214,7 +2212,6 @@ cv.addEventListener('click', e => {
     }
   }
   else if (mode==='pa') {
-    if (segMode.area==='wand') { _wandClick(p.x,p.y); return; }
     if (areaPts.length>=3) {
       const c0=w2c(areaPts[0].x,areaPts[0].y), cm=w2c(p.x,p.y);
       if (dst(c0,cm)<DRAG_R) { closeArea(); return; }
@@ -2250,12 +2247,11 @@ cv.addEventListener('contextmenu', e => {
 });
 
 cv.addEventListener('dblclick', e => {
-  if (mode==='pa'&&areaPts.length>=3&&segMode.area!=='wand') closeArea();
+  if (mode==='pa'&&areaPts.length>=3) closeArea();
   if (mode==='pp'&&areaPts.length>=2) closePerim();
 });
 
 function closeArea() {
-  if (segMode.area==='wand') return;
   const isBez=segMode.area==='bezier';
   const cps=isBez?autoSmooth([...areaPts],true):null;
   const areaPx=isBez?bezierPolyArea([...areaPts],cps):polyArea(areaPts);
@@ -2274,7 +2270,7 @@ document.addEventListener('keydown', e => {
     else if (mode!=='idle') { areaCps=[]; mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; clearHint(); draw(); updUI(); }
     return;
   }
-  if (e.key==='Enter'&&mode==='pa'&&areaPts.length>=3&&segMode.area!=='wand') { closeArea(); return; }
+  if (e.key==='Enter'&&mode==='pa'&&areaPts.length>=3) { closeArea(); return; }
   if (e.key==='Enter'&&_wandState&&_wandState.simplified) { confirmWand(); return; }
   if (e.key==='Enter'&&mode==='pp'&&areaPts.length>=2) { closePerim(); return; }
   if (!e.ctrlKey&&!e.metaKey&&!e.altKey) {
@@ -2741,7 +2737,7 @@ function polyPerim(pts) {
 }
 
 /* ── Bezier segment support ── */
-let segMode = { area: 'straight', perim: 'straight' };
+let segMode = { area: 'straight', perim: 'straight' }; // 'wand' removed from area
 let areaCps = []; // control points per segment: [{cp1:{x,y}, cp2:{x,y}}] length = pts.length for area, pts.length-1 for open path
 
 function setSegMode(tool, segModeVal) {
@@ -2751,20 +2747,14 @@ function setSegMode(tool, segModeVal) {
   // Determine buttons for this tool
   const btnStr  = document.getElementById(isArea ? 'btnAreaStr'  : 'btnPerimStr');
   const btnBez  = document.getElementById(isArea ? 'btnAreaBez'  : 'btnPerimBez');
-  const btnWand = isArea ? document.getElementById('btnAreaWand') : null;
-  [[btnStr,'straight'],[btnBez,'bezier'],[btnWand,'wand']].forEach(([b,k]) => {
+  [btnStr, btnBez].forEach(([b,k]) => {
     if (!b) return;
     const active = segModeVal===k;
     b.style.background = active ? '#2a2a2a' : 'none';
     b.style.color = active ? col : '#aaa';
   });
-  // show/hide wandBar (area only)
-  const wb = document.getElementById('wandBar');
-  if (wb) wb.style.display = (isArea && segModeVal==='wand') ? 'flex' : 'none';
-  if (!isArea && wb && segModeVal!=='wand') { /* perim doesn't show wand bar */ }
-  // clear wand state when switching away
-  if (segModeVal !== 'wand' && _wandState) { _wandState=null; _wandMaskCanvas=null; draw(); }
-  if (isArea && segModeVal==='wand') { _setWandHint('Click image to select',false); }
+  // clear wand state if any
+  if (_wandState) { _wandState=null; _wandMaskCanvas=null; draw(); }
   // Analytics
   t(`subtool_seg_${tool}`, {mode: segModeVal});
 }
@@ -3266,11 +3256,11 @@ function updUI() {
   btnPerim.style.cssText='flex:1;font-size:11px';
   btnPerim.innerHTML=isPerim?`${pathSvg}${L('path')} ◼`:`${pathSvg}${L('path')} <span class="kbd">P</span>`;
   btnZoom.className=zoomEnabled?'btn-zoom-active':'';
-  btnZoom.style.whiteSpace='nowrap'; btnZoom.textContent=`${zoomEnabled?'⊖':'⊕'} ${L('pan_zoom').slice(2)}`;
+  btnZoom.textContent=`${zoomEnabled?'⊖':'⊕'} ${L('pan_zoom').slice(2)}`;
   btnMag.className=magEnabled?'btn-tog-active':'';
-  btnMag.style.whiteSpace='nowrap'; btnMag.textContent=`${magEnabled?'◉':'◎'} ${L('zoom_cursor').slice(2)}`;
+  btnMag.textContent=`${magEnabled?'◉':'◎'} ${L('zoom_cursor').slice(2)}`;
 
-  const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc||(mode==='st');
+  const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc||(mode==='st')||isNote||isPtLine||isPtCoordMode;
   const isPointDragUI = mode==='drag' && dragState && dragState.idx>=0 && dragState.field!=='label';
   const isLabelDragUI = mode==='drag' && dragState && dragState.field==='label';
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):isLabelDragUI?'grab':isPointDragUI?'default':mode==='drag'?'grabbing':(mode==='st'?'crosshair':zoomEnabled?'grab':'default');
@@ -3554,6 +3544,31 @@ function draw() {
   }
 
 
+  // Note pending dot (shown immediately after click, before user types text)
+  if (notePending) {
+    ctx.save(); ctx.fillStyle='#F5E642'; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1/zoom;
+    ctx.beginPath(); ctx.arc(notePending.x,notePending.y,5/zoom,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw ptCoord origin axes whenever set (visible during and after placement)
+  if (ptCoordOrigin && mode==='ptc') {
+    const ox=ptCoordOrigin.x, oy=ptCoordOrigin.y;
+    const al=24/zoom;
+    ctx.save();
+    ctx.globalAlpha = ptCoordMode==='origin' ? 1 : 0.85;
+    ctx.strokeStyle='#EF9F27'; ctx.lineWidth=2/zoom;
+    ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+al,oy); ctx.stroke();
+    ctx.strokeStyle='#9F77DD';
+    ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,oy-al); ctx.stroke();
+    ctx.fillStyle='#EF9F27'; ctx.font=`bold ${Math.max(9,10/zoom)}px monospace`; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText('X', ox+al+3/zoom, oy);
+    ctx.fillStyle='#9F77DD'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('Y', ox, oy-al-3/zoom);
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ox,oy,3/zoom,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
   // Show placed points immediately (before full rubber band)
   if (p0 && !mp) {
     const dotCol=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2')?'#EF9F27':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':(mode==='pl1'||mode==='pl2'||mode==='pl3')?'#EF9F27':'#888';
@@ -3778,7 +3793,8 @@ function drawNewModeRubber() {
     rubberLine(p2,mp,'#D4537E',`∡ ${ang.toFixed(1)}°`);
   }
   if (mode==='pl1'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
-  if (mode==='pl2'&&p0) { ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.7;ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();ctx.fillStyle='#EF9F27';[p0,p1].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});ctx.restore(); rubberLine(p1,mp,'#EF9F27',''); }
+  if (mode==='pl2'&&p0&&p1) { ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.8;ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();ctx.fillStyle='#EF9F27';[p0,p1].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});ctx.restore(); rubberLine(p1,mp,'#EF9F27',''); }
+  else if (mode==='pl2'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
   if (mode==='pl3'&&p0&&p1) {
     const dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
     ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.7;
@@ -4424,7 +4440,6 @@ const M_SUB_DEFS = {
   area: [
     {label:'— Straight',  fn:()=>setSegMode('area','straight'), key:'straight', col:'#9F77DD'},
     {label:'⌒ Bezier',   fn:()=>setSegMode('area','bezier'),   key:'bezier',   col:'#9F77DD'},
-    {label:'⬡ Wand',     fn:()=>setSegMode('area','wand'),     key:'wand',     col:'#9F77DD'},
   ],
   perim: [
     {label:'— Straight',  fn:()=>setSegMode('perim','straight'), key:'straight', col:'#F0994A'},
