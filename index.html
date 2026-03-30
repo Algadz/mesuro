@@ -3162,8 +3162,7 @@ function confirmWand() {
   }
   _wandState = null;
   _clearWandOverlay();
-  _setWandHint('Click again to select another area', false);
-  draw(); updUI();
+  stopTool();
   showToast(`${simplified.length} contour${simplified.length>1?'s':''} created`);
 }
 
