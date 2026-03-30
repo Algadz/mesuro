@@ -3118,7 +3118,11 @@ function morphDilate(mask, width, height, r) {
   }
   return out;
 }
-// Opening = erode then dilate (removes small protrusions/noise without shrinking much)
+// Close = dilate then erode: bridges gaps / fills holes in the mask
+function morphClose(mask, width, height, r) {
+  return morphErode(morphDilate(mask, width, height, r), width, height, r);
+}
+// Open = erode then dilate: removes small isolated specks
 function morphOpen(mask, width, height, r) {
   return morphDilate(morphErode(mask, width, height, r), width, height, r);
 }
@@ -3128,19 +3132,26 @@ function _recomputeWandPreview() {
   const { sx, sy } = _wandState;
   const threshold = getWandThreshold();
   const rawMask = floodFill(_wandImgData, sx, sy, threshold);
-  // Morphological closing then opening: fills holes, removes noise speckles
-  const r = Math.max(2, Math.round(Math.min(img.width, img.height) * 0.003));
-  const closedMask = morphDilate(morphErode(rawMask, img.width, img.height, r), img.width, img.height, r); // close
-  const mask = morphDilate(morphErode(closedMask, img.width, img.height, r), img.width, img.height, r);   // open
+
+  // Morphological close with a generous radius to bridge texture gaps inside the region,
+  // then open to remove small noise speckles that leaked outside
+  const minDim = Math.min(img.width, img.height);
+  const rc = Math.max(3, Math.round(minDim * 0.008)); // close radius: ~0.8% of image
+  const ro = Math.max(2, Math.round(minDim * 0.004)); // open radius: ~0.4% of image
+  let mask = morphClose(rawMask, img.width, img.height, rc);
+  mask = morphOpen(mask, img.width, img.height, ro);
+
   const rawContours = marchingSquaresContours(mask, img.width, img.height);
   const eps = Math.max(2, Math.min(img.width, img.height) * 0.004);
   let simplified = rawContours.map(c => rdp(c, eps)).filter(c => c.length >= 3);
-  // Keep only contours with area >= 2% of the largest — drop noise patches
+
+  // Drop contours whose area is < 5% of the largest contour — these are noise islands
   if (simplified.length > 1) {
     const areas = simplified.map(pts => Math.abs(contourArea(pts)));
     const maxArea = Math.max(...areas);
-    simplified = simplified.filter((_,i) => areas[i] >= maxArea * 0.02);
+    simplified = simplified.filter((_,i) => areas[i] >= maxArea * 0.05);
   }
+
   _wandState.mask = mask;
   _wandState.simplified = simplified;
   _drawWandPreview(mask, simplified);
