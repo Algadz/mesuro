@@ -3019,14 +3019,20 @@ function _recomputeWandPreview() {
 
 function doMagicWand(wx, wy) {
   if (!img) return;
-  // Ensure imageData cached
+  // Ensure imageData cached — single context reference to avoid blank data bug
   if (_wandImg !== img) {
-    const oc = document.createElement('canvas');
-    oc.width = img.width; oc.height = img.height;
-    oc.getContext('2d').drawImage(img, 0, 0);
-    _wandImgData = oc.getContext('2d').getImageData(0, 0, img.width, img.height);
-    _wandImg = img;
+    try {
+      const oc = document.createElement('canvas');
+      oc.width = img.width; oc.height = img.height;
+      const octx = oc.getContext('2d');
+      octx.drawImage(img, 0, 0);
+      _wandImgData = octx.getImageData(0, 0, img.width, img.height);
+      _wandImg = img;
+    } catch(e) {
+      showToast('Cannot read image pixels (CORS restriction)'); return;
+    }
   }
+  if (!_wandImgData) { showToast('Image data unavailable'); return; }
   const sx = Math.round(Math.max(0, Math.min(img.width-1,  wx)));
   const sy = Math.round(Math.max(0, Math.min(img.height-1, wy)));
   _wandState = { sx, sy, mask: null, simplified: null, debounceTimer: null };
