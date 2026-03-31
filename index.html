@@ -3,22 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mesu.ro — Free Online Image Measurement Tool | Measure images & PDFs, distances, angles, areas</title>
+<title>Mesuro — Free Online Image Measurement Tool | Measure images & PDFs, distances, angles, areas</title>
 <meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters, diameters, point coordinates and arc lengths in images and PDF files. Bezier curve areas, magic wand selection, protractor, perspective correction. No upload, no install, fully private.">
 <meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image, perspective correction, rectify image, annotate image online, PDF measurement report, image annotation tool, measure PDF online, PDF ruler, measure distance in PDF, PDF measurement tool">
-<meta name="author" content="mesu.ro">
+<meta name="author" content="Mesuro">
+<meta name="application-name" content="Mesuro">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Area measurement with magic wand (color selection)","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Area measurement with magic wand (color selection)","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cstyle%3Etext%2Cline%7Bfill:%23222%3Bstroke:%23222%7D%40media(prefers-color-scheme:dark)%7Btext%2Cline%7Bfill:%23fff%3Bstroke:%23fff%7D%7D%3C/style%3E%3Ctext x='2' y='23' font-family='system-ui,-apple-system,sans-serif' font-size='22' font-weight='800' fill='%23222'%3Em%3C/text%3E%3Cline x1='2' y1='27' x2='30' y2='27' stroke='%23222' stroke-width='1.5'/%3E%3Cline x1='2' y1='24' x2='2' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='30' y1='24' x2='30' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mesu.ro/">
-<meta property="og:title" content="mesu.ro — measure anything in an image">
+<meta property="og:title" content="Mesuro — measure anything in an image">
+<meta property="og:site_name" content="Mesuro">
 <meta property="og:description" content="Measure distances, angles, areas, arc lengths, point coordinates and diameters in images and PDFs. Bezier curves, magic wand, protractor, perspective correction. Free, instant, no upload.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mesu.ro — measure anything in an image">
+<meta name="twitter:title" content="Mesuro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Distances, angles, areas. No upload, no install.">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
 <style>
@@ -83,7 +85,7 @@
   button:active:not(:disabled) { transform: scale(0.98); }
   button:disabled { opacity: .4; cursor: default; }
 
-  
+
 
   #canvasArea {
     flex: 1;
@@ -339,7 +341,7 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"mesu.ro","url":"https://mesu.ro/","logo":{"@type":"ImageObject","url":"https://mesu.ro/favicon.png","width":192,"height":192}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","logo":{"@type":"ImageObject","url":"https://mesu.ro/favicon.png","width":192,"height":192}}</script>
 </head>
 <body>
 <div id="app">
@@ -354,7 +356,7 @@
       <button class="m-tbtn m-ar" id="mBtnArea"    onclick="mToolTap('area')"  disabled><span class="m-ti">⬡</span><span class="m-tt">Area ▾</span></button>
       <button class="m-tbtn m-pe" id="mBtnPerim"   onclick="mToolTap('perim')" disabled><span class="m-ti">⬠</span><span class="m-tt">Path ▾</span></button>
       <button class="m-tbtn m-no" id="mBtnNote"    onclick="doNote()"          disabled><span class="m-ti" style="font-size:16px;font-weight:700">Aa</span><span class="m-tt">Note</span></button>
-      <button class="m-tbtn m-pc" id="mBtnPtCoord" onclick="mToolTap('ptc')"   disabled><span class="m-ti">⊙</span><span class="m-tt">Pt Coord ▾</span></button>
+      <button class="m-tbtn m-pc" id="mBtnPtCoord" onclick="mToolTap('ptc')"   disabled><span class="m-ti">⊙</span><span class="m-tt">Point XY ▾</span></button>
     </div>
     <button id="mBtnSettings" onclick="toggleMobileSettings()" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:#1e1e1e;border:none;border-left:0.5px solid #2a2a2a;color:#555;font-size:18px;cursor:pointer;font-family:inherit;z-index:2;">⚙</button>
   </div>
@@ -390,7 +392,7 @@
     <div style="padding-bottom:12px;border-bottom:0.5px solid #333">
       <svg width="160" height="36" viewBox="0 0 160 36" fill="none">
         <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
-          <tspan x="0" y="22" fill="#e0e0e0">mesu</tspan><tspan fill="#666">.ro</tspan>
+          <tspan x="0" y="22" fill="#e0e0e0">Mesuro</tspan>
         </text>
         <line x1="0"   y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
         <line x1="0"   y1="28" x2="0"   y2="34" stroke="#666" stroke-width="1.2"/>
@@ -570,8 +572,6 @@
 
     <div id="kofiPopup" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;opacity:0;transition:opacity .5s;pointer-events:none;display:none">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:14px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
-        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:flex;align-items:center;pointer-events:all;text-decoration:none;font-size:11px;color:#666;white-space:nowrap;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="kofi"></a>
-        <span style="color:#333;font-size:11px">|</span>
         <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback"></button>
         <span style="color:#333;font-size:11px">|</span>
         <div style="display:flex;align-items:center;gap:4px;pointer-events:all">
@@ -586,6 +586,29 @@
       </div>
     </div>
 
+    <!-- Ko-fi modal (centered, export/save trigger, desktop only) -->
+    <div id="kofiModal" style="position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)">
+      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:14px;padding:28px 28px 24px;font-family:system-ui,-apple-system,sans-serif;width:320px;box-shadow:0 8px 40px rgba(0,0,0,.7);position:relative">
+        <button onclick="closeKofiModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#555;font-size:20px;line-height:1;padding:0;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#555'">×</button>
+        <div style="font-size:28px;margin-bottom:12px">☕</div>
+        <div style="font-size:15px;font-weight:600;color:#e0e0e0;margin-bottom:8px">Glad Mesuro was useful?</div>
+        <div style="font-size:12px;color:#888;line-height:1.6;margin-bottom:20px">It's free — no ads, no account, no paywall.<br>A coffee helps keep it that way.</div>
+        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click');closeKofiModal()" style="display:block;text-align:center;text-decoration:none;font-size:13px;font-weight:600;color:#fff;background:#1D9E75;border-radius:8px;padding:10px 0;margin-bottom:10px;transition:opacity .15s" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">Buy me a coffee</a>
+        <button onclick="closeKofiModal()" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:0;transition:color .15s" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">Maybe later</button>
+      </div>
+    </div>
+
+    <!-- Ko-fi CTA popup (bottom-right, desktop only) -->
+    <div id="kofiCTA" style="position:absolute;bottom:24px;right:24px;z-index:10;width:240px;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s;pointer-events:none;display:none">
+      <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:10px;padding:14px 16px 14px 14px;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,.5);position:relative">
+        <button onclick="closeKofiCTA()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:#444;font-size:18px;line-height:1;padding:0;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#444'">×</button>
+        <div style="padding-right:18px">
+          <div style="font-size:12px;color:#aaa;line-height:1.55;margin-bottom:10px">Mesuro is <span style="color:#e0e0e0;font-weight:500">free — no ads, no account</span>. A coffee keeps it running.</div>
+          <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:inline-block;text-decoration:none;font-size:11px;font-weight:600;color:#1D9E75;border:0.5px solid #1D9E75;border-radius:6px;padding:5px 12px;transition:background .15s" onmouseenter="this.style.background='rgba(29,158,117,.12)'" onmouseleave="this.style.background='transparent'">☕ Buy me a coffee</a>
+        </div>
+      </div>
+    </div>
+
     <!-- Feedback modal -->
     <div id="feedbackModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.6)">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
@@ -594,7 +617,7 @@
           <button onclick="closeFeedback()" style="background:none;border:none;cursor:pointer;color:#555;font-size:18px;line-height:1;padding:0">×</button>
         </div>
         <form id="feedbackForm" action="https://formspree.io/f/mvzvpyad" method="POST" onsubmit="submitFeedback(event)">
-          <textarea name="message" id="feedbackText" data-i18n-placeholder="feedback_placeholder" placeholder="What could be improved? What do you use mesu.ro for?" required style="width:100%;height:100px;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
+          <textarea name="message" id="feedbackText" data-i18n-placeholder="feedback_placeholder" placeholder="What could be improved? What do you use Mesuro for?" required style="width:100%;height:100px;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
           <input type="email" name="email" data-i18n-placeholder="email_optional" placeholder="Your email (optional)" style="width:100%;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button type="button" onclick="closeFeedback()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
@@ -680,7 +703,7 @@
   <div id="mobileSheet" style="display:none"></div>
 
   <div id="adUnit" style="position:fixed;bottom:24px;right:24px;width:230px;z-index:100;pointer-events:all;display:none">
-    
+
     <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.5)">
       <div style="background:#2a2a3a;width:100%;height:90px;display:flex;align-items:center;justify-content:center">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -718,24 +741,11 @@
     </div>
     <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:14px;padding:10px 16px;background:#1a1a1a;border-radius:8px;border:0.5px solid #252525;align-self:flex-start;">
       <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="text-decoration:none;font-size:12px;color:#555;white-space:nowrap;transition:color .15s">Offer an espresso</a>
-      <span style="color:#2a2a2a;font-size:11px">|</span>
-      <button id="mClapBtn" onclick="doMobileClap()" title="Thanks!" style="background:none;border:none;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:opacity .2s,transform .15s">
-        <svg id="mClapSvg" viewBox="0 0 64 64" width="26" height="26" xmlns="http://www.w3.org/2000/svg" fill="none">
-          <path d="M47.2,24.83a2.56,2.56,0,0,0-3.47,1L41.84,29.3l-10.6-5.41L35.51,16a3,3,0,0,0-5.23-2.85l-3.46,6.35-.21.38-4.68,8.59-4.16-3.62a4.79,4.79,0,0,0-6.78,0,1.16,1.16,0,0,0,0,1.64l2.34,2.37c3.33,3.36,4,4.66,3.36,8.83l-1,5.83,16.44,9,2-3.77a5.59,5.59,0,0,0,4.48-2.89l8.73-16,.82-1.49A2.56,2.56,0,0,0,47.2,24.83Z" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M34.84,29.72,43.18,14.4a3,3,0,0,0-1.19-4h0a3,3,0,0,0-4,1.19L29.61,26.87" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M56.84,29a2.54,2.54,0,0,0-3.59.33l-2.53,3L41.37,25l5.71-6.87a3,3,0,0,0-4.58-3.81l-4.62,5.56-.28.33-6.25,7.52L28,23.38A4.8,4.8,0,0,0,21.31,22,1.16,1.16,0,0,0,21,23.64l1.83,2.77c2.62,3.95,3,5.35,1.59,9.32l-2.1,5.53,14.4,12,2.74-3.3a5.56,5.56,0,0,0,5-2l11.67-14,1.09-1.31A2.54,2.54,0,0,0,56.84,29Z" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M43.77,31.44,54.93,18a3,3,0,0,0-.39-4.2h0a3,3,0,0,0-4.19.39L39.19,27.63" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M48.54,35,57.85,23.8a2.76,2.76,0,0,0-.71-3.8h0a2.77,2.77,0,0,0-3.87,0L44,31.18" fill="#1e1e1e" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="26.29" y1="11.33" x2="20.2" y2="9.33" stroke="#888" stroke-width="2" stroke-linecap="round"/>
-          <line x1="27.71" y1="8.01" x2="24.97" y2="3.83" stroke="#888" stroke-width="2" stroke-linecap="round"/>
-          <line x1="31.31" y1="8.05" x2="32.61" y2="1.82" stroke="#888" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
     </div>
     <div style="height:1px;background:#222;margin:32px 0;"></div>
   </div>
 
-  <h1 style="font-size:22px;font-weight:600;color:#e0e0e0;margin-bottom:6px">mesu.ro — image measurement tool</h1>
+  <h1 style="font-size:22px;font-weight:600;color:#e0e0e0;margin-bottom:6px">Mesuro — image measurement tool</h1>
   <p style="font-size:14px;color:#666;margin-bottom:56px">Measure distances, angles, areas and diameters in any image. Set a real-world scale and get precise measurements instantly — no upload, no install, no account.</p>
 
   <!-- how to use -->
@@ -820,7 +830,7 @@
   </div>
 
   <!-- use cases -->
-  <h2 style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:16px">Who uses mesu.ro</h2>
+  <h2 style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:16px">Who uses Mesuro</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:56px">
     <div style="border-left:2px solid #1D9E75;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Architecture & engineering</div>
@@ -862,17 +872,17 @@
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure distances in a PDF file?</div>
-      <div style="font-size:13px;color:#666">Yes. mesu.ro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open. The page is rendered at high resolution so measurements remain precise.</div>
+      <div style="font-size:13px;color:#666">Yes. Mesuro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open. The page is rendered at high resolution so measurements remain precise.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure a distance in an image online?</div>
-      <div style="font-size:13px;color:#666">Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. mesu.ro converts the pixel distance into real-world units automatically.</div>
+      <div style="font-size:13px;color:#666">Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. Mesuro converts the pixel distance into real-world units automatically.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Is my image uploaded to a server?</div>
-      <div style="font-size:13px;color:#666">No. mesu.ro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded.</div>
+      <div style="font-size:13px;color:#666">No. Mesuro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -882,7 +892,7 @@
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What units can I use?</div>
-      <div style="font-size:13px;color:#666">Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and mesu.ro applies it to all measurements automatically.</div>
+      <div style="font-size:13px;color:#666">Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and Mesuro applies it to all measurements automatically.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -891,13 +901,13 @@
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does mesu.ro support?</div>
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does Mesuro support?</div>
       <div style="font-size:13px;color:#666">Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight, bezier, or magic wand), path/perimeter, point coordinates, and text notes. Angles work without scale calibration.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I correct perspective distortion in a photo?</div>
-      <div style="font-size:13px;color:#666">Use the Perspective Correction tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). mesu.ro applies a homographic transform to flatten the perspective before you measure.</div>
+      <div style="font-size:13px;color:#666">Use the Perspective Correction tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). Mesuro applies a homographic transform to flatten the perspective before you measure.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -911,8 +921,8 @@
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I use mesu.ro on mobile?</div>
-      <div style="font-size:13px;color:#666">Yes. mesu.ro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement.</div>
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I use Mesuro on mobile?</div>
+      <div style="font-size:13px;color:#666">Yes. Mesuro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -922,7 +932,7 @@
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How does the magic wand area tool work?</div>
-      <div style="font-size:13px;color:#666">Select Area → Magic wand, then click any pixel in the image. mesu.ro flood-fills all connected pixels of similar color and traces a smooth bezier contour around the region. Adjust the threshold slider to expand or shrink the selection, then confirm to create the measurement.</div>
+      <div style="font-size:13px;color:#666">Select Area → Magic wand, then click any pixel in the image. Mesuro flood-fills all connected pixels of similar color and traces a smooth bezier contour around the region. Adjust the threshold slider to expand or shrink the selection, then confirm to create the measurement.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -932,7 +942,7 @@
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure the angle between two lines that don't share a vertex?</div>
-      <div style="font-size:13px;color:#666">Yes. Use the 4-point protractor mode under the Angle tool. Click two points on the first line, then two points on the second line. mesu.ro computes the angle at their intersection even if the lines don't physically cross in the image.</div>
+      <div style="font-size:13px;color:#666">Yes. Use the 4-point protractor mode under the Angle tool. Click two points on the first line, then two points on the second line. Mesuro computes the angle at their intersection even if the lines don't physically cross in the image.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -941,7 +951,7 @@
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Does mesu.ro detect edges automatically?</div>
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Does Mesuro detect edges automatically?</div>
       <div style="font-size:13px;color:#666">Yes. Enable Edge detect in the View panel. When active, measurement points snap to the nearest detected edge using a Canny edge detection algorithm. A snap indicator shows when edge snapping is active. This greatly improves precision on sharp-edged objects.</div>
     </div>
 
@@ -952,7 +962,7 @@
 
   </div>
 
-  <div style="font-size:11px;color:#333;text-align:center">mesu.ro — measure twice. in pixels. — free online image measurement tool</div>
+  <div style="font-size:11px;color:#333;text-align:center">Mesuro — measure twice. in pixels. — free online image measurement tool</div>
 
 </div>
 
@@ -974,7 +984,7 @@ var LANGS = {
     drop_main:'Click or drop image / PDF here', drop_sub:'or use Load image above',
     kofi:'Offer an espresso', feedback:'Share feedback',
     feedback_title:'Share feedback',
-    feedback_placeholder:'What could be improved? What do you use mesu.ro for?',
+    feedback_placeholder:'What could be improved? What do you use Mesuro for?',
     email_optional:'Your email (optional)',
     send:'Send', thanks_feedback:'Thanks for your feedback!',
     pdf_pages_lbl:'pages — choose which one to measure',
@@ -987,7 +997,7 @@ var LANGS = {
     rectify_failed:'Perspective correction failed', processing:'Processing…',
     img_rectified:'Image rectified — set scale to continue',
     proj_saved:'Project saved', proj_loaded:'Project loaded',
-    proj_error:'Could not read project file', proj_invalid:'Invalid .mesu file',
+    proj_error:'Could not read project file', proj_invalid:'Invalid .mesuro file',
     loading_pdf:'Loading PDF…', pdf_not_loaded:'PDF.js not loaded yet — try again',
     copied:'Copied: ',
     // hints
@@ -1017,12 +1027,12 @@ var LANGS = {
     mh_angle_a:'Tap first arm', mh_angle_b:'Tap vertex', mh_angle_c:'Tap second arm',
     mh_area:(n)=>`${n} pt — tap start to close`,
     // export
-    exp_report:'mesu.ro — Measurement Report',
+    exp_report:'Mesuro — Measurement Report',
     exp_scale:(px,u)=>`Scale: 1 px = ${px} ${u}`, exp_no_scale:'Scale: not set',
     exp_num:'#', exp_type:'Type', exp_value:'Value',
-    exp_footer:'Generated by mesu.ro — free online image measurement tool',
+    exp_footer:'Generated by Mesuro — free online image measurement tool',
     exp_type_dist:'Distance', exp_type_diam:'Diameter', exp_type_angle:'Angle',
-    exp_type_area:'Area', exp_type_perim:'Path', exp_type_arc:'Arc', exp_type_arc:'Arc', exp_type_arc:'Arc', exp_type_arc:'Arc', exp_type_arc:'Arc', exp_type_note:'Note',
+    exp_type_area:'Area', exp_type_perim:'Path', exp_type_arc:'Arc', exp_type_note:'Note', exp_type_coord:'Coordinates',
   },
   fr: {
     SCALE:'ÉCHELLE', RECTIFY:'PERSP. CORRECTION', MEASURE:'MESURER', VIEW:'VUE', RESULTS:'RÉSULTATS', IMAGE:'IMAGE',
@@ -1038,7 +1048,7 @@ var LANGS = {
     drop_main:'Cliquer ou déposer une image / PDF', drop_sub:'ou utiliser le bouton ci-dessus',
     kofi:'Offrir un expresso', feedback:'Envoyer un retour',
     feedback_title:'Envoyer un retour',
-    feedback_placeholder:'Que pourrait-on améliorer ? Pour quoi utilisez-vous mesu.ro ?',
+    feedback_placeholder:'Que pourrait-on améliorer ? Pour quoi utilisez-vous Mesuro ?',
     email_optional:'Votre email (optionnel)',
     send:'Envoyer', thanks_feedback:'Merci pour votre retour !',
     pdf_pages_lbl:'pages — choisissez laquelle mesurer',
@@ -1050,7 +1060,7 @@ var LANGS = {
     rectify_failed:'Rectification échouée', processing:'Traitement…',
     img_rectified:'Image rectifiée — définissez l\'échelle pour continuer',
     proj_saved:'Projet sauvegardé', proj_loaded:'Projet chargé',
-    proj_error:'Impossible de lire le fichier', proj_invalid:'Fichier .mesu invalide',
+    proj_error:'Impossible de lire le fichier', proj_invalid:'Fichier .mesuro invalide',
     loading_pdf:'Chargement du PDF…', pdf_not_loaded:'PDF.js non chargé — réessayez',
     copied:'Copié : ',
     h_scale_a:'Cliquez le début de la ligne d\'échelle (Ctrl=snap 45°) — Échap',
@@ -1077,10 +1087,10 @@ var LANGS = {
     mh_diam_a:'Touchez le centre', mh_diam_b:'Touchez le bord',
     mh_angle_a:'Touchez le premier bras', mh_angle_b:'Touchez le sommet', mh_angle_c:'Touchez le second bras',
     mh_area:(n)=>`${n} pt — touchez le départ pour fermer`,
-    exp_report:'mesu.ro — Rapport de mesures',
+    exp_report:'Mesuro — Rapport de mesures',
     exp_scale:(px,u)=>`Échelle : 1 px = ${px} ${u}`, exp_no_scale:'Échelle : non définie',
     exp_num:'N°', exp_type:'Type', exp_value:'Valeur',
-    exp_footer:'Généré par mesu.ro — outil de mesure d\'images gratuit',
+    exp_footer:'Généré par Mesuro — outil de mesure d\'images gratuit',
     exp_type_dist:'Distance', exp_type_diam:'Diamètre', exp_type_angle:'Angle',
     exp_type_area:'Aire', exp_type_perim:'Tracé', exp_type_note:'Note',
   },
@@ -1098,7 +1108,7 @@ var LANGS = {
     drop_main:'Clic o soltar imagen / PDF aquí', drop_sub:'o usar el botón de arriba',
     kofi:'Invitar a un café', feedback:'Enviar opinión',
     feedback_title:'Enviar opinión',
-    feedback_placeholder:'¿Qué podría mejorar? ¿Para qué usa mesu.ro?',
+    feedback_placeholder:'¿Qué podría mejorar? ¿Para qué usa Mesuro?',
     email_optional:'Su correo (opcional)',
     send:'Enviar', thanks_feedback:'¡Gracias por su opinión!',
     pdf_pages_lbl:'páginas — elija cuál medir',
@@ -1110,7 +1120,7 @@ var LANGS = {
     rectify_failed:'Error al rectificar', processing:'Procesando…',
     img_rectified:'Imagen rectificada — defina la escala para continuar',
     proj_saved:'Proyecto guardado', proj_loaded:'Proyecto cargado',
-    proj_error:'No se pudo leer el archivo', proj_invalid:'Archivo .mesu inválido',
+    proj_error:'No se pudo leer el archivo', proj_invalid:'Archivo .mesuro inválido',
     loading_pdf:'Cargando PDF…', pdf_not_loaded:'PDF.js no cargado — reintente',
     copied:'Copiado: ',
     h_scale_a:'Clic en inicio de línea de escala (Ctrl=ajuste 45°) — Esc',
@@ -1132,10 +1142,10 @@ var LANGS = {
     mh_diam_a:'Toque el centro', mh_diam_b:'Toque el borde',
     mh_angle_a:'Toque primer brazo', mh_angle_b:'Toque vértice', mh_angle_c:'Toque segundo brazo',
     mh_area:(n)=>`${n} pt — toque inicio para cerrar`,
-    exp_report:'mesu.ro — Informe de medidas',
+    exp_report:'Mesuro — Informe de medidas',
     exp_scale:(px,u)=>`Escala: 1 px = ${px} ${u}`, exp_no_scale:'Escala: no definida',
     exp_num:'Nº', exp_type:'Tipo', exp_value:'Valor',
-    exp_footer:'Generado por mesu.ro — herramienta gratuita de medición de imágenes',
+    exp_footer:'Generado por Mesuro — herramienta gratuita de medición de imágenes',
     exp_type_dist:'Distancia', exp_type_diam:'Diámetro', exp_type_angle:'Ángulo',
     exp_type_area:'Área', exp_type_perim:'Trayecto', exp_type_note:'Nota',
   },
@@ -1153,7 +1163,7 @@ var LANGS = {
     drop_main:'Bild / PDF hier klicken oder ablegen', drop_sub:'oder Schaltfläche oben verwenden',
     kofi:'Einen Espresso spendieren', feedback:'Feedback senden',
     feedback_title:'Feedback senden',
-    feedback_placeholder:'Was könnte verbessert werden? Wofür nutzen Sie mesu.ro?',
+    feedback_placeholder:'Was könnte verbessert werden? Wofür nutzen Sie Mesuro?',
     email_optional:'Ihre E-Mail (optional)',
     send:'Senden', thanks_feedback:'Danke für Ihr Feedback!',
     pdf_pages_lbl:'Seiten — wählen Sie eine zum Messen',
@@ -1165,7 +1175,7 @@ var LANGS = {
     rectify_failed:'Entzerrung fehlgeschlagen', processing:'Verarbeitung…',
     img_rectified:'Bild entzerrt — Maßstab festlegen um fortzufahren',
     proj_saved:'Projekt gespeichert', proj_loaded:'Projekt geladen',
-    proj_error:'Datei konnte nicht gelesen werden', proj_invalid:'Ungültige .mesu Datei',
+    proj_error:'Datei konnte nicht gelesen werden', proj_invalid:'Ungültige .mesuro Datei',
     loading_pdf:'PDF wird geladen…', pdf_not_loaded:'PDF.js nicht geladen — erneut versuchen',
     copied:'Kopiert: ',
     h_scale_a:'Startpunkt der Maßstablinie klicken (Strg=45° Raster) — Esc',
@@ -1187,10 +1197,10 @@ var LANGS = {
     mh_diam_a:'Mittelpunkt antippen', mh_diam_b:'Randpunkt antippen',
     mh_angle_a:'Ersten Arm antippen', mh_angle_b:'Scheitelpunkt antippen', mh_angle_c:'Zweiten Arm antippen',
     mh_area:(n)=>`${n} Pkt — Start antippen zum Schließen`,
-    exp_report:'mesu.ro — Messbericht',
+    exp_report:'Mesuro — Messbericht',
     exp_scale:(px,u)=>`Maßstab: 1 px = ${px} ${u}`, exp_no_scale:'Maßstab: nicht gesetzt',
     exp_num:'Nr.', exp_type:'Typ', exp_value:'Wert',
-    exp_footer:'Erstellt mit mesu.ro — kostenloses Online-Bildmesswerkzeug',
+    exp_footer:'Erstellt mit Mesuro — kostenloses Online-Bildmesswerkzeug',
     exp_type_dist:'Distanz', exp_type_diam:'Durchmesser', exp_type_angle:'Winkel',
     exp_type_area:'Fläche', exp_type_perim:'Pfad', exp_type_note:'Notiz',
   },
@@ -1208,7 +1218,7 @@ var LANGS = {
     drop_main:'Clic o trascina immagine / PDF qui', drop_sub:'o usa il pulsante sopra',
     kofi:'Offri un espresso', feedback:'Invia feedback',
     feedback_title:'Invia feedback',
-    feedback_placeholder:'Cosa si potrebbe migliorare? Per cosa usa mesu.ro?',
+    feedback_placeholder:'Cosa si potrebbe migliorare? Per cosa usa Mesuro?',
     email_optional:'La tua email (opzionale)',
     send:'Invia', thanks_feedback:'Grazie per il tuo feedback!',
     pdf_pages_lbl:'pagine — scegli quale misurare',
@@ -1220,7 +1230,7 @@ var LANGS = {
     rectify_failed:'Rettifica fallita', processing:'Elaborazione…',
     img_rectified:'Immagine rettificata — definisci la scala per continuare',
     proj_saved:'Progetto salvato', proj_loaded:'Progetto caricato',
-    proj_error:'Impossibile leggere il file', proj_invalid:'File .mesu non valido',
+    proj_error:'Impossibile leggere il file', proj_invalid:'File .mesuro non valido',
     loading_pdf:'Caricamento PDF…', pdf_not_loaded:'PDF.js non caricato — riprova',
     copied:'Copiato: ',
     h_scale_a:'Clic sul punto iniziale della linea di scala (Ctrl=griglia 45°) — Esc',
@@ -1242,10 +1252,10 @@ var LANGS = {
     mh_diam_a:'Tocca il centro', mh_diam_b:'Tocca il bordo',
     mh_angle_a:'Tocca il primo braccio', mh_angle_b:'Tocca il vertice', mh_angle_c:'Tocca il secondo braccio',
     mh_area:(n)=>`${n} pt — tocca inizio per chiudere`,
-    exp_report:'mesu.ro — Rapporto di misure',
+    exp_report:'Mesuro — Rapporto di misure',
     exp_scale:(px,u)=>`Scala: 1 px = ${px} ${u}`, exp_no_scale:'Scala: non definita',
     exp_num:'N.', exp_type:'Tipo', exp_value:'Valore',
-    exp_footer:'Generato da mesu.ro — strumento gratuito di misurazione immagini',
+    exp_footer:'Generato da Mesuro — strumento gratuito di misurazione immagini',
     exp_type_dist:'Distanza', exp_type_diam:'Diametro', exp_type_angle:'Angolo',
     exp_type_area:'Area', exp_type_perim:'Percorso', exp_type_note:'Nota',
   }
@@ -1394,6 +1404,7 @@ let p0 = null, p1 = null, mp = null;
 let areaPts = [];
 let scLine = null, scPx = null, scFactor = null, scUnit = 'mm';
 let meas = [], pLine = null, hovIdx = -1, history = [];
+let _kofiCTAShown = false, _kofiModalShown = false;
 
 /* ── zoom/pan ── */
 let zoomEnabled = localStorage.getItem('mesu_zoom') !== null ? localStorage.getItem('mesu_zoom') === 'true' : false;
@@ -3208,6 +3219,7 @@ function confirmWand(){
 /* ══════════════════════════════════════════════════════════════════ */
 
 function updUI() {
+  if (!_kofiCTAShown && meas.length >= 3) { _kofiCTAShown = true; setTimeout(showKofiCTA, 800); }
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
   const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2';
@@ -4041,6 +4053,7 @@ function saveProject() {
   a.download = `mesu-${new Date().toISOString().slice(0,10)}.mesuro`;
   a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
   showToast(L('proj_saved'));
+  setTimeout(showKofiModal, 600);
 }
 
 function loadProject(file) {
@@ -4102,10 +4115,15 @@ function exportImg() {
     else if(m.type==='angle'){const[ax,ay]=spt(m.ax,m.ay),[vx,vy]=spt(m.vx,m.vy),[bx,by]=spt(m.bx,m.by);drawAngleOn(ec_ctx,ax,ay,vx,vy,bx,by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,sx);}
     else if(m.type==='area'){const r=scFactor?m.areaPx*scFactor*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx);}
     else if(m.type==='perim'){const r=scFactor?m.perimPx*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
+    else if(m.type==='arc'){const r=scFactor?m.arcLen*scFactor:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx*sx,m.cy*sy,m.r*sx,m.a1,m.sweep,{x:m.p1.x*sx,y:m.p1.y*sy},{x:m.p2.x*sx,y:m.p2.y*sy},lbl,sx);}
+    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax*sx,m.ay*sy,m.bx*sx,m.by*sy,m.cx*sx,m.cy*sy,m.dx*sx,m.dy*sy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx);}
+    else if(m.type==='ptline'){const r=scFactor?m.distPx*scFactor:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${scUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1*sx,m.ly1*sy,m.lx2*sx,m.ly2*sy,m.px*sx,m.py*sy,m.fx*sx,m.fy*sy,lbl,sx);}
+    else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px*sx,m.py*sy,m.ox*sx,m.oy*sy,`${i+1}`,sx);}
   });
   const a=document.createElement('a');
   a.download=`mesuro-export.${fmt}`;
   a.href=ec.toDataURL(mime,quality); a.click();
+  setTimeout(showKofiModal, 600);
 }
 
 function drawLblOn(ec,x,y,text,col,s){ec.save();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,p=5*s,h=17*s,r=4*s,rx=x-tw/2-p,ry=y-h/2;ec.fillStyle='rgba(0,0,0,.8)';ec.beginPath();ec.moveTo(rx+r,ry);ec.lineTo(rx+tw+p*2-r,ry);ec.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);ec.lineTo(rx+tw+p*2,ry+h-r);ec.arcTo(rx+tw+p*2,ry+h,rx+tw+p*2-r,ry+h,r);ec.lineTo(rx+r,ry+h);ec.arcTo(rx,ry+h,rx,ry+h-r,r);ec.lineTo(rx,ry+r);ec.arcTo(rx,ry,rx+r,ry,r);ec.closePath();ec.fill();ec.fillStyle=col;ec.textAlign='center';ec.textBaseline='middle';ec.fillText(text,x,y);ec.restore();}
@@ -4115,6 +4133,11 @@ function drawAngleOn(ec,ax,ay,vx,vy,bx,by,deg,label,s){const col='#D4537E';ec.sa
 function drawAreaOn(ec,pts,label,s){const col='#9F77DD';ec.save();ec.fillStyle='rgba(159,119,221,.15)';ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);ec.closePath();ec.fill();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
 function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);if(!open)ec.closePath();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
 function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath();ec.arc(x,y,5*s,0,Math.PI*2);ec.fill();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,pad=4*s,h=fs*1.4,rx=x+8*s;ec.fillStyle='rgba(30,30,30,.9)';ec.beginPath();ec.roundRect(rx,y-h/2-pad,tw+pad*2,h+pad*2,3*s);ec.fill();ec.fillStyle='#F5E642';ec.textAlign='left';ec.textBaseline='middle';ec.fillText(text,rx+pad,y);ec.restore();}
+
+function drawArcOn(ec,cx,cy,r,a1,sweep,p1,p2,label,s){const col='#5DCAA5';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,a1,a1+sweep,sweep<0);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p1.x,p1.y);ec.stroke();ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p2.x,p2.y);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(cx,cy,5*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p1.x,p1.y,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p2.x,p2.y,4*s,0,Math.PI*2);ec.fill();if(label){const amid=a1+sweep/2;drawLblOn(ec,cx+Math.cos(amid)*(r+14*s),cy+Math.sin(amid)*(r+14*s),label,col,s);}ec.restore();}
+function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const a1=Math.atan2(by-iy,bx-ix),a2=Math.atan2(dy-iy,dx-ix);ec.beginPath();ec.arc(ix,iy,40*s,a1,a2);ec.stroke();ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
+function drawPtLineOn(ec,lx1,ly1,lx2,ly2,px,py,fx,fy,label,s){const col='#EF9F27';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(lx1,ly1);ec.lineTo(lx2,ly2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(px,py);ec.lineTo(fx,fy);ec.stroke();ec.setLineDash([]);const ddx=lx2-lx1,ddy=ly2-ly1,len=Math.hypot(ddx,ddy);if(len>0){const nx=ddx/len,ny=ddy/len,sq=6*s;ec.beginPath();ec.moveTo(fx+nx*sq,fy+ny*sq);ec.lineTo(fx+nx*sq-(py-fy)/len*sq,fy+ny*sq+(px-fx)/len*sq);ec.lineTo(fx-(py-fy)/len*sq,fy+(px-fx)/len*sq);ec.stroke();}ec.fillStyle=col;[[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ec.beginPath();ec.arc(x,y,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(px+fx)/2,(py+fy)/2-18*s,label,col,s);ec.restore();}
+function drawPtCoordOn(ec,px,py,ox,oy,label,s){const col='#5DCAA5';ec.save();if(ox!==undefined&&oy!==undefined){const al=24*s;ec.lineWidth=1.5*s;ec.strokeStyle='#EF9F27';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox+al,oy);ec.stroke();ec.strokeStyle='#9F77DD';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox,oy-al);ec.stroke();drawLblOn(ec,ox+al+4*s,oy,'X','#EF9F27',s);drawLblOn(ec,ox,oy-al-4*s,'Y','#9F77DD',s);ec.fillStyle='#fff';ec.beginPath();ec.arc(ox,oy,3*s,0,Math.PI*2);ec.fill();}ec.strokeStyle=col;ec.lineWidth=1.5*s;const sq=8*s;ec.beginPath();ec.moveTo(px-sq,py);ec.lineTo(px+sq,py);ec.stroke();ec.beginPath();ec.moveTo(px,py-sq);ec.lineTo(px,py+sq);ec.stroke();ec.fillStyle=col;ec.beginPath();ec.arc(px,py,3*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,px+10*s,py-10*s,label,col,s);ec.restore();}
 
 /* ── rotate image ── */
 function rotateImg(deg) {
@@ -4291,6 +4314,10 @@ function exportPDF() {
     else if(m.type==='area'){const r=scFactor?m.areaPx*scFactor*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx);}
     else if(m.type==='perim'){const r=scFactor?m.perimPx*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
     else if(m.type==='note'){drawNoteOn(ec_ctx,m.x*sx,m.y*sy,m.text,sx);}
+    else if(m.type==='arc'){const r=scFactor?m.arcLen*scFactor:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx*sx,m.cy*sy,m.r*sx,m.a1,m.sweep,{x:m.p1.x*sx,y:m.p1.y*sy},{x:m.p2.x*sx,y:m.p2.y*sy},lbl,sx);}
+    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax*sx,m.ay*sy,m.bx*sx,m.by*sy,m.cx*sx,m.cy*sy,m.dx*sx,m.dy*sy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx);}
+    else if(m.type==='ptline'){const r=scFactor?m.distPx*scFactor:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${scUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1*sx,m.ly1*sy,m.lx2*sx,m.ly2*sy,m.px*sx,m.py*sy,m.fx*sx,m.fy*sy,lbl,sx);}
+    else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px*sx,m.py*sy,m.ox*sx,m.oy*sy,`${i+1}`,sx);}
   });
 
   const imgDataUrl = ec.toDataURL('image/jpeg', 0.92);
@@ -4304,6 +4331,10 @@ function exportPDF() {
     else if(m.type==='area'){const r=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`■${i+1}`,L('exp_type_area'),r]);}
     else if(m.type==='perim'){const r=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`~${i+1}`,L('exp_type_perim'),r]);}
     else if(m.type==='note'){rows.push([`N${i+1}`,L('exp_type_note'),m.text]);}
+    else if(m.type==='arc'){const r=scFactor?`${(m.arcLen*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.arcLen)}px`;rows.push([`⌒${i+1}`,L('exp_type_arc'),r]);}
+    else if(m.type==='angle4'){rows.push([`∡${i+1}`,L('exp_type_angle'),`${m.deg.toFixed(1)}°`]);}
+    else if(m.type==='ptline'){const r=scFactor?`${(m.distPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)}px`;rows.push([`⊥${i+1}`,L('exp_type_dist'),r]);}
+    else if(m.type==='ptcoord'){const u=m.unit||'px';rows.push([`+${i+1}`,L('exp_type_coord'),`X: ${m.cx.toFixed(2)}  Y: ${m.cy.toFixed(2)} ${u}`]);}
   });
 
   const { jsPDF } = window.jspdf;
@@ -4370,6 +4401,7 @@ function exportPDF() {
   doc.text(L('exp_footer'), mg, ph-mg+10);
 
   doc.save('mesuro-report.pdf');
+  setTimeout(showKofiModal, 600);
 }
 
 function exportCSV() {
@@ -4384,6 +4416,11 @@ function exportCSV() {
     else if(m.type==='angle'){rows.push([n,'angle',m.deg.toFixed(4),'deg','','','','','','','','',Math.round(m.vx*ir),Math.round(m.vy*ir2),Math.round(m.ax*ir),Math.round(m.ay*ir2),Math.round(m.bx*ir),Math.round(m.by*ir2),'']);}
     else if(m.type==='area'){const r=scFactor?(m.areaPx*scFactor*scFactor).toFixed(4):'';const ps=m.pts.map(p=>`${Math.round(p.x*ir)};${Math.round(p.y*ir2)}`).join('|');rows.push([n,'area',r,`${scUnit}²`,m.areaPx.toFixed(2),'','','','','','','','','','','','','',ps]);}
     else if(m.type==='perim'){const r=scFactor?(m.perimPx*scFactor).toFixed(4):'';const ps=m.pts.map(p=>`${Math.round(p.x*ir)};${Math.round(p.y*ir2)}`).join('|');rows.push([n,'perimeter',r,scUnit,m.perimPx.toFixed(2),'','','','','','','','','','','','','',ps]);}
+    else if(m.type==='arc'){const r=scFactor?(m.arcLen*scFactor).toFixed(4):'';rows.push([n,'arc',r,scUnit,m.arcLen.toFixed(2),Math.round(m.p1.x),Math.round(m.p1.y),Math.round(m.p2.x),Math.round(m.p2.y),Math.round(m.cx),Math.round(m.cy),m.r.toFixed(2),'','','','','','']);}
+    else if(m.type==='angle4'){rows.push([n,'angle4',m.deg.toFixed(4),'deg','',Math.round(m.ax),Math.round(m.ay),Math.round(m.bx),Math.round(m.by),Math.round(m.cx),Math.round(m.cy),'',Math.round(m.dx),Math.round(m.dy),'','','','']);}
+    else if(m.type==='ptline'){const r=scFactor?(m.distPx*scFactor).toFixed(4):'';rows.push([n,'pt-to-line',r,scUnit,m.distPx.toFixed(2),Math.round(m.lx1),Math.round(m.ly1),Math.round(m.lx2),Math.round(m.ly2),'','','',Math.round(m.px),Math.round(m.py),Math.round(m.fx),Math.round(m.fy),'','']);}
+    else if(m.type==='ptcoord'){const u=m.unit||'px';rows.push([n,'pt-coord',m.cx.toFixed(4),u,m.cy.toFixed(4),Math.round(m.px),Math.round(m.py),'','',Math.round(m.ox),Math.round(m.oy),'','','','','','','']);}
+    else if(m.type==='note'){rows.push([n,'note',m.text,'','',Math.round(m.x),Math.round(m.y),'','','','','','','','','','','']);}
   });
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
@@ -4548,7 +4585,7 @@ function updMobile() {
   if(qc){qc.disabled=!hasImg;}
   updMobileSettings();
 
-  // pulse Scale button when image loaded but no scale yet
+  // pulse Scale button when image loaded but not scale yet
   const scBtn = document.getElementById('mBtnScale');
   if (scBtn) {
     if (hasImg && !hasSc) {
@@ -4900,43 +4937,41 @@ document.getElementById('feedbackModal').addEventListener('click', e => {
   if (e.target === document.getElementById('feedbackModal')) closeFeedback();
 });
 
-(function(){
-  const clapped = localStorage.getItem('mesu_clapped');
-  if (clapped) {
-    const btn = document.getElementById('clapBtn');
-    if (btn) {
-      btn.dataset.clapped='1'; btn.style.opacity='1';
-      btn.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
-    }
-    const mb = document.getElementById('mClapBtn');
-    if (mb) {
-      mb.style.opacity='1';
-      mb.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
-    }
-  }
-})();
-function doMobileClap() {
-  doClap();
-  const mb = document.getElementById('mClapBtn');
-  if (mb) {
-    mb.style.opacity='1';
-    mb.style.transform='scale(1.3)';
-    setTimeout(()=>{ mb.style.transform='scale(1)'; }, 150);
-    mb.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
-    mb.querySelectorAll('[fill="#1e1e1e"]').forEach(el => el.setAttribute('fill','#1a1a1a'));
-  }
+/* ── Ko-fi CTA ── */
+function showKofiModal() {
+  if (_kofiModalShown || window.innerWidth <= 767) return;
+  _kofiModalShown = true;
+  const el = document.getElementById('kofiModal');
+  if (!el) return;
+  el.style.display = 'flex';
 }
-function doClap() {
-  const btn = document.getElementById('clapBtn');
-  if (!btn) return;
-  btn.dataset.clapped = '1';
-  btn.style.opacity = '1';
-  btn.style.transform = 'scale(1.3)';
-  setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
-  btn.querySelectorAll('path,line').forEach(el => el.setAttribute('stroke','#1D9E75'));
-  localStorage.setItem('mesu_clapped', '1');
-  t('clap');
+function closeKofiModal() {
+  const el = document.getElementById('kofiModal');
+  if (!el) return;
+  el.style.display = 'none';
 }
+function showKofiCTA() {
+  if (window.innerWidth <= 767) return;
+  const el = document.getElementById('kofiCTA');
+  if (!el) return;
+  el.style.display = 'block';
+  requestAnimationFrame(() => {
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+    el.style.pointerEvents = 'all';
+  });
+  setTimeout(closeKofiCTA, 14000);
+}
+function closeKofiCTA() {
+  const el = document.getElementById('kofiCTA');
+  if (!el) return;
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(8px)';
+  el.style.pointerEvents = 'none';
+  setTimeout(() => { el.style.display = 'none'; }, 400);
+}
+
+
 </script>
 </body>
 </html>
