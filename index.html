@@ -209,25 +209,32 @@
   .btn-confirm { background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 12px; padding: 6px 14px; }
   .btn-confirm:hover { background: #0a5240; }
 
-  .btn-scale-active  { background: #0F6E56 !important; border-color: #0F6E56 !important; color: #fff !important; }
-  .btn-meas-active   { background: #854F0B !important; border-color: #854F0B !important; color: #fff !important; }
-  .btn-diam-active   { background: #0F5E6E !important; border-color: #0F5E6E !important; color: #fff !important; }
-  .btn-angle-active  { background: #7B2D5A !important; border-color: #7B2D5A !important; color: #fff !important; }
-  .btn-area-active   { background: #4A3B8A !important; border-color: #4A3B8A !important; color: #fff !important; }
-  .btn-perim-active  { background: #7A4A0F !important; border-color: #7A4A0F !important; color: #fff !important; }
+  .btn-scale-active, .btn-meas-active, .btn-zoom-active, .btn-tog-active,
+  .btn-diam-active, .btn-angle-active, .btn-area-active, .btn-perim-active { color: #fff !important; }
+  .btn-scale-active  { background: #0F6E56 !important; border-color: #0F6E56 !important; }
+  .btn-meas-active   { background: #854F0B !important; border-color: #854F0B !important; }
+  .btn-diam-active   { background: #0F5E6E !important; border-color: #0F5E6E !important; }
+  .btn-angle-active  { background: #7B2D5A !important; border-color: #7B2D5A !important; }
+  .btn-area-active   { background: #4A3B8A !important; border-color: #4A3B8A !important; }
+  .btn-perim-active  { background: #7A4A0F !important; border-color: #7A4A0F !important; }
   .btn-zoom-active   { background: #2e2e2e !important; border-color: #888 !important; color: #e0e0e0 !important; }
   .btn-tog-active    { background: #2e2e2e !important; border-color: #888 !important; color: #e0e0e0 !important; }
 
-  #sidebar::-webkit-scrollbar { width: 3px; }
-  #sidebar::-webkit-scrollbar-track { background: transparent; }
-  #sidebar::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
-  #sidebar::-webkit-scrollbar-thumb:hover { background: #555; }
-
   #resList { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
-  #resList::-webkit-scrollbar { width: 3px; }
-  #resList::-webkit-scrollbar-track { background: transparent; }
-  #resList::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
-  #resList::-webkit-scrollbar-thumb:hover { background: #555; }
+  #sidebar::-webkit-scrollbar, #resList::-webkit-scrollbar { width: 3px; }
+  #sidebar::-webkit-scrollbar-track, #resList::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb, #resList::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+  #sidebar::-webkit-scrollbar-thumb:hover, #resList::-webkit-scrollbar-thumb:hover { background: #555; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
   #mobileTopbar { display: none; }
   #mobileSheet  { display: none; }
   #mobileBar    { display: none; }
@@ -249,7 +256,7 @@
     #mobileLogo { font-size:15px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
     #mobileLogo span { color:#444; }
     #mobileToolsScroll { display:flex; align-items:center; gap:4px; padding:6px 52px 6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; position:relative; }
-    #mobileToolsScroll::-webkit-scrollbar { display:none; }
+    #mobileToolsScroll::-webkit-scrollbar, #mobileSubRow::-webkit-scrollbar { display:none; }
     .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 13px; min-height:52px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
     .m-tbtn:disabled { opacity:.35; cursor:default; }
     .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
@@ -266,7 +273,6 @@
     .m-tbtn.m-active { outline:2px solid currentColor; outline-offset:-2px; }
     .m-tbtn.m-active .m-ti { opacity:1; }
     .m-tbtn.m-active .m-tt { opacity:1; }
-    #mobileSubRow::-webkit-scrollbar { display:none; }
     .m-sub { display:inline-flex;align-items:center;justify-content:center;padding:0 14px;height:40px;border-radius:6px;cursor:pointer;border:none;font-size:11px;white-space:nowrap;font-family:inherit;transition:background .15s;background:#2a2a2a;color:#888; }
     .m-sub.active { color:#fff; }
     #mBtnSettings.active { color:#aaa; background:#333; }
@@ -607,7 +613,7 @@
     </div>
 
     <!-- Ko-fi modal (centered, export/save trigger, desktop only) -->
-    <div id="kofiModal" style="position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)">
+    <div id="kofiModal" class="modal-overlay" style="position:absolute;z-index:20;background:rgba(0,0,0,.55)">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:14px;padding:28px 28px 24px;font-family:system-ui,-apple-system,sans-serif;width:320px;box-shadow:0 8px 40px rgba(0,0,0,.7);position:relative">
         <button onclick="closeKofiModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#555;font-size:20px;line-height:1;padding:0;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#555'">×</button>
         <div style="font-size:28px;margin-bottom:12px">☕</div>
@@ -630,7 +636,7 @@
     </div>
 
     <!-- Feedback modal -->
-    <div id="feedbackModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.6)">
+    <div id="feedbackModal" class="modal-overlay" style="background:rgba(0,0,0,.6)">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
           <span style="font-size:14px;font-weight:500;color:#e0e0e0" data-i18n="feedback_title">Share feedback</span>
@@ -648,7 +654,7 @@
       </div>
     </div>
     <!-- PDF page picker modal -->
-    <div id="pdfModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.6)">
+    <div id="pdfModal" class="modal-overlay" style="background:rgba(0,0,0,.6)">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:420px;max-width:92vw;font-family:system-ui,-apple-system,sans-serif">
         <div style="font-size:14px;font-weight:500;color:#e0e0e0;margin-bottom:6px">PDF — select page</div>
         <div id="pdfPageCount" style="font-size:12px;color:#555;margin-bottom:14px"></div>
@@ -682,7 +688,7 @@
         </div>
       </div>
     </div>
-    <div id="noteModal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30;justify-content:center;align-items:center;">
+    <div id="noteModal" class="modal-overlay" style="position:absolute;background:rgba(0,0,0,.5);z-index:30;">
       <div class="modal-box">
         <h3 data-i18n="add_note">Add note</h3>
         <p data-i18n="note_placeholder_p">Enter the text for this annotation:</p>
@@ -1428,6 +1434,31 @@ const modal       = document.getElementById('scaleModal');
 /* ── analytics ── */
 function t(event, props) { try { if(typeof umami!=='undefined') umami.track(event, props||undefined); } catch(e){} }
 
+/* ── Color palette ── */
+const COLORS = {
+  scale:    '#1D9E75',
+  dist:     '#EF9F27',
+  diam:     '#5DCAA5',
+  angle:    '#D4537E',
+  area:     '#9F77DD',
+  perim:    '#F0994A',
+  note:     '#F5E642',
+  snap:     '#FFD700',
+  snapEdge: '#00e5ff',
+};
+const MEAS_COLORS = {
+  line:     COLORS.dist,
+  arc:      COLORS.dist,
+  ptline:   COLORS.dist,
+  ptcoord:  COLORS.diam,
+  diam:     COLORS.diam,
+  angle:    COLORS.angle,
+  angle4:   COLORS.angle,
+  area:     COLORS.area,
+  perim:    COLORS.perim,
+  note:     COLORS.note,
+};
+
 /* ── state ── */
 let img = null, originalImg = null;
 let mode = 'idle'; // idle|sa|sb|wait|ma|mb|da|db|aa|ab|ac|pa|pp|drag|st|na
@@ -1932,76 +1963,105 @@ function applyDrag(wp) {
     if (newPx>0){const realLen=scFactor*scPx; scPx=newPx; scFactor=realLen/scPx;} return;
   }
   const m=meas[idx]; if (!m) return;
-  if (m.type==='line') {
-    if (field==='p1'){m.x1=wp.x;m.y1=wp.y;}else{m.x2=wp.x;m.y2=wp.y;}
-    m.px=Math.hypot(m.x2-m.x1,m.y2-m.y1);
-    // center-to-edge: keep cx/cy at midpoint
-    if (m.subtype==='ce') { m.cx=(m.x1+m.x2)/2; m.cy=(m.y1+m.y2)/2; }
-  } else if (m.type==='diam') {
-    if (field==='cx'){
-      const dx=wp.x-m.cx, dy=wp.y-m.cy;
-      m.cx=wp.x; m.cy=wp.y; m.x1+=dx; m.y1+=dy; m.x2+=dx; m.y2+=dy;
-      if (m.subtype==='3p'&&m.pa){ m.pa={x:m.pa.x+dx,y:m.pa.y+dy}; m.pb={x:m.pb.x+dx,y:m.pb.y+dy}; m.pc={x:m.pc.x+dx,y:m.pc.y+dy}; }
-    } else if (field==='pa'||field==='pb'||field==='pc') {
-      m[field]={x:wp.x,y:wp.y};
-      const circ=circumscribedCircle(m.pa,m.pb,m.pc);
-      if (circ) { m.cx=circ.cx; m.cy=circ.cy; m.r=circ.r; m.x1=circ.cx+circ.r; m.y1=circ.cy; m.x2=circ.cx-circ.r; m.y2=circ.cy; }
-    } else if (field==='p1'){
-      m.x1=wp.x; m.y1=wp.y;
-      m.r=Math.hypot(m.x1-m.cx,m.y1-m.cy);
-      m.x2=m.cx-(m.x1-m.cx); m.y2=m.cy-(m.y1-m.cy);
-    } else if (field==='p2'){
-      m.x2=wp.x; m.y2=wp.y;
-      m.r=Math.hypot(m.x2-m.cx,m.y2-m.cy);
-      m.x1=m.cx-(m.x2-m.cx); m.y1=m.cy-(m.y2-m.cy);
-    }
-  } else if (m.type==='angle') {
-    if (field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='v'){m.vx=wp.x;m.vy=wp.y;}else{m.bx=wp.x;m.by=wp.y;}
-    m.deg=angleDeg({x:m.ax,y:m.ay},{x:m.vx,y:m.vy},{x:m.bx,y:m.by});
-  } else if (m.type==='area') {
-    if (field==='cp1'&&m.cps) { m.cps[ptIdx].cp1={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
-    else if (field==='cp2'&&m.cps) { m.cps[ptIdx].cp2={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
-    else { m.pts[ptIdx]={x:wp.x,y:wp.y}; if(m.cps) m.cps=naturalSpline(m.pts,true); }
-    m.areaPx=m.cps?bezierPolyArea(m.pts,m.cps):polyArea(m.pts);
-  } else if (m.type==='perim') {
-    if (field==='cp1'&&m.cps) { m.cps[ptIdx].cp1={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
-    else if (field==='cp2'&&m.cps) { m.cps[ptIdx].cp2={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
-    else { m.pts[ptIdx]={x:wp.x,y:wp.y}; if(m.cps) m.cps=naturalSpline(m.pts,!m.open); }
-    m.perimPx=m.cps?bezierPolyPerim(m.pts,m.cps,m.open):polyPerim(m.pts);
-  } else if (m.type==='arc') {
-    if (field==='cx') {
-      const dx=wp.x-m.cx, dy=wp.y-m.cy;
-      m.cx=wp.x; m.cy=wp.y; m.p1={x:m.p1.x+dx,y:m.p1.y+dy}; m.p2={x:m.p2.x+dx,y:m.p2.y+dy};
-    } else if (field==='p1') {
-      m.p1={x:wp.x,y:wp.y}; m.r=dst({x:m.cx,y:m.cy},m.p1); m.a1=Math.atan2(m.p1.y-m.cy,m.p1.x-m.cx);
-      let sw=m.a2-m.a1; if(sw>Math.PI)sw-=2*Math.PI; if(sw<-Math.PI)sw+=2*Math.PI;
-      m.sweep=sw; m.arcLen=Math.abs(sw)*m.r;
-      m.p2={x:m.cx+m.r*Math.cos(m.a2),y:m.cy+m.r*Math.sin(m.a2)};
-    } else if (field==='p2') {
-      m.p2={x:wp.x,y:wp.y}; m.a2=Math.atan2(m.p2.y-m.cy,m.p2.x-m.cx);
-      m.r=dst({x:m.cx,y:m.cy},m.p1);
-      let sw=m.a2-m.a1; if(sw>Math.PI)sw-=2*Math.PI; if(sw<-Math.PI)sw+=2*Math.PI;
-      m.sweep=sw; m.arcLen=Math.abs(sw)*m.r;
-      m.p2={x:m.cx+m.r*Math.cos(m.a2),y:m.cy+m.r*Math.sin(m.a2)};
-    }
-  } else if (m.type==='note') {
-    m.x=wp.x; m.y=wp.y;
-  } else if (m.type==='angle4') {
-    if(field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='b'){m.bx=wp.x;m.by=wp.y;}
-    else if(field==='c'){m.cx=wp.x;m.cy=wp.y;}else{m.dx=wp.x;m.dy=wp.y;}
-    const dAx=m.bx-m.ax,dAy=m.by-m.ay,dBx=m.dx-m.cx,dBy=m.dy-m.cy;
-    let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-    m.deg=ang>90?180-ang:ang;
-  } else if (m.type==='ptline') {
-    if(field==='l1'){m.lx1=wp.x;m.ly1=wp.y;}else if(field==='l2'){m.lx2=wp.x;m.ly2=wp.y;}
-    else{m.px=wp.x;m.py=wp.y;}
-    const dx=m.lx2-m.lx1,dy=m.ly2-m.ly1,len=Math.hypot(dx,dy);
-    if(len>0){m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.lx1*0-m.ly2*m.lx1*0+m.lx2*m.ly1-m.ly2*m.lx1)/len;
-    m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.ly1-m.ly2*m.lx1)/len;
-    const t2=((m.px-m.lx1)*dx+(m.py-m.ly1)*dy)/(len*len);m.fx=m.lx1+t2*dx;m.fy=m.ly1+t2*dy;}
-  } else if (m.type==='ptcoord') {
-    m.px=wp.x;m.py=wp.y;m.cx=(m.px-m.ox)*(scFactor||1);m.cy=-(m.py-m.oy)*(scFactor||1);
+  if (m.type==='line')     _applyDragLine(m, wp, field);
+  else if (m.type==='diam')    _applyDragDiam(m, wp, field);
+  else if (m.type==='angle')   _applyDragAngle(m, wp, field);
+  else if (m.type==='area')    _applyDragArea(m, wp, field, ptIdx);
+  else if (m.type==='perim')   _applyDragPerim(m, wp, field, ptIdx);
+  else if (m.type==='arc')     _applyDragArc(m, wp, field);
+  else if (m.type==='note')    _applyDragNote(m, wp);
+  else if (m.type==='angle4')  _applyDragAngle4(m, wp, field);
+  else if (m.type==='ptline')  _applyDragPtline(m, wp, field);
+  else if (m.type==='ptcoord') _applyDragPtcoord(m, wp);
+}
+
+function _applyDragLine(m, wp, field) {
+  if (field==='p1'){m.x1=wp.x;m.y1=wp.y;}else{m.x2=wp.x;m.y2=wp.y;}
+  m.px=Math.hypot(m.x2-m.x1,m.y2-m.y1);
+  // center-to-edge: keep cx/cy at midpoint
+  if (m.subtype==='ce') { m.cx=(m.x1+m.x2)/2; m.cy=(m.y1+m.y2)/2; }
+}
+
+function _applyDragDiam(m, wp, field) {
+  if (field==='cx'){
+    const dx=wp.x-m.cx, dy=wp.y-m.cy;
+    m.cx=wp.x; m.cy=wp.y; m.x1+=dx; m.y1+=dy; m.x2+=dx; m.y2+=dy;
+    if (m.subtype==='3p'&&m.pa){ m.pa={x:m.pa.x+dx,y:m.pa.y+dy}; m.pb={x:m.pb.x+dx,y:m.pb.y+dy}; m.pc={x:m.pc.x+dx,y:m.pc.y+dy}; }
+  } else if (field==='pa'||field==='pb'||field==='pc') {
+    m[field]={x:wp.x,y:wp.y};
+    const circ=circumscribedCircle(m.pa,m.pb,m.pc);
+    if (circ) { m.cx=circ.cx; m.cy=circ.cy; m.r=circ.r; m.x1=circ.cx+circ.r; m.y1=circ.cy; m.x2=circ.cx-circ.r; m.y2=circ.cy; }
+  } else if (field==='p1'){
+    m.x1=wp.x; m.y1=wp.y;
+    m.r=Math.hypot(m.x1-m.cx,m.y1-m.cy);
+    m.x2=m.cx-(m.x1-m.cx); m.y2=m.cy-(m.y1-m.cy);
+  } else if (field==='p2'){
+    m.x2=wp.x; m.y2=wp.y;
+    m.r=Math.hypot(m.x2-m.cx,m.y2-m.cy);
+    m.x1=m.cx-(m.x2-m.cx); m.y1=m.cy-(m.y2-m.cy);
   }
+}
+
+function _applyDragAngle(m, wp, field) {
+  if (field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='v'){m.vx=wp.x;m.vy=wp.y;}else{m.bx=wp.x;m.by=wp.y;}
+  m.deg=angleDeg({x:m.ax,y:m.ay},{x:m.vx,y:m.vy},{x:m.bx,y:m.by});
+}
+
+function _applyDragArea(m, wp, field, ptIdx) {
+  if (field==='cp1'&&m.cps) { m.cps[ptIdx].cp1={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
+  else if (field==='cp2'&&m.cps) { m.cps[ptIdx].cp2={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
+  else { m.pts[ptIdx]={x:wp.x,y:wp.y}; if(m.cps) m.cps=naturalSpline(m.pts,true); }
+  m.areaPx=m.cps?bezierPolyArea(m.pts,m.cps):polyArea(m.pts);
+}
+
+function _applyDragPerim(m, wp, field, ptIdx) {
+  if (field==='cp1'&&m.cps) { m.cps[ptIdx].cp1={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
+  else if (field==='cp2'&&m.cps) { m.cps[ptIdx].cp2={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
+  else { m.pts[ptIdx]={x:wp.x,y:wp.y}; if(m.cps) m.cps=naturalSpline(m.pts,!m.open); }
+  m.perimPx=m.cps?bezierPolyPerim(m.pts,m.cps,m.open):polyPerim(m.pts);
+}
+
+function _applyDragArc(m, wp, field) {
+  if (field==='cx') {
+    const dx=wp.x-m.cx, dy=wp.y-m.cy;
+    m.cx=wp.x; m.cy=wp.y; m.p1={x:m.p1.x+dx,y:m.p1.y+dy}; m.p2={x:m.p2.x+dx,y:m.p2.y+dy};
+  } else if (field==='p1') {
+    m.p1={x:wp.x,y:wp.y}; m.r=dst({x:m.cx,y:m.cy},m.p1); m.a1=Math.atan2(m.p1.y-m.cy,m.p1.x-m.cx);
+    let sw=m.a2-m.a1; if(sw>Math.PI)sw-=2*Math.PI; if(sw<-Math.PI)sw+=2*Math.PI;
+    m.sweep=sw; m.arcLen=Math.abs(sw)*m.r;
+    m.p2={x:m.cx+m.r*Math.cos(m.a2),y:m.cy+m.r*Math.sin(m.a2)};
+  } else if (field==='p2') {
+    m.p2={x:wp.x,y:wp.y}; m.a2=Math.atan2(m.p2.y-m.cy,m.p2.x-m.cx);
+    m.r=dst({x:m.cx,y:m.cy},m.p1);
+    let sw=m.a2-m.a1; if(sw>Math.PI)sw-=2*Math.PI; if(sw<-Math.PI)sw+=2*Math.PI;
+    m.sweep=sw; m.arcLen=Math.abs(sw)*m.r;
+    m.p2={x:m.cx+m.r*Math.cos(m.a2),y:m.cy+m.r*Math.sin(m.a2)};
+  }
+}
+
+function _applyDragNote(m, wp) {
+  m.x=wp.x; m.y=wp.y;
+}
+
+function _applyDragAngle4(m, wp, field) {
+  if(field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='b'){m.bx=wp.x;m.by=wp.y;}
+  else if(field==='c'){m.cx=wp.x;m.cy=wp.y;}else{m.dx=wp.x;m.dy=wp.y;}
+  const dAx=m.bx-m.ax,dAy=m.by-m.ay,dBx=m.dx-m.cx,dBy=m.dy-m.cy;
+  let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
+  m.deg=ang>90?180-ang:ang;
+}
+
+function _applyDragPtline(m, wp, field) {
+  if(field==='l1'){m.lx1=wp.x;m.ly1=wp.y;}else if(field==='l2'){m.lx2=wp.x;m.ly2=wp.y;}
+  else{m.px=wp.x;m.py=wp.y;}
+  const dx=m.lx2-m.lx1,dy=m.ly2-m.ly1,len=Math.hypot(dx,dy);
+  if(len>0){m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.lx1*0-m.ly2*m.lx1*0+m.lx2*m.ly1-m.ly2*m.lx1)/len;
+  m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.ly1-m.ly2*m.lx1)/len;
+  const t2=((m.px-m.lx1)*dx+(m.py-m.ly1)*dy)/(len*len);m.fx=m.lx1+t2*dx;m.fy=m.ly1+t2*dy;}
+}
+
+function _applyDragPtcoord(m, wp) {
+  m.px=wp.x;m.py=wp.y;m.cx=(m.px-m.ox)*(scFactor||1);m.cy=-(m.py-m.oy)*(scFactor||1);
 }
 
 /* ── mouse events ── */
@@ -3250,6 +3310,10 @@ function confirmWand(){
 
 /* ══════════════════════════════════════════════════════════════════ */
 
+function disableButtons(ids, disabled) {
+  ids.forEach(id => { const b = document.getElementById(id); if (b) b.disabled = disabled; });
+}
+
 function updUI() {
   if (!_kofiCTAShown && meas.length >= 3) { _kofiCTAShown = true; setTimeout(showKofiCTA, 800); }
   const hasImg=!!img, hasSc=!!scFactor;
@@ -3261,19 +3325,12 @@ function updUI() {
   const isPtCoordMode=mode==='ptc';
   const isArea=mode==='pa', isPerim=mode==='pp';
 
-  btnScale.disabled=!hasImg; btnSaveProject.disabled=!hasImg; btnMeasure.disabled=!hasSc; btnDiam.disabled=!hasSc;
-  btnAngle.disabled=!hasImg; btnArea.disabled=!hasSc; btnPerim.disabled=!hasSc; btnZoom.disabled=!hasImg;
-  btnMag.disabled=!hasImg; btnUndo.disabled=!history.length; btnClear.disabled=!hasImg;
-  btnExport.disabled=!hasImg; exportFmt.disabled=!hasImg; btnExportCSV.disabled=!hasImg;
-  if (btnExportPDF) btnExportPDF.disabled=!hasImg;
-  const btnNt=document.getElementById('btnNote'); if(btnNt) btnNt.disabled=!hasImg;
-  const btnRL=document.getElementById('btnRotL'); if(btnRL) btnRL.disabled=!hasImg;
-  const btnRR=document.getElementById('btnRotR'); if(btnRR) btnRR.disabled=!hasImg;
+  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnClear','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten','exportFmt'], !hasImg);
+  disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasSc);
+  btnUndo.disabled=!history.length;
   const isNote=mode==='na';
   const btnNtEl=document.getElementById('btnNote');
   if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':''; btnNtEl.innerHTML=`<span style='position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px'>Aa</span>${L('note')} <span class='kbd'>N</span>`;
-  const btnStr = document.getElementById('btnStraighten');
-  if (btnStr) btnStr.disabled = !hasImg;
   const btnRst = document.getElementById('btnRestoreOriginal');
   if (btnRst) btnRst.disabled = !(originalImg && originalImg !== img);
   const btnSnap = document.getElementById('btnSnap');
@@ -3282,7 +3339,6 @@ function updUI() {
   if (btnPtCoord) { btnPtCoord.disabled=!hasImg; btnPtCoord.className=isPtCoordMode?'btn-meas-active':''; }
   const btnPtSnap = document.getElementById('btnPtSnap');
   if (btnPtSnap) { btnPtSnap.disabled = !hasImg; btnPtSnap.className = ptSnapEnabled ? 'btn-tog-active' : ''; }
-  const btnPtC = document.getElementById('btnPtCoord'); if(btnPtC) btnPtC.disabled=!hasImg;
 
   btnScale.className=isSc?'btn-scale-active':'';
   btnScale.textContent=isSc?L('scale_cancel'):(hasSc?L('scale_reset'):L('scale_set'));
@@ -3452,140 +3508,9 @@ function draw() {
   // new modes rubber band
   drawNewModeRubber();
 
-  // snap indicator
-  if (snapPt && mp) {
-    ctx.save(); ctx.lineWidth=1.5/zoom;
-    if (snapPt._isPoint) {
-      // point snap: circle
-      ctx.strokeStyle='#FFD700';
-      ctx.beginPath(); ctx.arc(snapPt.x,snapPt.y,6/zoom,0,Math.PI*2); ctx.stroke();
-    } else {
-      // edge snap: cyan square
-      ctx.strokeStyle='#00e5ff';
-      const s=7/zoom; ctx.strokeRect(snapPt.x-s/2,snapPt.y-s/2,s,s);
-    }
-    ctx.restore();
-  }
-
-  // draw straighten overlay
-  if ((mode==='st' || (mode==='drag' && dragState && dragState.idx===-2)) && stPts.length > 0) {
-    ctx.save();
-    ctx.strokeStyle='rgba(159,119,221,.7)'; ctx.lineWidth=1.5/zoom; ctx.setLineDash([5/zoom,4/zoom]);
-    ctx.beginPath(); ctx.moveTo(stPts[0].x,stPts[0].y);
-    for (let i=1;i<stPts.length;i++) ctx.lineTo(stPts[i].x,stPts[i].y);
-    if (stPts.length===4) ctx.closePath();
-    ctx.stroke(); ctx.setLineDash([]);
-    if (stPts.length===4) { ctx.fillStyle='rgba(159,119,221,.07)'; ctx.fill(); }
-    stPts.forEach((q,i) => {
-      ctx.fillStyle=ST_COLORS[i];
-      ctx.beginPath(); ctx.arc(q.x,q.y,6/zoom,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1/zoom;
-      ctx.beginPath(); ctx.arc(q.x,q.y,6/zoom,0,Math.PI*2); ctx.stroke();
-    });
-    ctx.restore();
-  }
-  if (p0&&mp) {
-    if (mode==='sb') rubberLine(p0,mp,'#1D9E75',null);
-    else if (mode==='mb') { const d=dst(p0,mp); rubberLine(p0,mp,'#EF9F27',scFactor?`${(d*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d)}px`); }
-    else if (mode==='ce2' && p0&&mp) {
-      // show: center dot + rubber line to cursor + faint symmetric point
-      const sym={x:p0.x-(mp.x-p0.x), y:p0.y-(mp.y-p0.y)};
-      const d=dst(p0,mp);
-      const lbl=scFactor?`${(d*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d*2)}px`;
-      ctx.save(); ctx.fillStyle='#EF9F27'; ctx.globalAlpha=1;
-      ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill();
-      ctx.globalAlpha=0.4; ctx.beginPath(); ctx.arc(sym.x,sym.y,4/zoom,0,Math.PI*2); ctx.fill();
-      ctx.restore();
-      rubberLine(mp,sym,'#EF9F27',lbl);
-    }
-    else if (mode==='ce2') { rubberLine(p0,mp,'#EF9F27',''); } // first segment
-    else if (mode==='ce3' && p0&&p1&&mp) {
-      // draw reference segment faded
-      rubberLine(p0,p1,'#888','');
-      // draw dot at midpoint
-      const mid={x:(p0.x+p1.x)/2,y:(p0.y+p1.y)/2};
-      ctx.save(); ctx.fillStyle='#EF9F27'; ctx.beginPath(); ctx.arc(mid.x,mid.y,4/zoom,0,Math.PI*2); ctx.fill(); ctx.restore();
-      // rubber line from mid to cursor
-      const d=dst(mid,mp); rubberLine(mid,mp,'#EF9F27',scFactor?`${(d*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d)}px`);
-    }
-    else if (mode==='db') {
-      const r=dst(p0,mp);
-      const txt=scFactor?`⌀ ${(r*2*scFactor).toFixed(2)} ${scUnit}`:`⌀ ${Math.round(r*2)}px`;
-      const x2=p0.x-(mp.x-p0.x), y2=p0.y-(mp.y-p0.y);
-      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.75; ctx.setLineDash([5/zoom,4/zoom]);
-      ctx.beginPath(); ctx.arc(p0.x,p0.y,r,0,Math.PI*2); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.beginPath(); ctx.moveTo(mp.x,mp.y); ctx.lineTo(x2,y2); ctx.stroke();
-      ctx.globalAlpha=1; ctx.fillStyle='#5DCAA5';
-      ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(mp.x,mp.y,4/zoom,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x2,y2,4/zoom,0,Math.PI*2); ctx.fill();
-      ctx.restore(); drawLabel(p0.x,p0.y-r-18/zoom,txt,'#5DCAA5');
-    }
-    else if (mode==='arc2' && p0&&mp) {
-      // show radius rubber line
-      rubberLine(p0,mp,'#5DCAA5','');
-      ctx.save(); ctx.fillStyle='#5DCAA5'; ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill(); ctx.restore();
-    }
-    else if (mode==='arc3' && p0&&p1&&mp) {
-      const r=dst(p0,p1);
-      const a1=Math.atan2(p1.y-p0.y,p1.x-p0.x);
-      const a2=Math.atan2(mp.y-p0.y,mp.x-p0.x);
-      let sweep=a2-a1; if(sweep>Math.PI)sweep-=2*Math.PI; if(sweep<-Math.PI)sweep+=2*Math.PI;
-      const arcLen=Math.abs(sweep)*r;
-      const lbl=scFactor?`⌒ ${(arcLen*scFactor).toFixed(2)} ${scUnit}`:`⌒ ${Math.round(arcLen)}px`;
-      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.8;
-      ctx.beginPath(); ctx.arc(p0.x,p0.y,r,a1,a1+sweep,sweep<0); ctx.stroke();
-      ctx.setLineDash([4/zoom,3/zoom]);
-      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
-      const sp2={x:p0.x+r*Math.cos(a2),y:p0.y+r*Math.sin(a2)};
-      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(sp2.x,sp2.y); ctx.stroke();
-      ctx.setLineDash([]); ctx.fillStyle='#5DCAA5';
-      [p0,p1,sp2].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
-      ctx.globalAlpha=1; ctx.restore();
-      const amid=a1+sweep/2; drawLabel(p0.x+Math.cos(amid)*(r+14/zoom),p0.y+Math.sin(amid)*(r+14/zoom),lbl,'#5DCAA5',dpr);
-    }
-    else if (mode==='d3b' && p0&&mp) {
-      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.7;
-      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(mp.x,mp.y); ctx.stroke();
-      ctx.fillStyle='#5DCAA5'; [p0,mp].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
-      ctx.restore();
-    }
-    else if (mode==='d3c' && p0&&p1&&mp) {
-      const circ = circumscribedCircle(p0,p1,mp);
-      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.75;
-      if (circ) {
-        ctx.setLineDash([5/zoom,4/zoom]);
-        ctx.beginPath(); ctx.arc(circ.cx,circ.cy,circ.r,0,Math.PI*2); ctx.stroke();
-        ctx.setLineDash([]); ctx.fillStyle='#5DCAA5';
-        [p0,p1,mp].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
-        const lbl=scFactor?`⌀ ${(2*circ.r*scFactor).toFixed(2)} ${scUnit}`:`⌀ ${Math.round(2*circ.r)}px`;
-        ctx.globalAlpha=1; drawLabel(circ.cx, circ.cy-circ.r-18/zoom, lbl,'#5DCAA5');
-      }
-      ctx.restore();
-    }
-    else if (mode==='ab') { rubberLine(p0,mp,'#D4537E',null); ctx.save();ctx.fillStyle='#D4537E';ctx.beginPath();ctx.arc(p0.x,p0.y,4/zoom,0,Math.PI*2);ctx.fill();ctx.restore(); }
-    else if (mode==='ac'&&p1) {
-      const deg=angleDeg(p0,p1,mp);
-      ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.8;
-      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(mp.x,mp.y); ctx.stroke();
-      const a1=Math.atan2(p0.y-p1.y,p0.x-p1.x),a2=Math.atan2(mp.y-p1.y,mp.x-p1.x);
-      const arcR=Math.min(dst(p0,p1),dst(p1,mp))*0.3;
-      ctx.setLineDash([3/zoom,3/zoom]); ctx.beginPath(); ctx.arc(p1.x,p1.y,arcR,a1,a2); ctx.stroke();
-      ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle='#D4537E';
-      for (const pp of [p0,p1,mp]){ctx.beginPath();ctx.arc(pp.x,pp.y,3/zoom,0,Math.PI*2);ctx.fill();}
-      ctx.restore(); drawLabel(p1.x+Math.cos((a1+a2)/2)*(arcR+18/zoom),p1.y+Math.sin((a1+a2)/2)*(arcR+18/zoom),`${deg.toFixed(1)}°`,'#D4537E');
-    }
-  }
-  if (mode==='ac'&&p0&&p1&&!mp) {
-    ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom;
-    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
-    ctx.fillStyle='#D4537E';
-    ctx.beginPath(); ctx.arc(p0.x,p0.y,3/zoom,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(p1.x,p1.y,3/zoom,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  }
+  _drawSnapIndicator();
+  _drawStraightenOverlay();
+  _drawRubberband(dpr);
 
 
   // Note pending dot (shown immediately after click, before user types text)
@@ -3688,6 +3613,144 @@ function draw() {
     else clearMagOverlay();
   } else {
     clearMagOverlay();
+  }
+}
+
+function _drawSnapIndicator() {
+  if (!(snapPt && mp)) return;
+  ctx.save(); ctx.lineWidth=1.5/zoom;
+  if (snapPt._isPoint) {
+    // point snap: circle
+    ctx.strokeStyle='#FFD700';
+    ctx.beginPath(); ctx.arc(snapPt.x,snapPt.y,6/zoom,0,Math.PI*2); ctx.stroke();
+  } else {
+    // edge snap: cyan square
+    ctx.strokeStyle='#00e5ff';
+    const s=7/zoom; ctx.strokeRect(snapPt.x-s/2,snapPt.y-s/2,s,s);
+  }
+  ctx.restore();
+}
+
+function _drawStraightenOverlay() {
+  if (!((mode==='st' || (mode==='drag' && dragState && dragState.idx===-2)) && stPts.length > 0)) return;
+  ctx.save();
+  ctx.strokeStyle='rgba(159,119,221,.7)'; ctx.lineWidth=1.5/zoom; ctx.setLineDash([5/zoom,4/zoom]);
+  ctx.beginPath(); ctx.moveTo(stPts[0].x,stPts[0].y);
+  for (let i=1;i<stPts.length;i++) ctx.lineTo(stPts[i].x,stPts[i].y);
+  if (stPts.length===4) ctx.closePath();
+  ctx.stroke(); ctx.setLineDash([]);
+  if (stPts.length===4) { ctx.fillStyle='rgba(159,119,221,.07)'; ctx.fill(); }
+  stPts.forEach((q,i) => {
+    ctx.fillStyle=ST_COLORS[i];
+    ctx.beginPath(); ctx.arc(q.x,q.y,6/zoom,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=1/zoom;
+    ctx.beginPath(); ctx.arc(q.x,q.y,6/zoom,0,Math.PI*2); ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function _drawRubberband(dpr) {
+  if (p0&&mp) {
+    if (mode==='sb') rubberLine(p0,mp,'#1D9E75',null);
+    else if (mode==='mb') { const d=dst(p0,mp); rubberLine(p0,mp,'#EF9F27',scFactor?`${(d*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d)}px`); }
+    else if (mode==='ce2' && p0&&mp) {
+      // show: center dot + rubber line to cursor + faint symmetric point
+      const sym={x:p0.x-(mp.x-p0.x), y:p0.y-(mp.y-p0.y)};
+      const d=dst(p0,mp);
+      const lbl=scFactor?`${(d*2*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d*2)}px`;
+      ctx.save(); ctx.fillStyle='#EF9F27'; ctx.globalAlpha=1;
+      ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=0.4; ctx.beginPath(); ctx.arc(sym.x,sym.y,4/zoom,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+      rubberLine(mp,sym,'#EF9F27',lbl);
+    }
+    else if (mode==='ce2') { rubberLine(p0,mp,'#EF9F27',''); } // first segment
+    else if (mode==='ce3' && p0&&p1&&mp) {
+      // draw reference segment faded
+      rubberLine(p0,p1,'#888','');
+      // draw dot at midpoint
+      const mid={x:(p0.x+p1.x)/2,y:(p0.y+p1.y)/2};
+      ctx.save(); ctx.fillStyle='#EF9F27'; ctx.beginPath(); ctx.arc(mid.x,mid.y,4/zoom,0,Math.PI*2); ctx.fill(); ctx.restore();
+      // rubber line from mid to cursor
+      const d=dst(mid,mp); rubberLine(mid,mp,'#EF9F27',scFactor?`${(d*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(d)}px`);
+    }
+    else if (mode==='db') {
+      const r=dst(p0,mp);
+      const txt=scFactor?`⌀ ${(r*2*scFactor).toFixed(2)} ${scUnit}`:`⌀ ${Math.round(r*2)}px`;
+      const x2=p0.x-(mp.x-p0.x), y2=p0.y-(mp.y-p0.y);
+      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.75; ctx.setLineDash([5/zoom,4/zoom]);
+      ctx.beginPath(); ctx.arc(p0.x,p0.y,r,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(mp.x,mp.y); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.globalAlpha=1; ctx.fillStyle='#5DCAA5';
+      ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(mp.x,mp.y,4/zoom,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x2,y2,4/zoom,0,Math.PI*2); ctx.fill();
+      ctx.restore(); drawLabel(p0.x,p0.y-r-18/zoom,txt,'#5DCAA5');
+    }
+    else if (mode==='arc2' && p0&&mp) {
+      // show radius rubber line
+      rubberLine(p0,mp,'#5DCAA5','');
+      ctx.save(); ctx.fillStyle='#5DCAA5'; ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill(); ctx.restore();
+    }
+    else if (mode==='arc3' && p0&&p1&&mp) {
+      const r=dst(p0,p1);
+      const a1=Math.atan2(p1.y-p0.y,p1.x-p0.x);
+      const a2=Math.atan2(mp.y-p0.y,mp.x-p0.x);
+      let sweep=a2-a1; if(sweep>Math.PI)sweep-=2*Math.PI; if(sweep<-Math.PI)sweep+=2*Math.PI;
+      const arcLen=Math.abs(sweep)*r;
+      const lbl=scFactor?`⌒ ${(arcLen*scFactor).toFixed(2)} ${scUnit}`:`⌒ ${Math.round(arcLen)}px`;
+      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.8;
+      ctx.beginPath(); ctx.arc(p0.x,p0.y,r,a1,a1+sweep,sweep<0); ctx.stroke();
+      ctx.setLineDash([4/zoom,3/zoom]);
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
+      const sp2={x:p0.x+r*Math.cos(a2),y:p0.y+r*Math.sin(a2)};
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(sp2.x,sp2.y); ctx.stroke();
+      ctx.setLineDash([]); ctx.fillStyle='#5DCAA5';
+      [p0,p1,sp2].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+      ctx.globalAlpha=1; ctx.restore();
+      const amid=a1+sweep/2; drawLabel(p0.x+Math.cos(amid)*(r+14/zoom),p0.y+Math.sin(amid)*(r+14/zoom),lbl,'#5DCAA5',dpr);
+    }
+    else if (mode==='d3b' && p0&&mp) {
+      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.7;
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(mp.x,mp.y); ctx.stroke();
+      ctx.fillStyle='#5DCAA5'; [p0,mp].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+      ctx.restore();
+    }
+    else if (mode==='d3c' && p0&&p1&&mp) {
+      const circ = circumscribedCircle(p0,p1,mp);
+      ctx.save(); ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.75;
+      if (circ) {
+        ctx.setLineDash([5/zoom,4/zoom]);
+        ctx.beginPath(); ctx.arc(circ.cx,circ.cy,circ.r,0,Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle='#5DCAA5';
+        [p0,p1,mp].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+        const lbl=scFactor?`⌀ ${(2*circ.r*scFactor).toFixed(2)} ${scUnit}`:`⌀ ${Math.round(2*circ.r)}px`;
+        ctx.globalAlpha=1; drawLabel(circ.cx, circ.cy-circ.r-18/zoom, lbl,'#5DCAA5');
+      }
+      ctx.restore();
+    }
+    else if (mode==='ab') { rubberLine(p0,mp,'#D4537E',null); ctx.save();ctx.fillStyle='#D4537E';ctx.beginPath();ctx.arc(p0.x,p0.y,4/zoom,0,Math.PI*2);ctx.fill();ctx.restore(); }
+    else if (mode==='ac'&&p1) {
+      const deg=angleDeg(p0,p1,mp);
+      ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.8;
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(mp.x,mp.y); ctx.stroke();
+      const a1=Math.atan2(p0.y-p1.y,p0.x-p1.x),a2=Math.atan2(mp.y-p1.y,mp.x-p1.x);
+      const arcR=Math.min(dst(p0,p1),dst(p1,mp))*0.3;
+      ctx.setLineDash([3/zoom,3/zoom]); ctx.beginPath(); ctx.arc(p1.x,p1.y,arcR,a1,a2); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle='#D4537E';
+      for (const pp of [p0,p1,mp]){ctx.beginPath();ctx.arc(pp.x,pp.y,3/zoom,0,Math.PI*2);ctx.fill();}
+      ctx.restore(); drawLabel(p1.x+Math.cos((a1+a2)/2)*(arcR+18/zoom),p1.y+Math.sin((a1+a2)/2)*(arcR+18/zoom),`${deg.toFixed(1)}°`,'#D4537E');
+    }
+  }
+  if (mode==='ac'&&p0&&p1&&!mp) {
+    ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom;
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
+    ctx.fillStyle='#D4537E';
+    ctx.beginPath(); ctx.arc(p0.x,p0.y,3/zoom,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(p1.x,p1.y,3/zoom,0,Math.PI*2); ctx.fill();
+    ctx.restore();
   }
 }
 
@@ -4485,8 +4548,6 @@ window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg()
 document.getElementById('mFileInput').onchange = e => {
   if (e.target.files[0]) { loadImg(e.target.files[0]); e.target.value=''; }
 };
-
-function toggleMobileSheet() {}
 
 // update mobile UI
 /* ── Mobile two-level toolbar ── */
