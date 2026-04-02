@@ -338,6 +338,36 @@
     100% { box-shadow: 0 0 0 0 rgba(29,158,117,0); }
   }
   .scale-pulse-once { animation: scalePulseOnce .6s ease-out 2; }
+
+  #viewPanel {
+    width: 114px;
+    min-width: 114px;
+    background: #242424;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 5px;
+    gap: 4px;
+    transition: width 0.2s, min-width 0.2s;
+    overflow: hidden;
+  }
+  #viewPanel.vp-collapsed { width: 26px; min-width: 26px; }
+  #vpToggle {
+    background: transparent;
+    border: 0.5px solid #3a3a3a;
+    border-radius: 5px;
+    color: #555;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 5px 0;
+    width: 100%;
+    text-align: center;
+    flex-shrink: 0;
+    font-family: inherit;
+    transition: color .15s, background .15s;
+  }
+  #vpToggle:hover { color: #aaa; background: #2e2e2e; border-color: #555; }
+  @media (max-width: 767px) { #viewPanel { display: none; } }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -491,6 +521,11 @@
           <button id="btnPerim" onclick="doPerim()" disabled style="flex:1;font-size:11px"><svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>Path <span class="kbd">P</span></button>
           <button id="btnNote"  onclick="doNote()"  disabled style="flex:1;font-size:11px"><span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>Note <span class="kbd">N</span></button>
         </div>
+        <!-- Path sub-tools -->
+        <div id="subPerim" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #F0994A">
+          <button id="btnPerimStr" onclick="setSegMode('perim','straight')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#F0994A;cursor:pointer">— Straight segments</button>
+          <button id="btnPerimBez" onclick="setSegMode('perim','bezier')"   style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⌒ Bezier segments</button>
+        </div>
         <div class="btn-row">
           <button id="btnPtCoord" onclick="doPtCoord()" disabled style="flex:1;font-size:11px">⊙ Pt Coord</button>
         </div>
@@ -499,21 +534,6 @@
           <button id="btnSetOrigin" onclick="setPtCoordMode('origin')" style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⊕ Set origin</button>
           <button id="btnPlacePoint" onclick="setPtCoordMode('point')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#5DCAA5;cursor:pointer">⊙ Place point</button>
         </div>
-        <!-- Path sub-tools -->
-        <div id="subPerim" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #F0994A">
-          <button id="btnPerimStr" onclick="setSegMode('perim','straight')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#F0994A;cursor:pointer">— Straight segments</button>
-          <button id="btnPerimBez" onclick="setSegMode('perim','bezier')"   style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⌒ Bezier segments</button>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="slbl" data-i18n="VIEW">VIEW</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        <button id="btnZoom"   onclick="toggleZoom()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">⊕ Pan &amp; zoom</button>
-        <button id="btnMag"    onclick="toggleMag()"    disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">◎ Zoom cursor</button>
-        <button id="btnSnap"   onclick="toggleSnap()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Detect edges for snapping">⌖ Edge detect</button>
-        <button id="btnPtSnap" onclick="togglePtSnap()" disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Snap to existing measurement points">◎ Snap point</button>
       </div>
     </div>
 
@@ -674,6 +694,17 @@
           <button class="btn-confirm" onclick="confirmNote()" style="width:auto" data-i18n="add_note_btn">Add note</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- view panel (desktop only) -->
+  <div id="viewPanel">
+    <button id="vpToggle" onclick="toggleViewPanel()" title="Toggle view tools">‹</button>
+    <div id="vpButtons" style="display:flex;flex-direction:column;gap:4px">
+      <button id="btnMag"    onclick="toggleMag()"    disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">◎ Zoom cursor</button>
+      <button id="btnZoom"   onclick="toggleZoom()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">⊕ Pan &amp; zoom</button>
+      <button id="btnSnap"   onclick="toggleSnap()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Detect edges for snapping">⌖ Edge detect</button>
+      <button id="btnPtSnap" onclick="togglePtSnap()" disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Snap to existing measurement points">◎ Snap point</button>
     </div>
   </div>
 
@@ -1942,7 +1973,7 @@ function applyDrag(wp) {
       const dx=wp.x-m.cx, dy=wp.y-m.cy;
       m.cx=wp.x; m.cy=wp.y; m.p1={x:m.p1.x+dx,y:m.p1.y+dy}; m.p2={x:m.p2.x+dx,y:m.p2.y+dy};
     } else if (field==='p1') {
-      m.p1={x:wp.x,y:wp.y}; m.r=dst(m,m.p1); m.a1=Math.atan2(m.p1.y-m.cy,m.p1.x-m.cx);
+      m.p1={x:wp.x,y:wp.y}; m.r=dst({x:m.cx,y:m.cy},m.p1); m.a1=Math.atan2(m.p1.y-m.cy,m.p1.x-m.cx);
       let sw=m.a2-m.a1; if(sw>Math.PI)sw-=2*Math.PI; if(sw<-Math.PI)sw+=2*Math.PI;
       m.sweep=sw; m.arcLen=Math.abs(sw)*m.r;
       m.p2={x:m.cx+m.r*Math.cos(m.a2),y:m.cy+m.r*Math.sin(m.a2)};
@@ -1986,13 +2017,14 @@ cv.addEventListener('mousedown', e => {
   // In zoom mode: check drag target first, pan only if nothing to drag
   if (e.button===0 && zoomEnabled && mode==='idle') {
     const t=findDrag(wp);
-    if (t) { pushHistory(); dragState=t; mode='drag'; cv.style.cursor=t.field==='label'?'grabbing':'default'; return; }
-    isPanning=true; panStart={mx:cp.x,my:cp.y,px:panX,py:panY};
+    if (t) { pushHistory(); dragState=t; mode='drag'; cv.style.cursor=t.field==='label'?'grabbing':'default'; hovIdx=t.idx>=0?t.idx:-1; draw(); return; }
+    hovIdx=-1; isPanning=true; panStart={mx:cp.x,my:cp.y,px:panX,py:panY};
     cv.style.cursor='grabbing'; e.preventDefault(); return;
   }
   if (mode==='idle' || mode==='st') {
     const t=findDrag(wp);
-    if (t) { pushHistory(); dragState=t; mode='drag'; cv.style.cursor=t.field==='label'?'grabbing':'default'; }
+    if (t) { pushHistory(); dragState=t; mode='drag'; cv.style.cursor=t.field==='label'?'grabbing':'default'; hovIdx=t.idx>=0?t.idx:-1; draw(); }
+    else { hovIdx=-1; }
   }
 });
 
@@ -2758,7 +2790,7 @@ function setSegMode(tool, segModeVal) {
   // Determine buttons for this tool
   const btnStr  = document.getElementById(isArea ? 'btnAreaStr'  : 'btnPerimStr');
   const btnBez  = document.getElementById(isArea ? 'btnAreaBez'  : 'btnPerimBez');
-  [btnStr, btnBez].forEach(([b,k]) => {
+  [[btnStr, 'straight'], [btnBez, 'bezier']].forEach(([b,k]) => {
     if (!b) return;
     const active = segModeVal===k;
     b.style.background = active ? '#2a2a2a' : 'none';
@@ -3408,7 +3440,7 @@ function draw() {
 
   // show first placed point immediately even before mp exists
   if (p0 && !mp) {
-    const colP0 = (mode==='sb')?'#1D9E75':(mode==='mb')?'#EF9F27':(mode==='db')?'#5DCAA5':(mode==='ab'||mode==='ac')?'#D4537E':'#aaa';
+    const colP0 = (mode==='sb')?'#1D9E75':(mode==='mb')?'#EF9F27':(mode==='db')?'#5DCAA5':(mode==='ab'||mode==='ac'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':'#aaa';
     ctx.save(); ctx.fillStyle=colP0;
     ctx.beginPath(); ctx.arc(p0.x,p0.y,5/zoom,0,Math.PI*2); ctx.fill();
     // pulse ring
@@ -3642,7 +3674,7 @@ function draw() {
   const isMobNow = window.innerWidth<=767;
   if (mp) {
     const am2=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc','pa','pp','st'];
-    const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':mode==='st'?'#9F77DD':'#EF9F27';
+    const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':mode==='st'?'#9F77DD':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
     // mobile: show only during longPress or drag
@@ -4936,6 +4968,28 @@ async function submitFeedback(e) {
 document.getElementById('feedbackModal').addEventListener('click', e => {
   if (e.target === document.getElementById('feedbackModal')) closeFeedback();
 });
+
+/* ── View panel ── */
+function toggleViewPanel() {
+  const vp = document.getElementById('viewPanel');
+  const vpb = document.getElementById('vpButtons');
+  const vpt = document.getElementById('vpToggle');
+  const collapsed = vp.classList.toggle('vp-collapsed');
+  vpb.style.display = collapsed ? 'none' : 'flex';
+  vpt.textContent = collapsed ? '›' : '‹';
+  localStorage.setItem('mesu_vp_collapsed', collapsed);
+}
+// Restore view panel state
+(function() {
+  if (localStorage.getItem('mesu_vp_collapsed') === 'true') {
+    const vp = document.getElementById('viewPanel');
+    const vpb = document.getElementById('vpButtons');
+    const vpt = document.getElementById('vpToggle');
+    if (vp) vp.classList.add('vp-collapsed');
+    if (vpb) vpb.style.display = 'none';
+    if (vpt) vpt.textContent = '›';
+  }
+})();
 
 /* ── Ko-fi CTA ── */
 function showKofiModal() {
