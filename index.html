@@ -345,35 +345,73 @@
   }
   .scale-pulse-once { animation: scalePulseOnce .6s ease-out 2; }
 
-  #viewPanel {
-    width: 114px;
-    min-width: 114px;
-    background: #242424;
-    border-left: 1px solid #333;
+  #vpWrap {
+    position: fixed;
+    right: 0;
+    top: 22%;
     display: flex;
-    flex-direction: column;
-    padding: 8px 5px;
-    gap: 4px;
-    transition: width 0.2s, min-width 0.2s;
+    flex-direction: row;
+    align-items: flex-start;
+    z-index: 50;
+    background: #2b3a45;
+    border: 1px solid #4a7a9b;
+    border-radius: 6px 0 0 6px;
     overflow: hidden;
   }
-  #viewPanel.vp-collapsed { width: 26px; min-width: 26px; }
-  #vpToggle {
-    background: transparent;
-    border: 0.5px solid #3a3a3a;
-    border-radius: 5px;
-    color: #555;
+  #vpWrap::after {
+    content: '';
+    position: absolute;
+    left: 30px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: #4a7a9b;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  #vpWrap.vp-open::after { opacity: 1; }
+  #vpTab {
+    width: 30px;
+    padding: 18px 7px;
     cursor: pointer;
-    font-size: 13px;
-    padding: 5px 0;
-    width: 100%;
-    text-align: center;
+    background: #2b3a45;
+    color: #7db3cc;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    user-select: none;
     font-family: inherit;
     transition: color .15s, background .15s;
   }
-  #vpToggle:hover { color: #aaa; background: #2e2e2e; border-color: #555; }
-  @media (max-width: 767px) { #viewPanel { display: none; } }
+  #vpTab:hover { background: #344d5c; color: #a8cfe0; }
+  #vpTabText {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  #vpButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #242424;
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    transition: width 0.25s ease, padding 0.25s ease;
+  }
+  #vpWrap.vp-open #vpButtons {
+    width: 140px;
+    padding: 12px 10px;
+  }
+  @media (max-width: 767px) { #vpWrap { display: none; } }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -704,9 +742,9 @@
   </div>
 
   <!-- view panel (desktop only) -->
-  <div id="viewPanel">
-    <button id="vpToggle" onclick="toggleViewPanel()" title="Toggle view tools">‹</button>
-    <div id="vpButtons" style="display:flex;flex-direction:column;gap:4px">
+  <div id="vpWrap" class="vp-open">
+    <div id="vpTab" onclick="toggleViewPanel()" title="Toggle view options"><span id="vpTabText">Hide Options</span></div>
+    <div id="vpButtons">
       <button id="btnMag"    onclick="toggleMag()"    disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">◎ Zoom cursor</button>
       <button id="btnZoom"   onclick="toggleZoom()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">⊕ Pan &amp; zoom</button>
       <button id="btnSnap"   onclick="toggleSnap()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Detect edges for snapping">⌖ Edge detect</button>
@@ -4529,6 +4567,13 @@ setTimeout(() => {
   const p = document.getElementById('kofiPopup');
   if (p) { p.style.display='block'; requestAnimationFrame(() => { p.style.opacity='1'; p.style.pointerEvents='all'; }); }
 }, 400);
+// pulse load button on page open when no image is loaded
+setTimeout(() => {
+  if (!img) {
+    const ll = document.getElementById('loadLabel');
+    if (ll) { ll.classList.add('scale-pulse-once'); ll.addEventListener('animationend', () => ll.classList.remove('scale-pulse-once'), {once:true}); }
+  }
+}, 500);
 
 /* ── MOBILE ── */
 const isMob = () => window.innerWidth <= 767;
@@ -5032,23 +5077,19 @@ document.getElementById('feedbackModal').addEventListener('click', e => {
 
 /* ── View panel ── */
 function toggleViewPanel() {
-  const vp = document.getElementById('viewPanel');
-  const vpb = document.getElementById('vpButtons');
-  const vpt = document.getElementById('vpToggle');
-  const collapsed = vp.classList.toggle('vp-collapsed');
-  vpb.style.display = collapsed ? 'none' : 'flex';
-  vpt.textContent = collapsed ? '›' : '‹';
-  localStorage.setItem('mesu_vp_collapsed', collapsed);
+  const wrap = document.getElementById('vpWrap');
+  const text = document.getElementById('vpTabText');
+  const open = wrap.classList.toggle('vp-open');
+  text.textContent = open ? 'Hide Options' : 'View Options';
+  localStorage.setItem('mesu_vp_collapsed', !open);
 }
 // Restore view panel state
 (function() {
+  const wrap = document.getElementById('vpWrap');
+  const text = document.getElementById('vpTabText');
   if (localStorage.getItem('mesu_vp_collapsed') === 'true') {
-    const vp = document.getElementById('viewPanel');
-    const vpb = document.getElementById('vpButtons');
-    const vpt = document.getElementById('vpToggle');
-    if (vp) vp.classList.add('vp-collapsed');
-    if (vpb) vpb.style.display = 'none';
-    if (vpt) vpt.textContent = '›';
+    if (wrap) wrap.classList.remove('vp-open');
+    if (text) text.textContent = 'View Options';
   }
 })();
 
