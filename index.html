@@ -4,21 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mesuro — Free Online Image Measurement Tool | Measure images & PDFs, distances, angles, areas</title>
-<meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters, diameters, point coordinates and arc lengths in images and PDF files. Bezier curve areas, magic wand selection, protractor, perspective correction. No upload, no install, fully private.">
+<meta name="description" content="Free online image measurement tool. Measure distances, angles, areas, perimeters, diameters, point coordinates and arc lengths in images and PDF files. Bezier curve areas, protractor, perspective correction. No upload, no install, fully private.">
 <meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image, perspective correction, rectify image, annotate image online, PDF measurement report, image annotation tool, measure PDF online, PDF ruler, measure distance in PDF, PDF measurement tool">
 <meta name="author" content="Mesuro">
 <meta name="application-name" content="Mesuro">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Area measurement with magic wand (color selection)","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export","CSV export","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cstyle%3Etext%2Cline%7Bfill:%23222%3Bstroke:%23222%7D%40media(prefers-color-scheme:dark)%7Btext%2Cline%7Bfill:%23fff%3Bstroke:%23fff%7D%7D%3C/style%3E%3Ctext x='2' y='23' font-family='system-ui,-apple-system,sans-serif' font-size='22' font-weight='800' fill='%23222'%3Em%3C/text%3E%3Cline x1='2' y1='27' x2='30' y2='27' stroke='%23222' stroke-width='1.5'/%3E%3Cline x1='2' y1='24' x2='2' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='30' y1='24' x2='30' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mesu.ro/">
 <meta property="og:title" content="Mesuro — measure anything in an image">
 <meta property="og:site_name" content="Mesuro">
-<meta property="og:description" content="Measure distances, angles, areas, arc lengths, point coordinates and diameters in images and PDFs. Bezier curves, magic wand, protractor, perspective correction. Free, instant, no upload.">
+<meta property="og:description" content="Measure distances, angles, areas, arc lengths, point coordinates and diameters in images and PDFs. Bezier curves, protractor, perspective correction. Free, instant, no upload.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mesuro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Distances, angles, areas. No upload, no install.">
@@ -540,6 +540,7 @@
           <button id="btnDistPP"  onclick="setDistMode('pp')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="dist_pp">↔ Point to point</button>
           <button id="btnDistCE"  onclick="setDistMode('ce')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="dist_ce">⊕ Center to edge (sym.)</button>
           <button id="btnDistPL"  onclick="setDistMode('pl')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⊥ Point to line</button>
+          <button id="btnDistLL"  onclick="setDistMode('ll')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">∥ Line to line</button>
         </div>
         <!-- Diameter sub-tools -->
         <div id="subDiam" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #5DCAA5">
@@ -611,15 +612,6 @@
 
   <div id="canvasArea">
 
-    <!-- Magic wand threshold bar -->
-    <div id="wandBar" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:25;background:rgba(18,18,18,.92);border:0.5px solid #333;border-radius:8px;padding:6px 14px;align-items:center;gap:10px;font-family:system-ui,-apple-system,sans-serif;pointer-events:all;white-space:nowrap">
-      <span style="font-size:11px;color:#888">Threshold</span>
-      <input type="range" id="wandThreshold" min="1" max="120" value="30" style="width:110px;accent-color:#9F77DD;cursor:pointer">
-      <span id="wandThreshVal" style="font-size:11px;color:#9F77DD;width:24px;text-align:right">30</span>
-      <span style="color:#333;font-size:11px">|</span>
-      <button id="wandConfirmBtn" onclick="confirmWand()" style="display:none;font-size:11px;padding:3px 10px;background:#9F77DD;border:none;border-radius:4px;color:#fff;cursor:pointer;font-family:inherit">✓ Confirm</button>
-      <span id="wandHint" style="font-size:11px;color:#555">Click image to select</span>
-    </div>
 
     <div id="dz">
       <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
@@ -854,7 +846,7 @@
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
       <div style="font-size:11px;color:#9F77DD;font-weight:600;letter-spacing:.08em;margin-bottom:8px">⬡ AREA</div>
-      <div style="font-size:13px;color:#aaa;line-height:1.6">Click to place polygon vertices. Choose straight or bezier segments. Use magic wand to select a region by color. Close by clicking the first point or Enter. Area in real-world units².</div>
+      <div style="font-size:13px;color:#aaa;line-height:1.6">Click to place polygon vertices. Choose straight or bezier segments. Close by clicking the first point or Enter. Area in real-world units².</div>
     </div>
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
@@ -977,7 +969,7 @@
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does Mesuro support?</div>
-      <div style="font-size:13px;color:#666">Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight, bezier, or magic wand), path/perimeter, point coordinates, and text notes. Angles work without scale calibration.</div>
+      <div style="font-size:13px;color:#666">Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight or bezier), path/perimeter, point coordinates, and text notes. Angles work without scale calibration.</div>
     </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
@@ -1005,10 +997,6 @@
       <div style="font-size:13px;color:#666">Accuracy depends on your scale calibration and image resolution. The precision cursor magnifier zooms in 5× to help you place points on exact pixels. For best results, use the longest possible scale reference line.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How does the magic wand area tool work?</div>
-      <div style="font-size:13px;color:#666">Select Area → Magic wand, then click any pixel in the image. Mesuro flood-fills all connected pixels of similar color and traces a smooth bezier contour around the region. Adjust the threshold slider to expand or shrink the selection, then confirm to create the measurement.</div>
-    </div>
 
     <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What is the bezier curve mode for area and path?</div>
@@ -1436,7 +1424,6 @@ function updMobileLang() {
 }
 
 let pdfDoc = null, pdfCurrentPage = 1;
-let _wandState=null, _wandImgData=null, _wandImg=null, _wandMaskCanvas=null;
 
 function isPDF(file) {
   return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
@@ -2337,6 +2324,28 @@ cv.addEventListener('click', e => {
     if (window.innerWidth<=767) { stopTool(); } else { mode='pl1'; setHint('Click 1st point of reference line'); }
     draw(); updUI();
   }
+  // Line-to-line distance
+  else if (mode==='ll1') { p0=p; mode='ll2'; setHint('Click 2nd point of line 1'); }
+  else if (mode==='ll2') {
+    if (dst(p0,p)<5/zoom) return;
+    p1=p; mode='ll3'; setHint('Click anywhere to place parallel line 2');
+    draw(); updUI();
+  }
+  else if (mode==='ll3') {
+    const dx=p1.x-p0.x, dy=p1.y-p0.y, len=Math.hypot(dx,dy);
+    if (len<1) return;
+    const t2=((p.x-p0.x)*dx+(p.y-p0.y)*dy)/(len*len);
+    const fx=p0.x+t2*dx, fy=p0.y+t2*dy;
+    const offX=p.x-fx, offY=p.y-fy;
+    if (Math.hypot(offX,offY)<3/zoom) return;
+    const l2x1=p0.x+offX, l2y1=p0.y+offY, l2x2=p1.x+offX, l2y2=p1.y+offY;
+    const distPx=Math.hypot(offX,offY);
+    pushHistory();
+    meas.push({type:'ll',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,l2x1,l2y1,l2x2,l2y2,fx,fy,mx:p.x,my:p.y,distPx});
+    p0=null; p1=null; mp=null;
+    if (window.innerWidth<=767) { stopTool(); } else { mode='ll1'; setHint('Click 1st point of line 1'); }
+    draw(); updUI();
+  }
   // Point coordinate
   else if (mode==='ptc') {
     if (ptCoordMode==='origin') {
@@ -2412,7 +2421,6 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (e.key==='Enter'&&mode==='pa'&&areaPts.length>=3) { closeArea(); return; }
-  if (e.key==='Enter'&&_wandState&&_wandState.simplified) { confirmWand(); return; }
   if (e.key==='Enter'&&mode==='pp'&&areaPts.length>=2) { closePerim(); return; }
   if (!e.ctrlKey&&!e.metaKey&&!e.altKey) {
     if ((e.key==='l'||e.key==='L')&&img&&scFactor) doMeasure();
@@ -2431,9 +2439,8 @@ function stopTool() {
   mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; areaCps=[]; stPts=[]; clearHint(); closeSubPanels(); updStraightenUI(); draw(); updUI();
 }
 function closeSubPanels() {
-  const ids = ['subDist','subDiam','subArea','subPerim','subAngle','subPtCoord','wandBar'];
+  const ids = ['subDist','subDiam','subArea','subPerim','subAngle','subPtCoord'];
   ids.forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
-  if (_wandState) { _wandState=null; _wandMaskCanvas=null; draw(); }
 }
 function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint(L('h_scale_a')); updUI(); }
 function doScaleReset() {
@@ -2442,7 +2449,7 @@ function doScaleReset() {
   draw(); updUI();
 }
 function doMeasure() {
-  const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2';
+  const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
   if (active) { stopTool(); document.getElementById('subDist').style.display='none'; return; }
   if (!scFactor) return;
   t('tool_distance', {unit:scUnit});
@@ -2755,15 +2762,16 @@ function setDistMode(m) {
   window._lastDistMode = m;
   t('subtool_dist', {mode:m});
   p0=null; p1=null; mp=null; clearHint();
-  document.getElementById('btnDistPP').style.background = m==='pp' ? '#2a2a2a' : 'none';
-  document.getElementById('btnDistCE').style.background = m==='ce' ? '#2a2a2a' : 'none';
-  document.getElementById('btnDistPL').style.background = m==='pl' ? '#2a2a2a' : 'none';
-  document.getElementById('btnDistPP').style.color = m==='pp' ? '#EF9F27' : '#aaa';
-  document.getElementById('btnDistCE').style.color = m==='ce' ? '#EF9F27' : '#aaa';
-  document.getElementById('btnDistPL').style.color = m==='pl' ? '#EF9F27' : '#aaa';
-  if (m==='pp')  { mode='ma';  setHint(L('h_dist_a')); }
+  const btns = {pp:'btnDistPP',ce:'btnDistCE',pl:'btnDistPL',ll:'btnDistLL'};
+  Object.entries(btns).forEach(([k,id])=>{
+    const b=document.getElementById(id); if(!b)return;
+    b.style.background = m===k ? '#2a2a2a' : 'none';
+    b.style.color = m===k ? '#EF9F27' : '#aaa';
+  });
+  if (m==='pp')      { mode='ma';  setHint(L('h_dist_a')); }
   else if (m==='ce') { mode='ce1'; setHint(L('h_ce1')); }
-  else           { mode='pl1'; setHint('Click 1st point of reference line'); }
+  else if (m==='ll') { mode='ll1'; setHint('Click 1st point of line 1'); }
+  else               { mode='pl1'; setHint('Click 1st point of reference line'); }
   draw(); updUI();
 }
 
@@ -2878,7 +2886,7 @@ function polyPerim(pts) {
 }
 
 /* ── Bezier segment support ── */
-let segMode = { area: 'straight', perim: 'straight' }; // 'wand' removed from area
+let segMode = { area: 'straight', perim: 'straight' };
 let areaCps = []; // control points per segment: [{cp1:{x,y}, cp2:{x,y}}] length = pts.length for area, pts.length-1 for open path
 
 function setSegMode(tool, segModeVal) {
@@ -2894,8 +2902,6 @@ function setSegMode(tool, segModeVal) {
     b.style.background = active ? '#2a2a2a' : 'none';
     b.style.color = active ? col : '#aaa';
   });
-  // clear wand state if any
-  if (_wandState) { _wandState=null; _wandMaskCanvas=null; draw(); }
   // Analytics
   t(`subtool_seg_${tool}`, {mode: segModeVal});
 }
@@ -3105,248 +3111,6 @@ function bezierPolyArea(pts, cps) {
 }
 
 
-/* ══════════════════════════════════════════════════════════════════
-   MAGIC WAND — Area tool
-   ══════════════════════════════════════════════════════════════════ */
-
-// Slider
-document.getElementById('wandThreshold').addEventListener('input', function() {
-  document.getElementById('wandThreshVal').textContent = this.value;
-  if (_wandState) {
-    clearTimeout(_wandState.debounceTimer);
-    _wandState.debounceTimer = setTimeout(_wandRecompute, 80);
-  }
-});
-
-function _setWandHint(txt, showConfirm) {
-  const h=document.getElementById('wandHint'), b=document.getElementById('wandConfirmBtn');
-  if(h) h.textContent=txt;
-  if(b) b.style.display=showConfirm?'inline-block':'none';
-}
-
-// ── Flood fill (scanline, Int32Array stack, squared threshold) ────
-function _wandFloodFill(data, W, H, sx, sy, thr2) {
-  const mask = new Uint8Array(W*H);
-  const si = (sy*W+sx)*4;
-  const sr=data[si], sg=data[si+1], sb=data[si+2];
-  const stack = new Int32Array(W*H*2);
-  let sp=0;
-  mask[sy*W+sx]=1; stack[sp++]=sx; stack[sp++]=sy;
-  while (sp>0) {
-    const y=stack[--sp], x=stack[--sp];
-    let x1=x, x2=x;
-    while(x1>0){const i=(y*W+(x1-1))*4;const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb;if(dr*dr+dg*dg+db*db<=thr2&&!mask[y*W+(x1-1)])x1--;else break;}
-    while(x2<W-1){const i=(y*W+(x2+1))*4;const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb;if(dr*dr+dg*dg+db*db<=thr2&&!mask[y*W+(x2+1)])x2++;else break;}
-    for(let xi=x1;xi<=x2;xi++){mask[y*W+xi]=1;}
-    for(let xi=x1;xi<=x2;xi++){
-      if(y>0&&!mask[(y-1)*W+xi]){const i=((y-1)*W+xi)*4;const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb;if(dr*dr+dg*dg+db*db<=thr2){mask[(y-1)*W+xi]=1;stack[sp++]=xi;stack[sp++]=y-1;}}
-      if(y<H-1&&!mask[(y+1)*W+xi]){const i=((y+1)*W+xi)*4;const dr=data[i]-sr,dg=data[i+1]-sg,db=data[i+2]-sb;if(dr*dr+dg*dg+db*db<=thr2){mask[(y+1)*W+xi]=1;stack[sp++]=xi;stack[sp++]=y+1;}}
-    }
-  }
-  return mask;
-}
-
-// ── Morphological ops ─────────────────────────────────────────────
-function _morphDilate(mask,W,H,r){
-  const out=new Uint8Array(W*H);
-  for(let y=r;y<H-r;y++)for(let x=r;x<W-r;x++){
-    let ok=0;
-    for(let dy=-r;dy<=r&&!ok;dy++)for(let dx=-r;dx<=r&&!ok;dx++)if(mask[(y+dy)*W+(x+dx)])ok=1;
-    out[y*W+x]=ok;
-  }
-  return out;
-}
-function _morphErode(mask,W,H,r){
-  const out=new Uint8Array(W*H);
-  for(let y=r;y<H-r;y++)for(let x=r;x<W-r;x++){
-    let ok=1;
-    for(let dy=-r;dy<=r&&ok;dy++)for(let dx=-r;dx<=r&&ok;dx++)if(!mask[(y+dy)*W+(x+dx)])ok=0;
-    out[y*W+x]=ok;
-  }
-  return out;
-}
-function _morphClose(mask,W,H,r){return _morphErode(_morphDilate(mask,W,H,r),W,H,r);}
-function _morphOpen(mask,W,H,r){return _morphDilate(_morphErode(mask,W,H,r),W,H,r);}
-
-// ── Marching Squares ──────────────────────────────────────────────
-function _marchingSquares(mask,W,H){
-  const pf=(x,y)=>(x>=0&&x<W&&y>=0&&y<H)?mask[y*W+x]:0;
-  const MS=[[],[[2,3]],[[1,2]],[[1,3]],[[0,1]],[[0,2],[1,3]],[[0,2]],[[0,3]],[[3,0]],[[2,0]],[[3,1],[0,2]],[[2,1]],[[3,1]],[[2,1]],[[3,0]],[]];
-  const segs=[];
-  for(let cy=0;cy<H;cy++)for(let cx=0;cx<W;cx++){
-    const tl=pf(cx,cy),tr=pf(cx+1,cy),br=pf(cx+1,cy+1),bl=pf(cx,cy+1);
-    const idx=(tl<<3)|(tr<<2)|(br<<1)|bl;
-    if(idx===0||idx===15)continue;
-    const top={x:cx+1.0,y:cy+0.5},right={x:cx+1.5,y:cy+1.0},bottom={x:cx+1.0,y:cy+1.5},left={x:cx+0.5,y:cy+1.0};
-    const pts=[top,right,bottom,left];
-    let cases=MS[idx];
-    if(idx===5||idx===10){const ctr=(tl+tr+br+bl)/4;cases=idx===5?(ctr>=0.5?[[0,3],[1,2]]:[[0,1],[2,3]]):(ctr>=0.5?[[0,1],[2,3]]:[[0,3],[1,2]]);}
-    for(const[e1,e2]of cases)segs.push({x1:pts[e1].x,y1:pts[e1].y,x2:pts[e2].x,y2:pts[e2].y});
-  }
-  if(!segs.length)return[];
-  const KEY=(x,y)=>`${Math.round(x*2)}_${Math.round(y*2)}`;
-  const adj=new Map();
-  segs.forEach((s,i)=>{
-    const k1=KEY(s.x1,s.y1),k2=KEY(s.x2,s.y2);
-    if(!adj.has(k1))adj.set(k1,[]);if(!adj.has(k2))adj.set(k2,[]);
-    adj.get(k1).push({x:s.x2,y:s.y2,i});adj.get(k2).push({x:s.x1,y:s.y1,i});
-  });
-  const used=new Uint8Array(segs.length);
-  const contours=[];
-  for(let si=0;si<segs.length;si++){
-    if(used[si])continue;
-    used[si]=1;
-    const ctour=[{x:segs[si].x1,y:segs[si].y1}];
-    let cx2=segs[si].x2,cy2=segs[si].y2;
-    const sx2=segs[si].x1,sy2=segs[si].y1;
-    let steps=0;
-    while(steps++<segs.length*2){
-      ctour.push({x:cx2,y:cy2});
-      const nexts=adj.get(KEY(cx2,cy2))||[];
-      let found=false;
-      for(const n of nexts){if(!used[n.i]){used[n.i]=1;cx2=n.x;cy2=n.y;found=true;break;}}
-      if(!found||( Math.abs(cx2-sx2)<0.1&&Math.abs(cy2-sy2)<0.1))break;
-    }
-    if(ctour.length>=4)contours.push(ctour);
-  }
-  return contours;
-}
-
-// ── RDP ───────────────────────────────────────────────────────────
-function _rdp(pts,eps){
-  if(pts.length<=2)return pts;
-  let maxD=0,maxI=0;
-  const p1=pts[0],p2=pts[pts.length-1];
-  const dx=p2.x-p1.x,dy=p2.y-p1.y,len=Math.hypot(dx,dy);
-  for(let i=1;i<pts.length-1;i++){
-    const d=len>0?Math.abs(dy*pts[i].x-dx*pts[i].y+p2.x*p1.y-p2.y*p1.x)/len:Math.hypot(pts[i].x-p1.x,pts[i].y-p1.y);
-    if(d>maxD){maxD=d;maxI=i;}
-  }
-  if(maxD>eps){const l=_rdp(pts.slice(0,maxI+1),eps),r=_rdp(pts.slice(maxI),eps);return[...l.slice(0,-1),...r];}
-  return[pts[0],pts[pts.length-1]];
-}
-
-// ── Contour signed area helper ────────────────────────────────────
-function _contourArea(pts){let a=0;for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length;a+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;}return a/2;}
-
-// ── Full pipeline ─────────────────────────────────────────────────
-function _wandRecompute(){
-  if(!_wandState||!img||!_wandImgData)return;
-  const{sx,sy}=_wandState;
-  const thr=parseInt(document.getElementById('wandThreshold').value)||30;
-  const thr2=thr*thr;
-
-  // Flood fill
-  const rawMask=_wandFloodFill(_wandImgData.data,img.width,img.height,sx,sy,thr2);
-
-  // Morph close then open
-  const minD=Math.min(img.width,img.height);
-  const rc=Math.max(3,Math.round(minD*0.008));
-  const ro=Math.max(2,Math.round(minD*0.004));
-  let mask=_morphClose(rawMask,img.width,img.height,rc);
-  mask=_morphOpen(mask,img.width,img.height,ro);
-
-  // Marching squares
-  const eps=Math.max(2,minD*0.004);
-  const allCtours=_marchingSquares(mask,img.width,img.height);
-  const simplified=allCtours.map(c=>_rdp(c,eps)).filter(c=>c.length>=4);
-
-  // Keep only largest by absolute area
-  let best=null,bestArea=0;
-  for(const pts of simplified){const a=Math.abs(_contourArea(pts));if(a>bestArea){bestArea=a;best=pts;}}
-
-  _wandState.mask=mask;
-  _wandState.simplified=best?[best]:[];
-  _wandState.cps=best?naturalSpline(best,true):null;
-
-  // Rebuild mask canvas
-  const mc=document.createElement('canvas');
-  mc.width=img.width;mc.height=img.height;
-  const mctx=mc.getContext('2d');
-  const id=mctx.createImageData(img.width,img.height);
-  for(let i=0;i<mask.length;i++){if(mask[i]){id.data[i*4]=159;id.data[i*4+1]=119;id.data[i*4+2]=221;id.data[i*4+3]=130;}}
-  mctx.putImageData(id,0,0);
-  _wandMaskCanvas=mc;
-
-  if(best){_setWandHint('Enter or ✓ to confirm',true);}
-  else{_setWandHint('No region found — adjust threshold',false);_wandMaskCanvas=null;}
-  draw();
-}
-
-// ── Click entry point ─────────────────────────────────────────────
-function _wandClick(wx,wy){
-  if(!img)return;
-  // Cache image data (single context reference)
-  if(_wandImg!==img){
-    try{
-      const oc=document.createElement('canvas');
-      oc.width=img.width;oc.height=img.height;
-      const octx=oc.getContext('2d');
-      octx.drawImage(img,0,0);
-      _wandImgData=octx.getImageData(0,0,img.width,img.height);
-      _wandImg=img;
-    }catch(e){showToast('Cannot read image pixels (CORS)');return;}
-  }
-  if(!_wandImgData){showToast('Image data unavailable');return;}
-  const sx=Math.round(Math.max(0,Math.min(img.width-1,wx)));
-  const sy=Math.round(Math.max(0,Math.min(img.height-1,wy)));
-  _wandState={sx,sy,mask:null,simplified:[],cps:null,debounceTimer:null};
-  _setWandHint('Selecting…',false);
-  setTimeout(_wandRecompute,20);
-}
-
-// ── Draw preview (called from draw() in world transform) ──────────
-function _drawWandOnCtx(){
-  if(!_wandState||!img)return;
-  // Mask fill
-  if(_wandMaskCanvas){
-    ctx.save();ctx.globalAlpha=1;ctx.drawImage(_wandMaskCanvas,0,0);ctx.restore();
-  }
-  // Bezier preview — outer contour only
-  const pts=_wandState.simplified&&_wandState.simplified[0];
-  const cps=_wandState.cps;
-  if(!pts||pts.length<2)return;
-  ctx.save();
-  ctx.lineWidth=1.5/zoom;
-  // White underline
-  ctx.strokeStyle='rgba(255,255,255,0.6)';
-  ctx.setLineDash([4/zoom,3/zoom]);
-  ctx.beginPath();
-  if(cps&&cps.length){
-    ctx.moveTo(pts[0].x,pts[0].y);
-    for(let i=0;i<pts.length;i++){const j=(i+1)%pts.length,cp=cps[i];if(cp)ctx.bezierCurveTo(cp.cp1.x,cp.cp1.y,cp.cp2.x,cp.cp2.y,pts[j].x,pts[j].y);else ctx.lineTo(pts[j].x,pts[j].y);}
-    ctx.closePath();
-  }else{ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.closePath();}
-  ctx.stroke();
-  // Purple overline
-  ctx.strokeStyle='#9F77DD';
-  ctx.setLineDash([4/zoom,3/zoom]);
-  ctx.lineDashOffset=4/zoom;
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-}
-
-// ── Confirm ───────────────────────────────────────────────────────
-function confirmWand(){
-  if(!_wandState||!_wandState.simplified||!_wandState.simplified.length)return;
-  const isArea=mode==='pa'; // capture before stopTool changes mode
-  const pts=_wandState.simplified[0].slice();
-  const cps=naturalSpline(pts,true);
-  pushHistory();
-  if(isArea){
-    const areaPx=bezierPolyArea(pts,cps);
-    meas.push({type:'area',pts,areaPx,cps});
-  }else{
-    const perimPx=bezierPolyPerim(pts,cps,false);
-    meas.push({type:'perim',pts,perimPx,open:false,cps});
-  }
-  _wandState=null;_wandMaskCanvas=null;
-  stopTool();
-  showToast(isArea?'Area created':'Path created');
-}
-
-/* ══════════════════════════════════════════════════════════════════ */
 
 function disableButtons(ids, disabled) {
   ids.forEach(id => { const b = document.getElementById(id); if (b) b.disabled = disabled; });
@@ -3356,7 +3120,7 @@ function updUI() {
   if (!_kofiCTAShown && meas.length >= 3) { _kofiCTAShown = true; setTimeout(showKofiCTA, 800); }
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
-  const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2';
+  const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
   const isDiam=mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3';
   const isAngle=mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d';
   const isPtLine=mode==='pl1'||mode==='pl2'||mode==='pl3';
@@ -3436,6 +3200,8 @@ function updUI() {
       icon='∡'; valTxt=`${m.deg.toFixed(1)}°`;
     } else if (m.type==='ptline') {
       icon='⊥'; const r=scFactor?m.distPx*scFactor:null; valTxt=r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)} px`; pxTxt=`${Math.round(m.distPx)}px`;
+    } else if (m.type==='ll') {
+      icon='∥'; const r=scFactor?m.distPx*scFactor:null; valTxt=r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)} px`; pxTxt=`${Math.round(m.distPx)}px`;
     } else if (m.type==='ptcoord') {
       icon='⊙'; const u=m.unit||'px'; valTxt=`X: ${m.cx.toFixed(2)} ${u}  Y: ${m.cy.toFixed(2)} ${u}`;
     }
@@ -3466,7 +3232,6 @@ function draw() {
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
   ctx.drawImage(img,0,0,img.width,img.height);
-  _drawWandOnCtx();
   if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false,dpr);
   if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
 
@@ -3505,6 +3270,9 @@ function draw() {
     } else if (m.type==='ptline') {
       const r=scFactor?m.distPx*scFactor:null;
       annPtLine(m.lx1,m.ly1,m.lx2,m.ly2,m.px,m.py,m.fx,m.fy,`⊥${i+1}  ${r!==null?r.toFixed(2)+' '+scUnit:Math.round(m.distPx)+'px'}`,hi,dpr,m.lpos||null);
+    } else if (m.type==='ll') {
+      const r=scFactor?m.distPx*scFactor:null;
+      annLineLine(m.lx1,m.ly1,m.lx2,m.ly2,m.l2x1,m.l2y1,m.l2x2,m.l2y2,m.fx,m.fy,m.mx,m.my,`∥${i+1}  ${r!==null?r.toFixed(2)+' '+scUnit:Math.round(m.distPx)+'px'}`,hi,dpr,m.lpos||null);
     } else if (m.type==='ptcoord') {
       const u=m.unit||'px'; annPtCoord(m.px,m.py,m.ox,m.oy,`${i+1}`,hi,dpr,m.lpos||null);
     } else if (m.type==='area') {
@@ -3578,10 +3346,10 @@ function draw() {
 
   // Show placed points immediately (before full rubber band)
   if (p0 && !mp) {
-    const dotCol=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2')?'#EF9F27':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':(mode==='pl1'||mode==='pl2'||mode==='pl3')?'#EF9F27':'#888';
+    const dotCol=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3')?'#EF9F27':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':(mode==='pl1'||mode==='pl2'||mode==='pl3')?'#EF9F27':'#888';
     ctx.save(); ctx.fillStyle=dotCol; ctx.beginPath(); ctx.arc(p0.x,p0.y,4/zoom,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
-  if (p1 && !mp && (mode==='ac'||mode==='pl3'||mode==='d3c'||mode==='arc3'||mode==='p4d')) {
+  if (p1 && !mp && (mode==='ac'||mode==='pl3'||mode==='d3c'||mode==='arc3'||mode==='p4d'||mode==='ll3')) {
     const dotCol2=(mode==='ac'||mode==='p4d')?'#D4537E':(mode==='d3c'||mode==='arc3')?'#5DCAA5':'#EF9F27';
     ctx.save(); ctx.fillStyle=dotCol2; ctx.beginPath(); ctx.arc(p1.x,p1.y,4/zoom,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
@@ -3636,7 +3404,7 @@ function draw() {
   // magnifier
   const isMobNow = window.innerWidth<=767;
   if (mp) {
-    const am2=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc','pa','pp','st'];
+    const am2=['sa','sb','ma','mb','ce1','ce2','ll1','ll2','ll3','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc','pa','pp','st'];
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':mode==='st'?'#9F77DD':'#EF9F27';
     const sc=w2c(mp.x,mp.y);
     // desktop: show when magEnabled + tool active
@@ -3895,6 +3663,48 @@ function annPtLine(lx1,ly1,lx2,ly2,px,py,fx,fy,label,hi,dpr=1,lpos=null) {
   ctx.restore();
 }
 
+function annLineLine(lx1,ly1,lx2,ly2,l2x1,l2y1,l2x2,l2y2,fx,fy,mx,my,label,hi,dpr=1,lpos=null) {
+  const col='#EF9F27'; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=(hi?2.5:1.5)/zoom;
+  // Line 1
+  ctx.beginPath(); ctx.moveTo(lx1,ly1); ctx.lineTo(lx2,ly2); ctx.stroke();
+  // tick marks on line 1 ends
+  const ang1=Math.atan2(ly2-ly1,lx2-lx1)+Math.PI/2, tick=6/zoom;
+  for (const [px2,py2] of [[lx1,ly1],[lx2,ly2]]) {
+    ctx.beginPath(); ctx.moveTo(px2+Math.cos(ang1)*tick,py2+Math.sin(ang1)*tick);
+    ctx.lineTo(px2-Math.cos(ang1)*tick,py2-Math.sin(ang1)*tick); ctx.stroke();
+  }
+  // Line 2
+  ctx.beginPath(); ctx.moveTo(l2x1,l2y1); ctx.lineTo(l2x2,l2y2); ctx.stroke();
+  const ang2=Math.atan2(l2y2-l2y1,l2x2-l2x1)+Math.PI/2;
+  for (const [px2,py2] of [[l2x1,l2y1],[l2x2,l2y2]]) {
+    ctx.beginPath(); ctx.moveTo(px2+Math.cos(ang2)*tick,py2+Math.sin(ang2)*tick);
+    ctx.lineTo(px2-Math.cos(ang2)*tick,py2-Math.sin(ang2)*tick); ctx.stroke();
+  }
+  // Dashed perpendicular connector
+  ctx.setLineDash([4/zoom,3/zoom]);
+  ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(mx,my); ctx.stroke();
+  ctx.setLineDash([]);
+  // Right-angle mark at foot on line 1
+  const dx=lx2-lx1,dy=ly2-ly1,len=Math.hypot(dx,dy);
+  const cdx=mx-fx,cdy=my-fy,clen=Math.hypot(cdx,cdy);
+  if(len>0&&clen>0){
+    const nx=dx/len,ny=dy/len,s=6/zoom;
+    const cx2=cdx/clen,cy2=cdy/clen;
+    ctx.beginPath();
+    ctx.moveTo(fx+nx*s,fy+ny*s);
+    ctx.lineTo(fx+nx*s+cx2*s,fy+ny*s+cy2*s);
+    ctx.lineTo(fx+cx2*s,fy+cy2*s);
+    ctx.stroke();
+  }
+  // Endpoint dots
+  ctx.fillStyle=col;
+  [[lx1,ly1],[lx2,ly2],[l2x1,l2y1],[l2x2,l2y2]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,4/zoom,0,Math.PI*2);ctx.fill();});
+  // Label at midpoint of connector
+  const defLx=(fx+mx)/2, defLy=(fy+my)/2-18/zoom;
+  if(label){const lx=lpos?lpos.x:defLx,ly=lpos?lpos.y:defLy;if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col);drawLabel(lx,ly,label,col,dpr);}
+  ctx.restore();
+}
+
 function annPtCoord(px,py,ox,oy,label,hi,dpr=1,lpos=null) {
   const col='#5DCAA5'; ctx.save();
   // Draw XY axes at origin
@@ -3953,6 +3763,36 @@ function drawNewModeRubber() {
       ctx.restore();
       rubberLine(mp,{x:fx,y:fy},'#EF9F27',r?`${r.toFixed(2)} ${scUnit}`:`${Math.round(distPx)}px`);
     } else ctx.restore();
+  }
+  // Line-to-line rubber band
+  if (mode==='ll2'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
+  if (mode==='ll3'&&p0&&p1) {
+    const dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
+    // Draw line 1 static
+    ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.8;
+    ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
+    ctx.fillStyle='#EF9F27';[p0,p1].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+    ctx.restore();
+    if(len>0){
+      // Project cursor onto line 1 to get offset
+      const t2=((mp.x-p0.x)*dx+(mp.y-p0.y)*dy)/(len*len);
+      const fx=p0.x+t2*dx,fy=p0.y+t2*dy;
+      const offX=mp.x-fx,offY=mp.y-fy;
+      const distPx=Math.hypot(offX,offY);
+      // Live parallel line 2
+      const l2a={x:p0.x+offX,y:p0.y+offY},l2b={x:p1.x+offX,y:p1.y+offY};
+      ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.65;ctx.setLineDash([5/zoom,4/zoom]);
+      ctx.beginPath();ctx.moveTo(l2a.x,l2a.y);ctx.lineTo(l2b.x,l2b.y);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#EF9F27';[l2a,l2b].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+      ctx.restore();
+      // Live dashed connector
+      if(distPx>1/zoom){
+        const r=scFactor?distPx*scFactor:null;
+        ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1/zoom;ctx.globalAlpha=0.55;ctx.setLineDash([4/zoom,3/zoom]);
+        ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(mp.x,mp.y);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+        drawLabel((fx+mp.x)/2,(fy+mp.y)/2-10/zoom,r?`${r.toFixed(2)} ${scUnit}`:`${Math.round(distPx)}px`,'#EF9F27');
+      }
+    }
   }
   if (mode==='ptc') {
     const s=8/zoom; ctx.save(); ctx.globalAlpha=0.7;
@@ -4411,7 +4251,6 @@ function loadImgFromImage(imgEl) {
   img = imgEl;
   originalImg = imgEl;
   edgeMap = null; edgeGx = null; edgeGy = null; edgeBlurred = null; snapPt = null;
-  _wandImgData=null; _wandImg=null; _wandState=null; _wandMaskCanvas=null;
 
   scLine = null; scPx = null; scFactor = null;
   meas = []; areaPts = []; stPts = []; p0 = null; p1 = null; mode = 'idle';
@@ -4552,6 +4391,7 @@ function exportCSV() {
     else if(m.type==='arc'){const r=scFactor?(m.arcLen*scFactor).toFixed(4):'';rows.push([n,'arc',r,scUnit,m.arcLen.toFixed(2),Math.round(m.p1.x),Math.round(m.p1.y),Math.round(m.p2.x),Math.round(m.p2.y),Math.round(m.cx),Math.round(m.cy),m.r.toFixed(2),'','','','','','']);}
     else if(m.type==='angle4'){rows.push([n,'angle4',m.deg.toFixed(4),'deg','',Math.round(m.ax),Math.round(m.ay),Math.round(m.bx),Math.round(m.by),Math.round(m.cx),Math.round(m.cy),'',Math.round(m.dx),Math.round(m.dy),'','','','']);}
     else if(m.type==='ptline'){const r=scFactor?(m.distPx*scFactor).toFixed(4):'';rows.push([n,'pt-to-line',r,scUnit,m.distPx.toFixed(2),Math.round(m.lx1),Math.round(m.ly1),Math.round(m.lx2),Math.round(m.ly2),'','','',Math.round(m.px),Math.round(m.py),Math.round(m.fx),Math.round(m.fy),'','']);}
+    else if(m.type==='ll'){const r=scFactor?(m.distPx*scFactor).toFixed(4):'';rows.push([n,'line-to-line',r,scUnit,m.distPx.toFixed(2),Math.round(m.lx1),Math.round(m.ly1),Math.round(m.lx2),Math.round(m.ly2),Math.round(m.l2x1),Math.round(m.l2y1),Math.round(m.l2x2),Math.round(m.l2y2),'','','','','']);}
     else if(m.type==='ptcoord'){const u=m.unit||'px';rows.push([n,'pt-coord',m.cx.toFixed(4),u,m.cy.toFixed(4),Math.round(m.px),Math.round(m.py),'','',Math.round(m.ox),Math.round(m.oy),'','','','','','','']);}
     else if(m.type==='note'){rows.push([n,'note',m.text,'','',Math.round(m.x),Math.round(m.y),'','','','','','','','','','','']);}
   });
