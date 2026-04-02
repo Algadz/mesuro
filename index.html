@@ -2124,7 +2124,7 @@ cv.addEventListener('mousemove', e => {
     mp = wp;
     applyDrag(wp); draw(); updUI(); return;
   }
-  const dm=['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','pa','pp','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc'];
+  const dm=['sa','sb','ma','mb','ce1','ce2','ll1','ll2','ll3','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','pa','pp','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc'];
   const stPlacing = mode==='st' && stPts.length < 4;
   if (dm.includes(mode) || stPlacing) {
     mp = (p0 && (mode==='sb'||mode==='mb')) ? snapPoint(p0, wp, e) : wp;
@@ -2325,7 +2325,7 @@ cv.addEventListener('click', e => {
     draw(); updUI();
   }
   // Line-to-line distance
-  else if (mode==='ll1') { p0=p; mode='ll2'; setHint('Click 2nd point of line 1'); }
+  else if (mode==='ll1') { p0=p; mode='ll2'; setHint('Click 2nd point of line 1'); draw(); updUI(); }
   else if (mode==='ll2') {
     if (dst(p0,p)<5/zoom) return;
     p1=p; mode='ll3'; setHint('Click anywhere to place parallel line 2');
