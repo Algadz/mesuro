@@ -627,20 +627,31 @@
     <div id="toast"></div>
 
     <div id="kofiPopup" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;opacity:0;transition:opacity .5s;pointer-events:none;display:none">
-      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:14px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
-        <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback"></button>
-        <span style="color:#333;font-size:11px">|</span>
-        <div style="display:flex;align-items:center;gap:4px;pointer-events:all">
-          <select id="langSelect" onchange="setLang(this.value)" style="background:#1e1e1e;border:0.5px solid #333;border-radius:4px;color:#666;font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit;outline:none">
-            <option value="en">EN</option>
-            <option value="fr">FR</option>
-            <option value="es">ES</option>
-            <option value="de">DE</option>
-            <option value="it">IT</option>
-          </select>
-        </div>
-      </div>
+  <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 12px 10px 16px;display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
+
+    <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback"></button>
+
+    <span style="color:#333;font-size:11px">|</span>
+
+    <div style="display:flex;align-items:center;gap:4px;pointer-events:all">
+      <select id="langSelect" onchange="setLang(this.value)" style="background:#1e1e1e;border:0.5px solid #333;border-radius:4px;color:#666;font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit;outline:none">
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+        <option value="es">ES</option>
+        <option value="de">DE</option>
+        <option value="it">IT</option>
+      </select>
     </div>
+
+    <span style="color:#333;font-size:11px">|</span>
+
+    <button onclick="closeKofiPopup()"
+      style="background:none;border:none;cursor:pointer;color:#555;font-size:13px;line-height:1;padding:2px 4px;display:flex;align-items:center;justify-content:center;pointer-events:all"
+      onmouseenter="this.style.color='#aaa'"
+      onmouseleave="this.style.color='#555'">×</button>
+
+  </div>
+</div>
 
     <!-- Ko-fi modal (centered, export/save trigger, desktop only) -->
     <div id="kofiModal" class="modal-overlay" style="position:absolute;z-index:20;background:rgba(0,0,0,.55)">
@@ -1326,6 +1337,14 @@ var LANGS = {
 
 var currentLang = localStorage.getItem('mesu_lang') ||
   (['fr','es','de','it'].includes(navigator.language.slice(0,2)) ? navigator.language.slice(0,2) : 'en');
+
+function closeKofiPopup() {
+  const el = document.getElementById('kofiPopup');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.style.display = 'none';
+  }, 300);
+}
 
 function L(k) {
   const t = LANGS[currentLang] || LANGS.en;
