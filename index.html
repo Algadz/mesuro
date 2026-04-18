@@ -115,10 +115,10 @@
     gap: 10px;
     pointer-events: all;
     cursor: pointer;
-    color: #555;
+    color: #999;
     font-size: 13px;
   }
-  #dz span { font-size: 12px; color: #444; }
+  #dz span { font-size: 12px; color: #777; }
 
   #cv { display: none; max-width: 100%; max-height: 100%; cursor: default; }
 
@@ -251,8 +251,7 @@
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
     #sidebar { display: none; }
     #mobileTopbar { display: flex; align-items:center; background:#242424; border-bottom:0.5px solid #2a2a2a; flex-shrink:0; z-index:20; position:relative; overflow:hidden; }
-    #mobileSubRow { flex-shrink:0; z-index:19; }
-    #mobileSettings { flex-shrink:0; z-index:18; }
+    #mobileSubRow::-webkit-scrollbar { display:none; }
     @keyframes mScalePulse {
       0%,100% { box-shadow: 0 0 0 1.5px #1D9E75; }
       50%      { box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
@@ -262,8 +261,10 @@
     #mobileLogoSection { padding:6px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; display:flex; align-items:center; }
     #mobileLogo { font-size:15px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
     #mobileLogo span { color:#444; }
-    #mobileToolsScroll { display:flex; align-items:center; gap:4px; padding:6px 52px 6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; position:relative; }
-    #mobileToolsScroll::-webkit-scrollbar, #mobileSubRow::-webkit-scrollbar { display:none; }
+    #mobileToolsScroll { display:flex; align-items:center; gap:4px; padding:6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; position:relative; }
+    #mobileToolsScroll::-webkit-scrollbar { display:none; }
+    #mobileTopbar::after { content:''; position:absolute; right:0; top:0; bottom:0; width:36px; background:linear-gradient(to right,transparent,#242424 70%); pointer-events:none; z-index:1; transition:opacity .2s; }
+    #mobileTopbar.scroll-at-end::after { opacity:0; }
     .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 13px; min-height:52px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
     .m-tbtn:disabled { opacity:.35; cursor:default; }
     .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
@@ -282,9 +283,7 @@
     .m-tbtn.m-active .m-tt { opacity:1; }
     .m-sub { display:inline-flex;align-items:center;justify-content:center;padding:0 14px;height:40px;border-radius:6px;cursor:pointer;border:none;font-size:11px;white-space:nowrap;font-family:inherit;transition:background .15s;background:#2a2a2a;color:#888; }
     .m-sub.active { color:#fff; }
-    #mBtnSettings.active { color:#aaa; background:#333; }
-    #mobileSettings button[disabled] { opacity:.35; cursor:default; }
-    .msett-active { color:#d0d0d0 !important; background:#333 !important; }
+    #mobileMeasSection button[disabled] { opacity:.35; cursor:default; }
 
     #canvasArea { flex:1; min-height:0; position:relative; }
 
@@ -292,10 +291,10 @@
     #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
     #dz span:not(#dzMain) { display:none; }
     #dz svg  { display:block; opacity:.4; width:64px; height:64px; }
-    #dzMain  { font-size:17px; color:#666; margin-top:6px; }
+    #dzMain  { font-size:17px; color:#aaa; margin-top:6px; }
 
     /* canvas: don't override display (JS controls it); add touch-action so browser doesn't steal gestures */
-    #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
+    #cv { max-width:100%; max-height:100%; touch-action:pan-x pan-y; user-select:none; -webkit-user-select:none; }
 
     /* gradient fade above bottom bar */
     #mobileBar::before { content:''; position:absolute; top:-48px; left:0; right:0; height:48px; background:linear-gradient(to bottom,transparent,rgba(17,17,17,.9)); pointer-events:none; }
@@ -311,6 +310,9 @@
     .m-res-val { font-size:12px; flex:1; }
 
     #kofiPopup { display:none !important; }
+
+    /* Modals must be fixed on mobile so the browser doesn't scroll the page when the keyboard appears */
+    #scaleModal, #noteModal { position: fixed !important; inset: 0; }
   }
 
   .btn-row { display: flex; gap: 6px; }
@@ -486,35 +488,10 @@
       <button class="m-tbtn m-no" id="mBtnNote"    onclick="doNote()"          disabled><span class="m-ti" style="font-size:16px;font-weight:700">Aa</span><span class="m-tt">Note</span></button>
       <button class="m-tbtn m-pc" id="mBtnPtCoord" onclick="mToolTap('ptc')"   disabled><span class="m-ti">⊙</span><span class="m-tt">Point XY ▾</span></button>
     </div>
-    <button id="mBtnSettings" onclick="toggleMobileSettings()" style="position:absolute;right:0;top:0;bottom:0;width:44px;background:#1e1e1e;border:none;border-left:0.5px solid #2a2a2a;color:#555;font-size:18px;cursor:pointer;font-family:inherit;z-index:2;">⚙</button>
   </div>
 
-  <!-- Mobile sub-tool row (Level 2) -->
-  <div id="mobileSubRow" style="display:none;background:#1e1e1e;border-bottom:0.5px solid #2a2a2a;overflow-x:auto;scrollbar-width:none;">
-    <div id="mobileSubScroll" style="display:flex;gap:4px;padding:5px 8px;min-width:max-content;">
-    </div>
-  </div>
 
-  <!-- Mobile settings panel -->
-  <div id="mobileSettings" style="display:none;background:#1a1a1a;border-bottom:0.5px solid #2a2a2a;padding:10px 12px;flex-direction:column;gap:8px;">
-    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-bottom:2px;">VIEW &amp; SETTINGS</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-      <button id="mBtnZoom"   onclick="toggleZoom();updMobileSettings()"   disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">⊕ Pan &amp; zoom</button>
-      <button id="mBtnMag"    onclick="toggleMag();updMobileSettings()"    disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">◎ Zoom cursor</button>
-      <button id="mBtnSnap2"  onclick="toggleSnap();updMobileSettings()"   disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">⌖ Edge detect</button>
-      <button id="mBtnPtSnap2" onclick="togglePtSnap();updMobileSettings()" disabled style="flex:1;min-width:100px;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">◎ Snap point</button>
-    </div>
-    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-top:4px;">EXPORT</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-      <button onclick="exportImg('png')"  disabled id="mExpPng"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">PNG</button>
-      <button onclick="exportImg('jpg')"  disabled id="mExpJpg"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">JPG</button>
-      <button onclick="exportImg('webp')" disabled id="mExpWebp" style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">WebP</button>
-      <button onclick="exportCSV()"       disabled id="mExpCsv"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">CSV</button>
-      <button onclick="exportPDF()"       disabled id="mExpPdf"  style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">PDF</button>
-      <button onclick="saveProject()"     disabled id="mExpSave" style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">💾 Save</button>
-      <button onclick="document.getElementById('projectInput').click()" style="flex:1;height:34px;background:#252525;border:none;border-radius:7px;font-size:11px;color:#555;cursor:pointer;font-family:inherit;">📂 Load</button>
-    </div>
-  </div>
+  <!-- Mobile view options modal (centered overlay) -->
 
   <div id="sidebar">
     <div style="padding-bottom:12px;border-bottom:0.5px solid #333">
@@ -667,11 +644,16 @@
 
   <div id="canvasArea">
 
+    <!-- Mobile sub-tool row — absolute overlay so it never resizes the canvas -->
+    <div id="mobileSubRow" style="display:none;position:absolute;top:0;left:0;right:0;z-index:19;background:#1e1e1e;border-bottom:0.5px solid #2a2a2a;overflow-x:auto;scrollbar-width:none;">
+      <div id="mobileSubScroll" style="display:flex;gap:4px;padding:5px 8px;min-width:max-content;">
+      </div>
+    </div>
 
     <div id="dz">
       <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
-        <circle cx="22" cy="22" r="21" fill="none" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
-        <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="22" cy="22" r="21" fill="none" stroke="#777" stroke-width="1" stroke-dasharray="4 3"/>
+        <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span id="dzMain" data-i18n="drop_main">Click or drop images / PDF here</span>
       <span data-i18n="drop_sub">or use Load button above</span>
@@ -840,14 +822,10 @@
       <span id="mLastIcon" style="font-size:10px;color:#333;">—</span>
     </div>
     <div style="flex:1;min-width:0;">
-      <div id="mLastVal" style="font-size:13px;font-weight:500;color:#333;font-style:italic;">No measurements yet</div>
+      <div id="mLastVal" style="font-size:13px;font-weight:500;color:#333;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">No measurements yet</div>
       <div id="mLastSub" style="font-size:9px;color:#444;margin-top:1px;"></div>
     </div>
-    <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">
-      <button id="mQuickUndo"   onclick="undoLast()"   disabled style="width:40px;height:40px;background:#252525;border:none;border-radius:8px;color:#555;font-size:16px;cursor:pointer;font-family:inherit;">↩</button>
-      <button id="mQuickExport" onclick="exportImg()"  disabled style="width:40px;height:40px;background:#252525;border:none;border-radius:8px;color:#555;font-size:16px;cursor:pointer;font-family:inherit;">↗</button>
-      <button id="mQuickClear"  onclick="clearAll()"   disabled style="width:40px;height:40px;background:#252525;border:none;border-radius:8px;color:#e24b4b;font-size:16px;cursor:pointer;font-family:inherit;">✕</button>
-    </div>
+    <button id="mViewAllBtn" onclick="document.getElementById('mobileMeasSection').scrollIntoView({behavior:'smooth'})" style="visibility:hidden;width:62px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#252525;border:none;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">View all</button>
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
@@ -891,10 +869,31 @@
     <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-bottom:10px;">MEASUREMENTS</div>
     <div id="mMeasList" style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px;"></div>
     <div id="mMeasEmpty" style="font-size:13px;color:#333;margin-bottom:16px;">No measurements yet.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="mExportBtn" onclick="exportImg()" disabled style="flex:1;min-width:120px;height:40px;background:#252525;color:#555;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">Export PNG</button>
-      <button id="mUndoBtn" onclick="undoLast()" disabled style="height:40px;width:56px;background:#252525;color:#555;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">↩</button>
-      <button id="mClearBtn" onclick="clearAll()" disabled style="height:40px;width:56px;background:#252525;color:#e24b4b;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-family:inherit;">✕</button>
+    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin:20px 0 10px;">EXPORT</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button id="mExpImg"  onclick="openImgFmtPicker()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export image</button>
+      <div style="display:flex;gap:8px;">
+        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report</button>
+        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV</button>
+      </div>
+      <div style="height:0.5px;background:#2a2a2a;margin:4px 0;"></div>
+      <div style="display:flex;gap:8px;">
+        <button id="mExpSave" onclick="saveProject()"                                    disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Save .mesuro</button>
+        <button              onclick="document.getElementById('projectInput').click()"           style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro</button>
+      </div>
+    </div>
+
+    <!-- format picker popup -->
+    <div id="mImgFmtPicker" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;" onclick="if(event.target===this)closeImgFmtPicker()">
+      <div style="background:#1e1e1e;border-radius:14px;padding:20px;width:240px;position:relative;border:0.5px solid #333;box-shadow:0 8px 32px rgba(0,0,0,.6);">
+        <button onclick="closeImgFmtPicker()" style="position:absolute;right:12px;top:12px;width:28px;height:28px;background:none;border:none;color:#555;font-size:18px;cursor:pointer;font-family:inherit;line-height:1;">✕</button>
+        <div style="font-size:10px;color:#555;letter-spacing:.08em;margin-bottom:14px;">SELECT FORMAT</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button onclick="exportImg('png');closeImgFmtPicker()"  style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PNG</button>
+          <button onclick="exportImg('jpg');closeImgFmtPicker()"  style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">JPG</button>
+          <button onclick="exportImg('webp');closeImgFmtPicker()" style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">WebP</button>
+        </div>
+      </div>
     </div>
     <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:14px;padding:10px 16px;background:#1a1a1a;border-radius:8px;border:0.5px solid #252525;align-self:flex-start;">
       <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="text-decoration:none;font-size:12px;color:#555;white-space:nowrap;transition:color .15s">Offer an espresso</a>
@@ -1149,7 +1148,7 @@ var LANGS = {
     add_note:'Add note', note_placeholder_p:'Enter the text for this annotation:',
     note_placeholder:'e.g. crack, 2mm gap', add_note_btn:'Add note',
     apply:'Apply', cancel:'Cancel',
-    drop_main:'Click or drop images / PDF here', drop_sub:'or use Load button above',
+    drop_main:'Click or drop images / PDF here', drop_main_mobile:'Tap to select images or PDF', drop_sub:'or use Load button above',
     kofi:'Offer an espresso', feedback:'Share feedback',
     feedback_title:'Share feedback',
     feedback_placeholder:'What could be improved? What do you use Mesuro for?',
@@ -1213,7 +1212,7 @@ var LANGS = {
     add_note:'Ajouter une note', note_placeholder_p:'Texte de l\'annotation :',
     note_placeholder:'ex. fissure, 2mm', add_note_btn:'Ajouter',
     apply:'Appliquer', cancel:'Annuler',
-    drop_main:'Cliquer ou déposer des images / PDF', drop_sub:'ou utiliser le bouton ci-dessus',
+    drop_main:'Cliquer ou déposer des images / PDF', drop_main_mobile:'Appuyer pour sélectionner des images ou un PDF', drop_sub:'ou utiliser le bouton ci-dessus',
     kofi:'Offrir un expresso', feedback:'Envoyer un retour',
     feedback_title:'Envoyer un retour',
     feedback_placeholder:'Que pourrait-on améliorer ? Pour quoi utilisez-vous Mesuro ?',
@@ -1273,7 +1272,7 @@ var LANGS = {
     add_note:'Añadir nota', note_placeholder_p:'Texto de la anotación:',
     note_placeholder:'ej. grieta, 2mm', add_note_btn:'Añadir',
     apply:'Aplicar', cancel:'Cancelar',
-    drop_main:'Clic o soltar imágenes / PDF aquí', drop_sub:'o usar el botón de arriba',
+    drop_main:'Clic o soltar imágenes / PDF aquí', drop_main_mobile:'Toca para seleccionar imágenes o PDF', drop_sub:'o usar el botón de arriba',
     kofi:'Invitar a un café', feedback:'Enviar opinión',
     feedback_title:'Enviar opinión',
     feedback_placeholder:'¿Qué podría mejorar? ¿Para qué usa Mesuro?',
@@ -1328,7 +1327,7 @@ var LANGS = {
     add_note:'Notiz hinzufügen', note_placeholder_p:'Text der Anmerkung:',
     note_placeholder:'z.B. Riss, 2mm', add_note_btn:'Hinzufügen',
     apply:'Anwenden', cancel:'Abbrechen',
-    drop_main:'Bilder / PDF hier klicken oder ablegen', drop_sub:'oder Schaltfläche oben verwenden',
+    drop_main:'Bilder / PDF hier klicken oder ablegen', drop_main_mobile:'Tippen um Bilder / PDF auszuwählen', drop_sub:'oder Schaltfläche oben verwenden',
     kofi:'Einen Espresso spendieren', feedback:'Feedback senden',
     feedback_title:'Feedback senden',
     feedback_placeholder:'Was könnte verbessert werden? Wofür nutzen Sie Mesuro?',
@@ -1383,7 +1382,7 @@ var LANGS = {
     add_note:'Aggiungi nota', note_placeholder_p:'Testo dell\'annotazione:',
     note_placeholder:'es. crepa, 2mm', add_note_btn:'Aggiungi',
     apply:'Applica', cancel:'Annulla',
-    drop_main:'Clic o trascina immagini / PDF qui', drop_sub:'o usa il pulsante sopra',
+    drop_main:'Clic o trascina immagini / PDF qui', drop_main_mobile:'Tocca per selezionare immagini o PDF', drop_sub:'o usa il pulsante sopra',
     kofi:'Offri un espresso', feedback:'Invia feedback',
     feedback_title:'Invia feedback',
     feedback_placeholder:'Cosa si potrebbe migliorare? Per cosa usa Mesuro?',
@@ -1480,7 +1479,10 @@ function applyLang() {
   }
   // Drop zone
   const dzMain = document.getElementById('dzMain');
-  if (dzMain) dzMain.textContent = tr.drop_main;
+  if (dzMain) {
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    dzMain.textContent = (isTouch && tr.drop_main_mobile) ? tr.drop_main_mobile : tr.drop_main;
+  }
   // drop_sub is handled via data-i18n, but also set explicitly for safety
   // scale status is managed entirely by updUI()
   // btnScale text
@@ -1669,7 +1671,7 @@ function loadImg(file) {
       generateThumb(ps);
       addPage(ps, true);
       t('load_image');
-      if (snapEnabled) computeEdges();
+      if (snapEnabled && window.innerWidth > 767) computeEdges();
       setTimeout(() => {
         const bs = document.getElementById('btnScale');
         if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
@@ -1681,7 +1683,7 @@ function loadImg(file) {
 }
 
 function getFsH() {
-  if (!pages.length) return 0;
+  if (pages.length <= 1) return 0;
   return window.innerWidth <= 767 ? 60 : 72;
 }
 
@@ -1791,7 +1793,7 @@ function togglePtSnap() {
 function toggleSnap() {
   snapEnabled = !snapEnabled;
   localStorage.setItem('mesu_snap', snapEnabled);
-  if (snapEnabled && img && !edgeMap) computeEdges();
+  if (snapEnabled && img && !edgeMap && window.innerWidth > 767) computeEdges();
   t('opt_edge_detect', {on: snapEnabled});
   updUI();
 }
@@ -2422,7 +2424,7 @@ cv.addEventListener('click', e => {
     if (!p2||dst(p2,p)<5/zoom) return;
     const dAx=p1.x-p0.x,dAy=p1.y-p0.y,dBx=p.x-p2.x,dBy=p.y-p2.y;
     let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-    if (ang>90) ang=180-ang;
+    if(ang>90)ang=180-ang;
     pushHistory();
     meas.push({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang});
     p0=null; p1=null; window._p4p2=null; mp=null;
@@ -2562,6 +2564,11 @@ document.addEventListener('keydown', e => {
 /* ── tools ── */
 function stopTool() {
   mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; areaCps=[]; stPts=[]; clearHint(); closeSubPanels(); updStraightenUI(); draw(); updUI();
+  if (isMob()) {
+    cv.style.touchAction = 'pan-x pan-y';
+    const sr = document.getElementById('mobileSubRow');
+    if (sr) { sr.style.display='none'; sr.dataset.tool=''; }
+  }
 }
 function closeSubPanels() {
   const ids = ['subDist','subDiam','subArea','subPerim','subAngle','subPtCoord'];
@@ -2983,6 +2990,7 @@ function undoLast()    {
 
 /* ── modal ── */
 function showModal() {
+  if (window.innerWidth <= 767) document.body.style.overflow = 'hidden';
   modal.style.display='flex';
   const sv = document.getElementById('sVal');
   const su = document.getElementById('sUnit');
@@ -2992,12 +3000,12 @@ function showModal() {
   sv.value = lastVal;
   su.value = lastUnit;
   sv.style.borderColor = '';
-  sv.select(); // select all so user can just type to replace
+  if (window.innerWidth > 767) sv.select(); // desktop only: auto-select so user can just type to replace
   document.querySelector('#scaleModal h3').textContent = L('define_scale');
   document.querySelector('#scaleModal p').textContent  = L('line_represents');
   document.querySelector('#scaleModal .btn-confirm').textContent = L('set_scale_btn');
 }
-function cancelScale() { modal.style.display='none'; pLine=null; stopTool(); }
+function cancelScale() { modal.style.display='none'; document.body.style.overflow=''; pLine=null; stopTool(); }
 function confirmScale() {
   const sv=document.getElementById('sVal'), val=parseFloat(sv.value);
   if (!val||val<=0) { sv.style.borderColor='#E24B4A'; sv.focus(); return; }
@@ -3007,7 +3015,7 @@ function confirmScale() {
   localStorage.setItem('mesu_last_scale_val',  sv.value);
   localStorage.setItem('mesu_last_scale_unit', scUnit);
   scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
-  pLine=null; modal.style.display='none'; t('set_scale', {unit:scUnit, px_per_unit:+(1/scFactor).toFixed(4)}); stopTool();
+  pLine=null; modal.style.display='none'; document.body.style.overflow=''; t('set_scale', {unit:scUnit, px_per_unit:+(1/scFactor).toFixed(4)}); stopTool();
 }
 // click-to-clear preset value, restore on blur if empty
 document.getElementById('sVal').addEventListener('click', function() { this.select(); });
@@ -3526,7 +3534,8 @@ function draw() {
     areaPts.forEach((pp,i)=>{ctx.beginPath();ctx.arc(pp.x,pp.y,(i===0?5:3)/zoom,0,Math.PI*2);ctx.fill();});
     if (areaPts.length>=3&&mp) {
       const c0=areaPts[0];
-      if (dst(c0,mp)*zoom<DRAG_R){ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1/zoom;ctx.beginPath();ctx.arc(c0.x,c0.y,7/zoom,0,Math.PI*2);ctx.stroke();ctx.restore();}
+      const closeR = (window.innerWidth<=767) ? DRAG_R*3 : DRAG_R;
+      if (dst(c0,mp)*zoom<closeR){ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1/zoom;ctx.beginPath();ctx.arc(c0.x,c0.y,7/zoom,0,Math.PI*2);ctx.stroke();ctx.restore();}
     }
     ctx.restore();
   }
@@ -3549,7 +3558,8 @@ function draw() {
     areaPts.forEach((pp,i)=>{ctx.beginPath();ctx.arc(pp.x,pp.y,(i===0?5:3)/zoom,0,Math.PI*2);ctx.fill();});
     if (areaPts.length>=3&&mp) {
       const c0=areaPts[0];
-      if (dst(c0,mp)*zoom<DRAG_R){ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1/zoom;ctx.beginPath();ctx.arc(c0.x,c0.y,7/zoom,0,Math.PI*2);ctx.stroke();ctx.restore();}
+      const closeR = (window.innerWidth<=767) ? DRAG_R*3 : DRAG_R;
+      if (dst(c0,mp)*zoom<closeR){ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1/zoom;ctx.beginPath();ctx.arc(c0.x,c0.y,7/zoom,0,Math.PI*2);ctx.stroke();ctx.restore();}
     }
     ctx.restore();
   }
@@ -3779,17 +3789,34 @@ function annAngle4(ax,ay,bx,by,cx,cy,dx,dy,deg,label,hi,dpr=1,lpos=null) {
   ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(dx,dy); ctx.stroke();
   // Draw arc at intersection of extended lines
-  // Find intersection
   const d1x=bx-ax,d1y=by-ay,d2x=dx-cx,d2y=dy-cy;
   const denom=d1x*d2y-d1y*d2x;
-  ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
   if (Math.abs(denom)>0.001) {
     const t=((cx-ax)*d2y-(cy-ay)*d2x)/denom;
+    const sv=((cx-ax)*d1y-(cy-ay)*d1x)/denom;
     const ix=ax+t*d1x, iy=ay+t*d1y;
-    const a1=Math.atan2(by-iy,bx-ix), a2=Math.atan2(dy-iy,dx-ix);
-    const arcR=40/zoom;
-    ctx.beginPath(); ctx.arc(ix,iy,arcR,a1,a2); ctx.stroke();
-    ctx.fillStyle=col; ctx.globalAlpha=1; ctx.beginPath(); ctx.arc(ix,iy,3/zoom,0,Math.PI*2); ctx.fill();
+    // Skip arc if intersection is too far from the drawn segments (lines nearly parallel)
+    const mx4=(ax+bx+cx+dx)/4, my4=(ay+by+cy+dy)/4;
+    if (Math.hypot(ix-mx4,iy-my4) <= 500/zoom) {
+      // Dashed extension lines where segments don't reach the intersection
+      ctx.save(); ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.35;
+      if (t<0)  { ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(ix,iy); ctx.stroke(); }
+      else if (t>1) { ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(ix,iy); ctx.stroke(); }
+      if (sv<0) { ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(ix,iy); ctx.stroke(); }
+      else if (sv>1){ ctx.beginPath(); ctx.moveTo(dx,dy); ctx.lineTo(ix,iy); ctx.stroke(); }
+      ctx.restore();
+      // Arc: draw in the sector containing the centroid of the 4 endpoints
+      const a1=Math.atan2(d1y,d1x),a2=Math.atan2(d2y,d2x);
+      const degR=deg*Math.PI/180,acent=Math.atan2(my4-iy,mx4-ix);
+      const cands=[a1,a1+Math.PI,a2,a2+Math.PI];
+      let arcStart=a1,bestD=Infinity;
+      cands.forEach(s=>{const mid=s+degR/2;let d=((acent-mid)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);if(d>Math.PI)d=2*Math.PI-d;if(d<bestD){bestD=d;arcStart=s;}});
+      const arcR=40/zoom;
+      ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
+      ctx.beginPath(); ctx.arc(ix,iy,arcR,arcStart,arcStart+degR,false); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(ix,iy,3/zoom,0,Math.PI*2); ctx.fill();
+    }
   }
   ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
   [[ax,ay],[bx,by],[cx,cy],[dx,dy]].forEach(([px,py])=>{ctx.beginPath();ctx.arc(px,py,4/zoom,0,Math.PI*2);ctx.fill();});
@@ -3885,21 +3912,35 @@ function annPtCoord(px,py,ox,oy,label,hi,dpr=1,lpos=null) {
 
 // Rubber-band for new modes
 function drawNewModeRubber() {
+  // Draw already-confirmed segments so they remain visible between taps on mobile (mp=null after each tap)
+  if ((mode==='p4c'||mode==='p4d')&&p0&&p1) {
+    ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.6;
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
+    ctx.fillStyle='#D4537E'; [p0,p1].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+    ctx.restore();
+  }
+  if (mode==='p4d'&&window._p4p2) {
+    ctx.save(); ctx.fillStyle='#D4537E'; ctx.globalAlpha=0.8;
+    ctx.beginPath(); ctx.arc(window._p4p2.x,window._p4p2.y,5/zoom,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  if (mode==='pl3'&&p0&&p1) {
+    ctx.save(); ctx.strokeStyle='#EF9F27'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.7;
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
+    ctx.fillStyle='#EF9F27'; [p0,p1].forEach(pt=>{ctx.beginPath();ctx.arc(pt.x,pt.y,4/zoom,0,Math.PI*2);ctx.fill();});
+    ctx.restore();
+  }
   if (!mp) return;
   if (mode==='p4a'&&p0) rubberLine(p0,mp,'#D4537E','');
   if (mode==='p4b'&&p0) { rubberLine(p0,mp,'#D4537E',''); }
   if (mode==='p4c'&&p0&&p1) {
-    ctx.save(); ctx.strokeStyle='#D4537E'; ctx.lineWidth=1.5/zoom; ctx.globalAlpha=0.6;
-    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.lineTo(p1.x,p1.y); ctx.stroke();
-    ctx.restore();
     rubberLine(mp,mp,'#D4537E','');
   }
   if (mode==='p4d'&&window._p4p2) {
     const p2=window._p4p2;
-    if (p0&&p1){ctx.save();ctx.strokeStyle='#D4537E';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.6;ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();ctx.restore();}
     const dAx=p1?p1.x-p0.x:0,dAy=p1?p1.y-p0.y:0,dBx=mp.x-p2.x,dBy=mp.y-p2.y;
     let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-    if(ang>90) ang=180-ang;
+    if(ang>90)ang=180-ang;
     rubberLine(p2,mp,'#D4537E',`∡ ${ang.toFixed(1)}°`);
   }
   if (mode==='pl1'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
@@ -3907,17 +3948,15 @@ function drawNewModeRubber() {
   else if (mode==='pl2'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
   if (mode==='pl3'&&p0&&p1) {
     const dx=p1.x-p0.x,dy=p1.y-p0.y,len=Math.hypot(dx,dy);
-    ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.7;
-    ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
     if(len>0){
       const distPx=Math.abs(dy*mp.x-dx*mp.y+p1.x*p0.y-p1.y*p0.x)/len;
       const t2=((mp.x-p0.x)*dx+(mp.y-p0.y)*dy)/(len*len);
       const fx=p0.x+t2*dx,fy=p0.y+t2*dy;
-      ctx.setLineDash([4/zoom,3/zoom]);ctx.beginPath();ctx.moveTo(mp.x,mp.y);ctx.lineTo(fx,fy);ctx.stroke();ctx.setLineDash([]);
+      ctx.save();ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5/zoom;ctx.globalAlpha=0.7;
+      ctx.setLineDash([4/zoom,3/zoom]);ctx.beginPath();ctx.moveTo(mp.x,mp.y);ctx.lineTo(fx,fy);ctx.stroke();ctx.setLineDash([]);ctx.restore();
       const r=scFactor?distPx*scFactor:null;
-      ctx.restore();
       rubberLine(mp,{x:fx,y:fy},'#EF9F27',r?`${r.toFixed(2)} ${scUnit}`:`${Math.round(distPx)}px`);
-    } else ctx.restore();
+    }
   }
   // Line-to-line rubber band
   if (mode==='ll2'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
@@ -4285,10 +4324,10 @@ function showProjTip(msg) { const t=document.getElementById('projTip'); if(t){t.
 function hideProjTip()    { const t=document.getElementById('projTip'); if(t) t.style.opacity='0'; }
 
 /* ── export PNG ── */
-function exportImg() {
+function exportImg(fmtOverride) {
   if (!img) return;
-  t('export_'+document.getElementById('exportFmt').value);
-  const fmt = document.getElementById('exportFmt').value;
+  const fmt = fmtOverride || document.getElementById('exportFmt').value;
+  t('export_'+fmt);
   const mime = fmt==='jpg'?'image/jpeg':fmt==='webp'?'image/webp':'image/png';
   const quality = fmt==='jpg'?0.92:fmt==='webp'?0.92:1;
   const ec=document.createElement('canvas'); ec.width=img.width; ec.height=img.height;
@@ -4322,7 +4361,7 @@ function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strok
 function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath();ec.arc(x,y,5*s,0,Math.PI*2);ec.fill();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,pad=4*s,h=fs*1.4,rx=x+8*s;ec.fillStyle='rgba(30,30,30,.9)';ec.beginPath();ec.roundRect(rx,y-h/2-pad,tw+pad*2,h+pad*2,3*s);ec.fill();ec.fillStyle='#F5E642';ec.textAlign='left';ec.textBaseline='middle';ec.fillText(text,rx+pad,y);ec.restore();}
 
 function drawArcOn(ec,cx,cy,r,a1,sweep,p1,p2,label,s){const col='#5DCAA5';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,a1,a1+sweep,sweep<0);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p1.x,p1.y);ec.stroke();ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p2.x,p2.y);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(cx,cy,5*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p1.x,p1.y,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p2.x,p2.y,4*s,0,Math.PI*2);ec.fill();if(label){const amid=a1+sweep/2;drawLblOn(ec,cx+Math.cos(amid)*(r+14*s),cy+Math.sin(amid)*(r+14*s),label,col,s);}ec.restore();}
-function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const a1=Math.atan2(by-iy,bx-ix),a2=Math.atan2(dy-iy,dx-ix);ec.beginPath();ec.arc(ix,iy,40*s,a1,a2);ec.stroke();ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
+function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);let degExp=Math.abs(Math.atan2(d1x*d2y-d1y*d2x,d1x*d2x+d1y*d2y)*180/Math.PI);if(degExp>90)degExp=180-degExp;const degRe=degExp*Math.PI/180,acente=Math.atan2(my4-iy,mx4-ix);const candse=[a1e,a1e+Math.PI,a2e,a2e+Math.PI];let arcSte=a1e,bestDe=Infinity;candse.forEach(sv2=>{const mid=sv2+degRe/2;let d=((acente-mid)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);if(d>Math.PI)d=2*Math.PI-d;if(d<bestDe){bestDe=d;arcSte=sv2;}});ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+degRe,false);ec.stroke();ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
 function drawPtLineOn(ec,lx1,ly1,lx2,ly2,px,py,fx,fy,label,s){const col='#EF9F27';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(lx1,ly1);ec.lineTo(lx2,ly2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(px,py);ec.lineTo(fx,fy);ec.stroke();ec.setLineDash([]);const ddx=lx2-lx1,ddy=ly2-ly1,len=Math.hypot(ddx,ddy);if(len>0){const nx=ddx/len,ny=ddy/len,sq=6*s;ec.beginPath();ec.moveTo(fx+nx*sq,fy+ny*sq);ec.lineTo(fx+nx*sq-(py-fy)/len*sq,fy+ny*sq+(px-fx)/len*sq);ec.lineTo(fx-(py-fy)/len*sq,fy+(px-fx)/len*sq);ec.stroke();}ec.fillStyle=col;[[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ec.beginPath();ec.arc(x,y,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(px+fx)/2,(py+fy)/2-18*s,label,col,s);ec.restore();}
 function drawPtCoordOn(ec,px,py,ox,oy,label,s){const col='#5DCAA5';ec.save();if(ox!==undefined&&oy!==undefined){const al=24*s;ec.lineWidth=1.5*s;ec.strokeStyle='#EF9F27';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox+al,oy);ec.stroke();ec.strokeStyle='#9F77DD';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox,oy-al);ec.stroke();drawLblOn(ec,ox+al+4*s,oy,'X','#EF9F27',s);drawLblOn(ec,ox,oy-al-4*s,'Y','#9F77DD',s);ec.fillStyle='#fff';ec.beginPath();ec.arc(ox,oy,3*s,0,Math.PI*2);ec.fill();}ec.strokeStyle=col;ec.lineWidth=1.5*s;const sq=8*s;ec.beginPath();ec.moveTo(px-sq,py);ec.lineTo(px+sq,py);ec.stroke();ec.beginPath();ec.moveTo(px,py-sq);ec.lineTo(px,py+sq);ec.stroke();ec.fillStyle=col;ec.beginPath();ec.arc(px,py,3*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,px+10*s,py-10*s,label,col,s);ec.restore();}
 
@@ -4597,13 +4636,13 @@ function loadImgFromImage(imgEl, replaceCurrentPage) {
       generateThumb(pages[currentPageIdx]);
     }
     fitImg(); updUI();
-    if (snapEnabled) computeEdges();
+    if (snapEnabled && window.innerWidth > 767) computeEdges();
   } else {
     // New page (PDF page load)
     const ps = makePageState({ imgEl: imgEl, originalImgEl: imgEl, label: pdfSourceName || 'pdf', sourceName: pdfSourceName || 'pdf', sourceType: 'pdf' });
     generateThumb(ps);
     addPage(ps, true);
-    if (snapEnabled) computeEdges();
+    if (snapEnabled && window.innerWidth > 767) computeEdges();
     setTimeout(() => {
       const bs = document.getElementById('btnScale');
       if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
@@ -4712,7 +4751,7 @@ function generateThumb(ps) {
 function updFilmstrip() {
   const fs = document.getElementById('filmstrip');
   if (!fs) return;
-  if (!pages.length) { fs.style.display = 'none'; ca.classList.remove('has-fs'); return; }
+  if (pages.length <= 1) { fs.style.display = 'none'; ca.classList.remove('has-fs'); return; }
   fs.style.display = 'flex';
   ca.classList.add('has-fs');
   fs.innerHTML = '';
@@ -4916,6 +4955,15 @@ setTimeout(() => {
 /* ── MOBILE ── */
 const isMob = () => window.innerWidth <= 767;
 
+function openImgFmtPicker() {
+  const p = document.getElementById('mImgFmtPicker');
+  if (p) { p.style.display='flex'; document.body.style.overflow='hidden'; }
+}
+function closeImgFmtPicker() {
+  const p = document.getElementById('mImgFmtPicker');
+  if (p) { p.style.display='none'; document.body.style.overflow=''; }
+}
+
 // show/hide mobile elements
 function applyMobileLayout() {
   const mob = isMob();
@@ -4925,6 +4973,16 @@ function applyMobileLayout() {
   if (ms)  ms.style.display  = mob ? 'block' : 'none';
 }
 applyMobileLayout();
+// Scroll indicator: show right-fade when tools overflow, hide when scrolled to end
+(function(){
+  const ts = document.getElementById('mobileToolsScroll');
+  const tb = document.getElementById('mobileTopbar');
+  if (!ts || !tb) return;
+  const upd = () => { const atEnd = ts.scrollLeft + ts.clientWidth >= ts.scrollWidth - 4; tb.classList.toggle('scroll-at-end', atEnd); };
+  ts.addEventListener('scroll', upd, {passive:true});
+  // initial check after layout
+  requestAnimationFrame(upd);
+})();
 window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg(); else { const fsH = getFsH(); const ch = ca.clientHeight - fsH; cv.width = ca.clientWidth; cv.height = ch; cv.style.width = ca.clientWidth+'px'; cv.style.height = ch+'px'; } });
 
 // file inputs
@@ -4978,8 +5036,17 @@ function mToolTap(tool) {
   const subScroll = document.getElementById('mobileSubScroll');
   const defs = M_SUB_DEFS[tool];
   if (!defs) { fnMap[tool]?.(); return; }
-  // Toggle off if same tool already showing sub row
-  if (subRow.style.display !== 'none' && subRow.dataset.tool === tool) {
+  // Toggle off if tool is currently active (mode-based check, not subRow visibility)
+  const activeModes = {
+    dist:  ['ma','mb','ce1','ce2','pl1','pl2','pl3'],
+    diam:  ['da','db','d3a','d3b','d3c','arc1','arc2','arc3'],
+    angle: ['aa','ab','ac','p4a','p4b','p4c','p4d'],
+    area:  ['pa'],
+    perim: ['pp'],
+    ptc:   ['ptc'],
+  };
+  const toolIsActive = activeModes[tool]?.includes(mode);
+  if (toolIsActive || (subRow.style.display !== 'none' && subRow.dataset.tool === tool)) {
     fnMap[tool]?.(); // toggle off
     subRow.style.display='none'; subRow.dataset.tool='';
     return;
@@ -4989,7 +5056,7 @@ function mToolTap(tool) {
   // Build sub row
   subRow.dataset.tool = tool;
   subScroll.innerHTML='';
-  const lastKey = _mActiveSubTool[tool];
+  const lastKey = _mActiveSubTool[tool] || defs[0].key;
   defs.forEach(d => {
     const btn = document.createElement('button');
     btn.className = 'm-sub' + (d.key===lastKey?' active':'');
@@ -5007,39 +5074,12 @@ function mToolTap(tool) {
   subRow.style.display='flex';
 }
 
-function toggleMobileSettings() {
-  const ms = document.getElementById('mobileSettings');
-  const btn = document.getElementById('mBtnSettings');
-  const show = ms.style.display === 'none' || ms.style.display === '';
-  ms.style.display = show ? 'flex' : 'none';
-  if (btn) btn.classList.toggle('active', show);
-  if (show) updMobileSettings();
-}
-
-function updMobileSettings() {
-  const hasImg = !!img;
-  const pairs = [
-    ['mBtnZoom',    zoomEnabled],
-    ['mBtnMag',     magEnabled],
-    ['mBtnSnap2',   snapEnabled],
-    ['mBtnPtSnap2', ptSnapEnabled],
-  ];
-  pairs.forEach(([id, active]) => {
-    const b = document.getElementById(id);
-    if (!b) return;
-    b.disabled = !hasImg;
-    b.classList.toggle('msett-active', active && hasImg);
-  });
-  ['mExpPng','mExpJpg','mExpWebp','mExpCsv','mExpPdf','mExpSave'].forEach(id => {
-    const b = document.getElementById(id); if(b) b.disabled=!hasImg;
-  });
-}
 
 function updMobile() {
   if (!isMob()) return;
   const hasImg = !!img, hasSc = !!scFactor;
-  const colMap  = {line:'#EF9F27',diam:'#5DCAA5',angle:'#D4537E',area:'#9F77DD',perim:'#F0994A'};
-  const iconMap = {line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠'};
+  const colMap  = {line:'#EF9F27',diam:'#5DCAA5',angle:'#D4537E',area:'#9F77DD',perim:'#F0994A',arc:'#5DCAA5',note:'#F5E642',angle4:'#D4537E',ptline:'#EF9F27',ll:'#EF9F27',ptcoord:'#5DCAA5'};
+  const iconMap = {line:'↔',diam:'⌀',angle:'∠',area:'⬡',perim:'⬠',arc:'⌒',note:'✎',angle4:'∡',ptline:'⊥',ll:'∥',ptcoord:'⊙'};
 
   // sync mobile tool buttons
   const ids = ['mBtnScale','mBtnMeasure','mBtnDiam','mBtnAngle','mBtnArea','mBtnPerim','mBtnNote','mBtnPtCoord'];
@@ -5060,12 +5100,9 @@ function updMobile() {
     const b=document.getElementById(id); if(!b)return;
     b.classList.toggle('m-active', modes.includes(mode));
   });
-  // Quick action buttons
-  const qu=document.getElementById('mQuickUndo'), qe=document.getElementById('mQuickExport'), qc=document.getElementById('mQuickClear');
-  if(qu){qu.disabled=!history.length; qu.style.color=history.length?'#aaa':'#555';}
-  if(qe){qe.disabled=!hasImg; qe.style.color=hasImg?'#1D9E75':'#555';}
-  if(qc){qc.disabled=!hasImg;}
-  updMobileSettings();
+  // "View all" button — show when more than one measurement
+  const vab = document.getElementById('mViewAllBtn');
+  if (vab) vab.style.visibility = meas.length > 1 ? 'visible' : 'hidden';
 
   // pulse Scale button when image loaded but not scale yet
   const scBtn = document.getElementById('mBtnScale');
@@ -5084,13 +5121,10 @@ function updMobile() {
     }
   }
 
-  // export/undo/clear buttons
-  const eb = document.getElementById('mExportBtn');
-  const ub = document.getElementById('mUndoBtn');
-  const cb = document.getElementById('mClearBtn');
-  if (eb) { eb.disabled=!hasImg; eb.style.color=hasImg?'#1D9E75':'#555'; eb.style.background=hasImg?'rgba(29,158,117,.15)':'#252525'; }
-  if (ub) { ub.disabled=!history.length; ub.style.color=history.length?'#aaa':'#555'; }
-  if (cb) { cb.disabled=!hasImg; }
+  // export buttons
+  ['mExpImg','mExpPdf','mExpCsv','mExpSave'].forEach(id => {
+    const b = document.getElementById(id); if(b) b.disabled=!hasImg;
+  });
 
   // measurements list in SEO section
   const ml = document.getElementById('mMeasList');
@@ -5106,6 +5140,12 @@ function updMobile() {
       else if(m.type==='angle') v=`${m.deg.toFixed(1)}°`;
       else if(m.type==='area') v=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;
       else if(m.type==='perim') v=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;
+      else if(m.type==='arc') v=scFactor?`${(m.arcLen*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.arcLen)}px`;
+      else if(m.type==='angle4') v=`${m.deg.toFixed(1)}°`;
+      else if(m.type==='ptline') v=scFactor?`${(m.distPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)}px`;
+      else if(m.type==='ll') v=scFactor?`${(m.distPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)}px`;
+      else if(m.type==='ptcoord') { const u=m.unit||'px'; v=`X: ${m.cx.toFixed(2)}  Y: ${m.cy.toFixed(2)} ${u}`; }
+      else if(m.type==='note') v=m.text;
       const row=document.createElement('div'); row.className='m-res-row';
       row.innerHTML=`<div class="m-res-icon" style="color:${col}">${iconMap[m.type]||'?'}</div><div class="m-res-num" style="font-size:9px;color:#444;flex-shrink:0;width:20px">#${i+1}</div><div class="m-res-val" style="color:${col}">${v}</div>`;
       ml.appendChild(row);
@@ -5130,6 +5170,12 @@ function updMobile() {
     else if(m.type==='angle') v=`${m.deg.toFixed(1)}°`;
     else if(m.type==='area') v=scFactor?`${(m.areaPx*scFactor*scFactor).toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)}px²`;
     else if(m.type==='perim') v=scFactor?`${(m.perimPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)}px`;
+    else if(m.type==='arc') v=scFactor?`${(m.arcLen*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.arcLen)}px`;
+    else if(m.type==='angle4') v=`${m.deg.toFixed(1)}°`;
+    else if(m.type==='ptline') v=scFactor?`${(m.distPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)}px`;
+    else if(m.type==='ll') v=scFactor?`${(m.distPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)}px`;
+    else if(m.type==='ptcoord') { const u=m.unit||'px'; v=`X: ${m.cx.toFixed(2)}  Y: ${m.cy.toFixed(2)} ${u}`; }
+    else if(m.type==='note') v=m.text;
     val.textContent=v; val.style.color=col; val.style.fontStyle='normal';
     sub.textContent=`${iconMap[m.type]} #${idx+1}`;
     if(sh){sh.innerHTML='↓ more'; sh.style.color='#3a3a3a';}
@@ -5170,7 +5216,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   let txStart=0, tyStart=0, tMoved=false;
   let longPressTimer=null;
   // Pinch state
-  let pinchDist0=0, pinchZoom0=1, pinchPanX0=0, pinchPanY0=0, isPinching=false;
+  let pinchDist0=0, pinchZoom0=1, pinchPanX0=0, pinchPanY0=0, pinchMid0X=0, pinchMid0Y=0, isPinching=false;
 
   // All modes that accept taps to place points
   const TOOL_MODES = ['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c',
@@ -5188,12 +5234,16 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
   cv.addEventListener('touchstart', e => {
     if (!img) return;
-    // Pinch (2 fingers)
+    // Pinch (2 fingers): zoom + pan
     if (e.touches.length === 2) {
       isPinching = true;
       clearLongPress();
+      cv.style.touchAction = 'none';
       const t0=e.touches[0], t1=e.touches[1];
+      const rc=cv.getBoundingClientRect();
       pinchDist0 = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
+      pinchMid0X = (t0.clientX+t1.clientX)/2 - rc.left;
+      pinchMid0Y = (t0.clientY+t1.clientY)/2 - rc.top;
       pinchZoom0 = zoom; pinchPanX0 = panX; pinchPanY0 = panY;
       e.preventDefault(); return;
     }
@@ -5201,6 +5251,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     const t=e.touches[0];
     txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
     if (TOOL_MODES.includes(mode)) {
+      cv.style.touchAction = 'none';
       e.preventDefault();
       mp = getTouchPt(t);
       startLongPress(t.clientX, t.clientY);
@@ -5208,13 +5259,14 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
     if (mode==='idle') {
       const d=findDrag(getTouchPt(t));
-      if (d) { e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
+      if (d) { cv.style.touchAction='none'; e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
+      else { cv.style.touchAction='pan-x pan-y'; } // let page scroll
     }
   }, {passive:false});
 
   cv.addEventListener('touchmove', e => {
     if (!img) return;
-    // Pinch zoom
+    // Pinch zoom + pan
     if (isPinching && e.touches.length === 2) {
       e.preventDefault();
       const t0=e.touches[0], t1=e.touches[1];
@@ -5222,12 +5274,12 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       const scale = dist / pinchDist0;
       const fitZoom = Math.min(ca.clientWidth/img.width, (ca.clientHeight-getFsH())/img.height, 1);
       const nz = Math.max(fitZoom, Math.min(20, pinchZoom0 * scale));
-      // Zoom toward midpoint
       const rc = cv.getBoundingClientRect();
-      const mx = (t0.clientX+t1.clientX)/2 - rc.left;
-      const my = (t0.clientY+t1.clientY)/2 - rc.top;
-      panX = mx - (mx - pinchPanX0) * (nz/pinchZoom0);
-      panY = my - (my - pinchPanY0) * (nz/pinchZoom0);
+      const cmx = (t0.clientX+t1.clientX)/2 - rc.left;
+      const cmy = (t0.clientY+t1.clientY)/2 - rc.top;
+      // Keep canvas point under initial midpoint at current midpoint (zoom + pan)
+      panX = cmx - (pinchMid0X - pinchPanX0) * (nz/pinchZoom0);
+      panY = cmy - (pinchMid0Y - pinchPanY0) * (nz/pinchZoom0);
       zoom = nz; clampPan(); draw();
       return;
     }
@@ -5239,24 +5291,16 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     } else if (TOOL_MODES.includes(mode)) {
       e.preventDefault(); mp=getTouchPt(t); draw();
     } else {
-      if (moved) {
-        tMoved=true; clearLongPress();
-        // One-finger pan when zoomEnabled or any time on idle
-        if (mode==='idle') {
-          e.preventDefault();
-          panX += t.clientX - txStart; panY += t.clientY - tyStart;
-          txStart=t.clientX; tyStart=t.clientY;
-          clampPan(); draw();
-        }
-      }
+      if (moved) { tMoved=true; clearLongPress(); }
+      // idle: let page scroll naturally (no preventDefault)
     }
   }, {passive:false});
 
   cv.addEventListener('touchend', e => {
     clearLongPress();
     if (!img) return;
-    if (isPinching && e.touches.length < 2) { isPinching=false; return; }
-    if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
+    if (isPinching && e.touches.length < 2) { isPinching=false; cv.style.touchAction='pan-x pan-y'; return; }
+    if (mode==='drag') { mode='idle'; dragState=null; mp=null; cv.style.touchAction='pan-x pan-y'; updUI(); draw(); return; }
     if (tMoved) return;
     e.preventDefault();
     const wasLongPress = longPressActive;
@@ -5336,19 +5380,19 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       const p2=window._p4p2; if(!p2||dst(p2,p)<3/zoom)return;
       const dAx=p1.x-p0.x,dAy=p1.y-p0.y,dBx=p.x-p2.x,dBy=p.y-p2.y;
       let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-      if(ang>90) ang=180-ang;
+      if(ang>90)ang=180-ang;
       pushHistory(); meas.push({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang});
       p0=null; p1=null; window._p4p2=null; mp=null; stopTool(); draw(); updUI();
     }
     // Area
     else if (mode==='pa') {
-      if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R){closeArea();return;}}
-      areaPts.push(p); setHint(LF('mh_area')(areaPts.length)); draw();
+      if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R*3){closeArea();return;}}
+      areaPts.push(p); mp=null; setHint(LF('mh_area')(areaPts.length)); draw();
     }
     // Path
     else if (mode==='pp') {
-      if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R){closePerim();return;}}
-      areaPts.push(p); setHint(LF('mh_area')(areaPts.length)); draw();
+      if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R*3){closePerim();return;}}
+      areaPts.push(p); mp=null; setHint(LF('mh_area')(areaPts.length)); draw();
     }
     // Note
     else if (mode==='na') {
