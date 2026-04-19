@@ -2026,7 +2026,8 @@ function defaultLabelPos(m, i) {
   if (m.type==='angle') {
     const a1=Math.atan2(m.ay-m.vy,m.ax-m.vx), a2=Math.atan2(m.by-m.vy,m.bx-m.vx);
     const arcR=Math.min(Math.hypot(m.ax-m.vx,m.ay-m.vy),Math.hypot(m.bx-m.vx,m.by-m.vy))*0.3;
-    return {x:m.vx+Math.cos((a1+a2)/2)*(arcR+18/zoom), y:m.vy+Math.sin((a1+a2)/2)*(arcR+18/zoom)};
+    const midA=a1+(((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))/2;
+    return {x:m.vx+Math.cos(midA)*(arcR+18/zoom), y:m.vy+Math.sin(midA)*(arcR+18/zoom)};
   }
   if (m.type==='area' || m.type==='perim') {
     return {x:m.pts.reduce((s,p)=>s+p.x,0)/m.pts.length, y:m.pts.reduce((s,p)=>s+p.y,0)/m.pts.length};
@@ -2196,9 +2197,7 @@ function _applyDragNote(m, wp) {
 function _applyDragAngle4(m, wp, field) {
   if(field==='a'){m.ax=wp.x;m.ay=wp.y;}else if(field==='b'){m.bx=wp.x;m.by=wp.y;}
   else if(field==='c'){m.cx=wp.x;m.cy=wp.y;}else{m.dx=wp.x;m.dy=wp.y;}
-  const dAx=m.bx-m.ax,dAy=m.by-m.ay,dBx=m.dx-m.cx,dBy=m.dy-m.cy;
-  let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-  m.deg=ang>90?180-ang:ang;
+  m.deg=angle4SectorDeg(m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy);
 }
 
 function _applyDragPtline(m, wp, field) {
@@ -2211,7 +2210,10 @@ function _applyDragPtline(m, wp, field) {
 }
 
 function _applyDragPtcoord(m, wp) {
-  m.px=wp.x;m.py=wp.y;m.cx=(m.px-m.ox)*(scFactor||1);m.cy=-(m.py-m.oy)*(scFactor||1);
+  m.px=wp.x;m.py=wp.y;
+  const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:(m.ox||0);
+  const oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:(m.oy||0);
+  m.cx=(m.px-ox)*(scFactor||1);m.cy=-(m.py-oy)*(scFactor||1);
 }
 
 /* ── mouse events ── */
@@ -2422,9 +2424,7 @@ cv.addEventListener('click', e => {
   else if (mode==='p4d') {
     const p2=window._p4p2;
     if (!p2||dst(p2,p)<5/zoom) return;
-    const dAx=p1.x-p0.x,dAy=p1.y-p0.y,dBx=p.x-p2.x,dBy=p.y-p2.y;
-    let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-    if(ang>90)ang=180-ang;
+    const ang=angle4SectorDeg(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y,p.x,p.y);
     pushHistory();
     meas.push({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang});
     p0=null; p1=null; window._p4p2=null; mp=null;
@@ -2474,11 +2474,13 @@ cv.addEventListener('click', e => {
   // Point coordinate
   else if (mode==='ptc') {
     if (ptCoordMode==='origin') {
-      ptCoordOrigin={x:p.x,y:p.y};
+      ptCoordGlobalOrigin={x:p.x,y:p.y};
+      ptCoordPrevOrigin=null; // confirmed — discard backup
+      _recomputePtCoordPoints();
       setHint('Origin set — click to place coordinate points');
       setPtCoordMode('point');
     } else {
-      const ox=ptCoordOrigin?ptCoordOrigin.x:0, oy=ptCoordOrigin?ptCoordOrigin.y:0;
+      const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:0, oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:0;
       const cx2=(p.x-ox)*(scFactor||1), cy2=-(p.y-oy)*(scFactor||1);
       const u=scFactor?scUnit:'px';
       pushHistory();
@@ -2563,6 +2565,12 @@ document.addEventListener('keydown', e => {
 
 /* ── tools ── */
 function stopTool() {
+  // If user cancels while re-setting origin, restore the previous origin
+  if (mode==='ptc' && ptCoordMode==='origin' && ptCoordPrevOrigin !== null) {
+    ptCoordGlobalOrigin = ptCoordPrevOrigin;
+    _recomputePtCoordPoints();
+  }
+  ptCoordPrevOrigin = null;
   mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; areaCps=[]; stPts=[]; clearHint(); closeSubPanels(); updStraightenUI(); draw(); updUI();
   if (isMob()) {
     cv.style.touchAction = 'pan-x pan-y';
@@ -2641,7 +2649,7 @@ function restoreOriginal() {
   t('perspective_restore');
   pushHistory();
   img = originalImg;
-  meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; stPts=[]; p0=null; p1=null;
+  meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; stPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
   mode='idle'; zoom=1; panX=0; panY=0;
   edgeMap=null; edgeGx=null; edgeGy=null; edgeBlurred=null;
   if (currentPageIdx >= 0 && pages[currentPageIdx]) {
@@ -2858,7 +2866,7 @@ function applyStraighten() {
     const ni = new Image();
     ni.onload = () => {
       img = ni;
-      meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
+      meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
       stPts=[]; mode='idle'; zoom=1; panX=0; panY=0;
       edgeMap=null; edgeGx=null; edgeGy=null; edgeBlurred=null;
       if (currentPageIdx >= 0 && pages[currentPageIdx]) {
@@ -2922,8 +2930,15 @@ function setDistMode(m) {
 }
 
 // ── Point coordinate tool ────────────────────────────────────────────────────
-let ptCoordOrigin = null; // {x,y} in image pixels
+let ptCoordGlobalOrigin = null; // {x,y} in image pixels — one per page
+let ptCoordPrevOrigin   = null; // backup while user is re-setting origin (restored on cancel)
 let ptCoordMode = 'point'; // 'origin' or 'point'
+
+function _recomputePtCoordPoints() {
+  const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:0, oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:0;
+  const u=scFactor?scUnit:'px';
+  meas.forEach(m=>{ if(m.type==='ptcoord'){m.ox=ox;m.oy=oy;m.cx=(m.px-ox)*(scFactor||1);m.cy=-(m.py-oy)*(scFactor||1);m.unit=u;} });
+}
 
 function doPtCoord() {
   const active = mode==='ptc';
@@ -2931,6 +2946,8 @@ function doPtCoord() {
   if (!img) return;
   t('tool_ptcoord');
   closeSubPanels(); stopTool();
+  // Save current origin so user can cancel origin re-placement without losing existing points
+  ptCoordPrevOrigin = ptCoordGlobalOrigin ? {x:ptCoordGlobalOrigin.x, y:ptCoordGlobalOrigin.y} : null;
   mode = 'ptc'; ptCoordMode = 'origin';
   document.getElementById('subPtCoord').style.display='flex';
   setPtCoordMode('origin');
@@ -2968,11 +2985,11 @@ function saveOpenPath() {
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
 }
 function clearAll()  {
-  meas=[]; scLine=null; scPx=null; scFactor=null; history=[]; areaPts=[]; stopTool();
+  meas=[]; scLine=null; scPx=null; scFactor=null; history=[]; areaPts=[]; ptCoordGlobalOrigin=null; stopTool();
   if (currentPageIdx >= 0 && pages[currentPageIdx]) {
     pages[currentPageIdx].meas=[]; pages[currentPageIdx].scLine=null;
     pages[currentPageIdx].scPx=null; pages[currentPageIdx].scFactor=null;
-    pages[currentPageIdx].history=[];
+    pages[currentPageIdx].history=[]; pages[currentPageIdx].ptCoordGlobalOrigin=null;
   }
 }
 
@@ -3033,8 +3050,23 @@ function snapPoint(from, to, e) {
   return { x: from.x + d * Math.cos(snapped), y: from.y + d * Math.sin(snapped) };
 }
 function angleDeg(a,v,b) {
-  const ax=a.x-v.x,ay=a.y-v.y,bx=b.x-v.x,by=b.y-v.y;
-  return Math.acos(Math.max(-1,Math.min(1,(ax*bx+ay*by)/(Math.hypot(ax,ay)*Math.hypot(bx,by)))))*180/Math.PI;
+  const a1=Math.atan2(a.y-v.y,a.x-v.x), a2=Math.atan2(b.y-v.y,b.x-v.x);
+  return (((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))*180/Math.PI;
+}
+function angle4SectorDeg(ax,ay,bx,by,cx,cy,dx,dy) {
+  const d1x=bx-ax,d1y=by-ay,d2x=dx-cx,d2y=dy-cy;
+  const denom=d1x*d2y-d1y*d2x;
+  if(Math.abs(denom)<0.001)return 0;
+  const t=((cx-ax)*d2y-(cy-ay)*d2x)/denom;
+  const ix=ax+t*d1x, iy=ay+t*d1y;
+  const mx4=(ax+bx+cx+dx)/4, my4=(ay+by+cy+dy)/4;
+  if(Math.hypot(ix-mx4,iy-my4)>500)return 0;
+  const a1e=Math.atan2(d1y,d1x), a2e=Math.atan2(d2y,d2x);
+  const acente=Math.atan2(my4-iy,mx4-ix);
+  const bnds=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);
+  const aN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  for(let i=0;i<4;i++){const st=bnds[i];if(i<3){if(aN>=st&&aN<bnds[i+1])return(bnds[i+1]-st)*180/Math.PI;}else{if(aN>=st||aN<bnds[0])return(bnds[0]+2*Math.PI-st)*180/Math.PI;}}
+  return 0;
 }
 function polyArea(pts) {
   let a=0;
@@ -3490,8 +3522,8 @@ function draw() {
   }
 
   // Draw ptCoord origin axes whenever set (visible during and after placement)
-  if (ptCoordOrigin && mode==='ptc') {
-    const ox=ptCoordOrigin.x, oy=ptCoordOrigin.y;
+  if (ptCoordGlobalOrigin && mode==='ptc') {
+    const ox=ptCoordGlobalOrigin.x, oy=ptCoordGlobalOrigin.y;
     const al=24/zoom;
     ctx.save();
     ctx.globalAlpha = ptCoordMode==='origin' ? 1 : 0.85;
@@ -3712,7 +3744,8 @@ function _drawRubberband(dpr) {
       ctx.setLineDash([3/zoom,3/zoom]); ctx.beginPath(); ctx.arc(p1.x,p1.y,arcR,a1,a2); ctx.stroke();
       ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle='#D4537E';
       for (const pp of [p0,p1,mp]){ctx.beginPath();ctx.arc(pp.x,pp.y,3/zoom,0,Math.PI*2);ctx.fill();}
-      ctx.restore(); drawLabel(p1.x+Math.cos((a1+a2)/2)*(arcR+18/zoom),p1.y+Math.sin((a1+a2)/2)*(arcR+18/zoom),`${deg.toFixed(1)}°`,'#D4537E');
+      const midA=a1+(((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))/2;
+      ctx.restore(); drawLabel(p1.x+Math.cos(midA)*(arcR+18/zoom),p1.y+Math.sin(midA)*(arcR+18/zoom),`${deg.toFixed(1)}°`,'#D4537E');
     }
   }
   if (mode==='ac'&&p0&&p1&&!mp) {
@@ -3807,13 +3840,14 @@ function annAngle4(ax,ay,bx,by,cx,cy,dx,dy,deg,label,hi,dpr=1,lpos=null) {
       ctx.restore();
       // Arc: draw in the sector containing the centroid of the 4 endpoints
       const a1=Math.atan2(d1y,d1x),a2=Math.atan2(d2y,d2x);
-      const degR=deg*Math.PI/180,acent=Math.atan2(my4-iy,mx4-ix);
-      const cands=[a1,a1+Math.PI,a2,a2+Math.PI];
-      let arcStart=a1,bestD=Infinity;
-      cands.forEach(s=>{const mid=s+degR/2;let d=((acent-mid)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);if(d>Math.PI)d=2*Math.PI-d;if(d<bestD){bestD=d;arcStart=s;}});
+      const acent=Math.atan2(my4-iy,mx4-ix);
+      const bnds=[a1,a2,a1+Math.PI,a2+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);
+      const aN=((acent%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+      let arcStart=bnds[0],arcSpan=bnds[1]-bnds[0];
+      for(let i=0;i<4;i++){const st=bnds[i];if(i<3){if(aN>=st&&aN<bnds[i+1]){arcStart=st;arcSpan=bnds[i+1]-st;break;}}else{if(aN>=st||aN<bnds[0]){arcStart=st;arcSpan=bnds[0]+2*Math.PI-st;break;}}}
       const arcR=40/zoom;
       ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
-      ctx.beginPath(); ctx.arc(ix,iy,arcR,arcStart,arcStart+degR,false); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ix,iy,arcR,arcStart,arcStart+arcSpan,false); ctx.stroke();
       ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
       ctx.beginPath(); ctx.arc(ix,iy,3/zoom,0,Math.PI*2); ctx.fill();
     }
@@ -3938,9 +3972,7 @@ function drawNewModeRubber() {
   }
   if (mode==='p4d'&&window._p4p2) {
     const p2=window._p4p2;
-    const dAx=p1?p1.x-p0.x:0,dAy=p1?p1.y-p0.y:0,dBx=mp.x-p2.x,dBy=mp.y-p2.y;
-    let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
-    if(ang>90)ang=180-ang;
+    const ang=p1?angle4SectorDeg(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y,mp.x,mp.y):0;
     rubberLine(p2,mp,'#D4537E',`∡ ${ang.toFixed(1)}°`);
   }
   if (mode==='pl1'&&p0) { rubberLine(p0,mp,'#EF9F27',''); }
@@ -4029,7 +4061,8 @@ function annAngle(ax,ay,vx,vy,bx,by,deg,label,hi,dpr=1,lpos=null) {
   ctx.setLineDash([3/zoom,3/zoom]); ctx.beginPath(); ctx.arc(vx,vy,arcR,a1,a2); ctx.stroke();
   ctx.setLineDash([]); ctx.fillStyle=col;
   for (const [px,py] of [[ax,ay],[vx,vy],[bx,by]]){ctx.beginPath();ctx.arc(px,py,4/zoom,0,Math.PI*2);ctx.fill();}
-  const defLx=vx+Math.cos((a1+a2)/2)*(arcR+18/zoom), defLy=vy+Math.sin((a1+a2)/2)*(arcR+18/zoom);
+  const midA=a1+(((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))/2;
+  const defLx=vx+Math.cos(midA)*(arcR+18/zoom), defLy=vy+Math.sin(midA)*(arcR+18/zoom);
   if (label) { const lx=lpos?lpos.x:defLx, ly=lpos?lpos.y:defLy; if(lpos)drawLeaderLine(lx,ly,defLx,defLy,col); drawLabel(lx,ly,label,col,dpr); }
   ctx.restore();
 }
@@ -4230,6 +4263,7 @@ function saveProject() {
     const pgScPx     = (i === currentPageIdx) ? scPx     : pg.scPx;
     const pgScFactor = (i === currentPageIdx) ? scFactor : pg.scFactor;
     const pgScUnit   = (i === currentPageIdx) ? scUnit   : pg.scUnit;
+    const pgPtCoordOrigin = (i === currentPageIdx) ? ptCoordGlobalOrigin : pg.ptCoordGlobalOrigin;
     return {
       label: pg.label,
       sourceName: pg.sourceName,
@@ -4237,7 +4271,8 @@ function saveProject() {
       pdfPageNum: pg.pdfPageNum || null,
       image: ec.toDataURL('image/jpeg', 0.92),
       scale: pgScFactor ? { line: pgScLine, px: pgScPx, factor: pgScFactor, unit: pgScUnit } : null,
-      measurements: pgMeas || []
+      measurements: pgMeas || [],
+      ptCoordGlobalOrigin: pgPtCoordOrigin || null
     };
   });
   const project = {
@@ -4289,7 +4324,9 @@ function loadProject(file) {
             scFactor: pd.scale ? pd.scale.factor : null,
             scUnit:   pd.scale ? (pd.scale.unit || 'mm') : 'mm',
             meas:     pd.measurements || [],
-            history:  []
+            history:  [],
+            // Load saved origin; fall back to first ptcoord measurement's ox/oy for old files
+            ptCoordGlobalOrigin: pd.ptCoordGlobalOrigin || (() => { const fm=(pd.measurements||[]).find(x=>x.type==='ptcoord'); return fm?{x:fm.ox,y:fm.oy}:null; })()
           });
           generateThumb(ps);
           addPage(ps, false);
@@ -4355,13 +4392,13 @@ function exportImg(fmtOverride) {
 function drawLblOn(ec,x,y,text,col,s){ec.save();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,p=5*s,h=17*s,r=4*s,rx=x-tw/2-p,ry=y-h/2;ec.fillStyle='rgba(0,0,0,.8)';ec.beginPath();ec.moveTo(rx+r,ry);ec.lineTo(rx+tw+p*2-r,ry);ec.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);ec.lineTo(rx+tw+p*2,ry+h-r);ec.arcTo(rx+tw+p*2,ry+h,rx+tw+p*2-r,ry+h,r);ec.lineTo(rx+r,ry+h);ec.arcTo(rx,ry+h,rx,ry+h-r,r);ec.lineTo(rx,ry+r);ec.arcTo(rx,ry,rx+r,ry,r);ec.closePath();ec.fill();ec.fillStyle=col;ec.textAlign='center';ec.textBaseline='middle';ec.fillText(text,x,y);ec.restore();}
 function drawAnnOn(ec,x1,y1,x2,y2,col,label,s){ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(x1,y1);ec.lineTo(x2,y2);ec.stroke();const angle=Math.atan2(y2-y1,x2-x1)+Math.PI/2,tick=6*s;for(const[px,py]of[[x1,y1],[x2,y2]]){ec.beginPath();ec.moveTo(px+Math.cos(angle)*tick,py+Math.sin(angle)*tick);ec.lineTo(px-Math.cos(angle)*tick,py-Math.sin(angle)*tick);ec.stroke();}ec.fillStyle=col;ec.beginPath();ec.arc(x1,y1,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(x2,y2,4*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,(x1+x2)/2,(y1+y2)/2-10*s,label,col,s);ec.restore();}
 function drawDiamOn(ec,cx,cy,r,x1,y1,x2,y2,col,label,s){ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,0,Math.PI*2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(x1,y1);ec.lineTo(x2,y2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(x1,y1,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(x2,y2,4*s,0,Math.PI*2);ec.fill();const cs=5*s;ec.beginPath();ec.moveTo(cx-cs,cy);ec.lineTo(cx+cs,cy);ec.moveTo(cx,cy-cs);ec.lineTo(cx,cy+cs);ec.stroke();if(label)drawLblOn(ec,cx,cy-r-10*s,label,col,s);ec.restore();}
-function drawAngleOn(ec,ax,ay,vx,vy,bx,by,deg,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(vx,vy);ec.stroke();ec.beginPath();ec.moveTo(vx,vy);ec.lineTo(bx,by);ec.stroke();const a1=Math.atan2(ay-vy,ax-vx),a2=Math.atan2(by-vy,bx-vx),arcR=Math.min(Math.hypot(ax-vx,ay-vy),Math.hypot(bx-vx,by-vy))*0.3;ec.setLineDash([3*s,3*s]);ec.beginPath();ec.arc(vx,vy,arcR,a1,a2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;for(const[px,py]of[[ax,ay],[vx,vy],[bx,by]]){ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();}const midA=(a1+a2)/2;if(label)drawLblOn(ec,vx+Math.cos(midA)*(arcR+20*s),vy+Math.sin(midA)*(arcR+20*s),label,col,s);ec.restore();}
+function drawAngleOn(ec,ax,ay,vx,vy,bx,by,deg,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(vx,vy);ec.stroke();ec.beginPath();ec.moveTo(vx,vy);ec.lineTo(bx,by);ec.stroke();const a1=Math.atan2(ay-vy,ax-vx),a2=Math.atan2(by-vy,bx-vx),arcR=Math.min(Math.hypot(ax-vx,ay-vy),Math.hypot(bx-vx,by-vy))*0.3;ec.setLineDash([3*s,3*s]);ec.beginPath();ec.arc(vx,vy,arcR,a1,a2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;for(const[px,py]of[[ax,ay],[vx,vy],[bx,by]]){ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();}const midA=a1+(((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))/2;if(label)drawLblOn(ec,vx+Math.cos(midA)*(arcR+20*s),vy+Math.sin(midA)*(arcR+20*s),label,col,s);ec.restore();}
 function drawAreaOn(ec,pts,label,s){const col='#9F77DD';ec.save();ec.fillStyle='rgba(159,119,221,.15)';ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);ec.closePath();ec.fill();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
 function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);if(!open)ec.closePath();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
 function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath();ec.arc(x,y,5*s,0,Math.PI*2);ec.fill();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,pad=4*s,h=fs*1.4,rx=x+8*s;ec.fillStyle='rgba(30,30,30,.9)';ec.beginPath();ec.roundRect(rx,y-h/2-pad,tw+pad*2,h+pad*2,3*s);ec.fill();ec.fillStyle='#F5E642';ec.textAlign='left';ec.textBaseline='middle';ec.fillText(text,rx+pad,y);ec.restore();}
 
 function drawArcOn(ec,cx,cy,r,a1,sweep,p1,p2,label,s){const col='#5DCAA5';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,a1,a1+sweep,sweep<0);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p1.x,p1.y);ec.stroke();ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p2.x,p2.y);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(cx,cy,5*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p1.x,p1.y,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p2.x,p2.y,4*s,0,Math.PI*2);ec.fill();if(label){const amid=a1+sweep/2;drawLblOn(ec,cx+Math.cos(amid)*(r+14*s),cy+Math.sin(amid)*(r+14*s),label,col,s);}ec.restore();}
-function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);let degExp=Math.abs(Math.atan2(d1x*d2y-d1y*d2x,d1x*d2x+d1y*d2y)*180/Math.PI);if(degExp>90)degExp=180-degExp;const degRe=degExp*Math.PI/180,acente=Math.atan2(my4-iy,mx4-ix);const candse=[a1e,a1e+Math.PI,a2e,a2e+Math.PI];let arcSte=a1e,bestDe=Infinity;candse.forEach(sv2=>{const mid=sv2+degRe/2;let d=((acente-mid)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);if(d>Math.PI)d=2*Math.PI-d;if(d<bestDe){bestDe=d;arcSte=sv2;}});ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+degRe,false);ec.stroke();ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
+function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);const acente=Math.atan2(my4-iy,mx4-ix);const bndse=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);const acenteN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);let arcSte=bndse[0],arcSpane=bndse[1]-bndse[0];for(let i=0;i<4;i++){const st=bndse[i];if(i<3){if(acenteN>=st&&acenteN<bndse[i+1]){arcSte=st;arcSpane=bndse[i+1]-st;break;}}else{if(acenteN>=st||acenteN<bndse[0]){arcSte=st;arcSpane=bndse[0]+2*Math.PI-st;break;}}}ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+arcSpane,false);ec.stroke();ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
 function drawPtLineOn(ec,lx1,ly1,lx2,ly2,px,py,fx,fy,label,s){const col='#EF9F27';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(lx1,ly1);ec.lineTo(lx2,ly2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(px,py);ec.lineTo(fx,fy);ec.stroke();ec.setLineDash([]);const ddx=lx2-lx1,ddy=ly2-ly1,len=Math.hypot(ddx,ddy);if(len>0){const nx=ddx/len,ny=ddy/len,sq=6*s;ec.beginPath();ec.moveTo(fx+nx*sq,fy+ny*sq);ec.lineTo(fx+nx*sq-(py-fy)/len*sq,fy+ny*sq+(px-fx)/len*sq);ec.lineTo(fx-(py-fy)/len*sq,fy+(px-fx)/len*sq);ec.stroke();}ec.fillStyle=col;[[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ec.beginPath();ec.arc(x,y,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(px+fx)/2,(py+fy)/2-18*s,label,col,s);ec.restore();}
 function drawPtCoordOn(ec,px,py,ox,oy,label,s){const col='#5DCAA5';ec.save();if(ox!==undefined&&oy!==undefined){const al=24*s;ec.lineWidth=1.5*s;ec.strokeStyle='#EF9F27';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox+al,oy);ec.stroke();ec.strokeStyle='#9F77DD';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox,oy-al);ec.stroke();drawLblOn(ec,ox+al+4*s,oy,'X','#EF9F27',s);drawLblOn(ec,ox,oy-al-4*s,'Y','#9F77DD',s);ec.fillStyle='#fff';ec.beginPath();ec.arc(ox,oy,3*s,0,Math.PI*2);ec.fill();}ec.strokeStyle=col;ec.lineWidth=1.5*s;const sq=8*s;ec.beginPath();ec.moveTo(px-sq,py);ec.lineTo(px+sq,py);ec.stroke();ec.beginPath();ec.moveTo(px,py-sq);ec.lineTo(px,py+sq);ec.stroke();ec.fillStyle=col;ec.beginPath();ec.arc(px,py,3*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,px+10*s,py-10*s,label,col,s);ec.restore();}
 
@@ -4381,7 +4418,7 @@ function rotateImg(deg) {
   const ni = new Image();
   ni.onload = () => {
     img = ni; originalImg = ni;
-    meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null;
+    meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
     mode='idle'; zoom=1; panX=0; panY=0;
     if (currentPageIdx >= 0 && pages[currentPageIdx]) {
       pages[currentPageIdx].imgEl = ni; pages[currentPageIdx].originalImgEl = ni;
@@ -4667,6 +4704,7 @@ function makePageState(o) {
     scUnit:   o.scUnit   || 'mm',
     meas:     Array.isArray(o.meas)    ? o.meas    : [],
     history:  Array.isArray(o.history) ? o.history : [],
+    ptCoordGlobalOrigin: o.ptCoordGlobalOrigin || null,
     edgeMap: null, edgeGx: null, edgeGy: null, edgeBlurred: null, edgeW: 0, edgeH: 0,
     thumb: null
   };
@@ -4678,6 +4716,7 @@ function saveCurrentPageState() {
   p.imgEl = img; p.originalImgEl = originalImg;
   p.scLine = scLine; p.scPx = scPx; p.scFactor = scFactor; p.scUnit = scUnit;
   p.meas = meas; p.history = history;
+  p.ptCoordGlobalOrigin = ptCoordGlobalOrigin;
   p.edgeMap = edgeMap; p.edgeGx = edgeGx; p.edgeGy = edgeGy;
   p.edgeBlurred = edgeBlurred; p.edgeW = edgeW; p.edgeH = edgeH;
 }
@@ -4692,6 +4731,7 @@ function activatePage(idx) {
   img = p.imgEl; originalImg = p.originalImgEl;
   scLine = p.scLine; scPx = p.scPx; scFactor = p.scFactor; scUnit = p.scUnit;
   meas = p.meas; history = p.history;
+  ptCoordGlobalOrigin = p.ptCoordGlobalOrigin || null; ptCoordPrevOrigin = null;
   edgeMap = p.edgeMap; edgeGx = p.edgeGx; edgeGy = p.edgeGy;
   edgeBlurred = p.edgeBlurred; edgeW = p.edgeW; edgeH = p.edgeH;
   snapPt = null;
@@ -4720,7 +4760,7 @@ function removePage(idx) {
     currentPageIdx = -1;
     img = null; originalImg = null;
     scLine = null; scPx = null; scFactor = null; scUnit = 'mm';
-    meas = []; history = []; areaPts = [];
+    meas = []; history = []; areaPts = []; ptCoordGlobalOrigin = null;
     edgeMap = null; edgeGx = null; edgeGy = null; edgeBlurred = null;
     mode = 'idle'; p0 = null; p1 = null; zoom = 1; panX = 0; panY = 0;
     const dzEl = document.getElementById('dz');
@@ -4782,7 +4822,7 @@ function updFilmstrip() {
 }
 
 
-function renderAnnotatedPageToDataUrl(pg) {
+function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   const pgImg = pg.imgEl || img;
   const pgSc = pg.scFactor !== undefined ? pg.scFactor : scFactor;
   const pgUnit = pg.scUnit || scUnit;
@@ -4792,9 +4832,10 @@ function renderAnnotatedPageToDataUrl(pg) {
   ec.width = pgImg.width; ec.height = pgImg.height;
   const ec_ctx = ec.getContext('2d');
   ec_ctx.drawImage(pgImg, 0, 0);
-  // Scale line widths/labels with image resolution so annotations stay legible
-  // on high-res images and PDFs (baseline: ~1000px shortest side → sx=1).
-  const sx = Math.max(1, Math.min(pgImg.width, pgImg.height) / 1000);
+  // Scale annotations so they appear at a fixed readable size in the PDF output.
+  // pdfRatio = di_w / pgImg.width (how much the image is scaled down to fit the PDF page).
+  // sx = 1/pdfRatio ensures labels are ~11pt regardless of source image resolution.
+  const sx = pdfRatio ? Math.max(1, 1/pdfRatio) : Math.max(1, Math.min(pgImg.width, pgImg.height) / 1000);
   function spt(x,y){return[x,y];}
   if (pgScLine){const[x1,y1]=spt(pgScLine.x1,pgScLine.y1),[x2,y2]=spt(pgScLine.x2,pgScLine.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#1D9E75','scale',sx);}
   pgMeas.forEach((m,i)=>{
@@ -4815,16 +4856,16 @@ function renderAnnotatedPageToDataUrl(pg) {
 function buildPdfTableRows(pgMeas, pgSc, pgUnit) {
   const rows = [];
   pgMeas.forEach((m,i) => {
-    if(m.type==='line'){const r=pgSc?`${(m.px*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.px)}px`;rows.push([`#${i+1}`,L('exp_type_dist'),r]);}
-    else if(m.type==='diam'){const r=pgSc?`${(m.r*2*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.r*2)}px`;rows.push([`⌀${i+1}`,L('exp_type_diam'),r]);}
-    else if(m.type==='angle'){rows.push([`∠${i+1}`,L('exp_type_angle'),`${m.deg.toFixed(1)}°`]);}
-    else if(m.type==='area'){const r=pgSc?`${(m.areaPx*pgSc*pgSc).toFixed(2)} ${pgUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`■${i+1}`,L('exp_type_area'),r]);}
-    else if(m.type==='perim'){const r=pgSc?`${(m.perimPx*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`~${i+1}`,L('exp_type_perim'),r]);}
-    else if(m.type==='note'){rows.push([`N${i+1}`,L('exp_type_note'),m.text]);}
-    else if(m.type==='arc'){const r=pgSc?`${(m.arcLen*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.arcLen)}px`;rows.push([`⌒${i+1}`,L('exp_type_arc'),r]);}
-    else if(m.type==='angle4'){rows.push([`∡${i+1}`,L('exp_type_angle'),`${m.deg.toFixed(1)}°`]);}
-    else if(m.type==='ptline'){const r=pgSc?`${(m.distPx*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.distPx)}px`;rows.push([`⊥${i+1}`,L('exp_type_dist'),r]);}
-    else if(m.type==='ptcoord'){const u=m.unit||'px';rows.push([`+${i+1}`,L('exp_type_coord'),`X: ${m.cx.toFixed(2)}  Y: ${m.cy.toFixed(2)} ${u}`]);}
+    if(m.type==='line'){const r=pgSc?`${(m.px*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.px)}px`;rows.push([`${i+1}`,L('exp_type_dist'),r]);}
+    else if(m.type==='diam'){const r=pgSc?`${(m.r*2*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.r*2)}px`;rows.push([`${i+1}`,L('exp_type_diam'),r]);}
+    else if(m.type==='angle'){rows.push([`${i+1}`,L('exp_type_angle'),`${m.deg.toFixed(1)} deg`]);}
+    else if(m.type==='area'){const r=pgSc?`${(m.areaPx*pgSc*pgSc).toFixed(2)} ${pgUnit}²`:`${Math.round(m.areaPx)}px²`;rows.push([`${i+1}`,L('exp_type_area'),r]);}
+    else if(m.type==='perim'){const r=pgSc?`${(m.perimPx*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.perimPx)}px`;rows.push([`${i+1}`,L('exp_type_perim'),r]);}
+    else if(m.type==='note'){rows.push([`${i+1}`,L('exp_type_note'),m.text]);}
+    else if(m.type==='arc'){const r=pgSc?`${(m.arcLen*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.arcLen)}px`;rows.push([`${i+1}`,L('exp_type_arc'),r]);}
+    else if(m.type==='angle4'){rows.push([`${i+1}`,L('exp_type_angle'),`${m.deg.toFixed(1)} deg`]);}
+    else if(m.type==='ptline'){const r=pgSc?`${(m.distPx*pgSc).toFixed(2)} ${pgUnit}`:`${Math.round(m.distPx)}px`;rows.push([`${i+1}`,L('exp_type_dist'),r]);}
+    else if(m.type==='ptcoord'){const u=m.unit||'px';rows.push([`${i+1}`,L('exp_type_coord'),`X: ${m.cx.toFixed(2)}  Y: ${m.cy.toFixed(2)} ${u}`]);}
   });
   return rows;
 }
@@ -4866,7 +4907,7 @@ function exportPDF() {
       doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(50,50,50);
       doc.text(`${pi+1}. ${pg.label || ''}`, mg, headerY);
     }
-    const scaleStr = pgSc ? LF('exp_scale')((1/pgSc).toFixed(3), pgUnit) : L('exp_no_scale');
+    const scaleStr = pgSc ? LF('exp_scale')(pgSc.toFixed(4), pgUnit) : L('exp_no_scale');
     doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(130,130,130);
     doc.text(scaleStr, mg, headerY + (pages.length > 1 ? 12 : 0));
 
@@ -4876,7 +4917,7 @@ function exportPDF() {
     const ratio = Math.min(cw / pgImg.width, maxImgH / pgImg.height);
     const di_w = pgImg.width * ratio, di_h = pgImg.height * ratio;
     const imgX = mg, imgY = headerY + (pages.length > 1 ? 22 : 10);
-    const imgDataUrl = renderAnnotatedPageToDataUrl(pg);
+    const imgDataUrl = renderAnnotatedPageToDataUrl(pg, ratio);
     doc.addImage(imgDataUrl, 'JPEG', imgX, imgY, di_w, di_h);
 
     // table
@@ -4910,25 +4951,57 @@ function exportCSV() {
   saveCurrentPageState();
   if (!pages.some(p => p.meas.length)) { if (!meas.length) return; }
   t('export_csv');
-  const rows=[['page','source','#','type','value','unit','px_value','x1','y1','x2','y2','cx','cy','radius_px','vertex_x','vertex_y','arm1_x','arm1_y','arm2_x','arm2_y','area_pts']];
-  const allPages = pages.length ? pages : [{ label: '', meas, scFactor, scUnit }];
+  const rows=[['page','source','#','type','value','value2','unit','px_value','px_value2']];
+  const allPages = pages.length ? pages : [{ label: '', meas, scFactor, scPx, scUnit }];
   allPages.forEach((pg, pi) => {
     const pNum = pi + 1, pSrc = pg.label || '';
     const pgSc = pg.scFactor !== undefined ? pg.scFactor : scFactor;
+    const pgScPx = pg.scPx !== undefined ? pg.scPx : scPx;
     const pgUnit = pg.scUnit || scUnit;
+    // Row 0: scale reference
+    if (pgSc && pgScPx) {
+      rows.push([pNum, pSrc, 0, 'scale', (pgSc * pgScPx).toFixed(4), '', pgUnit, pgScPx.toFixed(2), '']);
+    }
     pg.meas.forEach((m,i)=>{
       const n=i+1;
-      if(m.type==='line'){const r=pgSc?(m.px*pgSc).toFixed(4):'';rows.push([pNum,pSrc,n,'length',r,pgUnit,m.px.toFixed(2),Math.round(m.x1),Math.round(m.y1),Math.round(m.x2),Math.round(m.y2),'','','','','','','','','']);}
-      else if(m.type==='diam'){const r=pgSc?(m.r*2*pgSc).toFixed(4):'';rows.push([pNum,pSrc,n,'diameter',r,pgUnit,(m.r*2).toFixed(2),Math.round(m.x1),Math.round(m.y1),Math.round(m.x2),Math.round(m.y2),Math.round(m.cx),Math.round(m.cy),m.r.toFixed(2),'','','','','','']);}
-      else if(m.type==='angle'){rows.push([pNum,pSrc,n,'angle',m.deg.toFixed(4),'deg','','','','','','','','',Math.round(m.vx),Math.round(m.vy),Math.round(m.ax),Math.round(m.ay),Math.round(m.bx),Math.round(m.by),'']);}
-      else if(m.type==='area'){const r=pgSc?(m.areaPx*pgSc*pgSc).toFixed(4):'';const ps=m.pts.map(p=>`${Math.round(p.x)};${Math.round(p.y)}`).join('|');rows.push([pNum,pSrc,n,'area',r,pgSc?`${pgUnit}²`:'px²',m.areaPx.toFixed(2),'','','','','','','','','','','','',ps]);}
-      else if(m.type==='perim'){const r=pgSc?(m.perimPx*pgSc).toFixed(4):'';const ps=m.pts.map(p=>`${Math.round(p.x)};${Math.round(p.y)}`).join('|');rows.push([pNum,pSrc,n,'perimeter',r,pgUnit,m.perimPx.toFixed(2),'','','','','','','','','','','','',ps]);}
-      else if(m.type==='arc'){const r=pgSc?(m.arcLen*pgSc).toFixed(4):'';rows.push([pNum,pSrc,n,'arc',r,pgUnit,m.arcLen.toFixed(2),Math.round(m.p1.x),Math.round(m.p1.y),Math.round(m.p2.x),Math.round(m.p2.y),Math.round(m.cx),Math.round(m.cy),m.r.toFixed(2),'','','','','']);}
-      else if(m.type==='angle4'){rows.push([pNum,pSrc,n,'angle4',m.deg.toFixed(4),'deg','',Math.round(m.ax),Math.round(m.ay),Math.round(m.bx),Math.round(m.by),Math.round(m.cx),Math.round(m.cy),'',Math.round(m.dx),Math.round(m.dy),'','','']);}
-      else if(m.type==='ptline'){const r=pgSc?(m.distPx*pgSc).toFixed(4):'';rows.push([pNum,pSrc,n,'pt-to-line',r,pgUnit,m.distPx.toFixed(2),Math.round(m.lx1),Math.round(m.ly1),Math.round(m.lx2),Math.round(m.ly2),'','','',Math.round(m.px),Math.round(m.py),Math.round(m.fx),Math.round(m.fy),'']);}
-      else if(m.type==='ll'){const r=pgSc?(m.distPx*pgSc).toFixed(4):'';rows.push([pNum,pSrc,n,'line-to-line',r,pgUnit,m.distPx.toFixed(2),Math.round(m.lx1),Math.round(m.ly1),Math.round(m.lx2),Math.round(m.ly2),Math.round(m.l2x1),Math.round(m.l2y1),Math.round(m.l2x2),Math.round(m.l2y2),'','','']);}
-      else if(m.type==='ptcoord'){const u=m.unit||'px';rows.push([pNum,pSrc,n,'pt-coord',m.cx.toFixed(4),u,m.cy.toFixed(4),Math.round(m.px),Math.round(m.py),'','',Math.round(m.ox),Math.round(m.oy),'','','','','','']);}
-      else if(m.type==='note'){rows.push([pNum,pSrc,n,'note',m.text,'','',Math.round(m.x),Math.round(m.y),'','','','','','','','','','']);}
+      if(m.type==='line'){
+        rows.push([pNum,pSrc,n,'length', pgSc?(m.px*pgSc).toFixed(4):'', '', pgUnit, m.px.toFixed(2), '']);
+      }
+      else if(m.type==='diam'){
+        rows.push([pNum,pSrc,n,'diameter', pgSc?(m.r*2*pgSc).toFixed(4):'', '', pgUnit, (m.r*2).toFixed(2), '']);
+      }
+      else if(m.type==='angle'){
+        rows.push([pNum,pSrc,n,'angle', m.deg.toFixed(4), '', 'deg', '', '']);
+      }
+      else if(m.type==='area'){
+        rows.push([pNum,pSrc,n,'area', pgSc?(m.areaPx*pgSc*pgSc).toFixed(4):'', '', pgSc?`${pgUnit}²`:'px²', m.areaPx.toFixed(2), '']);
+      }
+      else if(m.type==='perim'){
+        rows.push([pNum,pSrc,n,'perimeter', pgSc?(m.perimPx*pgSc).toFixed(4):'', '', pgUnit, m.perimPx.toFixed(2), '']);
+      }
+      else if(m.type==='arc'){
+        rows.push([pNum,pSrc,n,'arc', pgSc?(m.arcLen*pgSc).toFixed(4):'', '', pgUnit, m.arcLen.toFixed(2), '']);
+      }
+      else if(m.type==='angle4'){
+        rows.push([pNum,pSrc,n,'angle4', m.deg.toFixed(4), '', 'deg', '', '']);
+      }
+      else if(m.type==='ptline'){
+        rows.push([pNum,pSrc,n,'pt-to-line', pgSc?(m.distPx*pgSc).toFixed(4):'', '', pgUnit, m.distPx.toFixed(2), '']);
+      }
+      else if(m.type==='ll'){
+        rows.push([pNum,pSrc,n,'line-to-line', pgSc?(m.distPx*pgSc).toFixed(4):'', '', pgUnit, m.distPx.toFixed(2), '']);
+      }
+      else if(m.type==='ptcoord'){
+        const u = pgSc ? pgUnit : 'px';
+        const cx = pgSc ? (m.px-(m.ox||0))*pgSc : '';
+        const cy = pgSc ? -((m.py-(m.oy||0))*pgSc) : '';
+        const pxX = (m.px-(m.ox||0)).toFixed(2);
+        const pxY = (-(m.py-(m.oy||0))).toFixed(2);
+        rows.push([pNum,pSrc,n,'pt-coord', pgSc?cx.toFixed(4):'', pgSc?cy.toFixed(4):'', u, pxX, pxY]);
+      }
+      else if(m.type==='note'){
+        rows.push([pNum,pSrc,n,'note', m.text, '', '', '', '']);
+      }
     });
   });
   if (rows.length <= 1) return;
@@ -5404,10 +5477,10 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     // Pt coord
     else if (mode==='ptc') {
       if (ptCoordMode==='origin') {
-        ptCoordOrigin={x:p.x,y:p.y}; setHint('Origin set — tap to place points');
+        ptCoordGlobalOrigin={x:p.x,y:p.y}; ptCoordPrevOrigin=null; _recomputePtCoordPoints(); setHint('Origin set — tap to place points');
         setPtCoordMode('point');
       } else {
-        const ox=ptCoordOrigin?ptCoordOrigin.x:0, oy=ptCoordOrigin?ptCoordOrigin.y:0;
+        const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:0, oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:0;
         pushHistory();
         meas.push({type:'ptcoord',px:p.x,py:p.y,ox,oy,cx:(p.x-ox)*(scFactor||1),cy:-(p.y-oy)*(scFactor||1),unit:scFactor?scUnit:'px'});
         draw(); updUI();
