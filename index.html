@@ -3056,17 +3056,19 @@ function angleDeg(a,v,b) {
 function angle4SectorDeg(ax,ay,bx,by,cx,cy,dx,dy) {
   const d1x=bx-ax,d1y=by-ay,d2x=dx-cx,d2y=dy-cy;
   const denom=d1x*d2y-d1y*d2x;
-  if(Math.abs(denom)<0.001)return 0;
+  // Fallback for parallel/near-parallel: return smaller angle between line directions
+  const fallback=()=>{const a1=Math.atan2(d1y,d1x),a2=Math.atan2(d2y,d2x);let d=Math.abs(((a2-a1+Math.PI)%(2*Math.PI))-Math.PI)*180/Math.PI;return d>90?180-d:d;};
+  if(Math.abs(denom)<0.001)return fallback();
   const t=((cx-ax)*d2y-(cy-ay)*d2x)/denom;
   const ix=ax+t*d1x, iy=ay+t*d1y;
   const mx4=(ax+bx+cx+dx)/4, my4=(ay+by+cy+dy)/4;
-  if(Math.hypot(ix-mx4,iy-my4)>500)return 0;
+  if(Math.hypot(ix-mx4,iy-my4)>500)return fallback();
   const a1e=Math.atan2(d1y,d1x), a2e=Math.atan2(d2y,d2x);
   const acente=Math.atan2(my4-iy,mx4-ix);
   const bnds=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);
   const aN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-  for(let i=0;i<4;i++){const st=bnds[i];if(i<3){if(aN>=st&&aN<bnds[i+1])return(bnds[i+1]-st)*180/Math.PI;}else{if(aN>=st||aN<bnds[0])return(bnds[0]+2*Math.PI-st)*180/Math.PI;}}
-  return 0;
+  for(let i=0;i<4;i++){const st=bnds[i];if(i<3){if(aN>=st&&aN<bnds[i+1]){const sp=(bnds[i+1]-st)*180/Math.PI;return sp<=90?sp:180-sp;}}else{if(aN>=st||aN<bnds[0]){const sp=(bnds[0]+2*Math.PI-st)*180/Math.PI;return sp<=90?sp:180-sp;}}}
+  return fallback();
 }
 function polyArea(pts) {
   let a=0;
@@ -3845,9 +3847,12 @@ function annAngle4(ax,ay,bx,by,cx,cy,dx,dy,deg,label,hi,dpr=1,lpos=null) {
       const aN=((acent%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
       let arcStart=bnds[0],arcSpan=bnds[1]-bnds[0];
       for(let i=0;i<4;i++){const st=bnds[i];if(i<3){if(aN>=st&&aN<bnds[i+1]){arcStart=st;arcSpan=bnds[i+1]-st;break;}}else{if(aN>=st||aN<bnds[0]){arcStart=st;arcSpan=bnds[0]+2*Math.PI-st;break;}}}
-      const arcR=40/zoom;
-      ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
-      ctx.beginPath(); ctx.arc(ix,iy,arcR,arcStart,arcStart+arcSpan,false); ctx.stroke();
+      if(arcSpan>Math.PI/2){arcStart=(arcStart+arcSpan)%(2*Math.PI);arcSpan=Math.PI-arcSpan;}
+      if(arcSpan*180/Math.PI>=10&&deg>=10){
+        const arcR=40/zoom;
+        ctx.setLineDash([3/zoom,3/zoom]); ctx.globalAlpha=0.5;
+        ctx.beginPath(); ctx.arc(ix,iy,arcR,arcStart,arcStart+arcSpan,false); ctx.stroke();
+      }
       ctx.setLineDash([]); ctx.globalAlpha=1; ctx.fillStyle=col;
       ctx.beginPath(); ctx.arc(ix,iy,3/zoom,0,Math.PI*2); ctx.fill();
     }
@@ -4379,7 +4384,7 @@ function exportImg(fmtOverride) {
     else if(m.type==='area'){const r=scFactor?m.areaPx*scFactor*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx);}
     else if(m.type==='perim'){const r=scFactor?m.perimPx*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
     else if(m.type==='arc'){const r=scFactor?m.arcLen*scFactor:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx*sx,m.cy*sy,m.r*sx,m.a1,m.sweep,{x:m.p1.x*sx,y:m.p1.y*sy},{x:m.p2.x*sx,y:m.p2.y*sy},lbl,sx);}
-    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax*sx,m.ay*sy,m.bx*sx,m.by*sy,m.cx*sx,m.cy*sy,m.dx*sx,m.dy*sy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx);}
+    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax*sx,m.ay*sy,m.bx*sx,m.by*sy,m.cx*sx,m.cy*sy,m.dx*sx,m.dy*sy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx,m.deg);}
     else if(m.type==='ptline'){const r=scFactor?m.distPx*scFactor:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${scUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1*sx,m.ly1*sy,m.lx2*sx,m.ly2*sy,m.px*sx,m.py*sy,m.fx*sx,m.fy*sy,lbl,sx);}
     else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px*sx,m.py*sy,m.ox*sx,m.oy*sy,`${i+1}`,sx);}
   });
@@ -4398,7 +4403,7 @@ function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strok
 function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath();ec.arc(x,y,5*s,0,Math.PI*2);ec.fill();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,pad=4*s,h=fs*1.4,rx=x+8*s;ec.fillStyle='rgba(30,30,30,.9)';ec.beginPath();ec.roundRect(rx,y-h/2-pad,tw+pad*2,h+pad*2,3*s);ec.fill();ec.fillStyle='#F5E642';ec.textAlign='left';ec.textBaseline='middle';ec.fillText(text,rx+pad,y);ec.restore();}
 
 function drawArcOn(ec,cx,cy,r,a1,sweep,p1,p2,label,s){const col='#5DCAA5';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,a1,a1+sweep,sweep<0);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p1.x,p1.y);ec.stroke();ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p2.x,p2.y);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(cx,cy,5*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p1.x,p1.y,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p2.x,p2.y,4*s,0,Math.PI*2);ec.fill();if(label){const amid=a1+sweep/2;drawLblOn(ec,cx+Math.cos(amid)*(r+14*s),cy+Math.sin(amid)*(r+14*s),label,col,s);}ec.restore();}
-function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);const acente=Math.atan2(my4-iy,mx4-ix);const bndse=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);const acenteN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);let arcSte=bndse[0],arcSpane=bndse[1]-bndse[0];for(let i=0;i<4;i++){const st=bndse[i];if(i<3){if(acenteN>=st&&acenteN<bndse[i+1]){arcSte=st;arcSpane=bndse[i+1]-st;break;}}else{if(acenteN>=st||acenteN<bndse[0]){arcSte=st;arcSpane=bndse[0]+2*Math.PI-st;break;}}}ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+arcSpane,false);ec.stroke();ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
+function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s,deg=360){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);const acente=Math.atan2(my4-iy,mx4-ix);const bndse=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);const acenteN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);let arcSte=bndse[0],arcSpane=bndse[1]-bndse[0];for(let i=0;i<4;i++){const st=bndse[i];if(i<3){if(acenteN>=st&&acenteN<bndse[i+1]){arcSte=st;arcSpane=bndse[i+1]-st;break;}}else{if(acenteN>=st||acenteN<bndse[0]){arcSte=st;arcSpane=bndse[0]+2*Math.PI-st;break;}}}if(arcSpane>Math.PI/2){arcSte=(arcSte+arcSpane)%(2*Math.PI);arcSpane=Math.PI-arcSpane;}if(arcSpane*180/Math.PI>=10&&deg>=10){ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+arcSpane,false);ec.stroke();}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
 function drawPtLineOn(ec,lx1,ly1,lx2,ly2,px,py,fx,fy,label,s){const col='#EF9F27';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(lx1,ly1);ec.lineTo(lx2,ly2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(px,py);ec.lineTo(fx,fy);ec.stroke();ec.setLineDash([]);const ddx=lx2-lx1,ddy=ly2-ly1,len=Math.hypot(ddx,ddy);if(len>0){const nx=ddx/len,ny=ddy/len,sq=6*s;ec.beginPath();ec.moveTo(fx+nx*sq,fy+ny*sq);ec.lineTo(fx+nx*sq-(py-fy)/len*sq,fy+ny*sq+(px-fx)/len*sq);ec.lineTo(fx-(py-fy)/len*sq,fy+(px-fx)/len*sq);ec.stroke();}ec.fillStyle=col;[[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ec.beginPath();ec.arc(x,y,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(px+fx)/2,(py+fy)/2-18*s,label,col,s);ec.restore();}
 function drawPtCoordOn(ec,px,py,ox,oy,label,s){const col='#5DCAA5';ec.save();if(ox!==undefined&&oy!==undefined){const al=24*s;ec.lineWidth=1.5*s;ec.strokeStyle='#EF9F27';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox+al,oy);ec.stroke();ec.strokeStyle='#9F77DD';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox,oy-al);ec.stroke();drawLblOn(ec,ox+al+4*s,oy,'X','#EF9F27',s);drawLblOn(ec,ox,oy-al-4*s,'Y','#9F77DD',s);ec.fillStyle='#fff';ec.beginPath();ec.arc(ox,oy,3*s,0,Math.PI*2);ec.fill();}ec.strokeStyle=col;ec.lineWidth=1.5*s;const sq=8*s;ec.beginPath();ec.moveTo(px-sq,py);ec.lineTo(px+sq,py);ec.stroke();ec.beginPath();ec.moveTo(px,py-sq);ec.lineTo(px,py+sq);ec.stroke();ec.fillStyle=col;ec.beginPath();ec.arc(px,py,3*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,px+10*s,py-10*s,label,col,s);ec.restore();}
 
@@ -4846,7 +4851,7 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
     else if(m.type==='perim'){const r=pgSc?m.perimPx*pgSc:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
     else if(m.type==='note'){drawNoteOn(ec_ctx,m.x,m.y,m.text,sx);}
     else if(m.type==='arc'){const r=pgSc?m.arcLen*pgSc:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx,m.cy,m.r,m.a1,m.sweep,{x:m.p1.x,y:m.p1.y},{x:m.p2.x,y:m.p2.y},lbl,sx);}
-    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx);}
+    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx,m.deg);}
     else if(m.type==='ptline'){const r=pgSc?m.distPx*pgSc:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1,m.ly1,m.lx2,m.ly2,m.px,m.py,m.fx,m.fy,lbl,sx);}
     else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px,m.py,m.ox,m.oy,`${i+1}`,sx);}
   });
