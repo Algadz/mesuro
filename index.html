@@ -6231,6 +6231,27 @@ function toggleMobileGateKey() {
   if (!visible) document.getElementById('mGateKeyInput').focus();
 }
 
+// Shared license activation/validation helper
+const _LS_STORE_ID = 350420;
+async function _lsActivateOrValidate(key) {
+  const hdrs = { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' };
+  // Step 1: try to activate
+  const aRes = await fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
+    method: 'POST', headers: hdrs,
+    body: 'license_key=' + encodeURIComponent(key) + '&instance_name=mesuro-web'
+  });
+  const aData = await aRes.json();
+  if (aData.activated === true && aData.meta && aData.meta.store_id === _LS_STORE_ID) return true;
+  // Step 2: if already activated, validate instead
+  const vRes = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+    method: 'POST', headers: hdrs,
+    body: 'license_key=' + encodeURIComponent(key) + '&instance_id=' + (localStorage.getItem('mesuro_instance_id') || '')
+  });
+  const vData = await vRes.json();
+  if (vData.valid === true && vData.license_key && vData.license_key.status === 'active' && vData.meta && vData.meta.store_id === _LS_STORE_ID) return true;
+  return false;
+}
+
 async function doVerifyLicenseMobile() {
   const key = document.getElementById('mGateKeyInput').value.trim();
   if (!key) return;
@@ -6247,13 +6268,8 @@ async function doVerifyLicenseMobile() {
     updUI(); return;
   }
   try {
-    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'license_key=' + encodeURIComponent(key)
-    });
-    const data = await res.json();
-    if (data.valid === true && data.license_key && data.license_key.status === 'active' && data.meta && data.meta.store_id === 995919) {
+    const ok = await _lsActivateOrValidate(key);
+    if (ok) {
       isPro = true;
       localStorage.setItem('mesuro_license_key', key);
       t('gate_convert', { feature: _gateFeature });
@@ -6264,7 +6280,7 @@ async function doVerifyLicenseMobile() {
       document.getElementById('mFileInput').multiple = true;
       updUI();
     } else {
-      errEl.textContent = 'DEBUG: valid=' + data.valid + ' status=' + (data.license_key&&data.license_key.status) + ' store=' + (data.meta&&data.meta.store_id);
+      errEl.textContent = 'Invalid or inactive key — please try again.';
       errEl.style.display = 'block';
     }
   } catch(e) {
@@ -6345,13 +6361,8 @@ async function doVerifyLicense() {
     updUI(); return;
   }
   try {
-    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'license_key=' + encodeURIComponent(key)
-    });
-    const data = await res.json();
-    if (data.valid === true && data.license_key && data.license_key.status === 'active' && data.meta && data.meta.store_id === 995919) {
+    const ok = await _lsActivateOrValidate(key);
+    if (ok) {
       isPro = true;
       localStorage.setItem('mesuro_license_key', key);
       t('gate_convert', { feature: _gateFeature });
@@ -6362,7 +6373,7 @@ async function doVerifyLicense() {
       document.getElementById('mFileInput').multiple = true;
       updUI();
     } else {
-      errEl.textContent = 'DEBUG: valid=' + data.valid + ' status=' + (data.license_key&&data.license_key.status) + ' store=' + (data.meta&&data.meta.store_id);
+      errEl.textContent = 'Invalid or inactive key — please try again.';
       errEl.style.display = 'block';
     }
   } catch(e) {
