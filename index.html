@@ -13,15 +13,21 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","Multi-image loading (batch drop or select)","Multi-page PDF loading (all pages or custom range)","Filmstrip navigation between pages","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export with one section per page","Multi-page CSV export with page and source columns","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
 </script>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cstyle%3Etext%2Cline%7Bfill:%23222%3Bstroke:%23222%7D%40media(prefers-color-scheme:dark)%7Btext%2Cline%7Bfill:%23fff%3Bstroke:%23fff%7D%7D%3C/style%3E%3Ctext x='2' y='23' font-family='system-ui,-apple-system,sans-serif' font-size='22' font-weight='800' fill='%23222'%3Em%3C/text%3E%3Cline x1='2' y1='27' x2='30' y2='27' stroke='%23222' stroke-width='1.5'/%3E%3Cline x1='2' y1='24' x2='2' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='30' y1='24' x2='30' y2='30' stroke='%23222' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mesu.ro/">
 <meta property="og:title" content="Mesuro — measure anything in an image">
 <meta property="og:site_name" content="Mesuro">
 <meta property="og:description" content="Load multiple images or all pages of a PDF at once. Measure distances, angles, areas, arc lengths, point coordinates and diameters. Bezier curves, protractor, perspective correction. Free, instant, no upload.">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://mesu.ro/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Mesuro — measure anything in an image">
 <meta name="twitter:description" content="Free online image measurement tool. Load multiple images or PDF pages at once. Distances, angles, areas. No upload, no install.">
+<meta name="twitter:image" content="https://mesu.ro/og.png">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -92,17 +98,23 @@
     position: relative;
     background: #111;
     display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    overflow: hidden;
+    min-width: 0;
+  }
+  #canvasPad {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    overflow: visible;
   }
-  /* When filmstrip is visible, shift the floating bottom popups up above it */
-  #canvasArea.has-fs #kofiPopup { bottom: 96px !important; }
-  #canvasArea.has-fs #kofiCTA   { bottom: 96px !important; }
   @media (max-width: 767px) {
-    #canvasArea.has-fs #kofiPopup { bottom: 84px !important; }
-    #canvasArea.has-fs #kofiCTA   { bottom: 84px !important; }
+    #bottomArea { display: none !important; }
   }
 
   #dz {
@@ -141,7 +153,7 @@
   #toast {
     display: none;
     position: absolute;
-    bottom: 44px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(29,158,117,.92);
@@ -153,6 +165,7 @@
     z-index: 10;
     white-space: nowrap;
   }
+
 
   #resList { display: flex; flex-direction: column; gap: 4px; }
   #noRes { font-size: 12px; color: #555; }
@@ -168,9 +181,11 @@
     font-size: 11px;
     cursor: default;
     transition: background .1s, border-color .1s;
+    min-width: 0;
+    overflow: hidden;
   }
-  .res-item .num { font-weight: 500; min-width: 20px; }
-  .res-item .val { font-family: monospace; color: #e0e0e0; flex: 1; cursor: pointer; }
+  .res-item .num { font-weight: 500; min-width: 20px; flex-shrink: 0; }
+  .res-item .val { font-family: monospace; color: #e0e0e0; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
   .res-item .val:hover { color: #fff; text-decoration: underline dotted #666; }
   .res-item .px  { color: #555; font-size: 10px; }
   .res-item .del { cursor: pointer; color: #555; padding: 0 3px; font-size: 14px; line-height: 1; }
@@ -242,9 +257,9 @@
     justify-content: center;
   }
 
-  #mobileTopbar { display: none; }
-  #mobileSheet  { display: none; }
-  #mobileBar    { display: none; }
+  #mobileTopbar    { display: none; }
+  #mobileSheet     { display: none; }
+  #mobileBar       { display: none; }
 
   @media (max-width: 767px) {
     body { height: auto; overflow-y: auto; }
@@ -285,7 +300,12 @@
     .m-sub.active { color:#fff; }
     #mobileMeasSection button[disabled] { opacity:.35; cursor:default; }
 
-    #canvasArea { flex:1; min-height:0; position:relative; }
+    #canvasArea { flex:1; min-height:0; position:relative; flex-direction:column; }
+    #canvasPad { min-height:0; }
+
+
+    /* Hide "Keep both images with Pro" on mobile (multi-image disabled) */
+    .rs-pro { display: none; }
 
     /* dz — full canvas overlay, centered, tap anywhere to load */
     #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
@@ -305,14 +325,31 @@
 
     /* mobile measurements in SEO area */
     #mobileMeasSection { display:block; }
-    .m-res-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:0.5px solid #222; }
+    .m-res-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:0.5px solid #222; min-width:0; overflow-x:clip; }
+    .m-res-val { font-size:12px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .m-res-icon { font-size:12px; width:18px; flex-shrink:0; }
-    .m-res-val { font-size:12px; flex:1; }
 
-    #kofiPopup { display:none !important; }
 
     /* Modals must be fixed on mobile so the browser doesn't scroll the page when the keyboard appears */
     #scaleModal, #noteModal { position: fixed !important; inset: 0; }
+    /* Hide multi-page PDF options on mobile (not supported) */
+    #pdfMultiOptions, #pdfRangeBtn, #pdfProNotice { display: none !important; }
+
+    /* ── Mobile horizontal filmstrip ── */
+    #mobileFilmstrip { display:none; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; background:#141414; border-top:0.5px solid #222; border-bottom:0.5px solid #222; align-items:center; gap:5px; padding:5px 8px; flex-shrink:0; }
+    #mobileFilmstrip::-webkit-scrollbar { display:none; }
+    #mobileFilmstrip.has-pages { display:flex; }
+    .mfs-thumb { flex-shrink:0; width:52px; height:52px; border-radius:5px; border:1.5px solid #333; background:#111; cursor:pointer; position:relative; display:flex; flex-direction:column; align-items:center; overflow:hidden; transition:border-color .15s; }
+    .mfs-thumb.mfs-active { border-color:#1D9E75; }
+    .mfs-thumb img { width:100%; height:38px; object-fit:cover; object-position:center top; display:block; background:#222; }
+    .mfs-label { font-size:7px; color:#666; padding:2px 3px 0; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%; line-height:1.2; }
+    .mfs-thumb.mfs-active .mfs-label { color:#1D9E75; }
+    .mfs-del { position:absolute; top:1px; right:1px; width:15px; height:15px; background:rgba(0,0,0,.8); color:#888; border-radius:3px; font-size:12px; line-height:14px; text-align:center; cursor:pointer; border:none; padding:0; }
+    .mfs-del:active { color:#e24b4b; }
+    .mfs-add { flex-shrink:0; width:44px; height:52px; border-radius:5px; border:0.5px dashed #444; background:transparent; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#555; font-size:22px; gap:2px; font-family:inherit; transition:border-color .15s, color .15s; }
+    .mfs-add:active { border-color:#888; color:#aaa; }
+    .mfs-add-free { border-color:rgba(201,145,58,.3); font-size:20px; }
+    .mfs-add-free:active { border-color:rgba(201,145,58,.6); color:#C9913A; }
   }
 
   .btn-row { display: flex; gap: 6px; }
@@ -422,29 +459,34 @@
   }
   @media (max-width: 767px) { #vpWrap { display: none; } }
 
-  /* ── filmstrip ── */
+  /* ── filmstrip (right-side vertical column) ── */
   #filmstrip {
     display: none;
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 72px;
-    background: rgba(18,18,18,0.95);
-    border-top: 0.5px solid #2a2a2a;
-    overflow-x: auto; overflow-y: hidden;
+    flex-shrink: 0;
+    width: 72px;
+    align-self: stretch;
+    background: rgba(18,18,18,0.97);
+    border-left: 0.5px solid #2a2a2a;
+    overflow-x: hidden;
+    overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #3a3a3a transparent;
-    flex-direction: row; align-items: center; gap: 6px;
-    padding: 5px 8px; z-index: 6; flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 6px;
+    z-index: 6;
   }
   .fs-thumb {
-    flex-shrink: 0; width: 52px; height: 60px; border-radius: 5px;
+    flex-shrink: 0; width: 58px; height: 52px; border-radius: 5px;
     border: 1.5px solid #333; background: #111; cursor: pointer;
     position: relative; display: flex; flex-direction: column;
     align-items: center; overflow: hidden; transition: border-color .15s;
   }
   .fs-thumb.fs-active { border-color: #1D9E75; }
   .fs-thumb:hover:not(.fs-active) { border-color: #555; }
-  .fs-thumb img { width: 100%; height: 44px; object-fit: cover; object-position: center top; display: block; background: #222; }
+  .fs-thumb img { width: 100%; height: 38px; object-fit: cover; object-position: center top; display: block; background: #222; }
   .fs-thumb .fs-label {
-    font-size: 8px; color: #666; padding: 2px 3px 0;
+    font-size: 7px; color: #666; padding: 2px 3px 0;
     text-align: center; overflow: hidden; text-overflow: ellipsis;
     white-space: nowrap; width: 100%; line-height: 1.2;
   }
@@ -457,16 +499,161 @@
   .fs-thumb:hover .fs-del { display: block; }
   .fs-del:hover { color: #e24b4b; }
   .fs-add {
-    flex-shrink: 0; width: 40px; height: 60px; border-radius: 5px;
+    flex-shrink: 0; width: 58px; height: 44px; border-radius: 5px;
     border: 0.5px dashed #444; background: transparent; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     color: #555; font-size: 22px; transition: border-color .15s, color .15s;
   }
   .fs-add:hover { border-color: #888; color: #aaa; }
+  .fs-add-free {
+    flex-direction: column; gap: 3px; font-size: 20px;
+    border-color: rgba(201,145,58,.3);
+  }
+  .fs-add-free:hover { border-color: rgba(201,145,58,.6); color: #C9913A; }
+  .fs-pro-pill {
+    font-size: 7px; font-weight: 700; letter-spacing: .08em;
+    color: #C9913A; background: rgba(201,145,58,.12);
+    border: 0.5px solid rgba(201,145,58,.35);
+    border-radius: 3px; padding: 1px 3px; line-height: 1.4;
+  }
   @media (max-width: 767px) {
-    #filmstrip { height: 60px; }
-    .fs-thumb { height: 52px; }
-    .fs-thumb img { height: 36px; }
+    #filmstrip { display: none !important; }
+  }
+
+  /* ── Pro badge ── */
+  .pro-badge {
+    display: inline-block;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: #C9913A;
+    background: rgba(201,145,58,.12);
+    border: 0.5px solid rgba(201,145,58,.35);
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-left: 4px;
+    vertical-align: middle;
+    line-height: 1.5;
+    pointer-events: none;
+  }
+
+  /* ── Logo PRO badge ── */
+  #logoProBg, #logoPro { display: none; }
+  body.is-pro #logoProBg,
+  body.is-pro #logoPro { display: inline; }
+
+  /* Hide PRO badges on buttons for Pro users */
+  body.is-pro .pro-badge { display: none; }
+
+  /* ── Measurement counter ── */
+  #measCounter {
+    display: none;
+    font-size: 10px;
+    color: #666;
+    text-align: right;
+    padding: 2px 2px 0;
+    transition: color .2s;
+  }
+  #measCounter.warn { color: #C9913A; }
+
+  /* ── Bottom area (feedback pill + gate card) ── */
+  #bottomArea {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    pointer-events: none;
+  }
+  #bottomArea > * { pointer-events: all; }
+
+  /* ── Pro gate card ── */
+  #gateCard {
+    display: none;
+    background: #1e1e1e;
+    border: 0.5px solid #2e2e2e;
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    width: 360px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.7);
+    position: relative;
+    animation: gateCardIn .22s ease;
+    overflow: visible;
+  }
+  #gateCloseBtn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 24px;
+    height: 24px;
+    background: #2a2a2a;
+    border: 0.5px solid #3a3a3a;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #666;
+    font-size: 14px;
+    padding: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color .15s, background .15s;
+  }
+  #gateCloseBtn:hover { color: #fff; background: #3e3e3e; }
+
+  /* ── Replace-image warning sheet ── */
+  #replaceSheet {
+    display: none;
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e1e;
+    border: 0.5px solid #2e2e2e;
+    border-top: 2px solid #e24b4b;
+    border-radius: 10px;
+    padding: 14px 16px 16px;
+    width: 256px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.6);
+    z-index: 1100;
+    animation: gateCardIn .2s ease;
+  }
+  #replaceSheet .rs-title {
+    font-size: 9px; letter-spacing: .12em; color: #e24b4b;
+    text-transform: uppercase; font-weight: 700; margin-bottom: 8px;
+  }
+  #replaceSheet .rs-msg {
+    font-size: 12px; color: #aaa; line-height: 1.55; margin-bottom: 12px;
+  }
+  #replaceSheet .rs-actions {
+    display: flex; gap: 6px; margin-bottom: 10px;
+  }
+  #replaceSheet .rs-actions button {
+    flex: 1; font-size: 11px; padding: 7px 8px; border-radius: 6px;
+    border: none; cursor: pointer; font-family: inherit;
+  }
+  #replaceSheet .rs-replace { background: #333; color: #ddd; }
+  #replaceSheet .rs-replace:hover { background: #444; }
+  #replaceSheet .rs-cancel { background: transparent; color: #666; border: 0.5px solid #333 !important; }
+  #replaceSheet .rs-cancel:hover { color: #aaa; border-color: #555 !important; }
+  #replaceSheet .rs-divider {
+    border: none; border-top: 0.5px solid #2e2e2e; margin: 0 0 10px;
+  }
+  #replaceSheet .rs-pro {
+    display: block; width: 100%; font-size: 11px; padding: 8px;
+    background: rgba(201,145,58,.12); border: 0.5px solid rgba(201,145,58,.35);
+    border-radius: 6px; color: #C9913A; cursor: pointer;
+    font-family: inherit; text-align: center;
+    transition: background .15s;
+  }
+  #replaceSheet .rs-pro:hover { background: rgba(201,145,58,.22); }
+
+  @keyframes gateCardIn {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -499,6 +686,9 @@
         <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
           <tspan x="0" y="22" fill="#e0e0e0">Mesuro</tspan>
         </text>
+        <!-- PRO badge — visible only for .is-pro -->
+        <rect id="logoProBg" x="82" y="9" width="26" height="12" rx="2.5" fill="rgba(201,145,58,.12)" stroke="rgba(201,145,58,.45)" stroke-width="0.5"/>
+        <text id="logoPro" x="95" y="18.5" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="7.5" font-weight="700" letter-spacing=".10em" fill="#C9913A">PRO</text>
         <line x1="0"   y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
         <line x1="0"   y1="28" x2="0"   y2="34" stroke="#666" stroke-width="1.2"/>
         <line x1="33"  y1="28" x2="33"  y2="31" stroke="#555" stroke-width="0.75"/>
@@ -512,32 +702,37 @@
 
     <div>
       <div class="btn-row">
-        <label id="loadLabel" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
-          Load image(s) or PDF
-          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="display:none" multiple>
+        <label id="loadLabel" onclick="if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
+          <span id="loadLabelTxt">Load image or PDF</span>
+          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="display:none">
         </label>
         <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
       </div>
       <input type="file" id="projectInput" accept=".mesuro" style="display:none">
+      <input type="file" id="replaceFileInput" accept="image/*,.pdf,application/pdf" style="display:none">
     </div>
 
     <div>
       <div class="slbl" data-i18n="RECTIFY">PERSP. CORRECTION</div>
       <div class="btn-row" style="margin-bottom:4px">
         <button id="btnStraighten" onclick="doStraighten()" disabled style="flex:1;display:flex;align-items:center;justify-content:center;padding:6px 4px;">
-          <svg width="80" height="20" viewBox="0 0 390 100" fill="none" style="display:block">
-            <polygon points="5,5 115,5 92,90 28,90" fill="none" stroke="currentColor" stroke-width="10" stroke-dasharray="18 12"/>
-            <circle cx="5"   cy="5"  r="10" fill="#EF9F27"/>
-            <circle cx="115" cy="5"  r="10" fill="#5DCAA5"/>
-            <circle cx="92"  cy="90" r="10" fill="#D4537E"/>
-            <circle cx="28"  cy="90" r="10" fill="#9F77DD"/>
-            <line x1="145" y1="47" x2="220" y2="47" stroke="currentColor" stroke-width="8"/>
-            <polyline points="213,39 223,47 213,55" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
-            <rect x="250" y="5" width="90" height="85" fill="none" stroke="currentColor" stroke-width="10"/>
-            <circle cx="250" cy="5"  r="10" fill="#EF9F27"/>
-            <circle cx="340" cy="5"  r="10" fill="#5DCAA5"/>
-            <circle cx="340" cy="90" r="10" fill="#D4537E"/>
-            <circle cx="250" cy="90" r="10" fill="#9F77DD"/>
+          <svg width="64" height="16" viewBox="0 0 390 100" fill="none" style="display:block">
+            <polygon points="22,88 118,88 98,12 42,12" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/>
+            <line x1="22" y1="88" x2="98" y2="12" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
+            <line x1="118" y1="88" x2="42" y2="12" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
+            <circle cx="22"  cy="88" r="8" fill="currentColor"/>
+            <circle cx="118" cy="88" r="8" fill="currentColor"/>
+            <circle cx="98"  cy="12" r="8" fill="currentColor"/>
+            <circle cx="42"  cy="12" r="8" fill="currentColor"/>
+            <line x1="148" y1="50" x2="218" y2="50" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+            <polyline points="210,40 222,50 210,60" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+            <rect x="252" y="12" width="116" height="76" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/>
+            <line x1="252" y1="12" x2="368" y2="88" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
+            <line x1="368" y1="12" x2="252" y2="88" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
+            <circle cx="252" cy="12" r="8" fill="currentColor"/>
+            <circle cx="368" cy="12" r="8" fill="currentColor"/>
+            <circle cx="368" cy="88" r="8" fill="currentColor"/>
+            <circle cx="252" cy="88" r="8" fill="currentColor"/>
           </svg>
         </button>
         <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:1;font-size:11px;color:#888" data-i18n="original">↩ Original</button>
@@ -615,34 +810,32 @@
     </div>
 
     <div style="flex:1;min-height:0;overflow-y:auto">
-      <div class="slbl" data-i18n="RESULTS">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <div class="slbl" style="margin-bottom:0" data-i18n="RESULTS">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
+        <div id="measCounter"></div>
+      </div>
       <div id="resList"></div>
       <div id="noRes" style="font-size:12px;color:#555" data-i18n="no_meas">No measurements yet</div>
     </div>
 
     <div>
-      <div class="btn-row" style="margin-bottom:6px">
-        <button id="btnUndo" onclick="undoLast()" disabled data-i18n="undo" style="flex:1;font-size:11px">↩ Undo <span class="kbd">Ctrl+Z</span></button>
-        <button id="btnClear" class="btn-clear-style" onclick="clearAll()" disabled data-i18n="clear_all" style="flex:1;font-size:11px">Clear all</button>
-      </div>
-      <div class="btn-row" style="margin-bottom:4px">
-        <button id="btnExport"    onclick="exportImg()" disabled>Export</button>
-        <select id="exportFmt" style="flex:0 0 60px;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;font-size:11px;padding:0 4px;cursor:pointer">
-          <option value="png">PNG</option>
-          <option value="jpg">JPG</option>
-          <option value="webp">WebP</option>
-        </select>
-        <button id="btnExportCSV" onclick="exportCSV()" disabled>CSV</button>
-        <button id="btnExportPDF" onclick="exportPDF()" disabled>PDF</button>
+
+      <div style="margin-bottom:4px">
+        <button id="btnExport" onclick="exportImg()" disabled style="width:100%;margin-bottom:6px">Export annotated image</button>
+        <div class="btn-row">
+          <button id="btnExportCSV" onclick="exportCSV()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">CSV<span class="pro-badge">PRO</span></button>
+          <button id="btnExportPDF" onclick="exportPDF()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">PDF report<span class="pro-badge">PRO</span></button>
+        </div>
       </div>
       <div class="btn-row">
         <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:1;font-size:11px" data-i18n="save_proj">Save project</button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:1;font-size:11px" data-i18n="load_proj">Load project</button>
+        <button onclick="isPro?document.getElementById('projectInput').click():showGateSheet('load_project')" style="flex:1;font-size:11px" data-i18n="load_proj">Load<span class="pro-badge">PRO</span></button>
       </div>
     </div>
   </div>
 
   <div id="canvasArea">
+    <div id="canvasPad">
 
     <!-- Mobile sub-tool row — absolute overlay so it never resizes the canvas -->
     <div id="mobileSubRow" style="display:none;position:absolute;top:0;left:0;right:0;z-index:19;background:#1e1e1e;border-bottom:0.5px solid #2a2a2a;overflow-x:auto;scrollbar-width:none;">
@@ -660,58 +853,83 @@
     </div>
     <canvas id="cv"></canvas>
     <canvas id="magOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
-    <div id="filmstrip"></div>
     <div id="hint"></div>
     <div id="toast"></div>
-
-    <div id="kofiPopup" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:10;opacity:0;transition:opacity .5s;pointer-events:none;display:none">
-  <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:10px 12px 10px 16px;display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;white-space:nowrap">
-
-    <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s;pointer-events:all" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback"></button>
-
-    <span style="color:#333;font-size:11px">|</span>
-
-    <div style="display:flex;align-items:center;gap:4px;pointer-events:all">
-      <select id="langSelect" onchange="setLang(this.value)" style="background:#1e1e1e;border:0.5px solid #333;border-radius:4px;color:#666;font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit;outline:none">
-        <option value="en">EN</option>
-        <option value="fr">FR</option>
-        <option value="es">ES</option>
-        <option value="de">DE</option>
-        <option value="it">IT</option>
-      </select>
-    </div>
-
-    <span style="color:#333;font-size:11px">|</span>
-
-    <button onclick="closeKofiPopup()"
-      style="background:none;border:none;cursor:pointer;color:#555;font-size:13px;line-height:1;padding:2px 4px;display:flex;align-items:center;justify-content:center;pointer-events:all"
-      onmouseenter="this.style.color='#aaa'"
-      onmouseleave="this.style.color='#555'">×</button>
-
-  </div>
-</div>
-
-    <!-- Ko-fi modal (centered, export/save trigger, desktop only) -->
-    <div id="kofiModal" class="modal-overlay" style="position:absolute;z-index:20;background:rgba(0,0,0,.55)">
-      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:14px;padding:28px 28px 24px;font-family:system-ui,-apple-system,sans-serif;width:320px;box-shadow:0 8px 40px rgba(0,0,0,.7);position:relative">
-        <button onclick="closeKofiModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;cursor:pointer;color:#555;font-size:20px;line-height:1;padding:0;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#555'">×</button>
-        <div style="font-size:28px;margin-bottom:12px">☕</div>
-        <div style="font-size:15px;font-weight:600;color:#e0e0e0;margin-bottom:8px">Glad Mesuro was useful?</div>
-        <div style="font-size:12px;color:#888;line-height:1.6;margin-bottom:20px">It's free — no ads, no account, no paywall.<br>A coffee helps keep it that way.</div>
-        <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click');closeKofiModal()" style="display:block;text-align:center;text-decoration:none;font-size:13px;font-weight:600;color:#fff;background:#1D9E75;border-radius:8px;padding:10px 0;margin-bottom:10px;transition:opacity .15s" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">Buy me a coffee</a>
-        <button onclick="closeKofiModal()" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:0;transition:color .15s" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">Maybe later</button>
+    <div id="replaceSheet">
+      <div class="rs-title">Replace image?</div>
+      <div class="rs-msg" id="replaceSheetMsg"></div>
+      <div class="rs-actions">
+        <button class="rs-replace" onclick="confirmReplace()">Replace</button>
+        <button class="rs-cancel" onclick="cancelReplace()">Cancel</button>
       </div>
+      <hr class="rs-divider">
+      <button class="rs-pro" onclick="cancelReplace(); showGateSheet('multi_image')">✦ Keep both images with Pro →</button>
     </div>
 
-    <!-- Ko-fi CTA popup (bottom-right, desktop only) -->
-    <div id="kofiCTA" style="position:absolute;bottom:24px;right:24px;z-index:10;width:240px;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s;pointer-events:none;display:none">
-      <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:10px;padding:14px 16px 14px 14px;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,.5);position:relative">
-        <button onclick="closeKofiCTA()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;color:#444;font-size:18px;line-height:1;padding:0;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#444'">×</button>
-        <div style="padding-right:18px">
-          <div style="font-size:12px;color:#aaa;line-height:1.55;margin-bottom:10px">Mesuro is <span style="color:#e0e0e0;font-weight:500">free — no ads, no account</span>. A coffee keeps it running.</div>
-          <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="display:inline-block;text-decoration:none;font-size:11px;font-weight:600;color:#1D9E75;border:0.5px solid #1D9E75;border-radius:6px;padding:5px 12px;transition:background .15s" onmouseenter="this.style.background='rgba(29,158,117,.12)'" onmouseleave="this.style.background='transparent'">☕ Buy me a coffee</a>
+    <!-- Bottom area: gate card + feedback popup -->
+    <div id="bottomArea">
+
+      <!-- Pro gate card (appears to the left of feedback popup) -->
+      <div id="gateCard">
+        <button id="gateCloseBtn" onclick="hideGateCard('dismiss')">×</button>
+        <!-- Launch offer badge -->
+        <div style="margin-bottom:14px;">
+          <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.4);border-radius:20px;padding:4px 10px;font-size:10px;color:#C9913A;font-weight:600;">⚠ Launch offer · <span id="gatePromoLeft"></span> of 100 left</span>
+        </div>
+        <!-- Title -->
+        <div style="font-size:18px;font-weight:700;color:#e8e8e8;margin-bottom:5px;padding-right:24px;">Unlock Mesuro Pro</div>
+        <!-- Subtitle / gate message -->
+        <div id="gateCardMsg" style="font-size:12px;color:#666;line-height:1.5;margin-bottom:14px;"></div>
+        <!-- Features 2-col grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 6px;margin-bottom:16px;">
+          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Unlimited measurements</div>
+          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Multi-image workflow</div>
+          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>PDF &amp; CSV export</div>
+          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Save &amp; load projects</div>
+          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Remove watermark</div>
+          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Multi-page PDF support</div>
+        </div>
+        <!-- Pricing box -->
+        <div style="background:#151515;border:0.5px solid #2a2a2a;border-radius:10px;padding:13px 15px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:3px;">
+              <span style="font-size:26px;font-weight:700;color:#e8e8e8;line-height:1;">$9</span>
+              <span style="font-size:13px;color:#444;text-decoration:line-through;">$19</span>
+            </div>
+            <div style="font-size:10px;color:#555;">One-time · no subscription</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="background:rgba(29,158,117,.1);border:0.5px solid rgba(29,158,117,.45);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:#1D9E75;letter-spacing:.04em;margin-bottom:4px;">Code FIRST100</div>
+            <div style="font-size:10px;color:#555;">applied at checkout</div>
+          </div>
+        </div>
+        <!-- CTA -->
+        <a href="https://mesuro.lemonsqueezy.com/checkout/buy/b59904bd-835d-420c-bc9a-4d8a77548f08?embed=1&media=0" class="lemonsqueezy-button" onclick="t('gate_checkout_click')" style="display:block;text-align:center;text-decoration:none;font-size:13px;font-weight:700;color:#fff;background:#2563eb;border-radius:9px;padding:11px 0;margin-bottom:10px;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Unlock Pro for $9 →</a>
+        <button onclick="hideGateCard('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:2px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">Continue with free</button>
+        <div id="gateKeyArea" style="display:none;margin-top:10px;">
+          <input id="gateKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:5px;color:#e0e0e0;font-size:11px;padding:6px 8px;font-family:inherit;outline:none;margin-bottom:5px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
+          <button id="gateVerifyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:5px;color:#fff;font-size:11px;padding:7px 10px;cursor:pointer;font-family:inherit;">Verify</button>
+          <div id="gateKeyError" style="font-size:10px;color:#e24b4b;margin-top:5px;display:none;"></div>
         </div>
       </div>
+
+      <!-- Feedback popup -->
+      <div id="feedbackPopup">
+        <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:10px;white-space:nowrap">
+          <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback">Share feedback</button>
+          <span style="color:#333;font-size:11px">|</span>
+          <select id="langSelect" onchange="setLang(this.value)" style="background:#1e1e1e;border:0.5px solid #333;border-radius:4px;color:#666;font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit;outline:none">
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="es">ES</option>
+            <option value="de">DE</option>
+            <option value="it">IT</option>
+          </select>
+          <span style="color:#333;font-size:11px">|</span>
+          <button onclick="closeFeedbackPopup()" style="background:none;border:none;cursor:pointer;color:#555;font-size:14px;line-height:1;padding:0 2px;transition:color .15s;font-family:inherit" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#555'">×</button>
+        </div>
+      </div>
+
     </div>
 
     <!-- Feedback modal -->
@@ -750,8 +968,12 @@
           </div>
           <button id="pdfPageNext" onclick="pdfChangePage(1)" style="flex:0 0 36px;height:36px;font-size:18px;background:#2a2a2a;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">›</button>
         </div>
+        <!-- Pro notice for free users (shown dynamically) -->
+        <div id="pdfProNotice" style="display:none;margin-bottom:12px;padding:8px 10px;background:rgba(201,145,58,.08);border:0.5px solid rgba(201,145,58,.3);border-radius:7px;font-size:11px;color:#C9913A;line-height:1.5">
+          ✦ Loading multiple pages is a <strong>Pro</strong> feature. You can load one page below. <span onclick="closePdfModal();showGateSheet('multi_image')" style="text-decoration:underline;cursor:pointer;opacity:.8">Unlock Pro →</span>
+        </div>
         <!-- selection options -->
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap">
+        <div id="pdfMultiOptions" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#aaa;cursor:pointer">
             <input type="checkbox" id="pdfSelectCurrent" checked onchange="pdfUpdateSelection()" style="accent-color:#1D9E75">
             <span>Page <span id="pdfSelNum">1</span> only</span>
@@ -768,7 +990,7 @@
         </div>
         <div id="pdfSelSummary" style="font-size:11px;color:#555;margin-bottom:12px;min-height:14px"></div>
         <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-          <button onclick="togglePdfRange()" style="font-size:11px;color:#555;background:none;border:0.5px solid #444;border-radius:6px;padding:5px 10px;cursor:pointer;font-family:inherit">Custom range</button>
+          <button id="pdfRangeBtn" onclick="togglePdfRange()" style="font-size:11px;color:#555;background:none;border:0.5px solid #444;border-radius:6px;padding:5px 10px;cursor:pointer;font-family:inherit">Custom range</button>
           <div style="display:flex;gap:8px">
             <button onclick="closePdfModal()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
             <button onclick="pdfLoadSelected()" id="pdfLoadBtn" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Load <span id="pdfLoadBtnCount">1</span> page(s)</button>
@@ -787,6 +1009,9 @@
         <div class="modal-footer">
           <button onclick="cancelScale()" style="width:auto">Cancel</button>
           <button class="btn-confirm" onclick="confirmScale()" style="width:auto" data-i18n="set_scale_btn">Set scale</button>
+        </div>
+        <div id="scaleBatchRow" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid #333;">
+          <button id="scaleBatchBtn" onclick="confirmScale(true)" style="width:100%;background:rgba(201,145,58,.1);border:0.5px solid rgba(201,145,58,.4);border-radius:6px;color:#C9913A;font-size:12px;padding:7px 14px;cursor:pointer;font-family:inherit;text-align:center;" data-i18n="batch_scale_btn">Set scale for all pages</button>
         </div>
       </div>
     </div>
@@ -816,6 +1041,9 @@
     </div>
   </div>
 
+  <!-- Mobile horizontal filmstrip (below canvas, above bottom bar) — mobile only -->
+  <div id="mobileFilmstrip"></div>
+
   <!-- mobile bottom bar — last measure always visible (hidden on desktop) -->
   <div id="mobileBar">
     <div id="mLastChip" style="background:#222;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
@@ -829,7 +1057,7 @@
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
-  <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="display:none" multiple>
+  <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="display:none">
   <div id="mResList" style="display:none"></div>
   <div id="mNoRes" style="display:none"></div>
   <div id="mBtnExport" style="display:none"></div>
@@ -858,7 +1086,85 @@
       <div style="padding:0 10px 8px;font-size:9px;color:#444;letter-spacing:.04em">ads via Carbon</div>
     </div>
   </div>
+  <div id="filmstrip"></div>
 
+</div>
+
+</div>
+
+<!-- Mobile Pro gate modal — outside #app so position:fixed works reliably on iOS Safari -->
+<div id="mobileGateModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:16px;width:100%;max-width:360px;padding:22px 20px 20px;position:relative;animation:gateCardIn .22s ease;">
+    <button onclick="hideMobileGate('dismiss')" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#666;font-size:14px;padding:0;z-index:10;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;">×</button>
+    <!-- Launch offer badge -->
+    <div style="margin-bottom:14px;">
+      <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#C9913A;font-weight:600;">⚠ Launch offer · <span id="mGatePromoLeft"></span> of 100 left</span>
+    </div>
+    <!-- Title -->
+    <div style="font-size:22px;font-weight:700;color:#e8e8e8;margin-bottom:5px;padding-right:20px;">Unlock Mesuro Pro</div>
+    <!-- Subtitle / gate message -->
+    <div id="mGateMsg" style="font-size:13px;color:#666;line-height:1.5;margin-bottom:16px;"></div>
+    <!-- Features 2-col grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 6px;margin-bottom:18px;">
+      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Unlimited measurements</div>
+      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Multi-image workflow</div>
+      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>PDF &amp; CSV export</div>
+      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Save &amp; load projects</div>
+      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Remove watermark</div>
+      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Multi-page PDF support</div>
+    </div>
+    <!-- Pricing box -->
+    <div style="background:#151515;border:0.5px solid #2a2a2a;border-radius:12px;padding:15px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:4px;">
+          <span style="font-size:30px;font-weight:700;color:#e8e8e8;line-height:1;">$9</span>
+          <span style="font-size:15px;color:#444;text-decoration:line-through;">$19</span>
+        </div>
+        <div style="font-size:11px;color:#555;">One-time · no subscription</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="background:rgba(29,158,117,.1);border:0.5px solid rgba(29,158,117,.45);border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;color:#1D9E75;letter-spacing:.04em;margin-bottom:5px;">Code FIRST100</div>
+        <div style="font-size:11px;color:#555;">applied at checkout</div>
+      </div>
+    </div>
+    <!-- CTA -->
+    <a href="https://mesuro.lemonsqueezy.com/checkout/buy/b59904bd-835d-420c-bc9a-4d8a77548f08?embed=1&media=0" class="lemonsqueezy-button" onclick="t('gate_checkout_click')" style="display:block;text-align:center;text-decoration:none;font-size:15px;font-weight:700;color:#fff;background:#2563eb;border-radius:11px;padding:14px 0;margin-bottom:12px;">Unlock Pro for $9 →</a>
+    <button onclick="hideMobileGate('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:#555;font-family:inherit;padding:4px 0;text-align:center;">Continue with free</button>
+    <div id="mGateKeyArea" style="display:none;margin-top:10px;">
+      <input id="mGateKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:7px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;margin-bottom:8px;" onkeydown="if(event.key==='Enter')doVerifyLicenseMobile()">
+      <button id="mGateVerifyBtn" onclick="doVerifyLicenseMobile()" style="width:100%;background:#1D9E75;border:none;border-radius:7px;color:#fff;font-size:13px;padding:11px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
+      <div id="mGateKeyError" style="font-size:11px;color:#e24b4b;margin-top:6px;display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PDF title modal -->
+<div id="pdfTitleModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:14px;width:100%;max-width:380px;padding:22px 22px 20px;position:relative;animation:gateCardIn .2s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
+    <button onclick="closePdfTitleModal()" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#666;font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#666';this.style.background='#2a2a2a'">×</button>
+    <div style="font-size:9px;letter-spacing:.12em;color:#555;font-weight:600;margin-bottom:10px;">EXPORT PDF</div>
+    <div style="font-size:16px;font-weight:700;color:#e8e8e8;margin-bottom:16px;padding-right:20px;">Name your document</div>
+    <!-- Title field -->
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:10px;letter-spacing:.08em;color:#555;font-weight:600;margin-bottom:6px;">DOCUMENT TITLE</label>
+      <input id="pdfTitleInput" type="text" style="width:100%;box-sizing:border-box;background:#141414;border:0.5px solid #333;border-radius:8px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
+      <div style="font-size:10px;color:#444;margin-top:5px;">Appears as the document heading in the PDF</div>
+    </div>
+    <!-- Note toggle -->
+    <div id="pdfNoteToggleRow" style="margin-bottom:4px;">
+      <button onclick="togglePdfNote()" id="pdfNoteToggleBtn" style="background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:0;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">+ Add a note</button>
+    </div>
+    <!-- Note field (hidden by default) -->
+    <div id="pdfNoteArea" style="display:none;margin-bottom:12px;margin-top:8px;">
+      <label style="display:block;font-size:10px;letter-spacing:.08em;color:#555;font-weight:600;margin-bottom:6px;">NOTE <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#444;">(optional)</span></label>
+      <input id="pdfNoteInput" type="text" placeholder="e.g. client name, address, job number…" style="width:100%;box-sizing:border-box;background:#141414;border:0.5px solid #333;border-radius:8px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
+    </div>
+    <!-- Actions -->
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="closePdfTitleModal()" style="flex:1;background:#252525;border:0.5px solid #333;border-radius:8px;color:#888;font-size:12px;font-weight:500;padding:10px 0;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseenter="this.style.background='#2e2e2e'" onmouseleave="this.style.background='#252525'">Cancel</button>
+      <button onclick="confirmPdfExport()" style="flex:2;background:#1D9E75;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 0;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Export PDF →</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── SEO content ── -->
@@ -871,33 +1177,19 @@
     <div id="mMeasEmpty" style="font-size:13px;color:#333;margin-bottom:16px;">No measurements yet.</div>
     <div style="font-size:10px;color:#444;letter-spacing:.08em;margin:20px 0 10px;">EXPORT</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <button id="mExpImg"  onclick="openImgFmtPicker()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export image</button>
+      <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
       <div style="display:flex;gap:8px;">
-        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report</button>
-        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV</button>
+        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report<span style="display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;line-height:1.5">PRO</span></button>
+        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV<span style="display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;line-height:1.5">PRO</span></button>
       </div>
       <div style="height:0.5px;background:#2a2a2a;margin:4px 0;"></div>
       <div style="display:flex;gap:8px;">
         <button id="mExpSave" onclick="saveProject()"                                    disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Save .mesuro</button>
-        <button              onclick="document.getElementById('projectInput').click()"           style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro</button>
+        <button              onclick="isPro?document.getElementById('projectInput').click():showGateSheet('load_project')"           style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro<span class="pro-badge">PRO</span></button>
       </div>
     </div>
 
-    <!-- format picker popup -->
-    <div id="mImgFmtPicker" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;" onclick="if(event.target===this)closeImgFmtPicker()">
-      <div style="background:#1e1e1e;border-radius:14px;padding:20px;width:240px;position:relative;border:0.5px solid #333;box-shadow:0 8px 32px rgba(0,0,0,.6);">
-        <button onclick="closeImgFmtPicker()" style="position:absolute;right:12px;top:12px;width:28px;height:28px;background:none;border:none;color:#555;font-size:18px;cursor:pointer;font-family:inherit;line-height:1;">✕</button>
-        <div style="font-size:10px;color:#555;letter-spacing:.08em;margin-bottom:14px;">SELECT FORMAT</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <button onclick="exportImg('png');closeImgFmtPicker()"  style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PNG</button>
-          <button onclick="exportImg('jpg');closeImgFmtPicker()"  style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">JPG</button>
-          <button onclick="exportImg('webp');closeImgFmtPicker()" style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">WebP</button>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:14px;padding:10px 16px;background:#1a1a1a;border-radius:8px;border:0.5px solid #252525;align-self:flex-start;">
-      <a href='https://ko-fi.com/J3J21W6SGC' target='_blank' onclick="t('kofi_click')" style="text-decoration:none;font-size:12px;color:#555;white-space:nowrap;transition:color .15s">Offer an espresso</a>
-    </div>
+
     <div style="height:1px;background:#222;margin:32px 0;"></div>
   </div>
 
@@ -1129,9 +1421,8 @@
 
   </div>
 
-  <div style="font-size:11px;color:#333;text-align:center">Mesuro — measure twice. in pixels. — free online image measurement tool</div>
+  <div style="font-size:11px;color:#333;text-align:center">Mesuro — free online image measurement tool</div>
 
-</div>
 
 <script>
 
@@ -1140,7 +1431,7 @@ var LANGS = {
   en: {
     SCALE:'SCALE', RECTIFY:'PERSP. CORRECTION', MEASURE:'MEASURE', VIEW:'VIEW', RESULTS:'RESULTS', IMAGE:'IMAGE',
     not_set:'Not set', undo:'↩ Undo', clear_all:'Clear all', no_meas:'No measurements yet',
-    save_proj:'Save project', load_proj:'Load project', original:'↩ Original',
+    save_proj:'Save project', load_proj:'Load', original:'↩ Original',
     load_img:'Load image(s) or PDF', rotate:'↻ 90°',
     scale_set:'Set', scale_reset:'Reset', scale_cancel:'Cancel',
     define_scale:'Define scale', line_represents:'The line you drew represents:',
@@ -1149,7 +1440,7 @@ var LANGS = {
     note_placeholder:'e.g. crack, 2mm gap', add_note_btn:'Add note',
     apply:'Apply', cancel:'Cancel',
     drop_main:'Click or drop images / PDF here', drop_main_mobile:'Tap to select images or PDF', drop_sub:'or use Load button above',
-    kofi:'Offer an espresso', feedback:'Share feedback',
+    feedback:'Share feedback',
     feedback_title:'Share feedback',
     feedback_placeholder:'What could be improved? What do you use Mesuro for?',
     email_optional:'Your email (optional)',
@@ -1200,11 +1491,13 @@ var LANGS = {
     exp_footer:'Generated by Mesuro — free online image measurement tool',
     exp_type_dist:'Distance', exp_type_diam:'Diameter', exp_type_angle:'Angle',
     exp_type_area:'Area', exp_type_perim:'Path', exp_type_arc:'Arc', exp_type_note:'Note', exp_type_coord:'Coordinates',
+    batch_scale_btn:'Set scale for all pages',
+    batch_scale_toast:(n)=>`✓ Scale applied to ${n} other page${n!==1?'s':''}`,
   },
   fr: {
     SCALE:'ÉCHELLE', RECTIFY:'PERSP. CORRECTION', MEASURE:'MESURER', VIEW:'VUE', RESULTS:'RÉSULTATS', IMAGE:'IMAGE',
     not_set:'Non définie', undo:'↩ Annuler', clear_all:'Tout effacer', no_meas:'Aucune mesure',
-    save_proj:'Sauvegarder projet', load_proj:'Charger projet', original:'↩ Original',
+    save_proj:'Sauvegarder projet', load_proj:'Charger', original:'↩ Original',
     load_img:'Charger image(s) ou PDF', rotate:'↻ 90°',
     scale_set:'Définir', scale_reset:'Réinitialiser', scale_cancel:'Annuler',
     define_scale:'Définir l\'échelle', line_represents:'La ligne tracée représente :',
@@ -1213,7 +1506,7 @@ var LANGS = {
     note_placeholder:'ex. fissure, 2mm', add_note_btn:'Ajouter',
     apply:'Appliquer', cancel:'Annuler',
     drop_main:'Cliquer ou déposer des images / PDF', drop_main_mobile:'Appuyer pour sélectionner des images ou un PDF', drop_sub:'ou utiliser le bouton ci-dessus',
-    kofi:'Offrir un expresso', feedback:'Envoyer un retour',
+    feedback:'Envoyer un retour',
     feedback_title:'Envoyer un retour',
     feedback_placeholder:'Que pourrait-on améliorer ? Pour quoi utilisez-vous Mesuro ?',
     email_optional:'Votre email (optionnel)',
@@ -1260,11 +1553,13 @@ var LANGS = {
     exp_footer:'Généré par Mesuro — outil de mesure d\'images gratuit',
     exp_type_dist:'Distance', exp_type_diam:'Diamètre', exp_type_angle:'Angle',
     exp_type_area:'Aire', exp_type_perim:'Tracé', exp_type_note:'Note',
+    batch_scale_btn:'Appliquer l\'échelle à toutes les pages',
+    batch_scale_toast:(n)=>`✓ Échelle appliquée à ${n} autre${n!==1?'s':''} page${n!==1?'s':''}`,
   },
   es: {
     SCALE:'ESCALA', RECTIFY:'CORRECC. PERSP.', MEASURE:'MEDIR', VIEW:'VISTA', RESULTS:'RESULTADOS', IMAGE:'IMAGEN',
     not_set:'No definida', undo:'↩ Deshacer', clear_all:'Borrar todo', no_meas:'Sin medidas',
-    save_proj:'Guardar proyecto', load_proj:'Cargar proyecto', original:'↩ Original',
+    save_proj:'Guardar proyecto', load_proj:'Cargar', original:'↩ Original',
     load_img:'Cargar imagen(es) o PDF', rotate:'↻ 90°',
     scale_set:'Definir', scale_reset:'Restablecer', scale_cancel:'Cancelar',
     define_scale:'Definir escala', line_represents:'La línea trazada representa:',
@@ -1273,7 +1568,7 @@ var LANGS = {
     note_placeholder:'ej. grieta, 2mm', add_note_btn:'Añadir',
     apply:'Aplicar', cancel:'Cancelar',
     drop_main:'Clic o soltar imágenes / PDF aquí', drop_main_mobile:'Toca para seleccionar imágenes o PDF', drop_sub:'o usar el botón de arriba',
-    kofi:'Invitar a un café', feedback:'Enviar opinión',
+    feedback:'Enviar opinión',
     feedback_title:'Enviar opinión',
     feedback_placeholder:'¿Qué podría mejorar? ¿Para qué usa Mesuro?',
     email_optional:'Su correo (opcional)',
@@ -1315,11 +1610,13 @@ var LANGS = {
     exp_footer:'Generado por Mesuro — herramienta gratuita de medición de imágenes',
     exp_type_dist:'Distancia', exp_type_diam:'Diámetro', exp_type_angle:'Ángulo',
     exp_type_area:'Área', exp_type_perim:'Trayecto', exp_type_note:'Nota',
+    batch_scale_btn:'Aplicar escala a todas las páginas',
+    batch_scale_toast:(n)=>`✓ Escala aplicada a ${n} página${n!==1?'s':''} más`,
   },
   de: {
     SCALE:'MAßSTAB', RECTIFY:'PERSPEKT.-KORR.', MEASURE:'MESSEN', VIEW:'ANSICHT', RESULTS:'ERGEBNISSE', IMAGE:'BILD',
     not_set:'Nicht gesetzt', undo:'↩ Rückgängig', clear_all:'Alles löschen', no_meas:'Keine Messungen',
-    save_proj:'Projekt speichern', load_proj:'Projekt laden', original:'↩ Original',
+    save_proj:'Projekt speichern', load_proj:'Laden', original:'↩ Original',
     load_img:'Bild(er) oder PDF laden', rotate:'↻ 90°',
     scale_set:'Setzen', scale_reset:'Zurücksetzen', scale_cancel:'Abbrechen',
     define_scale:'Maßstab definieren', line_represents:'Die gezeichnete Linie entspricht:',
@@ -1328,7 +1625,7 @@ var LANGS = {
     note_placeholder:'z.B. Riss, 2mm', add_note_btn:'Hinzufügen',
     apply:'Anwenden', cancel:'Abbrechen',
     drop_main:'Bilder / PDF hier klicken oder ablegen', drop_main_mobile:'Tippen um Bilder / PDF auszuwählen', drop_sub:'oder Schaltfläche oben verwenden',
-    kofi:'Einen Espresso spendieren', feedback:'Feedback senden',
+    feedback:'Feedback senden',
     feedback_title:'Feedback senden',
     feedback_placeholder:'Was könnte verbessert werden? Wofür nutzen Sie Mesuro?',
     email_optional:'Ihre E-Mail (optional)',
@@ -1370,11 +1667,13 @@ var LANGS = {
     exp_footer:'Erstellt mit Mesuro — kostenloses Online-Bildmesswerkzeug',
     exp_type_dist:'Distanz', exp_type_diam:'Durchmesser', exp_type_angle:'Winkel',
     exp_type_area:'Fläche', exp_type_perim:'Pfad', exp_type_note:'Notiz',
+    batch_scale_btn:'Maßstab auf alle Seiten anwenden',
+    batch_scale_toast:(n)=>`✓ Maßstab auf ${n} weitere Seite${n!==1?'n':''} angewendet`,
   },
   it: {
     SCALE:'SCALA', RECTIFY:'CORR. PROSP.', MEASURE:'MISURARE', VIEW:'VISTA', RESULTS:'RISULTATI', IMAGE:'IMMAGINE',
     not_set:'Non definita', undo:'↩ Annulla', clear_all:'Cancella tutto', no_meas:'Nessuna misura',
-    save_proj:'Salva progetto', load_proj:'Carica progetto', original:'↩ Originale',
+    save_proj:'Salva progetto', load_proj:'Carica', original:'↩ Originale',
     load_img:'Carica immagine/i o PDF', rotate:'↻ 90°',
     scale_set:'Definisci', scale_reset:'Reimposta', scale_cancel:'Annulla',
     define_scale:'Definisci scala', line_represents:'La linea tracciata rappresenta:',
@@ -1383,7 +1682,7 @@ var LANGS = {
     note_placeholder:'es. crepa, 2mm', add_note_btn:'Aggiungi',
     apply:'Applica', cancel:'Annulla',
     drop_main:'Clic o trascina immagini / PDF qui', drop_main_mobile:'Tocca per selezionare immagini o PDF', drop_sub:'o usa il pulsante sopra',
-    kofi:'Offri un espresso', feedback:'Invia feedback',
+    feedback:'Invia feedback',
     feedback_title:'Invia feedback',
     feedback_placeholder:'Cosa si potrebbe migliorare? Per cosa usa Mesuro?',
     email_optional:'La tua email (opzionale)',
@@ -1425,19 +1724,14 @@ var LANGS = {
     exp_footer:'Generato da Mesuro — strumento gratuito di misurazione immagini',
     exp_type_dist:'Distanza', exp_type_diam:'Diametro', exp_type_angle:'Angolo',
     exp_type_area:'Area', exp_type_perim:'Percorso', exp_type_note:'Nota',
+    batch_scale_btn:'Applica scala a tutte le pagine',
+    batch_scale_toast:(n)=>`✓ Scala applicata a ${n} ${n!==1?'altre pagine':'altra pagina'}`,
   }
 };
 
 var currentLang = localStorage.getItem('mesu_lang') ||
   (['fr','es','de','it'].includes(navigator.language.slice(0,2)) ? navigator.language.slice(0,2) : 'en');
 
-function closeKofiPopup() {
-  const el = document.getElementById('kofiPopup');
-  el.style.opacity = '0';
-  setTimeout(() => {
-    el.style.display = 'none';
-  }, 300);
-}
 
 function L(k) {
   const t = LANGS[currentLang] || LANGS.en;
@@ -1464,18 +1758,20 @@ function applyLang() {
   // data-i18n attributes
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.getAttribute('data-i18n');
-    if (tr[k] !== undefined && typeof tr[k] === 'string') el.textContent = tr[k];
+    if (tr[k] !== undefined && typeof tr[k] === 'string') {
+      const badge = el.querySelector('.pro-badge');
+      el.textContent = tr[k];
+      if (badge) el.appendChild(badge);
+    }
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const k = el.getAttribute('data-i18n-placeholder');
     if (tr[k]) el.placeholder = tr[k];
   });
-  // Load image label (inside a label element)
-  const loadLabel = document.getElementById('loadLabel');
-  if (loadLabel) {
-    const inp = loadLabel.querySelector('input');
-    loadLabel.textContent = tr.load_img;
-    if (inp) loadLabel.appendChild(inp);
+  // Load image label — respect pro status for plural
+  const loadLabelTxtEl = document.getElementById('loadLabelTxt');
+  if (loadLabelTxtEl) {
+    loadLabelTxtEl.textContent = isPro ? tr.load_img : tr.load_img.replace(/\(s\)|\(es\)|\(er\)|\/i/g, '').replace(/\s+/g, ' ').trim();
   }
   // Drop zone
   const dzMain = document.getElementById('dzMain');
@@ -1542,6 +1838,12 @@ function updMobileLang() {
 let pdfDoc = null, pdfCurrentPage = 1, pdfSourceName = '';
 let pdfSelectedPages = new Set();
 
+function _ts() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}h${pad(d.getMinutes())}`;
+}
+
 function isPDF(file) {
   return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 }
@@ -1550,6 +1852,7 @@ function isPDF(file) {
 const cv  = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 const ca  = document.getElementById('canvasArea');
+const cp  = document.getElementById('canvasPad'); // sizing container (excludes filmstrip)
 const btnScale    = document.getElementById('btnScale');
 const btnSaveProject = document.getElementById('btnSaveProject');
 const btnMeasure  = document.getElementById('btnMeasure');
@@ -1608,7 +1911,28 @@ let p0 = null, p1 = null, mp = null;
 let areaPts = [];
 let scLine = null, scPx = null, scFactor = null, scUnit = 'mm';
 let meas = [], pLine = null, hovIdx = -1, history = [];
-let _kofiCTAShown = false, _kofiModalShown = false;
+
+/* ── Pro license ── */
+let isPro = (function() {
+  const p = new URLSearchParams(location.search);
+  if (p.get('dev')) return true;
+  return !!localStorage.getItem('mesuro_license_key');
+})();
+if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true; }
+
+function addMeasurement(obj) {
+  if (!isPro && meas.length >= 10) {
+    showGateSheet('measurement_cap');
+    return false;
+  }
+  pushHistory();
+  meas.push(obj);
+  if (!isPro && meas.length === 10) {
+    stopTool();
+    setTimeout(() => showGateSheet('measurement_cap'), 400);
+  }
+  return true;
+}
 
 /* ── pages (multi-image / multi-PDF) ── */
 let pages = [];
@@ -1616,7 +1940,7 @@ let currentPageIdx = -1;
 let _pageIdCounter = 0;
 
 /* ── zoom/pan ── */
-let zoomEnabled = localStorage.getItem('mesu_zoom') !== null ? localStorage.getItem('mesu_zoom') === 'true' : false;
+let zoomEnabled = localStorage.getItem('mesu_zoom') !== null ? localStorage.getItem('mesu_zoom') === 'true' : (window.innerWidth > 767);
 let magEnabled  = localStorage.getItem('mesu_mag')  !== null ? localStorage.getItem('mesu_mag')  === 'true' : true;
 let zoom = 1, panX = 0, panY = 0;
 let isPanning = false, panStart = null;
@@ -1630,6 +1954,14 @@ let dragState = null;
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
+  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || f.type.startsWith('image/')));
+  if (!isPro && mediaFiles.length > 1) {
+    showGateSheet('multi_image');
+    const f = mediaFiles[0];
+    t('load_single', {source: 'picker'});
+    if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f);
+    e.target.value = ''; return;
+  }
   t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'picker'});
   files.forEach(f => {
     if (f.name.endsWith('.mesuro')) loadProject(f);
@@ -1638,11 +1970,14 @@ document.getElementById('fileInput').onchange = e => {
   });
   e.target.value = '';
 };
-document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { loadProject(e.target.files[0]); e.target.value=''; } };
+document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { if (!isPro) { showGateSheet('load_project'); e.target.value=''; return; } loadProject(e.target.files[0]); e.target.value=''; } };
+document.getElementById('replaceFileInput').onchange = e => { const f = e.target.files[0]; e.target.value=''; if (!f) return; if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f); };
 
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('click', e => {
-  if (e.target.closest('#kofiPopup') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal') || e.target.closest('#filmstrip')) return;
+  if (e.target.closest('#bottomArea') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal') || e.target.closest('#filmstrip')) return;
+  const mgm = document.getElementById('mobileGateModal');
+  if (mgm && mgm.style.display !== 'none') return;
   if (!pages.length) document.getElementById('fileInput').click();
 });
 ca.addEventListener('dragleave', () => { ca.style.outline=''; });
@@ -1650,6 +1985,24 @@ ca.addEventListener('drop', e => {
   e.preventDefault(); ca.style.outline='';
   const files = Array.from(e.dataTransfer.files);
   if (!files.length) return;
+  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || f.type.startsWith('image/')));
+  // Free user with existing image: intercept and show replace/upsell sheet
+  if (!isPro && pages.length >= 1 && mediaFiles.length >= 1) {
+    if (mediaFiles.length > 1) {
+      showGateSheet('multi_image');
+      showReplaceSheet([mediaFiles[0]], 'drop');
+    } else {
+      showReplaceSheet(mediaFiles, 'drop');
+    }
+    return;
+  }
+  if (!isPro && mediaFiles.length > 1) {
+    showGateSheet('multi_image');
+    const f = mediaFiles[0];
+    t('load_single', {source: 'drop'});
+    if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f);
+    return;
+  }
   t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'drop'});
   files.forEach(f => {
     if (f.name.endsWith('.mesuro')) loadProject(f);
@@ -1672,6 +2025,8 @@ function loadImg(file) {
       addPage(ps, true);
       t('load_image');
       if (snapEnabled && window.innerWidth > 767) computeEdges();
+      const _mts = document.getElementById('mobileToolsScroll');
+      if (_mts) _mts.scrollLeft = 0;
       setTimeout(() => {
         const bs = document.getElementById('btnScale');
         if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
@@ -1682,19 +2037,16 @@ function loadImg(file) {
   r.readAsDataURL(file);
 }
 
-function getFsH() {
-  if (pages.length <= 1) return 0;
-  return window.innerWidth <= 767 ? 60 : 72;
+function getFsW() {
+  if (pages.length === 0) return 0;
+  return 72; // right-side filmstrip width
 }
 
 function fitImg() {
   const isMobile = window.innerWidth <= 767;
   const dpr = isMobile ? (window.devicePixelRatio || 1) : 1;
-  const fsH = getFsH();
-
-  // Canvas element physically sits above the filmstrip (never under it)
-  const cssW = ca.clientWidth;
-  const cssH = Math.max(0, ca.clientHeight - fsH);
+  const cssW = cp.clientWidth;
+  const cssH = cp.clientHeight;
   cv.width  = Math.round(cssW * dpr);
   cv.height = Math.round(cssH * dpr);
   cv.style.width  = cssW + 'px';
@@ -1748,7 +2100,7 @@ cv.addEventListener('wheel', e => {
   e.preventDefault();
   const c=canvasPx(e), f=e.deltaY<0?1.12:1/1.12;
   // min zoom = fit zoom (image fills canvas)
-  const fitZoom = Math.min(ca.clientWidth/img.width, (ca.clientHeight-getFsH())/img.height, 1);
+  const fitZoom = Math.min(cp.clientWidth/img.width, cp.clientHeight/img.height, 1);
   const nz=Math.max(fitZoom, Math.min(20, zoom*f));
   panX = c.x-(c.x-panX)*(nz/zoom);
   panY = c.y-(c.y-panY)*(nz/zoom);
@@ -1758,7 +2110,7 @@ cv.addEventListener('wheel', e => {
 function clampPan() {
   if (!img) return;
   const iw = img.width * zoom, ih = img.height * zoom;
-  const cw = ca.clientWidth, ch = ca.clientHeight - getFsH();
+  const cw = cp.clientWidth, ch = cp.clientHeight;
   // If image fits inside canvas, center it
   if (iw <= cw) panX = (cw - iw) / 2;
   else panX = Math.max(cw - iw, Math.min(0, panX));
@@ -2036,6 +2388,7 @@ function defaultLabelPos(m, i) {
   if (m.type==='note')    return {x:m.x+8/zoom, y:m.y};
   if (m.type==='angle4') { return {x:(m.ax+m.bx+m.cx+m.dx)/4, y:(m.ay+m.by+m.cy+m.dy)/4-20/zoom}; }
   if (m.type==='ptline') { return {x:(m.px+m.fx)/2, y:(m.py+m.fy)/2-18/zoom}; }
+  if (m.type==='ll')     { return {x:(m.fx+m.mx)/2, y:(m.fy+m.my)/2-18/zoom}; }
   if (m.type==='ptcoord'){ return {x:m.px+12/zoom, y:m.py-16/zoom}; }
   return null;
 }
@@ -2079,6 +2432,9 @@ function findDrag(wp) {
     } else if (m.type==='ptline') {
       if (near(m.lx1,m.ly1)) return {idx:i,field:'l1'}; if (near(m.lx2,m.ly2)) return {idx:i,field:'l2'};
       if (near(m.px,m.py)) return {idx:i,field:'pt'};
+    } else if (m.type==='ll') {
+      if (near(m.lx1,m.ly1)) return {idx:i,field:'l1'}; if (near(m.lx2,m.ly2)) return {idx:i,field:'l2'};
+      if (near(m.l2x1,m.l2y1)) return {idx:i,field:'l21'}; if (near(m.l2x2,m.l2y2)) return {idx:i,field:'l22'};
     } else if (m.type==='ptcoord') {
       if (near(m.px,m.py)) return {idx:i,field:'pt'};
     }
@@ -2123,6 +2479,7 @@ function applyDrag(wp) {
   else if (m.type==='note')    _applyDragNote(m, wp);
   else if (m.type==='angle4')  _applyDragAngle4(m, wp, field);
   else if (m.type==='ptline')  _applyDragPtline(m, wp, field);
+  else if (m.type==='ll')      _applyDragLL(m, wp, field);
   else if (m.type==='ptcoord') _applyDragPtcoord(m, wp);
 }
 
@@ -2161,14 +2518,36 @@ function _applyDragAngle(m, wp, field) {
 function _applyDragArea(m, wp, field, ptIdx) {
   if (field==='cp1'&&m.cps) { m.cps[ptIdx].cp1={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
   else if (field==='cp2'&&m.cps) { m.cps[ptIdx].cp2={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
-  else { m.pts[ptIdx]={x:wp.x,y:wp.y}; if(m.cps) m.cps=naturalSpline(m.pts,true); }
+  else {
+    if (m.cps) {
+      // Translate free control points that are attached to the moving vertex
+      const n=m.pts.length, segs=n; // area is always closed
+      const dx=wp.x-m.pts[ptIdx].x, dy=wp.y-m.pts[ptIdx].y;
+      const si=ptIdx%segs, sp=(ptIdx-1+segs)%segs;
+      if (m.cps[si]&&m.cps[si].free) { m.cps[si].cp1={x:m.cps[si].cp1.x+dx,y:m.cps[si].cp1.y+dy}; }
+      if (m.cps[sp]&&m.cps[sp].free) { m.cps[sp].cp2={x:m.cps[sp].cp2.x+dx,y:m.cps[sp].cp2.y+dy}; }
+    }
+    m.pts[ptIdx]={x:wp.x,y:wp.y};
+    if(m.cps) m.cps=localResmooth(m.pts,m.cps,ptIdx,true);
+  }
   m.areaPx=m.cps?bezierPolyArea(m.pts,m.cps):polyArea(m.pts);
 }
 
 function _applyDragPerim(m, wp, field, ptIdx) {
   if (field==='cp1'&&m.cps) { m.cps[ptIdx].cp1={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
   else if (field==='cp2'&&m.cps) { m.cps[ptIdx].cp2={x:wp.x,y:wp.y}; m.cps[ptIdx].free=true; }
-  else { m.pts[ptIdx]={x:wp.x,y:wp.y}; if(m.cps) m.cps=naturalSpline(m.pts,!m.open); }
+  else {
+    if (m.cps) {
+      // Translate free control points that are attached to the moving vertex
+      const n=m.pts.length, closed=!m.open, segs=closed?n:n-1;
+      const dx=wp.x-m.pts[ptIdx].x, dy=wp.y-m.pts[ptIdx].y;
+      const si=ptIdx, sp=closed?(ptIdx-1+segs)%segs:ptIdx-1;
+      if (si<segs&&m.cps[si]&&m.cps[si].free) { m.cps[si].cp1={x:m.cps[si].cp1.x+dx,y:m.cps[si].cp1.y+dy}; }
+      if (sp>=0&&sp<segs&&m.cps[sp]&&m.cps[sp].free) { m.cps[sp].cp2={x:m.cps[sp].cp2.x+dx,y:m.cps[sp].cp2.y+dy}; }
+    }
+    m.pts[ptIdx]={x:wp.x,y:wp.y};
+    if(m.cps) m.cps=localResmooth(m.pts,m.cps,ptIdx,!m.open);
+  }
   m.perimPx=m.cps?bezierPolyPerim(m.pts,m.cps,m.open):polyPerim(m.pts);
 }
 
@@ -2207,6 +2586,21 @@ function _applyDragPtline(m, wp, field) {
   if(len>0){m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.lx1*0-m.ly2*m.lx1*0+m.lx2*m.ly1-m.ly2*m.lx1)/len;
   m.distPx=Math.abs(dy*m.px-dx*m.py+m.lx2*m.ly1-m.ly2*m.lx1)/len;
   const t2=((m.px-m.lx1)*dx+(m.py-m.ly1)*dy)/(len*len);m.fx=m.lx1+t2*dx;m.fy=m.ly1+t2*dy;}
+}
+
+function _applyDragLL(m, wp, field) {
+  if (field==='l1')  { m.lx1=wp.x; m.ly1=wp.y; }
+  else if (field==='l2')  { m.lx2=wp.x; m.ly2=wp.y; }
+  else if (field==='l21') { m.l2x1=wp.x; m.l2y1=wp.y; }
+  else if (field==='l22') { m.l2x2=wp.x; m.l2y2=wp.y; }
+  // Recompute perpendicular connector & distance
+  const dx=m.lx2-m.lx1, dy=m.ly2-m.ly1, len=Math.hypot(dx,dy);
+  if (len<1) return;
+  const mx=(m.l2x1+m.l2x2)/2, my=(m.l2y1+m.l2y2)/2;
+  const t=((mx-m.lx1)*dx+(my-m.ly1)*dy)/(len*len);
+  m.fx=m.lx1+t*dx; m.fy=m.ly1+t*dy;
+  m.mx=mx; m.my=my;
+  m.distPx=Math.hypot(mx-m.fx, my-m.fy);
 }
 
 function _applyDragPtcoord(m, wp) {
@@ -2330,7 +2724,7 @@ cv.addEventListener('click', e => {
   else if (mode==='mb') {
     const sp=snapPoint(p0,p,e);
     if (dst(p0,sp)<5/zoom) return;
-    pushHistory(); meas.push({type:'line',x1:p0.x,y1:p0.y,x2:sp.x,y2:sp.y,px:dst(p0,sp)});
+    if (!addMeasurement({type:'line',x1:p0.x,y1:p0.y,x2:sp.x,y2:sp.y,px:dst(p0,sp)})) return;
     p0=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='ma'; setHint(L('h_dist_next')); }
     draw(); updUI();
@@ -2338,10 +2732,9 @@ cv.addEventListener('click', e => {
   else if (mode==='da') { p0=p; mode='db'; setHint(L('h_diam_b')); }
   else if (mode==='db') {
     if (dst(p0,p)<5/zoom) return;
-    pushHistory();
     const r=dst(p0,p);
     const x2=p0.x-(p.x-p0.x), y2=p0.y-(p.y-p0.y);
-    meas.push({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2,y2});
+    if (!addMeasurement({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2,y2})) return;
     p0=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='da'; setHint(L('h_diam_next')); }
     draw(); updUI();
@@ -2353,8 +2746,7 @@ cv.addEventListener('click', e => {
     const d = dst(p0, p);
     // symmetric point: mirror edge across center
     const sym = {x: p0.x-(p.x-p0.x), y: p0.y-(p.y-p0.y)};
-    pushHistory();
-    meas.push({type:'line', x1:p.x, y1:p.y, x2:sym.x, y2:sym.y, px:d*2, subtype:'ce', cx:p0.x, cy:p0.y});
+    if (!addMeasurement({type:'line', x1:p.x, y1:p.y, x2:sym.x, y2:sym.y, px:d*2, subtype:'ce', cx:p0.x, cy:p0.y})) return;
     p0=null; p1=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='ce1'; setHint(L('h_ce1')); }
     draw(); updUI();
@@ -2369,9 +2761,8 @@ cv.addEventListener('click', e => {
     if (!p0||!p1) return;
     const circ = circumscribedCircle(p0, p1, p);
     if (!circ) { setHint('Points are collinear — try again'); return; }
-    pushHistory();
     const {cx,cy,r} = circ;
-    meas.push({type:'diam', cx, cy, r, x1:cx+r, y1:cy, x2:cx-r, y2:cy, subtype:'3p', pa:p0, pb:p1, pc:p});
+    if (!addMeasurement({type:'diam', cx, cy, r, x1:cx+r, y1:cy, x2:cx-r, y2:cy, subtype:'3p', pa:p0, pb:p1, pc:p})) return;
     p0=null; p1=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='d3a'; setHint(L('h_d3a')); }
     draw(); updUI();
@@ -2394,8 +2785,7 @@ cv.addEventListener('click', e => {
     if (sweep > Math.PI) sweep -= 2*Math.PI;
     if (sweep < -Math.PI) sweep += 2*Math.PI;
     const arcLen = Math.abs(sweep) * r;
-    pushHistory();
-    meas.push({type:'arc', cx:p0.x, cy:p0.y, r, a1, a2, sweep, arcLen, p1:{x:p1.x,y:p1.y}, p2:sp2});
+    if (!addMeasurement({type:'arc', cx:p0.x, cy:p0.y, r, a1, a2, sweep, arcLen, p1:{x:p1.x,y:p1.y}, p2:sp2})) return;
     p0=null; p1=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='arc1'; setHint(L('h_arc1')); }
     draw(); updUI();
@@ -2407,7 +2797,7 @@ cv.addEventListener('click', e => {
   }
   else if (mode==='ac') {
     if (dst(p1,p)<5/zoom) return;
-    pushHistory(); meas.push({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)});
+    if (!addMeasurement({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)})) return;
     p0=null; p1=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='aa'; setHint(L('h_diam_next')); }
     draw(); updUI();
@@ -2425,8 +2815,7 @@ cv.addEventListener('click', e => {
     const p2=window._p4p2;
     if (!p2||dst(p2,p)<5/zoom) return;
     const ang=angle4SectorDeg(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y,p.x,p.y);
-    pushHistory();
-    meas.push({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang});
+    if (!addMeasurement({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang})) return;
     p0=null; p1=null; window._p4p2=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='p4a'; setHint('Click 1st point of line A'); }
     draw(); updUI();
@@ -2443,8 +2832,7 @@ cv.addEventListener('click', e => {
     const distPx=Math.abs(dy*p.x-dx*p.y+p1.x*p0.y-p1.y*p0.x)/len;
     const t2=((p.x-p0.x)*dx+(p.y-p0.y)*dy)/(len*len);
     const foot={x:p0.x+t2*dx,y:p0.y+t2*dy};
-    pushHistory();
-    meas.push({type:'ptline',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,px:p.x,py:p.y,fx:foot.x,fy:foot.y,distPx});
+    if (!addMeasurement({type:'ptline',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,px:p.x,py:p.y,fx:foot.x,fy:foot.y,distPx})) return;
     p0=null; p1=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='pl1'; setHint('Click 1st point of reference line'); }
     draw(); updUI();
@@ -2465,8 +2853,7 @@ cv.addEventListener('click', e => {
     if (Math.hypot(offX,offY)<3/zoom) return;
     const l2x1=p0.x+offX, l2y1=p0.y+offY, l2x2=p1.x+offX, l2y2=p1.y+offY;
     const distPx=Math.hypot(offX,offY);
-    pushHistory();
-    meas.push({type:'ll',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,l2x1,l2y1,l2x2,l2y2,fx,fy,mx:p.x,my:p.y,distPx});
+    if (!addMeasurement({type:'ll',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,l2x1,l2y1,l2x2,l2y2,fx,fy,mx:p.x,my:p.y,distPx})) return;
     p0=null; p1=null; mp=null;
     if (window.innerWidth<=767) { stopTool(); } else { mode='ll1'; setHint('Click 1st point of line 1'); }
     draw(); updUI();
@@ -2483,8 +2870,7 @@ cv.addEventListener('click', e => {
       const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:0, oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:0;
       const cx2=(p.x-ox)*(scFactor||1), cy2=-(p.y-oy)*(scFactor||1);
       const u=scFactor?scUnit:'px';
-      pushHistory();
-      meas.push({type:'ptcoord',px:p.x,py:p.y,ox,oy,cx:cx2,cy:cy2,unit:u});
+      if (!addMeasurement({type:'ptcoord',px:p.x,py:p.y,ox,oy,cx:cx2,cy:cy2,unit:u})) return;
       draw(); updUI();
     }
   }
@@ -2532,7 +2918,7 @@ function closeArea() {
   const isBez=segMode.area==='bezier';
   const cps=isBez?autoSmooth([...areaPts],true):null;
   const areaPx=isBez?bezierPolyArea([...areaPts],cps):polyArea(areaPts);
-  pushHistory(); meas.push({type:'area',pts:[...areaPts],areaPx,cps});
+  addMeasurement({type:'area',pts:[...areaPts],areaPx,cps});
   areaPts=[]; areaCps=[]; mp=null; mode='idle'; clearHint(); closeSubPanels(); draw(); updUI();
 }
 
@@ -2587,6 +2973,20 @@ function doScaleReset() {
   pushHistory();
   scLine = null; scPx = null; scFactor = null;
   draw(); updUI();
+}
+function applyScaleToAllPages() {
+  if (!isPro || !scFactor || pages.length <= 1) return;
+  saveCurrentPageState();
+  const count = pages.length - 1;
+  pages.forEach((p, i) => {
+    if (i === currentPageIdx) return;
+    p.scLine = scLine ? { ...scLine } : null;
+    p.scPx = scPx;
+    p.scFactor = scFactor;
+    p.scUnit = scUnit;
+  });
+  showToast(L('batch_scale_toast')(count));
+  updUI();
 }
 function doMeasure() {
   const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
@@ -2971,7 +3371,7 @@ function closePerim() {
   const isBezP=segMode.perim==='bezier';
   const cpsP=isBezP?autoSmooth([...areaPts],true):null;
   const perimPxP=isBezP?bezierPolyPerim([...areaPts],cpsP,true):polyPerim(areaPts);
-  pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx:perimPxP,open:false,cps:cpsP});
+  addMeasurement({type:'perim',pts:[...areaPts],perimPx:perimPxP,open:false,cps:cpsP});
   areaPts=[]; areaCps=[]; mp=null; mode='idle'; clearHint(); closeSubPanels(); draw(); updUI();
 }
 function saveOpenPath() {
@@ -2980,7 +3380,7 @@ function saveOpenPath() {
   const isBezO=segMode.perim==='bezier';
   const cpsO=isBezO?autoSmooth([...areaPts],false):null;
   const perimPxO=isBezO?bezierPolyPerim([...areaPts],cpsO,false):polyPerim(areaPts);
-  pushHistory(); meas.push({type:'perim',pts:[...areaPts],perimPx:perimPxO,open:true,cps:cpsO});
+  addMeasurement({type:'perim',pts:[...areaPts],perimPx:perimPxO,open:true,cps:cpsO});
   areaCps=[]; mp=null; mode='idle'; clearHint(); closeSubPanels(); draw(); updUI();
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
 }
@@ -3021,9 +3421,12 @@ function showModal() {
   document.querySelector('#scaleModal h3').textContent = L('define_scale');
   document.querySelector('#scaleModal p').textContent  = L('line_represents');
   document.querySelector('#scaleModal .btn-confirm').textContent = L('set_scale_btn');
+  // show batch-scale row for Pro users with multiple pages
+  const batchRow = document.getElementById('scaleBatchRow');
+  if (batchRow) batchRow.style.display = (isPro && pages.length > 1) ? 'block' : 'none';
 }
 function cancelScale() { modal.style.display='none'; document.body.style.overflow=''; pLine=null; stopTool(); }
-function confirmScale() {
+function confirmScale(applyAll) {
   const sv=document.getElementById('sVal'), val=parseFloat(sv.value);
   if (!val||val<=0) { sv.style.borderColor='#E24B4A'; sv.focus(); return; }
   sv.style.borderColor='';
@@ -3033,6 +3436,7 @@ function confirmScale() {
   localStorage.setItem('mesu_last_scale_unit', scUnit);
   scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
   pLine=null; modal.style.display='none'; document.body.style.overflow=''; t('set_scale', {unit:scUnit, px_per_unit:+(1/scFactor).toFixed(4)}); stopTool();
+  if (applyAll) applyScaleToAllPages();
 }
 // click-to-clear preset value, restore on blur if empty
 document.getElementById('sVal').addEventListener('click', function() { this.select(); });
@@ -3314,7 +3718,20 @@ function disableButtons(ids, disabled) {
 
 function updUI() {
   updFilmstrip();
-  if (!_kofiCTAShown && meas.length >= 3) { _kofiCTAShown = true; setTimeout(showKofiCTA, 800); }
+  // Measurement counter (free users only)
+  const mcEl = document.getElementById('measCounter');
+  if (mcEl) {
+    if (!isPro && img) {
+      const used = meas.length;
+      mcEl.style.display = 'block';
+      mcEl.textContent = `${used}/10 measurements`;
+      mcEl.className = used >= 7 ? 'warn' : '';
+    } else {
+      mcEl.style.display = 'none';
+    }
+  }
+  const loadTxt = document.getElementById('loadLabelTxt');
+  if (loadTxt) loadTxt.textContent = isPro ? 'Load image(s) or PDF' : 'Load image or PDF';
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
   const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
@@ -3324,9 +3741,8 @@ function updUI() {
   const isPtCoordMode=mode==='ptc';
   const isArea=mode==='pa', isPerim=mode==='pp';
 
-  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnClear','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten','exportFmt'], !hasImg);
+  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
   disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasSc);
-  btnUndo.disabled=!history.length;
   const isNote=mode==='na';
   const btnNtEl=document.getElementById('btnNote');
   if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':''; btnNtEl.innerHTML=`<span style='position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px'>Aa</span>${L('note')} <span class='kbd'>N</span>`;
@@ -3417,7 +3833,7 @@ function delM(i) { pushHistory(); meas.splice(i,1); if(hovIdx>=meas.length)hovId
 
 let toastTimer;
 function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
-function showToast(msg) { toast.textContent=msg; toast.style.display='block'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toast.style.display='none';},1800); }
+function showToast(msg, duration) { toast.textContent=msg; toast.style.display='block'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toast.style.display='none';}, duration||1800); }
 
 /* ── draw ── */
 function draw() {
@@ -3557,7 +3973,7 @@ function draw() {
     const isBez = segMode.area==='bezier';
     ctx.beginPath();
     if (isBez && pts2.length >= 2) {
-      const cps2 = previewSmooth(pts2, false);
+      const cps2 = naturalSpline(pts2, false);
       buildBezPath(ctx, pts2, cps2, false);
     } else {
       ctx.moveTo(pts2[0].x,pts2[0].y);
@@ -3581,7 +3997,7 @@ function draw() {
     const isBez = segMode.perim==='bezier';
     ctx.beginPath();
     if (isBez && pts2.length >= 2) {
-      const cps2 = previewSmooth(pts2, false);
+      const cps2 = naturalSpline(pts2, false);
       buildBezPath(ctx, pts2, cps2, false);
     } else {
       ctx.moveTo(pts2[0].x,pts2[0].y);
@@ -4183,16 +4599,16 @@ function drawMagnifier(scx,scy,wx,wy,col,dpr=1) {
   const MAG_R=72*dpr, ZOOM_F=5, OFFSET=MAG_R+18;
   const ov = document.getElementById('magOverlay');
   if (!ov) return;
-  const caRc = ca.getBoundingClientRect();
-  const ovW = caRc.width * dpr, ovH = caRc.height * dpr;
+  const cpRc = cp.getBoundingClientRect();
+  const ovW = cpRc.width * dpr, ovH = cpRc.height * dpr;
   ov.width = ovW; ov.height = ovH;
   const octx = ov.getContext('2d');
   octx.clearRect(0,0,ovW,ovH);
 
   // cursor position in overlay coords
   const rc = cv.getBoundingClientRect();
-  const cx = (rc.left - caRc.left) * dpr + scx;
-  const cy = (rc.top  - caRc.top)  * dpr + scy;
+  const cx = (rc.left - cpRc.left) * dpr + scx;
+  const cy = (rc.top  - cpRc.top)  * dpr + scy;
 
   const flipX = cx + OFFSET + MAG_R > ovW;
   const flipY = cy - OFFSET - MAG_R < 0;
@@ -4286,15 +4702,15 @@ function saveProject() {
     currentPage: currentPageIdx,
     pages: pageData
   };
-  const blob = new Blob([JSON.stringify(project)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(project)], { type: 'application/octet-stream' });
   const a = document.createElement('a');
-  a.download = `mesu-${new Date().toISOString().slice(0,10)}.mesuro`;
+  a.download = `mesu-${_ts()}.mesuro`;
   a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
   showToast(L('proj_saved'));
-  setTimeout(showKofiModal, 600);
 }
 
 function loadProject(file) {
+  if (!isPro) { showGateSheet('load_project'); return; }
   t('load_project');
   const r = new FileReader();
   r.onload = ev => {
@@ -4366,45 +4782,70 @@ function showProjTip(msg) { const t=document.getElementById('projTip'); if(t){t.
 function hideProjTip()    { const t=document.getElementById('projTip'); if(t) t.style.opacity='0'; }
 
 /* ── export PNG ── */
-function exportImg(fmtOverride) {
+function exportImg() {
   if (!img) return;
-  const fmt = fmtOverride || document.getElementById('exportFmt').value;
+  // Detect WebP encoding support (iOS Safari doesn't support it)
+  const _testC = document.createElement('canvas'); _testC.width=1; _testC.height=1;
+  const supportsWebP = _testC.toDataURL('image/webp').startsWith('data:image/webp');
+  const fmt = supportsWebP ? 'webp' : 'png';
   t('export_'+fmt);
-  const mime = fmt==='jpg'?'image/jpeg':fmt==='webp'?'image/webp':'image/png';
-  const quality = fmt==='jpg'?0.92:fmt==='webp'?0.92:1;
+  const mime = supportsWebP ? 'image/webp' : 'image/png';
+  const quality = supportsWebP ? 0.92 : 1;
   const ec=document.createElement('canvas'); ec.width=img.width; ec.height=img.height;
   const ec_ctx=ec.getContext('2d'); ec_ctx.drawImage(img,0,0);
-  const sx=1, sy=1;
-  function spt(x,y){return[x*sx,y*sy];}
-  if (scLine){const[x1,y1]=spt(scLine.x1,scLine.y1),[x2,y2]=spt(scLine.x2,scLine.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#1D9E75','scale',sx);}
+  // Visual scale: match annotation size to canvas at fit-to-frame zoom
+  const fitZoom = Math.min(cp.clientWidth / img.width, cp.clientHeight / img.height, 1);
+  const vs = 1 / fitZoom;
+  if (scLine){drawAnnOn(ec_ctx,scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',vs);}
   meas.forEach((m,i)=>{
-    if (m.type==='line'){const r=scFactor?m.px*scFactor:null;const[x1,y1]=spt(m.x1,m.y1),[x2,y2]=spt(m.x2,m.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,sx);}
-    else if(m.type==='diam'){const r=scFactor?m.r*2*scFactor:null;const[cx,cy]=spt(m.cx,m.cy),ra=m.r*sx,[x1,y1]=spt(m.x1,m.y1),[x2,y2]=spt(m.x2,m.y2);drawDiamOn(ec_ctx,cx,cy,ra,x1,y1,x2,y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,sx);}
-    else if(m.type==='angle'){const[ax,ay]=spt(m.ax,m.ay),[vx,vy]=spt(m.vx,m.vy),[bx,by]=spt(m.bx,m.by);drawAngleOn(ec_ctx,ax,ay,vx,vy,bx,by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,sx);}
-    else if(m.type==='area'){const r=scFactor?m.areaPx*scFactor*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx);}
-    else if(m.type==='perim'){const r=scFactor?m.perimPx*scFactor:null;const spts=m.pts.map(p=>({x:p.x*sx,y:p.y*sy}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
-    else if(m.type==='arc'){const r=scFactor?m.arcLen*scFactor:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx*sx,m.cy*sy,m.r*sx,m.a1,m.sweep,{x:m.p1.x*sx,y:m.p1.y*sy},{x:m.p2.x*sx,y:m.p2.y*sy},lbl,sx);}
-    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax*sx,m.ay*sy,m.bx*sx,m.by*sy,m.cx*sx,m.cy*sy,m.dx*sx,m.dy*sy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx,m.deg);}
-    else if(m.type==='ptline'){const r=scFactor?m.distPx*scFactor:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${scUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1*sx,m.ly1*sy,m.lx2*sx,m.ly2*sy,m.px*sx,m.py*sy,m.fx*sx,m.fy*sy,lbl,sx);}
-    else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px*sx,m.py*sy,m.ox*sx,m.oy*sy,`${i+1}`,sx);}
+    if (m.type==='line'){const r=scFactor?m.px*scFactor:null;drawAnnOn(ec_ctx,m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,vs,m.lpos||null);}
+    else if(m.type==='diam'){const r=scFactor?m.r*2*scFactor:null;drawDiamOn(ec_ctx,m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,vs,m.lpos||null);}
+    else if(m.type==='angle'){drawAngleOn(ec_ctx,m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,vs,m.lpos||null);}
+    else if(m.type==='area'){const r=scFactor?m.areaPx*scFactor*scFactor:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${scUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,vs,m.cps||null,m.lpos||null);}
+    else if(m.type==='perim'){const r=scFactor?m.perimPx*scFactor:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${scUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,vs,m.open,m.cps||null,m.lpos||null);}
+    else if(m.type==='arc'){const r=scFactor?m.arcLen*scFactor:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx,m.cy,m.r,m.a1,m.sweep,{x:m.p1.x,y:m.p1.y},{x:m.p2.x,y:m.p2.y},lbl,vs,m.lpos||null);}
+    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy,`∡${i+1}  ${m.deg.toFixed(1)}°`,vs,m.deg,m.lpos||null);}
+    else if(m.type==='ptline'){const r=scFactor?m.distPx*scFactor:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${scUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1,m.ly1,m.lx2,m.ly2,m.px,m.py,m.fx,m.fy,lbl,vs,m.lpos||null);}
+    else if(m.type==='ll'){const r=scFactor?m.distPx*scFactor:null;const lbl=r!==null?`∥${i+1}  ${r.toFixed(2)} ${scUnit}`:`∥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1,m.ly1,m.lx2,m.ly2,m.mx,m.my,m.fx,m.fy,lbl,vs,m.lpos||null);}
+    else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px,m.py,m.ox,m.oy,`${i+1}`,vs);}
+    else if(m.type==='note'){drawNoteOn(ec_ctx,m.x,m.y,m.text,vs);}
   });
+  // Watermark — bottom right (free users only)
+  if (isPro) { const a=document.createElement('a'); a.download=`mesuro-${_ts()}.${fmt}`; a.href=ec.toDataURL(mime,quality); a.click(); return; }
+  const wmText = 'Made with Mesuro';
+  const wmFs = Math.max(12, img.width * 0.036);
+  ec_ctx.save();
+  ec_ctx.font = `600 ${wmFs}px -apple-system, sans-serif`;
+  const wmPad = wmFs * 0.7;
+  const wmW = ec_ctx.measureText(wmText).width + wmPad * 2;
+  const wmH = wmFs * 1.6;
+  const wmX = img.width  - wmW - wmFs * 0.5;
+  const wmY = img.height - wmH - wmFs * 0.5;
+  ec_ctx.fillStyle = 'rgba(0,0,0,0.38)';
+  ec_ctx.beginPath();
+  ec_ctx.roundRect(wmX, wmY, wmW, wmH, wmFs * 0.25);
+  ec_ctx.fill();
+  ec_ctx.fillStyle = 'rgba(255,255,255,0.82)';
+  ec_ctx.textAlign = 'left';
+  ec_ctx.textBaseline = 'middle';
+  ec_ctx.fillText(wmText, wmX + wmPad, wmY + wmH / 2);
+  ec_ctx.restore();
   const a=document.createElement('a');
-  a.download=`mesuro-export.${fmt}`;
+  a.download=`mesuro-${_ts()}.${fmt}`;
   a.href=ec.toDataURL(mime,quality); a.click();
-  setTimeout(showKofiModal, 600);
 }
 
 function drawLblOn(ec,x,y,text,col,s){ec.save();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,p=5*s,h=17*s,r=4*s,rx=x-tw/2-p,ry=y-h/2;ec.fillStyle='rgba(0,0,0,.8)';ec.beginPath();ec.moveTo(rx+r,ry);ec.lineTo(rx+tw+p*2-r,ry);ec.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);ec.lineTo(rx+tw+p*2,ry+h-r);ec.arcTo(rx+tw+p*2,ry+h,rx+tw+p*2-r,ry+h,r);ec.lineTo(rx+r,ry+h);ec.arcTo(rx,ry+h,rx,ry+h-r,r);ec.lineTo(rx,ry+r);ec.arcTo(rx,ry,rx+r,ry,r);ec.closePath();ec.fill();ec.fillStyle=col;ec.textAlign='center';ec.textBaseline='middle';ec.fillText(text,x,y);ec.restore();}
-function drawAnnOn(ec,x1,y1,x2,y2,col,label,s){ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(x1,y1);ec.lineTo(x2,y2);ec.stroke();const angle=Math.atan2(y2-y1,x2-x1)+Math.PI/2,tick=6*s;for(const[px,py]of[[x1,y1],[x2,y2]]){ec.beginPath();ec.moveTo(px+Math.cos(angle)*tick,py+Math.sin(angle)*tick);ec.lineTo(px-Math.cos(angle)*tick,py-Math.sin(angle)*tick);ec.stroke();}ec.fillStyle=col;ec.beginPath();ec.arc(x1,y1,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(x2,y2,4*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,(x1+x2)/2,(y1+y2)/2-10*s,label,col,s);ec.restore();}
-function drawDiamOn(ec,cx,cy,r,x1,y1,x2,y2,col,label,s){ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,0,Math.PI*2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(x1,y1);ec.lineTo(x2,y2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(x1,y1,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(x2,y2,4*s,0,Math.PI*2);ec.fill();const cs=5*s;ec.beginPath();ec.moveTo(cx-cs,cy);ec.lineTo(cx+cs,cy);ec.moveTo(cx,cy-cs);ec.lineTo(cx,cy+cs);ec.stroke();if(label)drawLblOn(ec,cx,cy-r-10*s,label,col,s);ec.restore();}
-function drawAngleOn(ec,ax,ay,vx,vy,bx,by,deg,label,s){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(vx,vy);ec.stroke();ec.beginPath();ec.moveTo(vx,vy);ec.lineTo(bx,by);ec.stroke();const a1=Math.atan2(ay-vy,ax-vx),a2=Math.atan2(by-vy,bx-vx),arcR=Math.min(Math.hypot(ax-vx,ay-vy),Math.hypot(bx-vx,by-vy))*0.3;ec.setLineDash([3*s,3*s]);ec.beginPath();ec.arc(vx,vy,arcR,a1,a2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;for(const[px,py]of[[ax,ay],[vx,vy],[bx,by]]){ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();}const midA=a1+(((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))/2;if(label)drawLblOn(ec,vx+Math.cos(midA)*(arcR+20*s),vy+Math.sin(midA)*(arcR+20*s),label,col,s);ec.restore();}
-function drawAreaOn(ec,pts,label,s){const col='#9F77DD';ec.save();ec.fillStyle='rgba(159,119,221,.15)';ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);ec.closePath();ec.fill();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
-function drawPerimOn(ec,pts,label,s,open){const col='#F0994A';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);if(!open)ec.closePath();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const cx=pts.reduce((s,p)=>s+p.x,0)/pts.length,cy=pts.reduce((s,p)=>s+p.y,0)/pts.length;if(label)drawLblOn(ec,cx,cy,label,col,s);ec.restore();}
+function drawAnnOn(ec,x1,y1,x2,y2,col,label,s,lpos){ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(x1,y1);ec.lineTo(x2,y2);ec.stroke();const angle=Math.atan2(y2-y1,x2-x1)+Math.PI/2,tick=6*s;for(const[px,py]of[[x1,y1],[x2,y2]]){ec.beginPath();ec.moveTo(px+Math.cos(angle)*tick,py+Math.sin(angle)*tick);ec.lineTo(px-Math.cos(angle)*tick,py-Math.sin(angle)*tick);ec.stroke();}ec.fillStyle=col;ec.beginPath();ec.arc(x1,y1,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(x2,y2,4*s,0,Math.PI*2);ec.fill();if(label){const lx=lpos?lpos.x:(x1+x2)/2,ly=lpos?lpos.y:(y1+y2)/2-10*s;drawLblOn(ec,lx,ly,label,col,s);}ec.restore();}
+function drawDiamOn(ec,cx,cy,r,x1,y1,x2,y2,col,label,s,lpos){ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,0,Math.PI*2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(x1,y1);ec.lineTo(x2,y2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(x1,y1,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(x2,y2,4*s,0,Math.PI*2);ec.fill();const cs=5*s;ec.beginPath();ec.moveTo(cx-cs,cy);ec.lineTo(cx+cs,cy);ec.moveTo(cx,cy-cs);ec.lineTo(cx,cy+cs);ec.stroke();if(label){const lx=lpos?lpos.x:cx,ly=lpos?lpos.y:cy-r-10*s;drawLblOn(ec,lx,ly,label,col,s);}ec.restore();}
+function drawAngleOn(ec,ax,ay,vx,vy,bx,by,deg,label,s,lpos){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(vx,vy);ec.stroke();ec.beginPath();ec.moveTo(vx,vy);ec.lineTo(bx,by);ec.stroke();const a1=Math.atan2(ay-vy,ax-vx),a2=Math.atan2(by-vy,bx-vx),arcR=Math.min(Math.hypot(ax-vx,ay-vy),Math.hypot(bx-vx,by-vy))*0.3;ec.setLineDash([3*s,3*s]);ec.beginPath();ec.arc(vx,vy,arcR,a1,a2);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;for(const[px,py]of[[ax,ay],[vx,vy],[bx,by]]){ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();}const midA=a1+(((a2-a1)%(2*Math.PI)+2*Math.PI)%(2*Math.PI))/2;if(label){const lx=lpos?lpos.x:vx+Math.cos(midA)*(arcR+20*s),ly=lpos?lpos.y:vy+Math.sin(midA)*(arcR+20*s);drawLblOn(ec,lx,ly,label,col,s);}ec.restore();}
+function drawAreaOn(ec,pts,label,s,cps,lpos){const col='#9F77DD';ec.save();ec.fillStyle='rgba(159,119,221,.15)';ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();if(cps&&cps.length){buildBezPath(ec,pts,cps,true);ec.closePath();}else{ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);ec.closePath();}ec.fill();ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const lx=lpos?lpos.x:pts.reduce((a,p)=>a+p.x,0)/pts.length,ly=lpos?lpos.y:pts.reduce((a,p)=>a+p.y,0)/pts.length;if(label)drawLblOn(ec,lx,ly,label,col,s);ec.restore();}
+function drawPerimOn(ec,pts,label,s,open,cps,lpos){const col='#F0994A';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();if(cps&&cps.length){buildBezPath(ec,pts,cps,!open);if(!open)ec.closePath();}else{ec.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ec.lineTo(pts[i].x,pts[i].y);if(!open)ec.closePath();}ec.stroke();ec.fillStyle=col;pts.forEach(pp=>{ec.beginPath();ec.arc(pp.x,pp.y,4*s,0,Math.PI*2);ec.fill();});const lx=lpos?lpos.x:pts.reduce((a,p)=>a+p.x,0)/pts.length,ly=lpos?lpos.y:pts.reduce((a,p)=>a+p.y,0)/pts.length;if(label)drawLblOn(ec,lx,ly,label,col,s);ec.restore();}
 function drawNoteOn(ec,x,y,text,s){ec.save();ec.fillStyle='#F5E642';ec.beginPath();ec.arc(x,y,5*s,0,Math.PI*2);ec.fill();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,pad=4*s,h=fs*1.4,rx=x+8*s;ec.fillStyle='rgba(30,30,30,.9)';ec.beginPath();ec.roundRect(rx,y-h/2-pad,tw+pad*2,h+pad*2,3*s);ec.fill();ec.fillStyle='#F5E642';ec.textAlign='left';ec.textBaseline='middle';ec.fillText(text,rx+pad,y);ec.restore();}
 
-function drawArcOn(ec,cx,cy,r,a1,sweep,p1,p2,label,s){const col='#5DCAA5';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,a1,a1+sweep,sweep<0);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p1.x,p1.y);ec.stroke();ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p2.x,p2.y);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(cx,cy,5*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p1.x,p1.y,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p2.x,p2.y,4*s,0,Math.PI*2);ec.fill();if(label){const amid=a1+sweep/2;drawLblOn(ec,cx+Math.cos(amid)*(r+14*s),cy+Math.sin(amid)*(r+14*s),label,col,s);}ec.restore();}
-function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s,deg=360){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);const acente=Math.atan2(my4-iy,mx4-ix);const bndse=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);const acenteN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);let arcSte=bndse[0],arcSpane=bndse[1]-bndse[0];for(let i=0;i<4;i++){const st=bndse[i];if(i<3){if(acenteN>=st&&acenteN<bndse[i+1]){arcSte=st;arcSpane=bndse[i+1]-st;break;}}else{if(acenteN>=st||acenteN<bndse[0]){arcSte=st;arcSpane=bndse[0]+2*Math.PI-st;break;}}}if(arcSpane>Math.PI/2){arcSte=(arcSte+arcSpane)%(2*Math.PI);arcSpane=Math.PI-arcSpane;}if(arcSpane*180/Math.PI>=10&&deg>=10){ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+arcSpane,false);ec.stroke();}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(ax+bx+cx2+dx)/4,(ay+by+cy2+dy)/4-20*s,label,col,s);ec.restore();}
-function drawPtLineOn(ec,lx1,ly1,lx2,ly2,px,py,fx,fy,label,s){const col='#EF9F27';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(lx1,ly1);ec.lineTo(lx2,ly2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(px,py);ec.lineTo(fx,fy);ec.stroke();ec.setLineDash([]);const ddx=lx2-lx1,ddy=ly2-ly1,len=Math.hypot(ddx,ddy);if(len>0){const nx=ddx/len,ny=ddy/len,sq=6*s;ec.beginPath();ec.moveTo(fx+nx*sq,fy+ny*sq);ec.lineTo(fx+nx*sq-(py-fy)/len*sq,fy+ny*sq+(px-fx)/len*sq);ec.lineTo(fx-(py-fy)/len*sq,fy+(px-fx)/len*sq);ec.stroke();}ec.fillStyle=col;[[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ec.beginPath();ec.arc(x,y,4*s,0,Math.PI*2);ec.fill();});if(label)drawLblOn(ec,(px+fx)/2,(py+fy)/2-18*s,label,col,s);ec.restore();}
+function drawArcOn(ec,cx,cy,r,a1,sweep,p1,p2,label,s,lpos){const col='#5DCAA5';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.arc(cx,cy,r,a1,a1+sweep,sweep<0);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p1.x,p1.y);ec.stroke();ec.beginPath();ec.moveTo(cx,cy);ec.lineTo(p2.x,p2.y);ec.stroke();ec.setLineDash([]);ec.fillStyle=col;ec.beginPath();ec.arc(cx,cy,5*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p1.x,p1.y,4*s,0,Math.PI*2);ec.fill();ec.beginPath();ec.arc(p2.x,p2.y,4*s,0,Math.PI*2);ec.fill();if(label){const amid=a1+sweep/2;const lx=lpos?lpos.x:cx+Math.cos(amid)*(r+14*s),ly=lpos?lpos.y:cy+Math.sin(amid)*(r+14*s);drawLblOn(ec,lx,ly,label,col,s);}ec.restore();}
+function drawAngle4On(ec,ax,ay,bx,by,cx2,cy2,dx,dy,label,s,deg=360,lpos=null){const col='#D4537E';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(bx,by);ec.stroke();ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(dx,dy);ec.stroke();const d1x=bx-ax,d1y=by-ay,d2x=dx-cx2,d2y=dy-cy2,denom=d1x*d2y-d1y*d2x;if(Math.abs(denom)>0.001){const t=((cx2-ax)*d2y-(cy2-ay)*d2x)/denom,sv=((cx2-ax)*d1y-(cy2-ay)*d1x)/denom,ix=ax+t*d1x,iy=ay+t*d1y;const mx4=(ax+bx+cx2+dx)/4,my4=(ay+by+cy2+dy)/4;if(Math.hypot(ix-mx4,iy-my4)<=500*s){ec.save();ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.35;if(t<0){ec.beginPath();ec.moveTo(ax,ay);ec.lineTo(ix,iy);ec.stroke();}else if(t>1){ec.beginPath();ec.moveTo(bx,by);ec.lineTo(ix,iy);ec.stroke();}if(sv<0){ec.beginPath();ec.moveTo(cx2,cy2);ec.lineTo(ix,iy);ec.stroke();}else if(sv>1){ec.beginPath();ec.moveTo(dx,dy);ec.lineTo(ix,iy);ec.stroke();}ec.restore();const a1e=Math.atan2(d1y,d1x),a2e=Math.atan2(d2y,d2x);const acente=Math.atan2(my4-iy,mx4-ix);const bndse=[a1e,a2e,a1e+Math.PI,a2e+Math.PI].map(a=>((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI)).sort((a,b)=>a-b);const acenteN=((acente%(2*Math.PI))+2*Math.PI)%(2*Math.PI);let arcSte=bndse[0],arcSpane=bndse[1]-bndse[0];for(let i=0;i<4;i++){const st=bndse[i];if(i<3){if(acenteN>=st&&acenteN<bndse[i+1]){arcSte=st;arcSpane=bndse[i+1]-st;break;}}else{if(acenteN>=st||acenteN<bndse[0]){arcSte=st;arcSpane=bndse[0]+2*Math.PI-st;break;}}}if(arcSpane>Math.PI/2){arcSte=(arcSte+arcSpane)%(2*Math.PI);arcSpane=Math.PI-arcSpane;}if(arcSpane*180/Math.PI>=10&&deg>=10){ec.setLineDash([3*s,3*s]);ec.globalAlpha=0.5;ec.beginPath();ec.arc(ix,iy,40*s,arcSte,arcSte+arcSpane,false);ec.stroke();}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;ec.beginPath();ec.arc(ix,iy,3*s,0,Math.PI*2);ec.fill();}}ec.setLineDash([]);ec.globalAlpha=1;ec.fillStyle=col;[[ax,ay],[bx,by],[cx2,cy2],[dx,dy]].forEach(([px,py])=>{ec.beginPath();ec.arc(px,py,4*s,0,Math.PI*2);ec.fill();});if(label){const lx=lpos?lpos.x:(ax+bx+cx2+dx)/4,ly=lpos?lpos.y:(ay+by+cy2+dy)/4-20*s;drawLblOn(ec,lx,ly,label,col,s);}ec.restore();}
+function drawPtLineOn(ec,lx1,ly1,lx2,ly2,px,py,fx,fy,label,s,lpos){const col='#EF9F27';ec.save();ec.strokeStyle=col;ec.lineWidth=2*s;ec.beginPath();ec.moveTo(lx1,ly1);ec.lineTo(lx2,ly2);ec.stroke();ec.setLineDash([4*s,3*s]);ec.beginPath();ec.moveTo(px,py);ec.lineTo(fx,fy);ec.stroke();ec.setLineDash([]);const ddx=lx2-lx1,ddy=ly2-ly1,len=Math.hypot(ddx,ddy);if(len>0){const nx=ddx/len,ny=ddy/len,sq=6*s;ec.beginPath();ec.moveTo(fx+nx*sq,fy+ny*sq);ec.lineTo(fx+nx*sq-(py-fy)/len*sq,fy+ny*sq+(px-fx)/len*sq);ec.lineTo(fx-(py-fy)/len*sq,fy+(px-fx)/len*sq);ec.stroke();}ec.fillStyle=col;[[lx1,ly1],[lx2,ly2],[px,py],[fx,fy]].forEach(([x,y])=>{ec.beginPath();ec.arc(x,y,4*s,0,Math.PI*2);ec.fill();});if(label){const llx=lpos?lpos.x:(px+fx)/2,lly=lpos?lpos.y:(py+fy)/2-18*s;drawLblOn(ec,llx,lly,label,col,s);}ec.restore();}
 function drawPtCoordOn(ec,px,py,ox,oy,label,s){const col='#5DCAA5';ec.save();if(ox!==undefined&&oy!==undefined){const al=24*s;ec.lineWidth=1.5*s;ec.strokeStyle='#EF9F27';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox+al,oy);ec.stroke();ec.strokeStyle='#9F77DD';ec.beginPath();ec.moveTo(ox,oy);ec.lineTo(ox,oy-al);ec.stroke();drawLblOn(ec,ox+al+4*s,oy,'X','#EF9F27',s);drawLblOn(ec,ox,oy-al-4*s,'Y','#9F77DD',s);ec.fillStyle='#fff';ec.beginPath();ec.arc(ox,oy,3*s,0,Math.PI*2);ec.fill();}ec.strokeStyle=col;ec.lineWidth=1.5*s;const sq=8*s;ec.beginPath();ec.moveTo(px-sq,py);ec.lineTo(px+sq,py);ec.stroke();ec.beginPath();ec.moveTo(px,py-sq);ec.lineTo(px,py+sq);ec.stroke();ec.fillStyle=col;ec.beginPath();ec.arc(px,py,3*s,0,Math.PI*2);ec.fill();if(label)drawLblOn(ec,px+10*s,py-10*s,label,col,s);ec.restore();}
 
 /* ── rotate image ── */
@@ -4465,8 +4906,7 @@ function confirmNote() {
   const txt = document.getElementById('noteText').value.trim();
   document.getElementById('noteModal').style.display='none';
   if (!txt || !notePending) { notePending=null; stopTool(); return; }
-  pushHistory();
-  meas.push({type:'note', x:notePending.x, y:notePending.y, text:txt});
+  addMeasurement({type:'note', x:notePending.x, y:notePending.y, text:txt});
   notePending=null; stopTool(); draw(); updUI();
 }
 
@@ -4490,6 +4930,7 @@ async function loadPDF(file) {
 }
 
 function openPdfModal() {
+  const isFree = !isPro;
   document.getElementById('pdfPageTotal').textContent = pdfDoc.numPages;
   document.getElementById('pdfPageNum').textContent = pdfCurrentPage;
   document.getElementById('pdfAllCount').textContent = pdfDoc.numPages;
@@ -4497,8 +4938,12 @@ function openPdfModal() {
   document.getElementById('pdfSelNum').textContent = pdfCurrentPage;
   document.getElementById('pdfSelectCurrent').checked = true;
   document.getElementById('pdfSelectAll').checked = false;
+  document.getElementById('pdfSelectAll').disabled = isFree;
   document.getElementById('pdfRangeRow').style.display = 'none';
   document.getElementById('pdfRangeInput').value = '';
+  document.getElementById('pdfRangeBtn').style.display = isFree ? 'none' : '';
+  document.getElementById('pdfMultiOptions').style.display = isFree ? 'none' : '';
+  document.getElementById('pdfProNotice').style.display = isFree ? 'block' : 'none';
   pdfSelectedPages = new Set([pdfCurrentPage]);
   pdfUpdateSelSummary();
   document.getElementById('pdfModal').style.display = 'flex';
@@ -4611,7 +5056,11 @@ async function renderPDFThumb(pageNum) {
 
 async function pdfLoadSelected() {
   document.getElementById('pdfModal').style.display = 'none';
-  const pagesToLoad = [...pdfSelectedPages].sort((a, b) => a - b);
+  let pagesToLoad = [...pdfSelectedPages].sort((a, b) => a - b);
+  if (!isPro && pagesToLoad.length > 1) {
+    showGateSheet('multi_image');
+    pagesToLoad = [pagesToLoad[0]];
+  }
   for (let i = 0; i < pagesToLoad.length; i++) {
     await renderPDFPage(pagesToLoad[i], i === pagesToLoad.length - 1);
   }
@@ -4654,6 +5103,8 @@ async function renderPDFPage(pageNum, switchTo) {
       generateThumb(ps);
       addPage(ps, switchTo);
       t('load_pdf', { page: pageNum, scale: Math.round(SCALE*10)/10, dpi: Math.round(SCALE*72) });
+      const _mts2 = document.getElementById('mobileToolsScroll');
+      if (_mts2 && switchTo) _mts2.scrollLeft = 0;
       setTimeout(() => {
         const bs = document.getElementById('btnScale');
         if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
@@ -4745,11 +5196,21 @@ function activatePage(idx) {
   if (dzEl) { dzEl.style.display = 'none'; dzEl.style.pointerEvents = 'none'; }
   const ad = document.getElementById('adUnit');
   if (ad) ad.style.display = 'none';
-  fitImg(); updStraightenUI(); updUI();
+  updUI(); fitImg(); updStraightenUI();
+  requestAnimationFrame(() => { fitImg(); draw(); });
 }
 
 function addPage(ps, switchTo) {
   if (switchTo === undefined) switchTo = true;
+  // Free users: loading a new image replaces the current one
+  if (!isPro && pages.length >= 1) {
+    const targetIdx = currentPageIdx;
+    currentPageIdx = -1; // prevent saveCurrentPageState() inside activatePage from overwriting ps
+    pages[targetIdx] = ps;
+    if (switchTo) activatePage(targetIdx);
+    else { currentPageIdx = targetIdx; updFilmstrip(); }
+    return;
+  }
   pages.push(ps);
   if (switchTo) {
     activatePage(pages.length - 1);
@@ -4770,11 +5231,12 @@ function removePage(idx) {
     mode = 'idle'; p0 = null; p1 = null; zoom = 1; panX = 0; panY = 0;
     const dzEl = document.getElementById('dz');
     if (dzEl) { dzEl.style.display = ''; dzEl.style.pointerEvents = ''; }
-    draw(); updUI();
+    draw(); updUI(); updFilmstrip();
   } else {
     const newIdx = Math.min(idx, pages.length - 1);
     currentPageIdx = -1;
     activatePage(newIdx);
+    updFilmstrip();
   }
 }
 
@@ -4796,7 +5258,7 @@ function generateThumb(ps) {
 function updFilmstrip() {
   const fs = document.getElementById('filmstrip');
   if (!fs) return;
-  if (pages.length <= 1) { fs.style.display = 'none'; ca.classList.remove('has-fs'); return; }
+  if (pages.length === 0) { fs.style.display = 'none'; ca.classList.remove('has-fs'); return; }
   fs.style.display = 'flex';
   ca.classList.add('has-fs');
   fs.innerHTML = '';
@@ -4818,11 +5280,72 @@ function updFilmstrip() {
     el.onclick = () => { if (i !== currentPageIdx) activatePage(i); };
     fs.appendChild(el);
   });
-  const addLbl = document.createElement('label');
-  addLbl.className = 'fs-add'; addLbl.title = 'Add image or PDF';
-  addLbl.textContent = '+'; addLbl.htmlFor = 'fileInput';
-  fs.appendChild(addLbl);
+  if (isPro) {
+    // Pro: native file picker label
+    const addLbl = document.createElement('label');
+    addLbl.className = 'fs-add'; addLbl.title = 'Add image or PDF';
+    addLbl.textContent = '+'; addLbl.htmlFor = 'fileInput';
+    fs.appendChild(addLbl);
+  } else {
+    // Free: button that shows replace/upsell sheet
+    const addBtn = document.createElement('button');
+    addBtn.className = 'fs-add fs-add-free';
+    addBtn.title = 'Load a new image';
+    addBtn.innerHTML = '+<span class="fs-pro-pill">PRO</span>';
+    addBtn.onclick = () => { showGateSheet('multi_image'); };
+    fs.appendChild(addBtn);
+  }
   const activeEl = fs.querySelector('.fs-active');
+  if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+  updMobileFilmstrip();
+}
+
+function mfsDeletePage(idx) {
+  removePage(idx);
+}
+
+function updMobileFilmstrip() {
+  if (!isMob()) return;
+  const mfs = document.getElementById('mobileFilmstrip');
+  if (!mfs) return;
+  if (pages.length === 0) { mfs.classList.remove('has-pages'); mfs.innerHTML = ''; return; }
+  mfs.classList.add('has-pages');
+  mfs.innerHTML = '';
+  pages.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'mfs-thumb' + (i === currentPageIdx ? ' mfs-active' : '');
+    el.title = p.label;
+    const tImg = document.createElement('img');
+    tImg.src = p.thumb || ''; tImg.alt = p.label;
+    el.appendChild(tImg);
+    const lbl = document.createElement('div');
+    lbl.className = 'mfs-label';
+    lbl.textContent = p.label;
+    el.appendChild(lbl);
+    const del = document.createElement('button');
+    del.className = 'mfs-del'; del.textContent = '×'; del.title = 'Remove';
+    del.onclick = ev => { ev.stopPropagation(); mfsDeletePage(i); };
+    el.appendChild(del);
+    el.onclick = () => { if (i !== currentPageIdx) activatePage(i); };
+    mfs.appendChild(el);
+  });
+  // Add button: Pro → file picker, Free → gate
+  if (isPro) {
+    const addLbl = document.createElement('label');
+    addLbl.className = 'mfs-add';
+    addLbl.title = 'Add image';
+    addLbl.textContent = '+';
+    addLbl.htmlFor = 'mFileInput';
+    mfs.appendChild(addLbl);
+  } else {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'mfs-add mfs-add-free';
+    addBtn.title = 'Multi-image requires Pro';
+    addBtn.innerHTML = '+<span style="font-size:7px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 3px;line-height:1.4;display:block;">PRO</span>';
+    addBtn.onclick = () => showGateSheet('multi_image');
+    mfs.appendChild(addBtn);
+  }
+  const activeEl = mfs.querySelector('.mfs-active');
   if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
 }
 
@@ -4837,22 +5360,20 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   ec.width = pgImg.width; ec.height = pgImg.height;
   const ec_ctx = ec.getContext('2d');
   ec_ctx.drawImage(pgImg, 0, 0);
-  // Scale annotations so they appear at a fixed readable size in the PDF output.
-  // pdfRatio = di_w / pgImg.width (how much the image is scaled down to fit the PDF page).
-  // sx = 1/pdfRatio ensures labels are ~11pt regardless of source image resolution.
-  const sx = pdfRatio ? Math.max(1, 1/pdfRatio) : Math.max(1, Math.min(pgImg.width, pgImg.height) / 1000);
-  function spt(x,y){return[x,y];}
-  if (pgScLine){const[x1,y1]=spt(pgScLine.x1,pgScLine.y1),[x2,y2]=spt(pgScLine.x2,pgScLine.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#1D9E75','scale',sx);}
+  // Visual scale: same rule as exportImg — match fit-to-frame canvas zoom
+  const fitZoomPdf = Math.min(cp.clientWidth / pgImg.width, cp.clientHeight / pgImg.height, 1);
+  const sx = 1 / fitZoomPdf;
+  if (pgScLine){drawAnnOn(ec_ctx,pgScLine.x1,pgScLine.y1,pgScLine.x2,pgScLine.y2,'#1D9E75','scale',sx);}
   pgMeas.forEach((m,i)=>{
-    if(m.type==='line'){const r=pgSc?m.px*pgSc:null;const[x1,y1]=spt(m.x1,m.y1),[x2,y2]=spt(m.x2,m.y2);drawAnnOn(ec_ctx,x1,y1,x2,y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${pgUnit}`:`#${i+1}  ${Math.round(m.px)}px`,sx);}
-    else if(m.type==='diam'){const r=pgSc?m.r*2*pgSc:null;const[cx,cy]=spt(m.cx,m.cy),ra=m.r,[x1,y1]=spt(m.x1,m.y1),[x2,y2]=spt(m.x2,m.y2);drawDiamOn(ec_ctx,cx,cy,ra,x1,y1,x2,y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,sx);}
-    else if(m.type==='angle'){const[ax,ay]=spt(m.ax,m.ay),[vx,vy]=spt(m.vx,m.vy),[bx,by]=spt(m.bx,m.by);drawAngleOn(ec_ctx,ax,ay,vx,vy,bx,by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,sx);}
-    else if(m.type==='area'){const r=pgSc?m.areaPx*pgSc*pgSc:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${pgUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx);}
-    else if(m.type==='perim'){const r=pgSc?m.perimPx*pgSc:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open);}
+    if(m.type==='line'){const r=pgSc?m.px*pgSc:null;drawAnnOn(ec_ctx,m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${pgUnit}`:`#${i+1}  ${Math.round(m.px)}px`,sx,m.lpos||null);}
+    else if(m.type==='diam'){const r=pgSc?m.r*2*pgSc:null;drawDiamOn(ec_ctx,m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,sx,m.lpos||null);}
+    else if(m.type==='angle'){drawAngleOn(ec_ctx,m.ax,m.ay,m.vx,m.vy,m.bx,m.by,m.deg,`∠${i+1}  ${m.deg.toFixed(1)}°`,sx,m.lpos||null);}
+    else if(m.type==='area'){const r=pgSc?m.areaPx*pgSc*pgSc:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawAreaOn(ec_ctx,spts,r!==null?`⬡${i+1}  ${r.toFixed(2)} ${pgUnit}²`:`⬡${i+1}  ${Math.round(m.areaPx)}px²`,sx,m.cps||null,m.lpos||null);}
+    else if(m.type==='perim'){const r=pgSc?m.perimPx*pgSc:null;const spts=m.pts.map(p=>({x:p.x,y:p.y}));drawPerimOn(ec_ctx,spts,r!==null?`⬠${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⬠${i+1}  ${Math.round(m.perimPx)}px`,sx,m.open,m.cps||null,m.lpos||null);}
     else if(m.type==='note'){drawNoteOn(ec_ctx,m.x,m.y,m.text,sx);}
-    else if(m.type==='arc'){const r=pgSc?m.arcLen*pgSc:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx,m.cy,m.r,m.a1,m.sweep,{x:m.p1.x,y:m.p1.y},{x:m.p2.x,y:m.p2.y},lbl,sx);}
-    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx,m.deg);}
-    else if(m.type==='ptline'){const r=pgSc?m.distPx*pgSc:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1,m.ly1,m.lx2,m.ly2,m.px,m.py,m.fx,m.fy,lbl,sx);}
+    else if(m.type==='arc'){const r=pgSc?m.arcLen*pgSc:null;const lbl=r!==null?`⌒${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌒${i+1}  ${Math.round(m.arcLen)}px`;drawArcOn(ec_ctx,m.cx,m.cy,m.r,m.a1,m.sweep,{x:m.p1.x,y:m.p1.y},{x:m.p2.x,y:m.p2.y},lbl,sx,m.lpos||null);}
+    else if(m.type==='angle4'){drawAngle4On(ec_ctx,m.ax,m.ay,m.bx,m.by,m.cx,m.cy,m.dx,m.dy,`∡${i+1}  ${m.deg.toFixed(1)}°`,sx,m.deg,m.lpos||null);}
+    else if(m.type==='ptline'){const r=pgSc?m.distPx*pgSc:null;const lbl=r!==null?`⊥${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⊥${i+1}  ${Math.round(m.distPx)}px`;drawPtLineOn(ec_ctx,m.lx1,m.ly1,m.lx2,m.ly2,m.px,m.py,m.fx,m.fy,lbl,sx,m.lpos||null);}
     else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px,m.py,m.ox,m.oy,`${i+1}`,sx);}
   });
   return ec.toDataURL('image/jpeg', 0.92);
@@ -4877,9 +5398,46 @@ function buildPdfTableRows(pgMeas, pgSc, pgUnit) {
 
 function exportPDF() {
   if (!img) return;
+  if (!isPro) { showGateSheet('pdf_export'); return; }
+  // Show title prompt modal
+  const now = new Date();
+  const defaultTitle = 'Mesuro Report — ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const titleInput = document.getElementById('pdfTitleInput');
+  const noteInput = document.getElementById('pdfNoteInput');
+  const noteArea = document.getElementById('pdfNoteArea');
+  const noteBtn = document.getElementById('pdfNoteToggleBtn');
+  if (titleInput) titleInput.value = defaultTitle;
+  if (noteInput) noteInput.value = '';
+  if (noteArea) noteArea.style.display = 'none';
+  if (noteBtn) noteBtn.textContent = '+ Add a note';
+  const modal = document.getElementById('pdfTitleModal');
+  if (modal) { modal.style.display = 'flex'; setTimeout(() => titleInput && titleInput.select(), 50); }
+}
+
+function closePdfTitleModal() {
+  const modal = document.getElementById('pdfTitleModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function togglePdfNote() {
+  const area = document.getElementById('pdfNoteArea');
+  const btn = document.getElementById('pdfNoteToggleBtn');
+  const visible = area.style.display !== 'none';
+  area.style.display = visible ? 'none' : 'block';
+  btn.textContent = visible ? '+ Add a note' : '− Remove note';
+  if (!visible) document.getElementById('pdfNoteInput').focus();
+}
+
+function confirmPdfExport() {
+  const title = (document.getElementById('pdfTitleInput').value || '').trim() || 'Mesuro Report';
+  const note = (document.getElementById('pdfNoteInput').value || '').trim();
+  closePdfTitleModal();
   saveCurrentPageState();
   t('export_pdf');
+  _doExportPDF(title, note);
+}
 
+function _doExportPDF(docTitle, docNote) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const pw = doc.internal.pageSize.getWidth();
@@ -4897,17 +5455,23 @@ function exportPDF() {
 
     if (pi > 0) doc.addPage();
 
-    // title (first page) or section header (subsequent pages)
+    // title (first page)
     if (pi === 0) {
       doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(30,30,30);
-      doc.text(L('exp_report'), mg, mg);
+      doc.text(docTitle, mg, mg);
+      let subtitleY = mg + 16;
+      if (docNote) {
+        doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(80,80,80);
+        doc.text(docNote, mg, subtitleY);
+        subtitleY += 13;
+      }
       doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100);
-      doc.text(now, mg, mg+16);
-      doc.setDrawColor(200,200,200); doc.setLineWidth(0.5); doc.line(mg, mg+22, pw-mg, mg+22);
+      doc.text(now, mg, subtitleY);
+      doc.setDrawColor(200,200,200); doc.setLineWidth(0.5); doc.line(mg, subtitleY + 6, pw-mg, subtitleY + 6);
     }
 
     // page label & scale
-    const headerY = pi === 0 ? mg + 32 : mg;
+    const headerY = pi === 0 ? mg + (docNote ? 46 : 33) : mg;
     if (pages.length > 1) {
       doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(50,50,50);
       doc.text(`${pi+1}. ${pg.label || ''}`, mg, headerY);
@@ -4948,11 +5512,13 @@ function exportPDF() {
     doc.text(L('exp_footer'), mg, ph - mg + 10);
   });
 
-  doc.save('mesuro-report.pdf');
-  setTimeout(showKofiModal, 600);
+  // Use title as filename (sanitised)
+  const safeName = docTitle.replace(/[^a-z0-9\-_\s]/gi, '').trim().replace(/\s+/g, '-').toLowerCase() || 'mesuro-report';
+  doc.save(`${safeName}.pdf`);
 }
 
 function exportCSV() {
+  if (!isPro) { showGateSheet('csv_export'); return; }
   saveCurrentPageState();
   if (!pages.some(p => p.meas.length)) { if (!meas.length) return; }
   t('export_csv');
@@ -5012,16 +5578,16 @@ function exportCSV() {
   if (rows.length <= 1) return;
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a'); a.download='mesuro-measurements.csv'; a.href=URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
+  const a=document.createElement('a'); a.download=`mesuro-${_ts()}.csv`; a.href=URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
 }
 
 updUI();
 // init language
 setLang(currentLang);
-setTimeout(() => {
-  const p = document.getElementById('kofiPopup');
-  if (p) { p.style.display='block'; requestAnimationFrame(() => { p.style.opacity='1'; p.style.pointerEvents='all'; }); }
-}, 400);
+// Welcome back toast for returning Pro users
+if (isPro && localStorage.getItem('mesuro_license_key')) {
+  setTimeout(() => showToast('✦ Mesuro Pro active', 2500), 1200);
+}
 // pulse load button on page open when no image is loaded
 setTimeout(() => {
   if (!img) {
@@ -5033,21 +5599,14 @@ setTimeout(() => {
 /* ── MOBILE ── */
 const isMob = () => window.innerWidth <= 767;
 
-function openImgFmtPicker() {
-  const p = document.getElementById('mImgFmtPicker');
-  if (p) { p.style.display='flex'; document.body.style.overflow='hidden'; }
-}
-function closeImgFmtPicker() {
-  const p = document.getElementById('mImgFmtPicker');
-  if (p) { p.style.display='none'; document.body.style.overflow=''; }
-}
+
 
 // show/hide mobile elements
 function applyMobileLayout() {
   const mob = isMob();
   const bar = document.getElementById('mobileBar');
   const ms  = document.getElementById('mobileMeasSection');
-  if (bar) bar.style.display = mob ? 'flex' : 'none';
+  if (bar) bar.style.display = mob ? 'flex'  : 'none';
   if (ms)  ms.style.display  = mob ? 'block' : 'none';
 }
 applyMobileLayout();
@@ -5061,16 +5620,20 @@ applyMobileLayout();
   // initial check after layout
   requestAnimationFrame(upd);
 })();
-window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg(); else { const fsH = getFsH(); const ch = ca.clientHeight - fsH; cv.width = ca.clientWidth; cv.height = ch; cv.style.width = ca.clientWidth+'px'; cv.style.height = ch+'px'; } });
+window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg(); else { const cw = cp.clientWidth; const ch = cp.clientHeight; cv.width = cw; cv.height = ch; cv.style.width = cw+'px'; cv.style.height = ch+'px'; } });
 
 // file inputs
 document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
-  t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'picker_mobile'});
-  files.forEach(f => {
+  if (isPro) {
+    t('load_multi', {count: files.length, source: 'picker_mobile'});
+    files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f); });
+  } else {
+    const f = files[0];
+    t('load_single', {count: 1, source: 'picker_mobile'});
     if (isPDF(f)) loadPDF(f);
     else if (f.type.startsWith('image/')) loadImg(f);
-  });
+  }
   e.target.value='';
 };
 
@@ -5199,6 +5762,7 @@ function updMobile() {
     }
   }
 
+
   // export buttons
   ['mExpImg','mExpPdf','mExpCsv','mExpSave'].forEach(id => {
     const b = document.getElementById(id); if(b) b.disabled=!hasImg;
@@ -5224,8 +5788,25 @@ function updMobile() {
       else if(m.type==='ll') v=scFactor?`${(m.distPx*scFactor).toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)}px`;
       else if(m.type==='ptcoord') { const u=m.unit||'px'; v=`X: ${m.cx.toFixed(2)}  Y: ${m.cy.toFixed(2)} ${u}`; }
       else if(m.type==='note') v=m.text;
-      const row=document.createElement('div'); row.className='m-res-row';
-      row.innerHTML=`<div class="m-res-icon" style="color:${col}">${iconMap[m.type]||'?'}</div><div class="m-res-num" style="font-size:9px;color:#444;flex-shrink:0;width:20px">#${i+1}</div><div class="m-res-val" style="color:${col}">${v}</div>`;
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid #222;';
+      const iconEl=document.createElement('div');
+      iconEl.style.cssText=`font-size:12px;width:18px;flex-shrink:0;color:${col};`;
+      iconEl.textContent=iconMap[m.type]||'?';
+      const numEl=document.createElement('div');
+      numEl.style.cssText='font-size:9px;color:#666;flex-shrink:0;width:20px;';
+      numEl.textContent=`#${i+1}`;
+      const valEl=document.createElement('div');
+      valEl.style.cssText=`color:${col};font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;`;
+      valEl.textContent=v;
+      const delBtn=document.createElement('button');
+      delBtn.textContent='×'; delBtn.title='Delete';
+      delBtn.style.cssText='flex-shrink:0;flex-grow:0;width:24px;background:none;border:none;color:#555;font-size:14px;line-height:1;cursor:pointer;padding:0;font-family:inherit;text-align:center;';
+      delBtn.onclick=()=>delM(i);
+      row.appendChild(delBtn);
+      row.appendChild(iconEl);
+      row.appendChild(numEl);
+      row.appendChild(valEl);
       ml.appendChild(row);
     });
   }
@@ -5350,7 +5931,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       const t0=e.touches[0], t1=e.touches[1];
       const dist = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
       const scale = dist / pinchDist0;
-      const fitZoom = Math.min(ca.clientWidth/img.width, (ca.clientHeight-getFsH())/img.height, 1);
+      const fitZoom = Math.min(cp.clientWidth/img.width, cp.clientHeight/img.height, 1);
       const nz = Math.max(fitZoom, Math.min(20, pinchZoom0 * scale));
       const rc = cv.getBoundingClientRect();
       const cmx = (t0.clientX+t1.clientX)/2 - rc.left;
@@ -5397,7 +5978,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     else if (mode==='ma') { p0=p; mode='mb'; mp=null; setHint(L('mh_dist_b')); draw(); }
     else if (mode==='mb') {
       if (dst(p0,p)<3/zoom) return;
-      pushHistory(); meas.push({type:'line',x1:p0.x,y1:p0.y,x2:p.x,y2:p.y,px:dst(p0,p)});
+      if (!addMeasurement({type:'line',x1:p0.x,y1:p0.y,x2:p.x,y2:p.y,px:dst(p0,p)})) return;
       p0=null; mp=null; stopTool(); draw(); updUI();
     }
     // Distance: center-to-edge
@@ -5405,7 +5986,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     else if (mode==='ce2') {
       if (dst(p0,p)<3/zoom) return;
       const d=dst(p0,p), sym={x:p0.x-(p.x-p0.x),y:p0.y-(p.y-p0.y)};
-      pushHistory(); meas.push({type:'line',x1:p.x,y1:p.y,x2:sym.x,y2:sym.y,px:d*2,subtype:'ce',cx:p0.x,cy:p0.y});
+      if (!addMeasurement({type:'line',x1:p.x,y1:p.y,x2:sym.x,y2:sym.y,px:d*2,subtype:'ce',cx:p0.x,cy:p0.y})) return;
       p0=null; mp=null; stopTool(); draw(); updUI();
     }
     // Distance: point-to-line
@@ -5420,15 +6001,15 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       const distPx=Math.abs(dy2*p.x-dx2*p.y+p1.x*p0.y-p1.y*p0.x)/len;
       const t2=((p.x-p0.x)*dx2+(p.y-p0.y)*dy2)/(len*len);
       const foot={x:p0.x+t2*dx2,y:p0.y+t2*dy2};
-      pushHistory(); meas.push({type:'ptline',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,px:p.x,py:p.y,fx:foot.x,fy:foot.y,distPx});
+      if (!addMeasurement({type:'ptline',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,px:p.x,py:p.y,fx:foot.x,fy:foot.y,distPx})) return;
       p0=null; p1=null; mp=null; stopTool(); draw(); updUI();
     }
     // Diameter: center+radius
     else if (mode==='da') { p0=p; mode='db'; mp=null; setHint(L('mh_diam_b')); draw(); }
     else if (mode==='db') {
       if (dst(p0,p)<3/zoom) return;
-      pushHistory(); const r=dst(p0,p);
-      meas.push({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2:p0.x-(p.x-p0.x),y2:p0.y-(p.y-p0.y)});
+      const r=dst(p0,p);
+      if (!addMeasurement({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2:p0.x-(p.x-p0.x),y2:p0.y-(p.y-p0.y)})) return;
       p0=null; mp=null; stopTool(); draw(); updUI();
     }
     // Diameter: 3 points
@@ -5438,8 +6019,8 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       if (!p0||!p1) return;
       const circ=circumscribedCircle(p0,p1,p);
       if (!circ) { setHint('Points collinear — try again'); return; }
-      pushHistory(); const{cx,cy,r}=circ;
-      meas.push({type:'diam',cx,cy,r,x1:cx+r,y1:cy,x2:cx-r,y2:cy,subtype:'3p',pa:p0,pb:p1,pc:p});
+      const{cx,cy,r}=circ;
+      if (!addMeasurement({type:'diam',cx,cy,r,x1:cx+r,y1:cy,x2:cx-r,y2:cy,subtype:'3p',pa:p0,pb:p1,pc:p})) return;
       p0=null; p1=null; mp=null; stopTool(); draw(); updUI();
     }
     // Angle: 3 points
@@ -5447,7 +6028,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     else if (mode==='ab') { if(dst(p0,p)<3/zoom)return; p1=p; mode='ac'; mp=null; setHint(L('mh_angle_c')); draw(); }
     else if (mode==='ac') {
       if (dst(p1,p)<3/zoom) return;
-      pushHistory(); meas.push({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)});
+      if (!addMeasurement({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)})) return;
       p0=null; p1=null; mp=null; stopTool(); draw(); updUI();
     }
     // Angle: 4 points (protractor)
@@ -5459,7 +6040,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       const dAx=p1.x-p0.x,dAy=p1.y-p0.y,dBx=p.x-p2.x,dBy=p.y-p2.y;
       let ang=Math.abs(Math.atan2(dAx*dBy-dAy*dBx,dAx*dBx+dAy*dBy)*180/Math.PI);
       if(ang>90)ang=180-ang;
-      pushHistory(); meas.push({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang});
+      if (!addMeasurement({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang})) return;
       p0=null; p1=null; window._p4p2=null; mp=null; stopTool(); draw(); updUI();
     }
     // Area
@@ -5486,8 +6067,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
         setPtCoordMode('point');
       } else {
         const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:0, oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:0;
-        pushHistory();
-        meas.push({type:'ptcoord',px:p.x,py:p.y,ox,oy,cx:(p.x-ox)*(scFactor||1),cy:-(p.y-oy)*(scFactor||1),unit:scFactor?scUnit:'px'});
+        if (!addMeasurement({type:'ptcoord',px:p.x,py:p.y,ox,oy,cx:(p.x-ox)*(scFactor||1),cy:-(p.y-oy)*(scFactor||1),unit:scFactor?scUnit:'px'})) return;
         draw(); updUI();
       }
     }
@@ -5540,6 +6120,12 @@ async function submitFeedback(e) {
 document.getElementById('feedbackModal').addEventListener('click', e => {
   if (e.target === document.getElementById('feedbackModal')) closeFeedback();
 });
+document.getElementById('mobileGateModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('mobileGateModal')) hideMobileGate('dismiss');
+});
+document.getElementById('pdfTitleModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('pdfTitleModal')) closePdfTitleModal();
+});
 
 /* ── View panel ── */
 function toggleViewPanel() {
@@ -5559,41 +6145,233 @@ function toggleViewPanel() {
   }
 })();
 
-/* ── Ko-fi CTA ── */
-function showKofiModal() {
-  if (_kofiModalShown || window.innerWidth <= 767) return;
-  _kofiModalShown = true;
-  const el = document.getElementById('kofiModal');
-  if (!el) return;
-  el.style.display = 'flex';
-}
-function closeKofiModal() {
-  const el = document.getElementById('kofiModal');
-  if (!el) return;
-  el.style.display = 'none';
-}
-function showKofiCTA() {
-  if (window.innerWidth <= 767) return;
-  const el = document.getElementById('kofiCTA');
-  if (!el) return;
-  el.style.display = 'block';
-  requestAnimationFrame(() => {
-    el.style.opacity = '1';
-    el.style.transform = 'translateY(0)';
-    el.style.pointerEvents = 'all';
+/* ── Pro gate card ── */
+let _gateFeature = null;
+
+let _promoLeft = 87; // fallback until worker responds
+
+(async function _fetchPromoCount() {
+  try {
+    const res = await fetch('https://api.mesu.ro/');
+    if (!res.ok) return;
+    const data = await res.json().catch(() => null);
+    if (data === null) return;
+    const val = data.remaining ?? null;
+    if (typeof val === 'number' && val >= 0) {
+      _promoLeft = val;
+      _updatePromoCounter();
+    }
+  } catch { /* keep fallback */ }
+})();
+
+function _updatePromoCounter() {
+  document.querySelectorAll('#gatePromoLeft, #mGatePromoLeft').forEach(el => {
+    el.textContent = _promoLeft;
   });
-  setTimeout(closeKofiCTA, 14000);
 }
-function closeKofiCTA() {
-  const el = document.getElementById('kofiCTA');
-  if (!el) return;
-  t('kofi_cta_close');
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(8px)';
-  el.style.pointerEvents = 'none';
-  setTimeout(() => { el.style.display = 'none'; }, 400);
+
+const _GATE_MSGS = {
+  measurement_cap: 'Maximum free measurements per image reached. Activate Pro for unlimited measurements.',
+  _default: 'This is a Pro feature.'
+};
+
+function showGateSheet(feature) {
+  if (isPro) return;
+  _gateFeature = feature;
+  _updatePromoCounter();
+  t('gate_hit', { feature });
+  if (isMob()) {
+    // Mobile: show centered modal
+    const modal = document.getElementById('mobileGateModal');
+    if (!modal) return;
+    const msg = document.getElementById('mGateMsg');
+    if (msg) msg.textContent = _GATE_MSGS[feature] || _GATE_MSGS._default;
+    document.getElementById('mGateKeyArea').style.display = 'none';
+    document.getElementById('mGateKeyInput').value = '';
+    document.getElementById('mGateKeyError').style.display = 'none';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('canvasArea').style.pointerEvents = 'none';
+    return;
+  }
+  const card = document.getElementById('gateCard');
+  if (!card) return;
+  document.getElementById('gateKeyArea').style.display = 'none';
+  document.getElementById('gateKeyInput').value = '';
+  document.getElementById('gateKeyError').style.display = 'none';
+  const msgEl = document.getElementById('gateCardMsg');
+  if (msgEl) msgEl.textContent = _GATE_MSGS[feature] || _GATE_MSGS._default;
+  card.style.display = 'block';
+}
+
+function hideGateCard(reason) {
+  const card = document.getElementById('gateCard');
+  if (card) card.style.display = 'none';
+  hideMobileGate(reason);
+}
+
+function hideMobileGate(reason) {
+  const modal = document.getElementById('mobileGateModal');
+  if (!modal) return;
+  if (reason === 'dismiss' && _gateFeature) t('gate_dismiss', { feature: _gateFeature });
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+  document.getElementById('canvasArea').style.pointerEvents = '';
+}
+
+// Keep alias so existing gate calls work
+function hideGateSheet(reason) { hideGateCard(reason); }
+
+function toggleMobileGateKey() {
+  const area = document.getElementById('mGateKeyArea');
+  const visible = area.style.display !== 'none';
+  area.style.display = visible ? 'none' : 'block';
+  if (!visible) document.getElementById('mGateKeyInput').focus();
+}
+
+async function doVerifyLicenseMobile() {
+  const key = document.getElementById('mGateKeyInput').value.trim();
+  if (!key) return;
+  const btn = document.getElementById('mGateVerifyBtn');
+  const errEl = document.getElementById('mGateKeyError');
+  btn.textContent = '…'; btn.disabled = true;
+  errEl.style.display = 'none';
+  // TEMP: dev bypass key — remove before launch
+  if (key === '0510') {
+    isPro = true; localStorage.setItem('mesuro_license_key', key);
+    t('gate_convert', { feature: _gateFeature }); hideMobileGate();
+    showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
+    document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
+    updUI(); return;
+  }
+  try {
+    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'license_key=' + encodeURIComponent(key)
+    });
+    const data = await res.json();
+    if (data.valid === true && data.license_key && data.license_key.status === 'active') {
+      isPro = true;
+      localStorage.setItem('mesuro_license_key', key);
+      t('gate_convert', { feature: _gateFeature });
+      hideMobileGate();
+      showToast('✓ Mesuro Pro unlocked!');
+      document.body.classList.add('is-pro');
+      document.getElementById('fileInput').multiple = true;
+      document.getElementById('mFileInput').multiple = true;
+      updUI();
+    } else {
+      errEl.textContent = 'Invalid or inactive key — please try again.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Verification failed — check your connection.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Verify'; btn.disabled = false;
+  }
+}
+
+function closeFeedbackPopup() {
+  const fp = document.getElementById('feedbackPopup');
+  if (fp) fp.style.display = 'none';
+}
+
+// ── Replace-image warning sheet ──
+let _pendingReplaceFiles = null;
+let _pendingReplaceSource = null; // 'picker' | 'drop' | 'load_btn'
+
+function showReplaceSheet(files, source) {
+  _pendingReplaceFiles = files;
+  _pendingReplaceSource = source;
+  const n = meas.length;
+  const msg = document.getElementById('replaceSheetMsg');
+  if (msg) {
+    if (n > 0) {
+      msg.textContent = `Loading a new image will replace the current one and clear your ${n} measurement${n > 1 ? 's' : ''}.`;
+    } else {
+      msg.textContent = 'Loading a new image will replace the current one.';
+    }
+  }
+  document.getElementById('replaceSheet').style.display = 'block';
+}
+
+function cancelReplace() {
+  _pendingReplaceFiles = null;
+  _pendingReplaceSource = null;
+  document.getElementById('replaceSheet').style.display = 'none';
+}
+
+function confirmReplace() {
+  document.getElementById('replaceSheet').style.display = 'none';
+  const source = _pendingReplaceSource;
+  const files = _pendingReplaceFiles;
+  _pendingReplaceFiles = null;
+  _pendingReplaceSource = null;
+  if (source === 'load_btn') {
+    document.getElementById('replaceFileInput').click();
+    return;
+  }
+  if (!files || !files.length) return;
+  const f = files[0];
+  if (f.name.endsWith('.mesuro')) loadProject(f);
+  else if (isPDF(f)) loadPDF(f);
+  else if (f.type.startsWith('image/')) loadImg(f);
+}
+
+function toggleGateKeyInput() {
+  const area = document.getElementById('gateKeyArea');
+  const visible = area.style.display !== 'none';
+  area.style.display = visible ? 'none' : 'block';
+  if (!visible) document.getElementById('gateKeyInput').focus();
+}
+
+async function doVerifyLicense() {
+  const key = document.getElementById('gateKeyInput').value.trim();
+  if (!key) return;
+  const btn = document.getElementById('gateVerifyBtn');
+  const errEl = document.getElementById('gateKeyError');
+  btn.textContent = '…'; btn.disabled = true;
+  errEl.style.display = 'none';
+  // TEMP: dev bypass key — remove before launch
+  if (key === '0510') {
+    isPro = true; localStorage.setItem('mesuro_license_key', key);
+    t('gate_convert', { feature: _gateFeature }); hideGateCard();
+    showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
+    document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
+    updUI(); return;
+  }
+  try {
+    const res = await fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'license_key=' + encodeURIComponent(key)
+    });
+    const data = await res.json();
+    if (data.valid === true && data.license_key && data.license_key.status === 'active') {
+      isPro = true;
+      localStorage.setItem('mesuro_license_key', key);
+      t('gate_convert', { feature: _gateFeature });
+      hideGateCard();
+      showToast('✓ Mesuro Pro unlocked!');
+      document.body.classList.add('is-pro');
+      document.getElementById('fileInput').multiple = true;
+      document.getElementById('mFileInput').multiple = true;
+      updUI();
+    } else {
+      errEl.textContent = 'Invalid or inactive key — please try again.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Verification failed — check your connection.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Verify'; btn.disabled = false;
+  }
 }
 
 </script>
+<script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 </body>
 </html>
