@@ -1957,7 +1957,7 @@ function addMeasurement(obj) {
 let _gateLimitShown = false;
 function _measLimitGuard() {
   if (!isPro && meas.length >= 10) {
-    showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#C9913A;cursor:pointer;text-decoration:underline">Go Pro</a>', 3000, true);
+    showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#C9913A;cursor:pointer;text-decoration:underline">Go Pro</a> or delete a measurement', 3000, true);
     return true;
   }
   return false;
@@ -3404,6 +3404,7 @@ function closePerim() {
   const perimPxP=isBezP?bezierPolyPerim([...areaPts],cpsP,true):polyPerim(areaPts);
   addMeasurement({type:'perim',pts:[...areaPts],perimPx:perimPxP,open:false,cps:cpsP});
   areaPts=[]; areaCps=[]; mp=null; mode='idle'; clearHint(); closeSubPanels(); draw(); updUI();
+  const sr2=document.getElementById('mobileSubRow'); if(sr2){sr2.style.display='none';sr2.dataset.tool='';}
 }
 function saveOpenPath() {
   if (areaPts.length<2) { mode='idle'; areaPts=[]; clearHint(); draw(); updUI(); return; }
@@ -3414,6 +3415,7 @@ function saveOpenPath() {
   addMeasurement({type:'perim',pts:[...areaPts],perimPx:perimPxO,open:true,cps:cpsO});
   areaCps=[]; mp=null; mode='idle'; clearHint(); closeSubPanels(); draw(); updUI();
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
+  const sr=document.getElementById('mobileSubRow'); if(sr){sr.style.display='none';sr.dataset.tool='';}
 }
 function clearAll()  {
   meas=[]; scLine=null; scPx=null; scFactor=null; history=[]; areaPts=[]; ptCoordGlobalOrigin=null; stopTool();
@@ -5744,6 +5746,16 @@ function mToolTap(tool) {
     };
     subScroll.appendChild(btn);
   });
+  // Add "Done" button for open path (perim tool)
+  if (tool === 'perim') {
+    const done = document.createElement('button');
+    done.id = 'mPerimDone';
+    done.className = 'm-sub';
+    done.textContent = '✓ Done';
+    done.style.cssText = 'display:none;font-weight:700;color:#F0994A;border:1px solid #F0994A;background:#F0994A22;margin-left:auto;';
+    done.onclick = () => { if (areaPts.length >= 2) saveOpenPath(); };
+    subScroll.appendChild(done);
+  }
   subRow.style.display='flex';
 }
 
@@ -5776,6 +5788,10 @@ function updMobile() {
   // "View all" button — show when more than one measurement
   const vab = document.getElementById('mViewAllBtn');
   if (vab) vab.style.visibility = meas.length > 1 ? 'visible' : 'hidden';
+
+  // Show "Done" button for open path when 2+ points placed
+  const pd = document.getElementById('mPerimDone');
+  if (pd) pd.style.display = (mode === 'pp' && areaPts.length >= 2) ? 'inline-block' : 'none';
 
   // pulse Scale button when image loaded but not scale yet
   const scBtn = document.getElementById('mBtnScale');
@@ -6203,7 +6219,7 @@ function _updatePromoCounter() {
 }
 
 const _GATE_MSGS = {
-  measurement_cap: 'Maximum free measurements per image reached. Activate Pro for unlimited measurements.',
+  measurement_cap: 'Free limit reached (10 measurements). Go Pro for unlimited, or delete some to continue.',
   _default: 'This is a Pro feature.'
 };
 
