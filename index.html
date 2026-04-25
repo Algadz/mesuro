@@ -1428,6 +1428,15 @@
 
 
 <script>
+window.onerror = function(msg, url, line, col, err) {
+  var d = document.getElementById('_dbg');
+  if (!d) { d = document.createElement('div'); d.id='_dbg'; d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:red;color:white;font-size:12px;padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;'; document.body.appendChild(d); }
+  d.textContent += 'ERROR line ' + line + ': ' + msg + '\n';
+  return false;
+};
+</script>
+
+<script>
 
 /* ── i18n ── */
 var LANGS = {
