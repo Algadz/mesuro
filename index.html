@@ -1924,7 +1924,8 @@ if (isPro) { document.body.classList.add('is-pro'); const lt = document.getEleme
 
 function addMeasurement(obj) {
   if (!isPro && meas.length >= 10) {
-    showGateSheet('measurement_cap');
+    if (!_gateLimitShown) showGateSheet('measurement_cap');
+    else _measLimitGuard();
     return false;
   }
   pushHistory();
@@ -1946,10 +1947,20 @@ function addMeasurement(obj) {
   if (_mt[obj.type]) t(_mt[obj.type]);
   if (!isPro && meas.length === 10) {
     t('meas_limit');
+    _gateLimitShown = true;
     stopTool();
     setTimeout(() => showGateSheet('measurement_cap'), 400);
   }
   return true;
+}
+
+let _gateLimitShown = false;
+function _measLimitGuard() {
+  if (!isPro && meas.length >= 10) {
+    showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#C9913A;cursor:pointer;text-decoration:underline">Go Pro</a>', 3000, true);
+    return true;
+  }
+  return false;
 }
 
 /* ── pages (multi-image / multi-PDF) ── */
@@ -2031,6 +2042,7 @@ ca.addEventListener('drop', e => {
 
 
 function loadImg(file) {
+  _gateLimitShown = false;
   const r = new FileReader();
   r.onload = ev => {
     const i = new Image();
@@ -3010,7 +3022,7 @@ function doMeasure() {
   const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
   if (active) { stopTool(); document.getElementById('subDist').style.display='none'; return; }
   if (!scFactor) return;
-  
+  if (_measLimitGuard()) return;
   stopTool();
   // show sub-tool panel
   const sub = document.getElementById('subDist');
@@ -3023,6 +3035,7 @@ function doDiam() {
   const active = mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3';
   if (active) { stopTool(); document.getElementById('subDiam').style.display='none'; return; }
   if (!scFactor) return;
+  if (_measLimitGuard()) return;
   
   stopTool();
   const sub = document.getElementById('subDiam');
@@ -3309,7 +3322,7 @@ function doAngle() {
   const active = mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d';
   if (active) { stopTool(); return; }
   if (!img) return;
-  
+  if (_measLimitGuard()) return;
   closeSubPanels(); stopTool();
   document.getElementById('subAngle').style.display='flex';
   setAngleMode(window._lastAngleMode||'3p');
@@ -3362,7 +3375,7 @@ function doPtCoord() {
   const active = mode==='ptc';
   if (active) { stopTool(); return; }
   if (!img) return;
-  
+  if (_measLimitGuard()) return;
   closeSubPanels(); stopTool();
   // Save current origin so user can cancel origin re-placement without losing existing points
   ptCoordPrevOrigin = ptCoordGlobalOrigin ? {x:ptCoordGlobalOrigin.x, y:ptCoordGlobalOrigin.y} : null;
@@ -3383,8 +3396,8 @@ function setPtCoordMode(m) {
   else              setHint('Click to place coordinate points — Escape or Enter to finish');
   mode = 'ptc'; draw(); updUI();
 }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return;  closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return;  closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; if(_measLimitGuard())return;  closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; if(_measLimitGuard())return;  closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
 function closePerim() {
   const isBezP=segMode.perim==='bezier';
   const cpsP=isBezP?autoSmooth([...areaPts],true):null;
@@ -3851,7 +3864,7 @@ function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>
 
 let toastTimer;
 function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
-function showToast(msg, duration) { toast.textContent=msg; toast.style.display='block'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toast.style.display='none';}, duration||1800); }
+function showToast(msg, duration, html) { if(html){toast.innerHTML=msg;}else{toast.textContent=msg;} toast.style.display='block'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toast.style.display='none';}, duration||1800); }
 
 /* ── draw ── */
 function draw() {
@@ -4910,7 +4923,7 @@ let notePending = null; // {x, y} world coords waiting for text
 function doNote() { closeSubPanels();
   if (mode==='na') { stopTool(); return; }
   if (!img) return;
-  
+  if (_measLimitGuard()) return;
   stopTool(); mode='na'; setHint(L('h_note')); updUI();
 }
 
@@ -5196,6 +5209,7 @@ function saveCurrentPageState() {
 }
 
 function activatePage(idx) {
+  _gateLimitShown = false;
   // cancel any in-progress tool
   mode = 'idle'; p0 = null; p1 = null; mp = null; areaPts = []; areaCps = []; stPts = []; pLine = null;
   closeSubPanels(); clearHint();
