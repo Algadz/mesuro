@@ -844,13 +844,13 @@
     </div>
 
     <div id="dz">
-      <label id="dzLabel" style="position:absolute;inset:0;cursor:pointer;z-index:1"></label>
       <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
         <circle cx="22" cy="22" r="21" fill="none" stroke="#777" stroke-width="1" stroke-dasharray="4 3"/>
         <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span id="dzMain" data-i18n="drop_main">Click or drop images / PDF here</span>
       <span data-i18n="drop_sub">or use Load button above</span>
+      <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
     </div>
     <canvas id="cv"></canvas>
     <canvas id="magOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
@@ -1059,7 +1059,6 @@
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
-  <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
   <div id="mResList" style="display:none"></div>
   <div id="mNoRes" style="display:none"></div>
   <div id="mBtnExport" style="display:none"></div>
@@ -1426,15 +1425,6 @@
 
   <div style="font-size:11px;color:#333;text-align:center">Mesuro — free online image measurement tool</div>
 
-
-<script>
-window.onerror = function(msg, url, line, col, err) {
-  var d = document.getElementById('_dbg');
-  if (!d) { d = document.createElement('div'); d.id='_dbg'; d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:red;color:white;font-size:12px;padding:8px;max-height:40vh;overflow:auto;white-space:pre-wrap;'; document.body.appendChild(d); }
-  d.textContent += 'ERROR line ' + line + ': ' + msg + '\n';
-  return false;
-};
-</script>
 
 <script>
 
@@ -1998,8 +1988,6 @@ let dragState = null;
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
-  // DEBUG — remove after testing
-  showToast('DEBUG: type="' + files[0].type + '" name="' + files[0].name + '" size=' + files[0].size, 5000);
   const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
   if (!isPro && mediaFiles.length > 1) {
     showGateSheet('multi_image');
@@ -2060,41 +2048,32 @@ ca.addEventListener('drop', e => {
 
 function loadImg(file) {
   _gateLimitShown = false;
-  showToast('loadImg: starting...', 2000);
   const i = new Image();
   const url = URL.createObjectURL(file);
   i.onload = () => {
-    try {
-      showToast('loadImg: image loaded ' + i.width + 'x' + i.height, 2000);
-      URL.revokeObjectURL(url);
-      const ps = makePageState({
-        imgEl: i, originalImgEl: i,
-        label: file.name, sourceName: file.name, sourceType: 'image'
-      });
-      generateThumb(ps);
-      addPage(ps, true);
-      showToast('loadImg: addPage done, img=' + (!!img) + ' cv=' + cv.width + 'x' + cv.height, 3000);
-      t('load_image');
-      if (snapEnabled && window.innerWidth > 767) computeEdges();
-      const _mts = document.getElementById('mobileToolsScroll');
-      if (_mts) _mts.scrollLeft = 0;
-      setTimeout(() => {
-        const bs = document.getElementById('btnScale');
-        if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
-      }, 300);
-    } catch(e) {
-      showToast('loadImg ERROR: ' + e.message, 5000);
-    }
+    URL.revokeObjectURL(url);
+    const ps = makePageState({
+      imgEl: i, originalImgEl: i,
+      label: file.name, sourceName: file.name, sourceType: 'image'
+    });
+    generateThumb(ps);
+    addPage(ps, true);
+    t('load_image');
+    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    const _mts = document.getElementById('mobileToolsScroll');
+    if (_mts) _mts.scrollLeft = 0;
+    setTimeout(() => {
+      const bs = document.getElementById('btnScale');
+      if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+    }, 300);
   };
   i.onerror = () => {
     URL.revokeObjectURL(url);
-    showToast('loadImg: objectURL failed, trying FileReader...', 2000);
-    // Fallback: readAsDataURL
+    // Fallback: readAsDataURL (for iOS compatibility)
     const r = new FileReader();
     r.onload = ev => {
       const i2 = new Image();
       i2.onload = () => {
-        showToast('loadImg: FileReader worked ' + i2.width + 'x' + i2.height, 2000);
         const ps = makePageState({
           imgEl: i2, originalImgEl: i2,
           label: file.name, sourceName: file.name, sourceType: 'image'
@@ -2106,10 +2085,10 @@ function loadImg(file) {
         const _mts = document.getElementById('mobileToolsScroll');
         if (_mts) _mts.scrollLeft = 0;
       };
-      i2.onerror = () => showToast('loadImg: BOTH methods failed', 3000);
+      i2.onerror = () => {};
       i2.src = ev.target.result;
     };
-    r.onerror = () => showToast('loadImg: FileReader error', 3000);
+    r.onerror = () => {};
     r.readAsDataURL(file);
   };
   i.src = url;
@@ -5707,9 +5686,6 @@ window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg()
 // file inputs
 document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
-  const f0 = files[0];
-  // DEBUG — remove after testing
-  showToast('DEBUG: type="' + f0.type + '" name="' + f0.name + '" size=' + f0.size, 5000);
   if (isPro) {
     t('load_multi');
     files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); });
@@ -5718,7 +5694,6 @@ document.getElementById('mFileInput').onchange = e => {
     t('load_image');
     if (isPDF(f)) loadPDF(f);
     else if (isImage(f)) loadImg(f);
-    else showToast('Unsupported: type="' + f.type + '"', 3000);
   }
   e.target.value='';
 };
@@ -6173,11 +6148,9 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
   }, {passive:false});
 
-  // iOS: use label-based file picker (more reliable than .click())
-  document.getElementById('dzLabel').setAttribute('for', 'mFileInput');
+  // Mobile: mFileInput is directly inside dz, no .click() needed
 } else {
-  // Desktop: label points to fileInput, click handler as fallback
-  document.getElementById('dzLabel').setAttribute('for', 'fileInput');
+  // Desktop: click handler triggers fileInput
   document.getElementById('dz').addEventListener('click', () => {
     if (!img) document.getElementById('fileInput').click();
   });
