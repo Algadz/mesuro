@@ -704,12 +704,12 @@
       <div class="btn-row">
         <label id="loadLabel" onclick="if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
           <span id="loadLabelTxt">Load image or PDF</span>
-          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="display:none">
+          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         </label>
         <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
       </div>
-      <input type="file" id="projectInput" accept=".mesuro" style="display:none">
-      <input type="file" id="replaceFileInput" accept="image/*,.pdf,application/pdf" style="display:none">
+      <input type="file" id="projectInput" accept=".mesuro" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+      <input type="file" id="replaceFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
     </div>
 
     <div>
@@ -844,6 +844,7 @@
     </div>
 
     <div id="dz">
+      <label id="dzLabel" style="position:absolute;inset:0;cursor:pointer;z-index:1"></label>
       <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
         <circle cx="22" cy="22" r="21" fill="none" stroke="#777" stroke-width="1" stroke-dasharray="4 3"/>
         <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1058,7 +1059,7 @@
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
-  <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="display:none">
+  <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
   <div id="mResList" style="display:none"></div>
   <div id="mNoRes" style="display:none"></div>
   <div id="mBtnExport" style="display:none"></div>
@@ -1988,6 +1989,8 @@ let dragState = null;
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
+  // DEBUG — remove after testing
+  showToast('DEBUG: type="' + files[0].type + '" name="' + files[0].name + '" size=' + files[0].size, 5000);
   const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
   if (!isPro && mediaFiles.length > 1) {
     showGateSheet('multi_image');
@@ -2048,26 +2051,58 @@ ca.addEventListener('drop', e => {
 
 function loadImg(file) {
   _gateLimitShown = false;
+  showToast('loadImg: starting...', 2000);
   const i = new Image();
   const url = URL.createObjectURL(file);
   i.onload = () => {
-    URL.revokeObjectURL(url);
-    const ps = makePageState({
-      imgEl: i, originalImgEl: i,
-      label: file.name, sourceName: file.name, sourceType: 'image'
-    });
-    generateThumb(ps);
-    addPage(ps, true);
-    t('load_image');
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
-    const _mts = document.getElementById('mobileToolsScroll');
-    if (_mts) _mts.scrollLeft = 0;
-    setTimeout(() => {
-      const bs = document.getElementById('btnScale');
-      if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
-    }, 300);
+    try {
+      showToast('loadImg: image loaded ' + i.width + 'x' + i.height, 2000);
+      URL.revokeObjectURL(url);
+      const ps = makePageState({
+        imgEl: i, originalImgEl: i,
+        label: file.name, sourceName: file.name, sourceType: 'image'
+      });
+      generateThumb(ps);
+      addPage(ps, true);
+      showToast('loadImg: addPage done, img=' + (!!img) + ' cv=' + cv.width + 'x' + cv.height, 3000);
+      t('load_image');
+      if (snapEnabled && window.innerWidth > 767) computeEdges();
+      const _mts = document.getElementById('mobileToolsScroll');
+      if (_mts) _mts.scrollLeft = 0;
+      setTimeout(() => {
+        const bs = document.getElementById('btnScale');
+        if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+      }, 300);
+    } catch(e) {
+      showToast('loadImg ERROR: ' + e.message, 5000);
+    }
   };
-  i.onerror = () => { URL.revokeObjectURL(url); showToast('Failed to load image'); };
+  i.onerror = () => {
+    URL.revokeObjectURL(url);
+    showToast('loadImg: objectURL failed, trying FileReader...', 2000);
+    // Fallback: readAsDataURL
+    const r = new FileReader();
+    r.onload = ev => {
+      const i2 = new Image();
+      i2.onload = () => {
+        showToast('loadImg: FileReader worked ' + i2.width + 'x' + i2.height, 2000);
+        const ps = makePageState({
+          imgEl: i2, originalImgEl: i2,
+          label: file.name, sourceName: file.name, sourceType: 'image'
+        });
+        generateThumb(ps);
+        addPage(ps, true);
+        t('load_image');
+        if (snapEnabled && window.innerWidth > 767) computeEdges();
+        const _mts = document.getElementById('mobileToolsScroll');
+        if (_mts) _mts.scrollLeft = 0;
+      };
+      i2.onerror = () => showToast('loadImg: BOTH methods failed', 3000);
+      i2.src = ev.target.result;
+    };
+    r.onerror = () => showToast('loadImg: FileReader error', 3000);
+    r.readAsDataURL(file);
+  };
   i.src = url;
 }
 
@@ -5663,6 +5698,9 @@ window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg()
 // file inputs
 document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
+  const f0 = files[0];
+  // DEBUG — remove after testing
+  showToast('DEBUG: type="' + f0.type + '" name="' + f0.name + '" size=' + f0.size, 5000);
   if (isPro) {
     t('load_multi');
     files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); });
@@ -5671,6 +5709,7 @@ document.getElementById('mFileInput').onchange = e => {
     t('load_image');
     if (isPDF(f)) loadPDF(f);
     else if (isImage(f)) loadImg(f);
+    else showToast('Unsupported: type="' + f.type + '"', 3000);
   }
   e.target.value='';
 };
@@ -6125,8 +6164,13 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
   }, {passive:false});
 
+  // iOS: use label-based file picker (more reliable than .click())
+  document.getElementById('dzLabel').setAttribute('for', 'mFileInput');
+} else {
+  // Desktop: label points to fileInput, click handler as fallback
+  document.getElementById('dzLabel').setAttribute('for', 'fileInput');
   document.getElementById('dz').addEventListener('click', () => {
-    if (!img) document.getElementById('mFileInput').click();
+    if (!img) document.getElementById('fileInput').click();
   });
 }
 
