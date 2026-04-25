@@ -904,9 +904,9 @@
           </div>
         </div>
         <!-- CTA -->
-        <a href="https://mesuro.lemonsqueezy.com/checkout/buy/7a034d3d-7009-46c8-b216-c710d145f02b?embed=1&media=0" class="lemonsqueezy-button" onclick="t('gate_checkout_click')" style="display:block;text-align:center;text-decoration:none;font-size:13px;font-weight:700;color:#fff;background:#2563eb;border-radius:9px;padding:11px 0;margin-bottom:10px;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Unlock Pro for $9 →</a>
+        <a href="https://mesuro.lemonsqueezy.com/checkout/buy/7a034d3d-7009-46c8-b216-c710d145f02b?embed=1&media=0" class="lemonsqueezy-button" onclick="t('gate_click_checkout')" style="display:block;text-align:center;text-decoration:none;font-size:13px;font-weight:700;color:#fff;background:#2563eb;border-radius:9px;padding:11px 0;margin-bottom:10px;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Unlock Pro for $9 →</a>
         <button onclick="hideGateCard('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:2px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">Continue with free</button>
-        <button onclick="toggleGateKeyInput()" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:10px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;transition:opacity .15s;opacity:.7;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.7'">Have a license key?</button>
+        <button onclick="toggleGateKeyInput();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:10px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;transition:opacity .15s;opacity:.7;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.7'">Have a license key?</button>
         <div id="gateKeyArea" style="display:none;margin-top:10px;">
           <input id="gateKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:5px;color:#e0e0e0;font-size:11px;padding:6px 8px;font-family:inherit;outline:none;margin-bottom:5px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
           <button id="gateVerifyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:5px;color:#fff;font-size:11px;padding:7px 10px;cursor:pointer;font-family:inherit;">Verify</button>
@@ -1129,9 +1129,9 @@
       </div>
     </div>
     <!-- CTA -->
-    <a href="https://mesuro.lemonsqueezy.com/checkout/buy/7a034d3d-7009-46c8-b216-c710d145f02b" target="_blank" onclick="t('gate_checkout_click')" style="display:block;text-align:center;text-decoration:none;font-size:15px;font-weight:700;color:#fff;background:#2563eb;border-radius:11px;padding:14px 0;margin-bottom:12px;">Unlock Pro for $9 →</a>
+    <a href="https://mesuro.lemonsqueezy.com/checkout/buy/7a034d3d-7009-46c8-b216-c710d145f02b" target="_blank" onclick="t('gate_click_checkout')" style="display:block;text-align:center;text-decoration:none;font-size:15px;font-weight:700;color:#fff;background:#2563eb;border-radius:11px;padding:14px 0;margin-bottom:12px;">Unlock Pro for $9 →</a>
     <button onclick="hideMobileGate('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:#555;font-family:inherit;padding:4px 0;text-align:center;">Continue with free</button>
-    <button onclick="toggleMobileGateKey()" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:#C9913A;font-family:inherit;padding:8px 0 0;text-align:center;transition:opacity .15s;opacity:.7;">Have a license key?</button>
+    <button onclick="toggleMobileGateKey();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:#C9913A;font-family:inherit;padding:8px 0 0;text-align:center;transition:opacity .15s;opacity:.7;">Have a license key?</button>
     <div id="mGateKeyArea" style="display:none;margin-top:10px;">
       <input id="mGateKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:7px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;margin-bottom:8px;" onkeydown="if(event.key==='Enter')doVerifyLicenseMobile()">
       <button id="mGateVerifyBtn" onclick="doVerifyLicenseMobile()" style="width:100%;background:#1D9E75;border:none;border-radius:7px;color:#fff;font-size:13px;padding:11px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
@@ -1929,7 +1929,23 @@ function addMeasurement(obj) {
   }
   pushHistory();
   meas.push(obj);
+  // Track measurement completion by subtool
+  const _mt = {
+    line:    obj.subtype==='ce' ? 'meas_dist_ce' : 'meas_dist_pp',
+    ptline:  'meas_dist_pl',
+    ll:      'meas_dist_ll',
+    diam:    obj.subtype==='3p' ? 'meas_diam_3p' : 'meas_diam_cr',
+    arc:     'meas_arc',
+    angle:   'meas_angle_3p',
+    angle4:  'meas_angle_4p',
+    area:    segMode.area==='bezier' ? 'meas_area_bezier' : 'meas_area_straight',
+    perim:   segMode.perim==='bezier' ? 'meas_perim_bezier' : 'meas_perim_straight',
+    ptcoord: 'meas_coord_point',
+    note:    'meas_note'
+  };
+  if (_mt[obj.type]) t(_mt[obj.type]);
   if (!isPro && meas.length === 10) {
+    t('meas_limit');
     stopTool();
     setTimeout(() => showGateSheet('measurement_cap'), 400);
   }
@@ -1960,7 +1976,7 @@ document.getElementById('fileInput').onchange = e => {
   if (!isPro && mediaFiles.length > 1) {
     showGateSheet('multi_image');
     const f = mediaFiles[0];
-    t('load_single', {source: 'picker'});
+    t('load_image');
     if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f);
     e.target.value = ''; return;
   }
@@ -2001,7 +2017,7 @@ ca.addEventListener('drop', e => {
   if (!isPro && mediaFiles.length > 1) {
     showGateSheet('multi_image');
     const f = mediaFiles[0];
-    t('load_single', {source: 'drop'});
+    t('load_image');
     if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f);
     return;
   }
@@ -2123,10 +2139,10 @@ function toggleZoom() {
   zoomEnabled=!zoomEnabled;
   localStorage.setItem('mesu_zoom', zoomEnabled);
   if (!zoomEnabled) { fitImg(); }
-  t('opt_pan_zoom', {on: zoomEnabled});
+  t('opt_panzoom');
   updUI();
 }
-function toggleMag()  { magEnabled=!magEnabled;   localStorage.setItem('mesu_mag',  magEnabled);  t('opt_zoom_cursor', {on: magEnabled}); draw(); updUI(); }
+function toggleMag()  { magEnabled=!magEnabled;   localStorage.setItem('mesu_mag',  magEnabled);  t('opt_zoom_cursor'); draw(); updUI(); }
 function resetZoom()  { zoom=1; panX=0; panY=0; draw(); }
 
 /* ── Edge detection & snap ── */
@@ -2140,7 +2156,7 @@ let snapPt = null;
 function togglePtSnap() {
   ptSnapEnabled = !ptSnapEnabled;
   localStorage.setItem('mesu_ptsnap', ptSnapEnabled);
-  t('opt_point_snap', {on: ptSnapEnabled});
+  t('opt_snap');
   updUI();
 }
 
@@ -2148,7 +2164,7 @@ function toggleSnap() {
   snapEnabled = !snapEnabled;
   localStorage.setItem('mesu_snap', snapEnabled);
   if (snapEnabled && img && !edgeMap && window.innerWidth > 767) computeEdges();
-  t('opt_edge_detect', {on: snapEnabled});
+  t('opt_edge');
   updUI();
 }
 
@@ -2865,7 +2881,7 @@ cv.addEventListener('click', e => {
     if (ptCoordMode==='origin') {
       ptCoordGlobalOrigin={x:p.x,y:p.y};
       ptCoordPrevOrigin=null; // confirmed — discard backup
-      _recomputePtCoordPoints();
+      _recomputePtCoordPoints(); t('meas_coord_origin');
       setHint('Origin set — click to place coordinate points');
       setPtCoordMode('point');
     } else {
@@ -2994,7 +3010,7 @@ function doMeasure() {
   const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
   if (active) { stopTool(); document.getElementById('subDist').style.display='none'; return; }
   if (!scFactor) return;
-  t('tool_distance', {unit:scUnit});
+  
   stopTool();
   // show sub-tool panel
   const sub = document.getElementById('subDist');
@@ -3007,7 +3023,7 @@ function doDiam() {
   const active = mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3';
   if (active) { stopTool(); document.getElementById('subDiam').style.display='none'; return; }
   if (!scFactor) return;
-  t('tool_diameter', {unit:scUnit});
+  
   stopTool();
   const sub = document.getElementById('subDiam');
   sub.style.display = 'flex';
@@ -3016,7 +3032,7 @@ function doDiam() {
 
 function setDiamMode(m) {
   window._lastDiamMode = m;
-  t('subtool_diam', {mode:m});
+  
   p0=null; p1=null; mp=null; clearHint();
   document.getElementById('btnDiamCR').style.background  = m==='cr'  ? '#2a2a2a' : 'none';
   document.getElementById('btnDiam3P').style.background  = m==='3p'  ? '#2a2a2a' : 'none';
@@ -3048,7 +3064,7 @@ const ST_COLORS = ['#EF9F27','#5DCAA5','#D4537E','#9F77DD'];
 
 function restoreOriginal() {
   if (!originalImg || originalImg === img) return;
-  t('perspective_restore');
+  t('rectify_revert');
   pushHistory();
   img = originalImg;
   meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; stPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
@@ -3178,7 +3194,7 @@ function invertMatrix3(m) {
 
 function applyStraighten() {
   if (stPts.length < 4) return;
-  t('perspective_apply');
+  
 
   // Work at full original image resolution
   const iW = img.width, iH = img.height;
@@ -3278,7 +3294,7 @@ function applyStraighten() {
         generateThumb(pages[currentPageIdx]);
       }
       fitImg(); clearHint(); updStraightenUI();
-      t('rectify'); updUI();
+      t('rectify_apply'); updUI();
       showToast(L('img_rectified'));
       setTimeout(() => {
         const bs = document.getElementById('btnScale');
@@ -3293,7 +3309,7 @@ function doAngle() {
   const active = mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d';
   if (active) { stopTool(); return; }
   if (!img) return;
-  t('tool_angle', {has_scale:!!scFactor});
+  
   closeSubPanels(); stopTool();
   document.getElementById('subAngle').style.display='flex';
   setAngleMode(window._lastAngleMode||'3p');
@@ -3302,7 +3318,7 @@ function doAngle() {
 
 function setAngleMode(m) {
   window._lastAngleMode = m;
-  t('subtool_angle', {mode:m});
+  
   p0=null; p1=null; mp=null; clearHint();
   const c='#D4537E';
   const b3=document.getElementById('btnAngle3'), b4=document.getElementById('btnAngle4');
@@ -3316,7 +3332,7 @@ function setAngleMode(m) {
 // ── Point-to-line distance ──────────────────────────────────────────────────
 function setDistMode(m) {
   window._lastDistMode = m;
-  t('subtool_dist', {mode:m});
+  
   p0=null; p1=null; mp=null; clearHint();
   const btns = {pp:'btnDistPP',ce:'btnDistCE',pl:'btnDistPL',ll:'btnDistLL'};
   Object.entries(btns).forEach(([k,id])=>{
@@ -3346,7 +3362,7 @@ function doPtCoord() {
   const active = mode==='ptc';
   if (active) { stopTool(); return; }
   if (!img) return;
-  t('tool_ptcoord');
+  
   closeSubPanels(); stopTool();
   // Save current origin so user can cancel origin re-placement without losing existing points
   ptCoordPrevOrigin = ptCoordGlobalOrigin ? {x:ptCoordGlobalOrigin.x, y:ptCoordGlobalOrigin.y} : null;
@@ -3367,8 +3383,8 @@ function setPtCoordMode(m) {
   else              setHint('Click to place coordinate points — Escape or Enter to finish');
   mode = 'ptc'; draw(); updUI();
 }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; t('tool_area',{unit:scUnit}); closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; t('tool_perimeter',{unit:scUnit}); closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return;  closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return;  closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
 function closePerim() {
   const isBezP=segMode.perim==='bezier';
   const cpsP=isBezP?autoSmooth([...areaPts],true):null;
@@ -3437,7 +3453,7 @@ function confirmScale(applyAll) {
   localStorage.setItem('mesu_last_scale_val',  sv.value);
   localStorage.setItem('mesu_last_scale_unit', scUnit);
   scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
-  pLine=null; modal.style.display='none'; document.body.style.overflow=''; t('set_scale', {unit:scUnit, px_per_unit:+(1/scFactor).toFixed(4)}); stopTool();
+  pLine=null; modal.style.display='none'; document.body.style.overflow=''; t('use_scale', {unit:scUnit, value:+sv.value}); stopTool();
   if (applyAll) applyScaleToAllPages();
 }
 // click-to-clear preset value, restore on blur if empty
@@ -3505,7 +3521,7 @@ function setSegMode(tool, segModeVal) {
     b.style.color = active ? col : '#aaa';
   });
   // Analytics
-  t(`subtool_seg_${tool}`, {mode: segModeVal});
+  
 }
 
 // Auto-generate smooth cubic bezier control points for a polyline
@@ -3831,7 +3847,7 @@ function updUI() {
   applyLang();
 }
 
-function delM(i) { pushHistory(); meas.splice(i,1); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); }
+function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); }
 
 let toastTimer;
 function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
@@ -4673,7 +4689,7 @@ function clearMagOverlay() {
 /* ─── Project save / load ────────────────────────────────────────────────── */
 function saveProject() {
   if (!pages.length) return;
-  t('save_project');
+  t('proj_save');
   saveCurrentPageState();
   const pageData = pages.map((pg, i) => {
     const ec = document.createElement('canvas');
@@ -4713,7 +4729,7 @@ function saveProject() {
 
 function loadProject(file) {
   if (!isPro) { showGateSheet('load_project'); return; }
-  t('load_project');
+  t('proj_load');
   const r = new FileReader();
   r.onload = ev => {
     try {
@@ -4790,7 +4806,7 @@ function exportImg() {
   const _testC = document.createElement('canvas'); _testC.width=1; _testC.height=1;
   const supportsWebP = _testC.toDataURL('image/webp').startsWith('data:image/webp');
   const fmt = supportsWebP ? 'webp' : 'png';
-  t('export_'+fmt);
+  
   const mime = supportsWebP ? 'image/webp' : 'image/png';
   const quality = supportsWebP ? 0.92 : 1;
   const ec=document.createElement('canvas'); ec.width=img.width; ec.height=img.height;
@@ -4853,7 +4869,7 @@ function drawPtCoordOn(ec,px,py,ox,oy,label,s){const col='#5DCAA5';ec.save();if(
 /* ── rotate image ── */
 function rotateImg(deg) {
   if (!img) return;
-  t('rotate', {deg:deg});
+  t('use_rotate');
   pushHistory();
   const oc = document.createElement('canvas');
   const abs = Math.abs(deg);
@@ -4894,7 +4910,7 @@ let notePending = null; // {x, y} world coords waiting for text
 function doNote() { closeSubPanels();
   if (mode==='na') { stopTool(); return; }
   if (!img) return;
-  t('tool_note');
+  
   stopTool(); mode='na'; setHint(L('h_note')); updUI();
 }
 
@@ -5104,7 +5120,7 @@ async function renderPDFPage(pageNum, switchTo) {
       });
       generateThumb(ps);
       addPage(ps, switchTo);
-      t('load_pdf', { page: pageNum, scale: Math.round(SCALE*10)/10, dpi: Math.round(SCALE*72) });
+      t('load_pdf');
       const _mts2 = document.getElementById('mobileToolsScroll');
       if (_mts2 && switchTo) _mts2.scrollLeft = 0;
       setTimeout(() => {
@@ -5628,11 +5644,11 @@ window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg()
 document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
   if (isPro) {
-    t('load_multi', {count: files.length, source: 'picker_mobile'});
+    t('load_multi');
     files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f); });
   } else {
     const f = files[0];
-    t('load_single', {count: 1, source: 'picker_mobile'});
+    t('load_image');
     if (isPDF(f)) loadPDF(f);
     else if (f.type.startsWith('image/')) loadImg(f);
   }
@@ -6065,7 +6081,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     // Pt coord
     else if (mode==='ptc') {
       if (ptCoordMode==='origin') {
-        ptCoordGlobalOrigin={x:p.x,y:p.y}; ptCoordPrevOrigin=null; _recomputePtCoordPoints(); setHint('Origin set — tap to place points');
+        ptCoordGlobalOrigin={x:p.x,y:p.y}; ptCoordPrevOrigin=null; _recomputePtCoordPoints(); t('meas_coord_origin'); setHint('Origin set — tap to place points');
         setPtCoordMode('point');
       } else {
         const ox=ptCoordGlobalOrigin?ptCoordGlobalOrigin.x:0, oy=ptCoordGlobalOrigin?ptCoordGlobalOrigin.y:0;
@@ -6181,7 +6197,7 @@ function showGateSheet(feature) {
   if (isPro) return;
   _gateFeature = feature;
   _updatePromoCounter();
-  t('gate_hit', { feature });
+  t({measurement_cap:'gate_meas_limit',csv_export:'gate_csv',pdf_export:'gate_pdf',multi_image:'gate_multi',load_project:'gate_load'}[feature]||'gate_show');
   if (isMob()) {
     // Mobile: show centered modal
     const modal = document.getElementById('mobileGateModal');
@@ -6215,7 +6231,7 @@ function hideGateCard(reason) {
 function hideMobileGate(reason) {
   const modal = document.getElementById('mobileGateModal');
   if (!modal) return;
-  if (reason === 'dismiss' && _gateFeature) t('gate_dismiss', { feature: _gateFeature });
+  if (reason === 'dismiss' && _gateFeature) t('gate_click_dismiss');
   modal.style.display = 'none';
   document.body.style.overflow = '';
   document.getElementById('canvasArea').style.pointerEvents = '';
@@ -6262,7 +6278,7 @@ async function doVerifyLicenseMobile() {
   // TEMP: dev bypass key — remove before launch
   if (key === '0510') {
     isPro = true; localStorage.setItem('mesuro_license_key', key);
-    t('gate_convert', { feature: _gateFeature }); hideMobileGate();
+    t('gate_unlock_ok'); hideMobileGate();
     showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
     document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
     updUI(); return;
@@ -6272,7 +6288,7 @@ async function doVerifyLicenseMobile() {
     if (ok) {
       isPro = true;
       localStorage.setItem('mesuro_license_key', key);
-      t('gate_convert', { feature: _gateFeature });
+      t('gate_unlock_ok');
       hideMobileGate();
       showToast('✓ Mesuro Pro unlocked!');
       document.body.classList.add('is-pro');
@@ -6280,11 +6296,11 @@ async function doVerifyLicenseMobile() {
       document.getElementById('mFileInput').multiple = true;
       updUI();
     } else {
-      errEl.textContent = 'Invalid or inactive key — please try again.';
+      t('gate_unlock_fail'); errEl.textContent = 'Invalid or inactive key — please try again.';
       errEl.style.display = 'block';
     }
   } catch(e) {
-    errEl.textContent = 'Verification failed — check your connection.';
+    t('gate_unlock_fail'); errEl.textContent = 'Verification failed — check your connection.';
     errEl.style.display = 'block';
   } finally {
     btn.textContent = 'Verify'; btn.disabled = false;
@@ -6355,7 +6371,7 @@ async function doVerifyLicense() {
   // TEMP: dev bypass key — remove before launch
   if (key === '0510') {
     isPro = true; localStorage.setItem('mesuro_license_key', key);
-    t('gate_convert', { feature: _gateFeature }); hideGateCard();
+    t('gate_unlock_ok'); hideGateCard();
     showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
     document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
     updUI(); return;
@@ -6365,7 +6381,7 @@ async function doVerifyLicense() {
     if (ok) {
       isPro = true;
       localStorage.setItem('mesuro_license_key', key);
-      t('gate_convert', { feature: _gateFeature });
+      t('gate_unlock_ok');
       hideGateCard();
       showToast('✓ Mesuro Pro unlocked!');
       document.body.classList.add('is-pro');
