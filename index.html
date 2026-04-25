@@ -1849,6 +1849,11 @@ function _ts() {
 function isPDF(file) {
   return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 }
+function isImage(file) {
+  if (file.type.startsWith('image/')) return true;
+  const ext = file.name.toLowerCase().split('.').pop();
+  return ['jpg','jpeg','png','gif','bmp','webp','svg','heic','heif','tiff','tif','avif'].includes(ext);
+}
 
 
 const cv  = document.getElementById('cv');
@@ -1983,24 +1988,24 @@ let dragState = null;
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
-  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || f.type.startsWith('image/')));
+  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
   if (!isPro && mediaFiles.length > 1) {
     showGateSheet('multi_image');
     const f = mediaFiles[0];
     t('load_image');
-    if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f);
+    if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f);
     e.target.value = ''; return;
   }
   t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'picker'});
   files.forEach(f => {
     if (f.name.endsWith('.mesuro')) loadProject(f);
     else if (isPDF(f)) loadPDF(f);
-    else if (f.type.startsWith('image/')) loadImg(f);
+    else if (isImage(f)) loadImg(f);
   });
   e.target.value = '';
 };
 document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { if (!isPro) { showGateSheet('load_project'); e.target.value=''; return; } loadProject(e.target.files[0]); e.target.value=''; } };
-document.getElementById('replaceFileInput').onchange = e => { const f = e.target.files[0]; e.target.value=''; if (!f) return; if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f); };
+document.getElementById('replaceFileInput').onchange = e => { const f = e.target.files[0]; e.target.value=''; if (!f) return; if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); };
 
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('click', e => {
@@ -2014,7 +2019,7 @@ ca.addEventListener('drop', e => {
   e.preventDefault(); ca.style.outline='';
   const files = Array.from(e.dataTransfer.files);
   if (!files.length) return;
-  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || f.type.startsWith('image/')));
+  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
   // Free user with existing image: intercept and show replace/upsell sheet
   if (!isPro && pages.length >= 1 && mediaFiles.length >= 1) {
     if (mediaFiles.length > 1) {
@@ -2029,42 +2034,41 @@ ca.addEventListener('drop', e => {
     showGateSheet('multi_image');
     const f = mediaFiles[0];
     t('load_image');
-    if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f);
+    if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f);
     return;
   }
   t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'drop'});
   files.forEach(f => {
     if (f.name.endsWith('.mesuro')) loadProject(f);
     else if (isPDF(f)) loadPDF(f);
-    else if (f.type.startsWith('image/')) loadImg(f);
+    else if (isImage(f)) loadImg(f);
   });
 });
 
 
 function loadImg(file) {
   _gateLimitShown = false;
-  const r = new FileReader();
-  r.onload = ev => {
-    const i = new Image();
-    i.onload = () => {
-      const ps = makePageState({
-        imgEl: i, originalImgEl: i,
-        label: file.name, sourceName: file.name, sourceType: 'image'
-      });
-      generateThumb(ps);
-      addPage(ps, true);
-      t('load_image');
-      if (snapEnabled && window.innerWidth > 767) computeEdges();
-      const _mts = document.getElementById('mobileToolsScroll');
-      if (_mts) _mts.scrollLeft = 0;
-      setTimeout(() => {
-        const bs = document.getElementById('btnScale');
-        if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
-      }, 300);
-    };
-    i.src = ev.target.result;
+  const i = new Image();
+  const url = URL.createObjectURL(file);
+  i.onload = () => {
+    URL.revokeObjectURL(url);
+    const ps = makePageState({
+      imgEl: i, originalImgEl: i,
+      label: file.name, sourceName: file.name, sourceType: 'image'
+    });
+    generateThumb(ps);
+    addPage(ps, true);
+    t('load_image');
+    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    const _mts = document.getElementById('mobileToolsScroll');
+    if (_mts) _mts.scrollLeft = 0;
+    setTimeout(() => {
+      const bs = document.getElementById('btnScale');
+      if (bs) { bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
+    }, 300);
   };
-  r.readAsDataURL(file);
+  i.onerror = () => { URL.revokeObjectURL(url); showToast('Failed to load image'); };
+  i.src = url;
 }
 
 function getFsW() {
@@ -5661,12 +5665,12 @@ document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
   if (isPro) {
     t('load_multi');
-    files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (f.type.startsWith('image/')) loadImg(f); });
+    files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); });
   } else {
     const f = files[0];
     t('load_image');
     if (isPDF(f)) loadPDF(f);
-    else if (f.type.startsWith('image/')) loadImg(f);
+    else if (isImage(f)) loadImg(f);
   }
   e.target.value='';
 };
@@ -6099,7 +6103,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     // Path
     else if (mode==='pp') {
       if (areaPts.length>=3){const c0=w2c(areaPts[0].x,areaPts[0].y),cm=w2c(p.x,p.y);if(dst(c0,cm)<DRAG_R*3){closePerim();return;}}
-      areaPts.push(p); mp=null; setHint(LF('mh_area')(areaPts.length)); draw();
+      areaPts.push(p); mp=null; setHint(LF('mh_area')(areaPts.length)); draw(); updUI();
     }
     // Note
     else if (mode==='na') {
@@ -6381,7 +6385,7 @@ function confirmReplace() {
   const f = files[0];
   if (f.name.endsWith('.mesuro')) loadProject(f);
   else if (isPDF(f)) loadPDF(f);
-  else if (f.type.startsWith('image/')) loadImg(f);
+  else if (isImage(f)) loadImg(f);
 }
 
 function toggleGateKeyInput() {
