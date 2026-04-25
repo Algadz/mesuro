@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mesuro — Free Online Image Measurement Tool | Measure multiple images & PDFs, distances, angles, areas</title>
 <meta name="description" content="Free online image measurement tool. Load multiple images or all pages of a PDF at once. Measure distances, angles, areas, perimeters, diameters, point coordinates and arc lengths. Bezier curve areas, protractor, perspective correction. No upload, no install, fully private.">
 <meta name="keywords" content="image measurement tool, measure image online, photo measurement, measure distance in image, image ruler, scale image, measure pixels, online ruler, measure photo, measure area in image, measure angle in image, perspective correction, rectify image, annotate image online, PDF measurement report, image annotation tool, measure PDF online, PDF ruler, measure distance in PDF, PDF measurement tool, multi-image measurement, measure multiple images, measure all PDF pages, batch image measurement">
@@ -313,8 +313,8 @@
     #dz svg  { display:block; opacity:.4; width:64px; height:64px; }
     #dzMain  { font-size:17px; color:#aaa; margin-top:6px; }
 
-    /* canvas: don't override display (JS controls it); add touch-action so browser doesn't steal gestures */
-    #cv { max-width:100%; max-height:100%; touch-action:pan-x pan-y; user-select:none; -webkit-user-select:none; }
+    /* canvas: touch-action:none prevents iOS native zoom from fighting canvas zoom */
+    #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
 
     /* gradient fade above bottom bar */
     #mobileBar::before { content:''; position:absolute; top:-48px; left:0; right:0; height:48px; background:linear-gradient(to bottom,transparent,rgba(17,17,17,.9)); pointer-events:none; }
@@ -1427,6 +1427,21 @@
 
 
 <script>
+
+/* ── roundRect polyfill for iOS Safari < 15.4 ── */
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = [r, r, r, r];
+    if (!Array.isArray(r)) r = [0, 0, 0, 0];
+    const [tl, tr, br, bl] = r;
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y); this.arcTo(x + w, y, x + w, y + tr, tr);
+    this.lineTo(x + w, y + h - br); this.arcTo(x + w, y + h, x + w - br, y + h, br);
+    this.lineTo(x + bl, y + h); this.arcTo(x, y + h, x, y + h - bl, bl);
+    this.lineTo(x, y + tl); this.arcTo(x, y, x + tl, y, tl);
+    this.closePath();
+  };
+}
 
 /* ── i18n ── */
 var LANGS = {
@@ -3016,7 +3031,7 @@ function stopTool() {
   ptCoordPrevOrigin = null;
   mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; areaCps=[]; stPts=[]; clearHint(); closeSubPanels(); updStraightenUI(); draw(); updUI();
   if (isMob()) {
-    cv.style.touchAction = 'pan-x pan-y';
+    
     const sr = document.getElementById('mobileSubRow');
     if (sr) { sr.style.display='none'; sr.dataset.tool=''; }
   }
@@ -4871,7 +4886,10 @@ function exportImg() {
     else if(m.type==='note'){drawNoteOn(ec_ctx,m.x,m.y,m.text,vs);}
   });
   // Watermark — bottom right (free users only)
-  if (isPro) { const a=document.createElement('a'); a.download=`mesuro-${_ts()}.${fmt}`; a.href=ec.toDataURL(mime,quality); a.click(); return; }
+  if (isPro) {
+    ec.toBlob(b => { if(!b)return; const u=URL.createObjectURL(b); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.${fmt}`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000); }, mime, quality);
+    return;
+  }
   const wmText = 'Made with Mesuro';
   const wmFs = Math.max(12, img.width * 0.036);
   ec_ctx.save();
@@ -4883,16 +4901,15 @@ function exportImg() {
   const wmY = img.height - wmH - wmFs * 0.5;
   ec_ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ec_ctx.beginPath();
-  ec_ctx.roundRect(wmX, wmY, wmW, wmH, wmFs * 0.25);
+  if (ec_ctx.roundRect) { ec_ctx.roundRect(wmX, wmY, wmW, wmH, wmFs * 0.25); }
+  else { ec_ctx.rect(wmX, wmY, wmW, wmH); }
   ec_ctx.fill();
   ec_ctx.fillStyle = 'rgba(255,255,255,0.82)';
   ec_ctx.textAlign = 'left';
   ec_ctx.textBaseline = 'middle';
   ec_ctx.fillText(wmText, wmX + wmPad, wmY + wmH / 2);
   ec_ctx.restore();
-  const a=document.createElement('a');
-  a.download=`mesuro-${_ts()}.${fmt}`;
-  a.href=ec.toDataURL(mime,quality); a.click();
+  ec.toBlob(b => { if(!b)return; const u=URL.createObjectURL(b); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.${fmt}`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000); }, mime, quality);
 }
 
 function drawLblOn(ec,x,y,text,col,s){ec.save();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,p=5*s,h=17*s,r=4*s,rx=x-tw/2-p,ry=y-h/2;ec.fillStyle='rgba(0,0,0,.8)';ec.beginPath();ec.moveTo(rx+r,ry);ec.lineTo(rx+tw+p*2-r,ry);ec.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);ec.lineTo(rx+tw+p*2,ry+h-r);ec.arcTo(rx+tw+p*2,ry+h,rx+tw+p*2-r,ry+h,r);ec.lineTo(rx+r,ry+h);ec.arcTo(rx,ry+h,rx,ry+h-r,r);ec.lineTo(rx,ry+r);ec.arcTo(rx,ry,rx+r,ry,r);ec.closePath();ec.fill();ec.fillStyle=col;ec.textAlign='center';ec.textBaseline='middle';ec.fillText(text,x,y);ec.restore();}
@@ -5418,8 +5435,13 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   const pgScLine = pg.scLine !== undefined ? pg.scLine : scLine;
   const pgMeas = pg.meas !== undefined ? pg.meas : meas;
   const ec = document.createElement('canvas');
-  ec.width = pgImg.width; ec.height = pgImg.height;
+  // Cap canvas size for iOS memory safety (2000px max side, enough for A4 PDF)
+  const maxSide = 2000;
+  const imgScale = Math.min(1, maxSide / Math.max(pgImg.width, pgImg.height));
+  ec.width = Math.round(pgImg.width * imgScale);
+  ec.height = Math.round(pgImg.height * imgScale);
   const ec_ctx = ec.getContext('2d');
+  if (imgScale < 1) ec_ctx.scale(imgScale, imgScale);
   ec_ctx.drawImage(pgImg, 0, 0);
   // Visual scale: same rule as exportImg — match fit-to-frame canvas zoom
   const fitZoomPdf = Math.min(cp.clientWidth / pgImg.width, cp.clientHeight / pgImg.height, 1);
@@ -5639,7 +5661,7 @@ function exportCSV() {
   if (rows.length <= 1) return;
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a'); a.download=`mesuro-${_ts()}.csv`; a.href=URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
+  const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.csv`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 
 updUI();
@@ -5966,13 +5988,14 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
   cv.addEventListener('contextmenu', e => e.preventDefault());
 
+  let _isScrolling = false;
+
   cv.addEventListener('touchstart', e => {
     if (!img) return;
     // Pinch (2 fingers): zoom + pan
     if (e.touches.length === 2) {
-      isPinching = true;
+      isPinching = true; _isScrolling = false;
       clearLongPress();
-      cv.style.touchAction = 'none';
       const t0=e.touches[0], t1=e.touches[1];
       const rc=cv.getBoundingClientRect();
       pinchDist0 = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
@@ -5981,11 +6004,10 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       pinchZoom0 = zoom; pinchPanX0 = panX; pinchPanY0 = panY;
       e.preventDefault(); return;
     }
-    isPinching = false;
+    isPinching = false; _isScrolling = false;
     const t=e.touches[0];
     txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
     if (TOOL_MODES.includes(mode)) {
-      cv.style.touchAction = 'none';
       e.preventDefault();
       mp = getTouchPt(t);
       startLongPress(t.clientX, t.clientY);
@@ -5993,8 +6015,8 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
     if (mode==='idle') {
       const d=findDrag(getTouchPt(t));
-      if (d) { cv.style.touchAction='none'; e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
-      else { cv.style.touchAction='pan-x pan-y'; } // let page scroll
+      if (d) { e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
+      // else: wait for touchmove to decide if scrolling
     }
   }, {passive:false});
 
@@ -6011,7 +6033,6 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       const rc = cv.getBoundingClientRect();
       const cmx = (t0.clientX+t1.clientX)/2 - rc.left;
       const cmy = (t0.clientY+t1.clientY)/2 - rc.top;
-      // Keep canvas point under initial midpoint at current midpoint (zoom + pan)
       panX = cmx - (pinchMid0X - pinchPanX0) * (nz/pinchZoom0);
       panY = cmy - (pinchMid0Y - pinchPanY0) * (nz/pinchZoom0);
       zoom = nz; clampPan(); draw();
@@ -6024,17 +6045,23 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       e.preventDefault(); mp=getTouchPt(t); applyDrag(mp); draw(); updUI();
     } else if (TOOL_MODES.includes(mode)) {
       e.preventDefault(); mp=getTouchPt(t); draw();
-    } else {
-      if (moved) { tMoved=true; clearLongPress(); }
-      // idle: let page scroll naturally (no preventDefault)
+    } else if (mode==='idle' && !dragState) {
+      // Manual scroll: simulate native one-finger page scroll
+      if (moved && !_isScrolling) { _isScrolling = true; tMoved = true; clearLongPress(); }
+      if (_isScrolling) {
+        e.preventDefault();
+        window.scrollBy(0, tyStart - t.clientY);
+        txStart = t.clientX; tyStart = t.clientY;
+      }
     }
   }, {passive:false});
 
   cv.addEventListener('touchend', e => {
     clearLongPress();
+    _isScrolling = false;
     if (!img) return;
-    if (isPinching && e.touches.length < 2) { isPinching=false; cv.style.touchAction='pan-x pan-y'; return; }
-    if (mode==='drag') { mode='idle'; dragState=null; mp=null; cv.style.touchAction='pan-x pan-y'; updUI(); draw(); return; }
+    if (isPinching && e.touches.length < 2) { isPinching=false; return; }
+    if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
     if (tMoved) return;
     e.preventDefault();
     const wasLongPress = longPressActive;
