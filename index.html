@@ -113,7 +113,7 @@
     align-items: center;
     justify-content: flex-start;
   }
-  @media (max-width: 767px) {
+  @media (max-width: 767px) and (pointer: coarse) {
     #bottomArea { display: none !important; }
   }
 
@@ -124,13 +124,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     pointer-events: all;
     cursor: pointer;
-    color: #999;
-    font-size: 13px;
+    color: #bbb;
+    font-size: 16px;
   }
-  #dz span { font-size: 12px; color: #777; }
+  #dz svg { width:58px; height:58px; }
+  #dz span { font-size: 14px; color: #999; }
+  #dzTapArea { display:contents; }
 
   #cv { display: none; max-width: 100%; max-height: 100%; cursor: default; }
 
@@ -261,7 +263,7 @@
   #mobileSheet     { display: none; }
   #mobileBar       { display: none; }
 
-  @media (max-width: 767px) {
+  @media (max-width: 767px) and (pointer: coarse) {
     body { height: auto; overflow-y: auto; }
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
     #sidebar { display: none; }
@@ -308,12 +310,13 @@
     .rs-pro { display: none; }
 
     /* dz — full canvas overlay, centered, tap anywhere to load */
-    #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; }
+    #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0; }
     #dz span:not(#dzMain) { display:none; }
-    #dz svg  { display:block; opacity:.6; width:56px; height:56px; }
-    #dzMain  { font-size:15px; color:#ccc; margin-top:6px; font-weight:500; }
-    @keyframes dzPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:.75;transform:scale(1.06)} }
-    #dz svg { animation: dzPulse 2.5s ease-in-out infinite; }
+    #dz svg  { display:block; width:72px; height:72px; }
+    #dzMain  { font-size:17px; color:#e0e0e0; margin-top:12px; font-weight:600; }
+    #dzTapArea { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:32px 40px; border:1.5px dashed #555; border-radius:16px; background:rgba(255,255,255,.03); }
+    @keyframes dzPulse { 0%,100%{opacity:.65;transform:scale(1)} 50%{opacity:.9;transform:scale(1.04)} }
+    #dzTapArea svg { animation: dzPulse 2.5s ease-in-out infinite; }
 
     /* canvas: touch-action:none prevents iOS native zoom from fighting canvas zoom */
     #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
@@ -460,7 +463,7 @@
     width: 140px;
     padding: 12px 10px;
   }
-  @media (max-width: 767px) { #vpWrap { display: none; } }
+  @media (max-width: 767px) and (pointer: coarse) { #vpWrap { display: none; } }
 
   /* ── filmstrip (right-side vertical column) ── */
   #filmstrip {
@@ -519,7 +522,7 @@
     border: 0.5px solid rgba(201,145,58,.35);
     border-radius: 3px; padding: 1px 3px; line-height: 1.4;
   }
-  @media (max-width: 767px) {
+  @media (max-width: 767px) and (pointer: coarse) {
     #filmstrip { display: none !important; }
   }
 
@@ -753,7 +756,11 @@
     <div style="margin-top:-6px">
       <div class="slbl" data-i18n="SCALE">SCALE</div>
       <div class="btn-row">
-        <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
+        <div id="scaleStatus" style="flex:1;margin-bottom:0;display:flex;align-items:center;gap:4px">
+          <span id="scaleNoSet">Not set</span>
+          <input id="scaleValEdit" type="number" step="any" style="display:none;width:60px;background:#2a2a2a;border:1px solid #444;border-radius:4px;color:#1D9E75;font-size:11px;font-family:monospace;padding:3px 5px;text-align:right;" title="Edit scale value">
+          <span id="scaleUnitLbl" style="display:none;color:#1D9E75;font-size:11px;font-family:monospace;"></span>
+        </div>
         <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
       </div>
     </div>
@@ -847,11 +854,13 @@
     </div>
 
     <div id="dz">
-      <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
-        <circle cx="22" cy="22" r="21" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4 3"/>
-        <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span id="dzMain" data-i18n="drop_main">Click or drop images / PDF here</span>
+      <div id="dzTapArea">
+        <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
+          <circle cx="22" cy="22" r="21" fill="none" stroke="#aaa" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#ddd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="dzMain" data-i18n="drop_main">Click or drop images / PDF here</span>
+      </div>
       <span data-i18n="drop_sub">or use Load button above</span>
       <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
     </div>
@@ -1184,8 +1193,8 @@
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
       <div style="display:flex;gap:8px;">
-        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report<span style="display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;line-height:1.5">PRO</span></button>
-        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV<span style="display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;line-height:1.5">PRO</span></button>
+        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report<span class="pro-badge">PRO</span></button>
+        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV<span class="pro-badge">PRO</span></button>
       </div>
       <div style="height:0.5px;background:#2a2a2a;margin:4px 0;"></div>
       <div style="display:flex;gap:8px;">
@@ -1991,8 +2000,11 @@ let pages = [];
 let currentPageIdx = -1;
 let _pageIdCounter = 0;
 
+/* ── device detection ── */
+const _hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+
 /* ── zoom/pan ── */
-let zoomEnabled = localStorage.getItem('mesu_zoom') !== null ? localStorage.getItem('mesu_zoom') === 'true' : (window.innerWidth > 767);
+let zoomEnabled = localStorage.getItem('mesu_zoom') !== null ? localStorage.getItem('mesu_zoom') === 'true' : !_hasCoarsePointer;
 let magEnabled  = localStorage.getItem('mesu_mag')  !== null ? localStorage.getItem('mesu_mag')  === 'true' : true;
 let zoom = 1, panX = 0, panY = 0;
 let isPanning = false, panStart = null;
@@ -2077,7 +2089,7 @@ function loadImg(file) {
     generateThumb(ps);
     addPage(ps, true);
     t('load_image');
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    if (snapEnabled && !isMob()) computeEdges();
     const _mts = document.getElementById('mobileToolsScroll');
     if (_mts) _mts.scrollLeft = 0;
     setTimeout(() => {
@@ -2099,7 +2111,7 @@ function loadImg(file) {
         generateThumb(ps);
         addPage(ps, true);
         t('load_image');
-        if (snapEnabled && window.innerWidth > 767) computeEdges();
+        if (snapEnabled && !isMob()) computeEdges();
         const _mts = document.getElementById('mobileToolsScroll');
         if (_mts) _mts.scrollLeft = 0;
       };
@@ -2118,7 +2130,7 @@ function getFsW() {
 }
 
 function fitImg() {
-  const isMobile = window.innerWidth <= 767;
+  const isMobile = isMob();
   const dpr = isMobile ? (window.devicePixelRatio || 1) : 1;
   const cssW = cp.clientWidth;
   const cssH = cp.clientHeight;
@@ -2220,7 +2232,7 @@ function togglePtSnap() {
 function toggleSnap() {
   snapEnabled = !snapEnabled;
   localStorage.setItem('mesu_snap', snapEnabled);
-  if (snapEnabled && img && !edgeMap && window.innerWidth > 767) computeEdges();
+  if (snapEnabled && img && !edgeMap && !isMob()) computeEdges();
   t('opt_edge');
   updUI();
 }
@@ -2801,7 +2813,7 @@ cv.addEventListener('click', e => {
     if (dst(p0,sp)<5/zoom) return;
     if (!addMeasurement({type:'line',x1:p0.x,y1:p0.y,x2:sp.x,y2:sp.y,px:dst(p0,sp)})) return;
     p0=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='ma'; setHint(L('h_dist_next')); }
+    if (isMob()) { stopTool(); } else { mode='ma'; setHint(L('h_dist_next')); }
     draw(); updUI();
   }
   else if (mode==='da') { p0=p; mode='db'; setHint(L('h_diam_b')); }
@@ -2811,7 +2823,7 @@ cv.addEventListener('click', e => {
     const x2=p0.x-(p.x-p0.x), y2=p0.y-(p.y-p0.y);
     if (!addMeasurement({type:'diam',cx:p0.x,cy:p0.y,r,x1:p.x,y1:p.y,x2,y2})) return;
     p0=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='da'; setHint(L('h_diam_next')); }
+    if (isMob()) { stopTool(); } else { mode='da'; setHint(L('h_diam_next')); }
     draw(); updUI();
   }
   // center-to-edge: click center then one edge → symmetric measurement
@@ -2823,7 +2835,7 @@ cv.addEventListener('click', e => {
     const sym = {x: p0.x-(p.x-p0.x), y: p0.y-(p.y-p0.y)};
     if (!addMeasurement({type:'line', x1:p.x, y1:p.y, x2:sym.x, y2:sym.y, px:d*2, subtype:'ce', cx:p0.x, cy:p0.y})) return;
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='ce1'; setHint(L('h_ce1')); }
+    if (isMob()) { stopTool(); } else { mode='ce1'; setHint(L('h_ce1')); }
     draw(); updUI();
   }
   // 3-point circle
@@ -2839,7 +2851,7 @@ cv.addEventListener('click', e => {
     const {cx,cy,r} = circ;
     if (!addMeasurement({type:'diam', cx, cy, r, x1:cx+r, y1:cy, x2:cx-r, y2:cy, subtype:'3p', pa:p0, pb:p1, pc:p})) return;
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='d3a'; setHint(L('h_d3a')); }
+    if (isMob()) { stopTool(); } else { mode='d3a'; setHint(L('h_d3a')); }
     draw(); updUI();
   }
   // arc length: center → first point on arc → second point on arc
@@ -2862,7 +2874,7 @@ cv.addEventListener('click', e => {
     const arcLen = Math.abs(sweep) * r;
     if (!addMeasurement({type:'arc', cx:p0.x, cy:p0.y, r, a1, a2, sweep, arcLen, p1:{x:p1.x,y:p1.y}, p2:sp2})) return;
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='arc1'; setHint(L('h_arc1')); }
+    if (isMob()) { stopTool(); } else { mode='arc1'; setHint(L('h_arc1')); }
     draw(); updUI();
   }
   else if (mode==='aa') { p0=p; mode='ab'; setHint(L('h_angle_b')); }
@@ -2874,7 +2886,7 @@ cv.addEventListener('click', e => {
     if (dst(p1,p)<5/zoom) return;
     if (!addMeasurement({type:'angle',ax:p0.x,ay:p0.y,vx:p1.x,vy:p1.y,bx:p.x,by:p.y,deg:angleDeg(p0,p1,p)})) return;
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='aa'; setHint(L('h_diam_next')); }
+    if (isMob()) { stopTool(); } else { mode='aa'; setHint(L('h_diam_next')); }
     draw(); updUI();
   }
   // Protractor: 4 points, 2 independent lines
@@ -2892,7 +2904,7 @@ cv.addEventListener('click', e => {
     const ang=angle4SectorDeg(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y,p.x,p.y);
     if (!addMeasurement({type:'angle4',ax:p0.x,ay:p0.y,bx:p1.x,by:p1.y,cx:p2.x,cy:p2.y,dx:p.x,dy:p.y,deg:ang})) return;
     p0=null; p1=null; window._p4p2=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='p4a'; setHint('Click 1st point of line A'); }
+    if (isMob()) { stopTool(); } else { mode='p4a'; setHint('Click 1st point of line A'); }
     draw(); updUI();
   }
   // Point-to-line distance
@@ -2909,7 +2921,7 @@ cv.addEventListener('click', e => {
     const foot={x:p0.x+t2*dx,y:p0.y+t2*dy};
     if (!addMeasurement({type:'ptline',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,px:p.x,py:p.y,fx:foot.x,fy:foot.y,distPx})) return;
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='pl1'; setHint('Click 1st point of reference line'); }
+    if (isMob()) { stopTool(); } else { mode='pl1'; setHint('Click 1st point of reference line'); }
     draw(); updUI();
   }
   // Line-to-line distance
@@ -2930,7 +2942,7 @@ cv.addEventListener('click', e => {
     const distPx=Math.hypot(offX,offY);
     if (!addMeasurement({type:'ll',lx1:p0.x,ly1:p0.y,lx2:p1.x,ly2:p1.y,l2x1,l2y1,l2x2,l2y2,fx,fy,mx:p.x,my:p.y,distPx})) return;
     p0=null; p1=null; mp=null;
-    if (window.innerWidth<=767) { stopTool(); } else { mode='ll1'; setHint('Click 1st point of line 1'); }
+    if (isMob()) { stopTool(); } else { mode='ll1'; setHint('Click 1st point of line 1'); }
     draw(); updUI();
   }
   // Point coordinate
@@ -3485,7 +3497,7 @@ function undoLast()    {
 
 /* ── modal ── */
 function showModal() {
-  if (window.innerWidth <= 767) document.body.style.overflow = 'hidden';
+  if (isMob()) document.body.style.overflow = 'hidden';
   modal.style.display='flex';
   const sv = document.getElementById('sVal');
   const su = document.getElementById('sUnit');
@@ -3495,7 +3507,7 @@ function showModal() {
   sv.value = lastVal;
   su.value = lastUnit;
   sv.style.borderColor = '';
-  if (window.innerWidth > 767) sv.select(); // desktop only: auto-select so user can just type to replace
+  if (!isMob()) sv.select(); // desktop only: auto-select so user can just type to replace
   document.querySelector('#scaleModal h3').textContent = L('define_scale');
   document.querySelector('#scaleModal p').textContent  = L('line_represents');
   document.querySelector('#scaleModal .btn-confirm').textContent = L('set_scale_btn');
@@ -3520,6 +3532,22 @@ function confirmScale(applyAll) {
 document.getElementById('sVal').addEventListener('click', function() { this.select(); });
 document.getElementById('sVal').addEventListener('focus', function() { this.select(); });
 document.getElementById('sVal').addEventListener('keydown', e => { if(e.key==='Enter')confirmScale(); if(e.key==='Escape')cancelScale(); });
+
+// Inline scale value editing
+(function() {
+  const sve = document.getElementById('scaleValEdit');
+  function applyScaleEdit() {
+    const v = parseFloat(sve.value);
+    if (!isFinite(v) || v <= 0 || !scPx) return;
+    scFactor = v / scPx;
+    localStorage.setItem('mesu_last_scale_val', v);
+    t('use_scale', {unit: scUnit, value: v});
+    draw(); updUI();
+  }
+  sve.addEventListener('change', applyScaleEdit);
+  sve.addEventListener('keydown', e => { if (e.key === 'Enter') { applyScaleEdit(); sve.blur(); } if (e.key === 'Escape') sve.blur(); });
+  sve.addEventListener('focus', function() { this.select(); });
+})();
 
 function snapPoint(from, to, e) {
   if (!e.ctrlKey && !e.metaKey) return to;
@@ -3858,8 +3886,22 @@ function updUI() {
   const isLabelDragUI = mode==='drag' && dragState && dragState.field==='label';
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):isLabelDragUI?'grab':isPointDragUI?'default':mode==='drag'?'grabbing':(mode==='st'?'crosshair':zoomEnabled?'grab':'default');
 
-  if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f=\u202f1\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; }
-  else { scaleStatus.textContent=L('not_set'); scaleStatus.style.color=''; }
+  if (hasSc) {
+    const realVal = (scFactor * scPx);
+    document.getElementById('scaleNoSet').style.display = 'none';
+    const sve = document.getElementById('scaleValEdit');
+    const sul = document.getElementById('scaleUnitLbl');
+    sve.style.display = '';
+    sul.style.display = '';
+    if (document.activeElement !== sve) sve.value = realVal.toFixed(2);
+    sul.textContent = scUnit;
+  }
+  else {
+    document.getElementById('scaleNoSet').style.display = '';
+    document.getElementById('scaleNoSet').textContent = L('not_set');
+    document.getElementById('scaleValEdit').style.display = 'none';
+    document.getElementById('scaleUnitLbl').style.display = 'none';
+  }
 
   measCount.textContent=meas.length?`(${meas.length})`:'';
   noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
@@ -3919,7 +3961,7 @@ function draw() {
   if (!img) return;
 
   // DPR scaling: on mobile canvas buffer is cssSize×DPR, so we must scale all sizes accordingly
-  const dpr = (window.innerWidth<=767) ? (window.devicePixelRatio||1) : 1;
+  const dpr = (isMob()) ? (window.devicePixelRatio||1) : 1;
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
   ctx.drawImage(img,0,0,img.width,img.height);
@@ -4062,7 +4104,7 @@ function draw() {
     areaPts.forEach((pp,i)=>{ctx.beginPath();ctx.arc(pp.x,pp.y,(i===0?5:3)/zoom,0,Math.PI*2);ctx.fill();});
     if (areaPts.length>=3&&mp) {
       const c0=areaPts[0];
-      const closeR = (window.innerWidth<=767) ? DRAG_R*3 : DRAG_R;
+      const closeR = (isMob()) ? DRAG_R*3 : DRAG_R;
       if (dst(c0,mp)*zoom<closeR){ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1/zoom;ctx.beginPath();ctx.arc(c0.x,c0.y,7/zoom,0,Math.PI*2);ctx.stroke();ctx.restore();}
     }
     ctx.restore();
@@ -4086,7 +4128,7 @@ function draw() {
     areaPts.forEach((pp,i)=>{ctx.beginPath();ctx.arc(pp.x,pp.y,(i===0?5:3)/zoom,0,Math.PI*2);ctx.fill();});
     if (areaPts.length>=3&&mp) {
       const c0=areaPts[0];
-      const closeR = (window.innerWidth<=767) ? DRAG_R*3 : DRAG_R;
+      const closeR = (isMob()) ? DRAG_R*3 : DRAG_R;
       if (dst(c0,mp)*zoom<closeR){ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=1/zoom;ctx.beginPath();ctx.arc(c0.x,c0.y,7/zoom,0,Math.PI*2);ctx.stroke();ctx.restore();}
     }
     ctx.restore();
@@ -4095,7 +4137,7 @@ function draw() {
   ctx.restore(); // end world transform
 
   // magnifier
-  const isMobNow = window.innerWidth<=767;
+  const isMobNow = isMob();
   if (mp) {
     const am2=['sa','sb','ma','mb','ce1','ce2','ll1','ll2','ll3','da','db','d3a','d3b','d3c','arc1','arc2','arc3','aa','ab','ac','p4a','p4b','p4c','p4d','pl1','pl2','pl3','ptc','pa','pp','st','na'];
     const col=(mode==='sa'||mode==='sb')?'#1D9E75':(mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3')?'#5DCAA5':(mode==='aa'||mode==='ab'||mode==='ac'||mode==='p4a'||mode==='p4b'||mode==='p4c'||mode==='p4d')?'#D4537E':mode==='pa'?'#9F77DD':mode==='pp'?'#F0994A':mode==='st'?'#9F77DD':'#EF9F27';
@@ -4848,7 +4890,7 @@ function loadProject(file) {
 }
 
 function setHint(t)  {
-  if (window.innerWidth <= 767) {
+  if (isMob()) {
     // strip keyboard shortcut references for mobile
     t = t.replace(/\s*\(Ctrl=[^)]+\)/g, '').replace(/\s*—\s*Esc(\s*to\s*stop)?/g, '').replace(/\s*Esc$/g, '').replace(/^[A-Z]\s*—\s*/g, '').replace(/\s*Esc\s*to\s*cancel/g, '').replace(/Enter or click/g, 'Tap').replace(/click/gi, 'Tap').replace(/\s{2,}/g, ' ').trim();
   }
@@ -5209,13 +5251,13 @@ function loadImgFromImage(imgEl, replaceCurrentPage) {
       generateThumb(pages[currentPageIdx]);
     }
     fitImg(); updUI();
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    if (snapEnabled && !isMob()) computeEdges();
   } else {
     // New page (PDF page load)
     const ps = makePageState({ imgEl: imgEl, originalImgEl: imgEl, label: pdfSourceName || 'pdf', sourceName: pdfSourceName || 'pdf', sourceType: 'pdf' });
     generateThumb(ps);
     addPage(ps, true);
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    if (snapEnabled && !isMob()) computeEdges();
     setTimeout(() => {
       const bs = document.getElementById('btnScale');
       if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
@@ -5683,7 +5725,7 @@ setTimeout(() => {
 }, 500);
 
 /* ── MOBILE ── */
-const isMob = () => window.innerWidth <= 767;
+const isMob = () => _hasCoarsePointer && isMob();
 
 
 
