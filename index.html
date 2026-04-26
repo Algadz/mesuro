@@ -3265,26 +3265,42 @@ function applyStraighten() {
   // stPts are in world space = image pixel space (1:1 after fitImg change)
   const src = stPts.map(p => [p.x, p.y]);
 
-  // ── Zhang aspect ratio: homography-column method ────────────────────────
+  // ── Aspect ratio via homography column method ─────────────────────────
+  // H_fwd maps unit-square to image quad; columns h1,h2 are the vanishing
+  // directions of width and height. r = ||K⁻¹h1|| / ||K⁻¹h2|| = true w/h.
+  // f is estimated from the orthogonality constraint h1⊥h2 in 3-D
+  // (Zhang / two-VP formula: f² = -num/den).  When the estimate is outside
+  // a plausible camera range we fall back to a default (~58° diagonal FoV).
+  // For near-frontoparallel quads h1[2]≈h2[2]≈0 so f cancels in the ratio
+  // regardless — making the default choice irrelevant for that case.
+  // Bug fixed: the old code used raw foreshortened projected edge lengths as
+  // the aspect ratio when Zhang failed, which was wrong for any perspective tilt.
   const unitSq = [[0,0],[1,0],[1,1],[0,1]];
-  const H_fwd = computeHomography(unitSq, src); // maps unit sq → image quad
+  const H_fwd = computeHomography(unitSq, src);
   let trueAspect = null;
   if (H_fwd) {
-    // h1 = H * [1,0,0]^T,  h2 = H * [0,1,0]^T
     const h1 = [H_fwd[0][0], H_fwd[1][0], H_fwd[2][0]];
     const h2 = [H_fwd[0][1], H_fwd[1][1], H_fwd[2][1]];
     const cx = iW / 2, cy = iH / 2;
-    // Orthogonality constraint → focal length:  K^{-T}h1 · K^{-T}h2 = 0
+    const diag = Math.sqrt(iW*iW + iH*iH);
+    // Focal length from orthogonality constraint (K^{-T}h1 . K^{-T}h2 = 0)
     const num = (h1[0]-cx*h1[2])*(h2[0]-cx*h2[2]) + (h1[1]-cy*h1[2])*(h2[1]-cy*h2[2]);
     const den = h1[2] * h2[2];
-    const f2  = (Math.abs(den) > 1e-9) ? -num / den : -1;
-    if (f2 > 1) {
-      const f  = Math.sqrt(f2);
-      const n1 = [(h1[0]-cx*h1[2])/f, (h1[1]-cy*h1[2])/f, h1[2]];
-      const n2 = [(h2[0]-cx*h2[2])/f, (h2[1]-cy*h2[2])/f, h2[2]];
-      const r  = Math.hypot(n1[0],n1[1],n1[2]) / Math.hypot(n2[0],n2[1],n2[2]);
-      if (r > 0.05 && r < 20) trueAspect = r; // w/h
+    let f = null;
+    if (Math.abs(den) > 1e-9) {
+      const f2 = -num / den;
+      if (f2 > 0) {
+        const fEst = Math.sqrt(f2);
+        // Accept only physically plausible focal lengths (~10° to 150° FoV)
+        if (fEst > diag * 0.2 && fEst < diag * 5) f = fEst;
+      }
     }
+    // Default focal: ~58° diagonal FoV (typical smartphone / mirrorless)
+    if (!f) f = diag * 0.9;
+    const n1 = [(h1[0]-cx*h1[2])/f, (h1[1]-cy*h1[2])/f, h1[2]];
+    const n2 = [(h2[0]-cx*h2[2])/f, (h2[1]-cy*h2[2])/f, h2[2]];
+    const r  = Math.hypot(n1[0],n1[1],n1[2]) / Math.hypot(n2[0],n2[1],n2[2]);
+    if (r > 0.05 && r < 20) trueAspect = r; // w/h
   }
 
   // Projected edge lengths as size reference
