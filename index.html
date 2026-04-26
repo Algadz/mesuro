@@ -384,6 +384,12 @@
     text-overflow: ellipsis;
   }
 
+  /* Desktop: scale status is clickable to adjust value when scale is set */
+  @media (min-width: 768px) {
+    #scaleStatus.has-scale { cursor: pointer; user-select: none; }
+    #scaleStatus.has-scale:hover { background: #252525; border-color: #1D9E75; }
+  }
+
   @keyframes scalePulseOnce {
     0%   { box-shadow: 0 0 0 0 rgba(29,158,117,.7); }
     50%  { box-shadow: 0 0 0 7px rgba(29,158,117,0); }
@@ -3521,6 +3527,92 @@ document.getElementById('sVal').addEventListener('click', function() { this.sele
 document.getElementById('sVal').addEventListener('focus', function() { this.select(); });
 document.getElementById('sVal').addEventListener('keydown', e => { if(e.key==='Enter')confirmScale(); if(e.key==='Escape')cancelScale(); });
 
+// ── Inline scale value editor (desktop only) ──
+// Click the scale status text to adjust the scale value without redrawing.
+(function() {
+  let _editing = false;
+
+  function exitEdit() {
+    _editing = false;
+    // Clear any inline styles that were set during edit mode
+    scaleStatus.style.padding = '';
+    scaleStatus.style.overflow = '';
+    scaleStatus.style.whiteSpace = '';
+  }
+
+  scaleStatus.addEventListener('click', function() {
+    if (isMob() || !scFactor || _editing) return;
+    _editing = true;
+
+    // The value this scale line represents in real-world units
+    const currentVal = parseFloat((scPx * scFactor).toPrecision(6));
+    const currentUnit = scUnit;
+
+    // Switch to edit mode — override the box sizing to fit the inputs
+    scaleStatus.style.padding = '3px 4px';
+    scaleStatus.style.overflow = 'visible';
+    scaleStatus.style.whiteSpace = 'normal';
+    scaleStatus.innerHTML = '';
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:3px;';
+
+    const vIn = document.createElement('input');
+    vIn.type = 'number'; vIn.min = '0'; vIn.step = 'any'; vIn.value = currentVal;
+    vIn.title = 'Real-world length this scale line represents';
+    vIn.style.cssText = 'width:58px;background:#111;border:0.5px solid #1D9E75;border-radius:4px;color:#e0e0e0;font-size:11px;padding:2px 4px;font-family:monospace;outline:none;min-width:0;';
+
+    const uIn = document.createElement('input');
+    uIn.type = 'text'; uIn.value = currentUnit;
+    uIn.title = 'Unit (e.g. mm, cm, m, in)';
+    uIn.style.cssText = 'width:30px;background:#111;border:0.5px solid #555;border-radius:4px;color:#aaa;font-size:11px;padding:2px 4px;font-family:inherit;outline:none;text-align:center;min-width:0;';
+
+    const okBtn = document.createElement('button');
+    okBtn.textContent = '✓';
+    okBtn.title = 'Apply (Enter)';
+    okBtn.style.cssText = 'background:#0F6E56;border:none;border-radius:4px;color:#fff;font-size:12px;line-height:1;padding:2px 6px;cursor:pointer;flex-shrink:0;font-family:inherit;';
+
+    wrap.append(vIn, uIn, okBtn);
+    scaleStatus.appendChild(wrap);
+    vIn.select(); vIn.focus();
+
+    function applyEdit() {
+      const newVal = parseFloat(vIn.value);
+      const newUnit = uIn.value.trim() || 'mm';
+      if (!newVal || newVal <= 0) { vIn.style.borderColor = '#E24B4A'; vIn.focus(); return; }
+      scFactor = newVal / scPx;
+      scUnit = newUnit;
+      localStorage.setItem('mesu_last_scale_val', String(newVal));
+      localStorage.setItem('mesu_last_scale_unit', newUnit);
+      if (typeof t === 'function') t('scale_edit_inline');
+      exitEdit();
+      updUI(); draw();
+    }
+
+    function cancelEdit() {
+      exitEdit();
+      updUI(); // restores the original text display
+    }
+
+    [vIn, uIn].forEach(el => el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); applyEdit(); }
+      if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
+    }));
+    okBtn.addEventListener('click', e => { e.stopPropagation(); applyEdit(); });
+
+    // Click outside → cancel
+    setTimeout(() => {
+      function onAway(e) {
+        if (!scaleStatus.contains(e.target)) {
+          document.removeEventListener('click', onAway);
+          if (_editing) cancelEdit();
+        }
+      }
+      document.addEventListener('click', onAway);
+    }, 0);
+  });
+})();
+
 function snapPoint(from, to, e) {
   if (!e.ctrlKey && !e.metaKey) return to;
   const dx = to.x - from.x, dy = to.y - from.y;
@@ -3858,8 +3950,8 @@ function updUI() {
   const isLabelDragUI = mode==='drag' && dragState && dragState.field==='label';
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):isLabelDragUI?'grab':isPointDragUI?'default':mode==='drag'?'grabbing':(mode==='st'?'crosshair':zoomEnabled?'grab':'default');
 
-  if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f=\u202f1\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; }
-  else { scaleStatus.textContent=L('not_set'); scaleStatus.style.color=''; }
+  if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f=\u202f1\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; scaleStatus.classList.add('has-scale'); }
+  else { scaleStatus.textContent=L('not_set'); scaleStatus.style.color=''; scaleStatus.classList.remove('has-scale'); }
 
   measCount.textContent=meas.length?`(${meas.length})`:'';
   noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
@@ -3923,7 +4015,7 @@ function draw() {
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
   ctx.drawImage(img,0,0,img.width,img.height);
-  if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',false,dpr);
+  if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75',`${(scPx*scFactor).toFixed(2)} ${scUnit}`,false,dpr);
   if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
 
   meas.forEach((m,i) => {
@@ -4874,7 +4966,7 @@ function exportImg() {
   // Visual scale: match annotation size to canvas at fit-to-frame zoom
   const fitZoom = Math.min(cp.clientWidth / img.width, cp.clientHeight / img.height, 1);
   const vs = 1 / fitZoom;
-  if (scLine){drawAnnOn(ec_ctx,scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75','scale',vs);}
+  if (scLine){drawAnnOn(ec_ctx,scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75',`${(scPx*scFactor).toFixed(2)} ${scUnit}`,vs);}
   meas.forEach((m,i)=>{
     if (m.type==='line'){const r=scFactor?m.px*scFactor:null;drawAnnOn(ec_ctx,m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,vs,m.lpos||null);}
     else if(m.type==='diam'){const r=scFactor?m.r*2*scFactor:null;drawDiamOn(ec_ctx,m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,vs,m.lpos||null);}
@@ -5436,6 +5528,7 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   const pgSc = pg.scFactor !== undefined ? pg.scFactor : scFactor;
   const pgUnit = pg.scUnit || scUnit;
   const pgScLine = pg.scLine !== undefined ? pg.scLine : scLine;
+  const pgScPx = pg.scPx !== undefined ? pg.scPx : scPx;
   const pgMeas = pg.meas !== undefined ? pg.meas : meas;
   const ec = document.createElement('canvas');
   // Cap canvas size for iOS memory safety (2000px max side, enough for A4 PDF)
@@ -5449,7 +5542,7 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   // Visual scale: same rule as exportImg — match fit-to-frame canvas zoom
   const fitZoomPdf = Math.min(cp.clientWidth / pgImg.width, cp.clientHeight / pgImg.height, 1);
   const sx = 1 / fitZoomPdf;
-  if (pgScLine){drawAnnOn(ec_ctx,pgScLine.x1,pgScLine.y1,pgScLine.x2,pgScLine.y2,'#1D9E75','scale',sx);}
+  if (pgScLine){drawAnnOn(ec_ctx,pgScLine.x1,pgScLine.y1,pgScLine.x2,pgScLine.y2,'#1D9E75',`${(pgScPx*pgSc).toFixed(2)} ${pgUnit}`,sx);}
   pgMeas.forEach((m,i)=>{
     if(m.type==='line'){const r=pgSc?m.px*pgSc:null;drawAnnOn(ec_ctx,m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${pgUnit}`:`#${i+1}  ${Math.round(m.px)}px`,sx,m.lpos||null);}
     else if(m.type==='diam'){const r=pgSc?m.r*2*pgSc:null;drawDiamOn(ec_ctx,m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,sx,m.lpos||null);}
@@ -6365,14 +6458,6 @@ async function doVerifyLicenseMobile() {
   const errEl = document.getElementById('mGateKeyError');
   btn.textContent = '…'; btn.disabled = true;
   errEl.style.display = 'none';
-  // TEMP: dev bypass key — remove before launch
-  if (key === '0510') {
-    isPro = true; localStorage.setItem('mesuro_license_key', key);
-    t('gate_unlock_ok'); hideMobileGate();
-    showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
-    document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
-    updUI(); return;
-  }
   try {
     const ok = await _lsActivateOrValidate(key);
     if (ok) {
@@ -6458,14 +6543,6 @@ async function doVerifyLicense() {
   const errEl = document.getElementById('gateKeyError');
   btn.textContent = '…'; btn.disabled = true;
   errEl.style.display = 'none';
-  // TEMP: dev bypass key — remove before launch
-  if (key === '0510') {
-    isPro = true; localStorage.setItem('mesuro_license_key', key);
-    t('gate_unlock_ok'); hideGateCard();
-    showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
-    document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
-    updUI(); return;
-  }
   try {
     const ok = await _lsActivateOrValidate(key);
     if (ok) {
