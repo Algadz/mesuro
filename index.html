@@ -718,7 +718,6 @@
       </div>
       <input type="file" id="projectInput" accept=".mesuro" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <input type="file" id="replaceFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-      <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
     </div>
 
     <div>
@@ -1440,6 +1439,7 @@
 
   <div style="font-size:11px;color:#333;text-align:center">Mesuro — free online image measurement tool</div>
 
+<input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
 
 <script>
 
@@ -1950,11 +1950,7 @@ let scLine = null, scPx = null, scFactor = null, scUnit = 'mm';
 let meas = [], pLine = null, hovIdx = -1, history = [];
 
 /* ── Pro license ── */
-let isPro = (function() {
-  const p = new URLSearchParams(location.search);
-  if (p.get('dev')) return true;
-  return !!localStorage.getItem('mesuro_license_key');
-})();
+let isPro = !!localStorage.getItem('mesuro_license_key');
 if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true; }
 
 function addMeasurement(obj) {
@@ -6410,14 +6406,6 @@ async function doVerifyLicenseMobile() {
   const errEl = document.getElementById('mGateKeyError');
   btn.textContent = '…'; btn.disabled = true;
   errEl.style.display = 'none';
-  // TEMP: dev bypass key — remove before launch
-  if (key === '0510') {
-    isPro = true; localStorage.setItem('mesuro_license_key', key);
-    t('gate_unlock_ok'); hideMobileGate();
-    showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
-    document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
-    updUI(); return;
-  }
   try {
     const ok = await _lsActivateOrValidate(key);
     if (ok) {
@@ -6503,14 +6491,6 @@ async function doVerifyLicense() {
   const errEl = document.getElementById('gateKeyError');
   btn.textContent = '…'; btn.disabled = true;
   errEl.style.display = 'none';
-  // TEMP: dev bypass key — remove before launch
-  if (key === '0510') {
-    isPro = true; localStorage.setItem('mesuro_license_key', key);
-    t('gate_unlock_ok'); hideGateCard();
-    showToast('✓ Mesuro Pro unlocked!'); document.body.classList.add('is-pro');
-    document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true;
-    updUI(); return;
-  }
   try {
     const ok = await _lsActivateOrValidate(key);
     if (ok) {
