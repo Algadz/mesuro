@@ -3490,7 +3490,10 @@ function undoLast()    {
 }
 
 /* ── modal ── */
+let _scEditMode = false; // true when editing an existing scale (no new line drawn)
+
 function showModal() {
+  _scEditMode = false;
   if (window.innerWidth <= 767) document.body.style.overflow = 'hidden';
   modal.style.display='flex';
   const sv = document.getElementById('sVal');
@@ -3509,7 +3512,32 @@ function showModal() {
   const batchRow = document.getElementById('scaleBatchRow');
   if (batchRow) batchRow.style.display = (isPro && pages.length > 1) ? 'block' : 'none';
 }
-function cancelScale() { modal.style.display='none'; document.body.style.overflow=''; pLine=null; stopTool(); }
+
+// Mobile: tap on existing scale bar label → adjust value without redrawing
+function showScaleEditModal() {
+  _scEditMode = true;
+  if (window.innerWidth <= 767) document.body.style.overflow = 'hidden';
+  modal.style.display = 'flex';
+  const sv = document.getElementById('sVal');
+  const su = document.getElementById('sUnit');
+  // Pre-fill with current real-world value (scPx × scFactor) and unit
+  sv.value = parseFloat((scPx * scFactor).toPrecision(6));
+  su.value = scUnit;
+  sv.style.borderColor = '';
+  sv.focus(); sv.select();
+  document.querySelector('#scaleModal h3').textContent = L('adjust_scale') || 'Adjust scale';
+  document.querySelector('#scaleModal p').textContent  = L('scale_line_represents') || 'The scale line represents:';
+  document.querySelector('#scaleModal .btn-confirm').textContent = L('set_scale_btn');
+  // Hide batch row — we're only editing, not setting a new line
+  const batchRow = document.getElementById('scaleBatchRow');
+  if (batchRow) batchRow.style.display = 'none';
+}
+
+function cancelScale() {
+  _scEditMode = false;
+  modal.style.display='none'; document.body.style.overflow='';
+  pLine=null; stopTool();
+}
 function confirmScale(applyAll) {
   const sv=document.getElementById('sVal'), val=parseFloat(sv.value);
   if (!val||val<=0) { sv.style.borderColor='#E24B4A'; sv.focus(); return; }
@@ -3518,8 +3546,15 @@ function confirmScale(applyAll) {
   // remember for next time
   localStorage.setItem('mesu_last_scale_val',  sv.value);
   localStorage.setItem('mesu_last_scale_unit', scUnit);
-  scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
-  pLine=null; modal.style.display='none'; document.body.style.overflow=''; t('use_scale', {unit:scUnit, value:+sv.value}); stopTool();
+  if (_scEditMode) {
+    // Editing existing scale: keep scLine/scPx, just recompute scFactor
+    scFactor = val / scPx;
+    _scEditMode = false;
+  } else {
+    scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
+    pLine=null;
+  }
+  modal.style.display='none'; document.body.style.overflow=''; t('use_scale', {unit:scUnit, value:+sv.value}); stopTool();
   if (applyAll) applyScaleToAllPages();
 }
 // click-to-clear preset value, restore on blur if empty
@@ -6164,6 +6199,17 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     const p = wasLongPress ? {...mp} : getTouchPt(e.changedTouches[0]);
     longPressActive = false;
     if (!p) { mp=null; draw(); return; }
+
+    // Tap on the scale bar label → open edit modal (idle/wait mode only, no tool active)
+    if ((mode==='idle'||mode==='wait') && scLine && scFactor && !wasLongPress) {
+      const lx = (scLine.x1+scLine.x2)/2;
+      const ly = (scLine.y1+scLine.y2)/2 - 18/zoom;
+      const hitR = 44/zoom; // ~44 screen-px hit radius, zoom-adjusted
+      if (Math.hypot(p.x-lx, p.y-ly) < hitR) {
+        showScaleEditModal(); mp=null; draw(); return;
+      }
+    }
+
     if (mode==='idle'||mode==='wait') { mp=null; draw(); return; }
 
     // Route to correct handler based on mode
