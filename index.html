@@ -161,14 +161,14 @@
     font-size: 11px;
     padding: 4px 14px;
     border-radius: 100px;
-    pointer-events: auto;
+    pointer-events: none;
     z-index: 10;
     white-space: nowrap;
   }
 
 
   #resList { display: flex; flex-direction: column; gap: 4px; }
-  #noRes { font-size: 12px; color: #777; }
+  #noRes { font-size: 12px; color: #555; }
 
   .res-item {
     display: flex;
@@ -265,26 +265,26 @@
     body { height: auto; overflow-y: auto; }
     #app { flex-direction:column; height:100svh; min-height:100svh; margin:0; border-radius:0; border:none; overflow:hidden; }
     #sidebar { display: none; }
-    #mobileTopbar { display: flex; align-items:center; background:#262626; border-bottom:0.5px solid #333; flex-shrink:0; z-index:20; position:relative; overflow:hidden; }
+    #mobileTopbar { display: flex; align-items:center; background:#242424; border-bottom:0.5px solid #2a2a2a; flex-shrink:0; z-index:20; position:relative; overflow:hidden; }
     #mobileSubRow::-webkit-scrollbar { display:none; }
     @keyframes mScalePulse {
       0%,100% { box-shadow: 0 0 0 1.5px #1D9E75; }
       50%      { box-shadow: 0 0 0 3px rgba(29,158,117,.25); }
     }
     #mBtnScale.needs-scale { animation: mScalePulse 1.6s ease-in-out infinite; }
-    #mobileBar { display: flex; flex-shrink:0; align-items:center; gap:10px; background:#222; border-top:0.5px solid #333; padding:10px 14px 14px; position:relative; }
-    #mobileLogoSection { padding:6px 10px; border-right:0.5px solid #333; flex-shrink:0; display:flex; align-items:center; }
+    #mobileBar { display: flex; flex-shrink:0; align-items:center; gap:10px; background:#1a1a1a; border-top:0.5px solid #222; padding:10px 14px 14px; position:relative; }
+    #mobileLogoSection { padding:6px 10px; border-right:0.5px solid #2a2a2a; flex-shrink:0; display:flex; align-items:center; }
     #mobileLogo { font-size:15px; font-weight:500; letter-spacing:-0.3px; color:#e0e0e0; }
-    #mobileLogo span { color:#666; }
+    #mobileLogo span { color:#444; }
     #mobileToolsScroll { display:flex; align-items:center; gap:4px; padding:6px 8px; overflow-x:auto; scrollbar-width:none; flex:1; position:relative; }
     #mobileToolsScroll::-webkit-scrollbar { display:none; }
-    #mobileTopbar::after { content:''; position:absolute; right:0; top:0; bottom:0; width:36px; background:linear-gradient(to right,transparent,#262626 70%); pointer-events:none; z-index:1; transition:opacity .2s; }
+    #mobileTopbar::after { content:''; position:absolute; right:0; top:0; bottom:0; width:36px; background:linear-gradient(to right,transparent,#242424 70%); pointer-events:none; z-index:1; transition:opacity .2s; }
     #mobileTopbar.scroll-at-end::after { opacity:0; }
-    .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 13px; min-height:52px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2e2e2e; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
-    .m-tbtn:disabled { opacity:.5; cursor:default; }
+    .m-tbtn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:8px 13px; min-height:52px; border-radius:7px; cursor:pointer; flex-shrink:0; border:none; background:#2a2a2a; transition:background .15s; width:auto; text-align:center; font-family:inherit; }
+    .m-tbtn:disabled { opacity:.35; cursor:default; }
     .m-tbtn:active:not(:disabled) { transform:scale(0.95); }
-    .m-tbtn .m-ti { font-size:22px; line-height:1; color:#888; }
-    .m-tbtn .m-tt { font-size:10px; font-weight:500; color:#777; white-space:nowrap; line-height:1; }
+    .m-tbtn .m-ti { font-size:22px; line-height:1; color:#666; }
+    .m-tbtn .m-tt { font-size:10px; font-weight:500; color:#555; white-space:nowrap; line-height:1; }
     .m-tbtn.m-sc { background:rgba(29,158,117,.15); } .m-tbtn.m-sc .m-ti,.m-tbtn.m-sc .m-tt { color:#1D9E75; }
     .m-tbtn.m-di { background:rgba(239,159,39,.18); } .m-tbtn.m-di .m-ti,.m-tbtn.m-di .m-tt { color:#EF9F27; }
     .m-tbtn.m-dm { background:rgba(93,202,165,.12); } .m-tbtn.m-dm .m-ti,.m-tbtn.m-dm .m-tt { color:#5DCAA5; }
@@ -296,9 +296,9 @@
     .m-tbtn.m-active { outline:2px solid currentColor; outline-offset:-2px; }
     .m-tbtn.m-active .m-ti { opacity:1; }
     .m-tbtn.m-active .m-tt { opacity:1; }
-    .m-sub { display:inline-flex;align-items:center;justify-content:center;padding:0 14px;height:40px;border-radius:6px;cursor:pointer;border:none;font-size:11px;white-space:nowrap;font-family:inherit;transition:background .15s;background:#2e2e2e;color:#999; }
+    .m-sub { display:inline-flex;align-items:center;justify-content:center;padding:0 14px;height:40px;border-radius:6px;cursor:pointer;border:none;font-size:11px;white-space:nowrap;font-family:inherit;transition:background .15s;background:#2a2a2a;color:#888; }
     .m-sub.active { color:#fff; }
-    #mobileMeasSection button[disabled] { opacity:.5; cursor:default; }
+    #mobileMeasSection button[disabled] { opacity:.35; cursor:default; }
 
     #canvasArea { flex:1; min-height:0; position:relative; flex-direction:column; }
     #canvasPad { min-height:0; }
@@ -308,12 +308,10 @@
     .rs-pro { display: none; }
 
     /* dz — full canvas overlay, centered, tap anywhere to load */
-    #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; }
+    #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
     #dz span:not(#dzMain) { display:none; }
-    #dz svg  { display:block; opacity:.6; width:56px; height:56px; }
-    #dzMain  { font-size:15px; color:#ccc; margin-top:6px; font-weight:500; }
-    @keyframes dzPulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:.75;transform:scale(1.06)} }
-    #dz svg { animation: dzPulse 2.5s ease-in-out infinite; }
+    #dz svg  { display:block; opacity:.4; width:64px; height:64px; }
+    #dzMain  { font-size:17px; color:#aaa; margin-top:6px; }
 
     /* canvas: touch-action:none prevents iOS native zoom from fighting canvas zoom */
     #cv { max-width:100%; max-height:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
@@ -321,14 +319,14 @@
     /* gradient fade above bottom bar */
     #mobileBar::before { content:''; position:absolute; top:-48px; left:0; right:0; height:48px; background:linear-gradient(to bottom,transparent,rgba(17,17,17,.9)); pointer-events:none; }
     #mLastChip { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
-    #mLastVal { font-size:12px; font-weight:500; color:#ddd; }
-    #mLastSub { font-size:8px; color:#666; margin-top:1px; }
-    #mScrollHint { margin-left:auto; font-size:9px; color:#555; text-align:right; line-height:1.5; }
+    #mLastVal { font-size:12px; font-weight:500; }
+    #mLastSub { font-size:8px; color:#444; margin-top:1px; }
+    #mScrollHint { margin-left:auto; font-size:9px; color:#3a3a3a; text-align:right; line-height:1.5; }
 
     /* mobile measurements in SEO area */
     #mobileMeasSection { display:block; }
     .m-res-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:0.5px solid #222; min-width:0; overflow-x:clip; }
-    .m-res-val { font-size:12px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#ccc; }
+    .m-res-val { font-size:12px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .m-res-icon { font-size:12px; width:18px; flex-shrink:0; }
 
 
@@ -338,7 +336,6 @@
     #pdfMultiOptions, #pdfRangeBtn, #pdfProNotice { display: none !important; }
 
     /* ── Mobile horizontal filmstrip ── */
-    #toast { font-size:13px; padding:6px 16px; }
     #mobileFilmstrip { display:none; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; background:#141414; border-top:0.5px solid #222; border-bottom:0.5px solid #222; align-items:center; gap:5px; padding:5px 8px; flex-shrink:0; }
     #mobileFilmstrip::-webkit-scrollbar { display:none; }
     #mobileFilmstrip.has-pages { display:flex; }
@@ -461,6 +458,9 @@
     padding: 12px 10px;
   }
   @media (max-width: 767px) { #vpWrap { display: none; } }
+  /* mFileInput is for mobile tap-to-load only; disable it on desktop so it
+     doesn't intercept clicks and open a competing file dialog */
+  @media (min-width: 768px) { #mFileInput { display: none; pointer-events: none; } }
 
   /* ── filmstrip (right-side vertical column) ── */
   #filmstrip {
@@ -841,15 +841,15 @@
     <div id="canvasPad">
 
     <!-- Mobile sub-tool row — absolute overlay so it never resizes the canvas -->
-    <div id="mobileSubRow" style="display:none;position:absolute;top:0;left:0;right:0;z-index:19;background:#262626;border-bottom:0.5px solid #333;overflow-x:auto;scrollbar-width:none;">
+    <div id="mobileSubRow" style="display:none;position:absolute;top:0;left:0;right:0;z-index:19;background:#1e1e1e;border-bottom:0.5px solid #2a2a2a;overflow-x:auto;scrollbar-width:none;">
       <div id="mobileSubScroll" style="display:flex;gap:4px;padding:5px 8px;min-width:max-content;">
       </div>
     </div>
 
     <div id="dz">
       <svg width="48" height="48" viewBox="0 0 44 44" fill="none" aria-label="Drop image here to start measuring" role="img">
-        <circle cx="22" cy="22" r="21" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4 3"/>
-        <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#bbb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="22" cy="22" r="21" fill="none" stroke="#777" stroke-width="1" stroke-dasharray="4 3"/>
+        <path d="M22 13v11M16 19l6-6 6 6M13 30h18" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span id="dzMain" data-i18n="drop_main">Click or drop images / PDF here</span>
       <span data-i18n="drop_sub">or use Load button above</span>
@@ -6181,8 +6181,8 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   // Mobile: mFileInput is directly inside dz, no .click() needed
 } else {
   // Desktop: click handler triggers fileInput
-  document.getElementById('dz').addEventListener('click', () => {
-    if (!img) document.getElementById('fileInput').click();
+  document.getElementById('dz').addEventListener('click', (e) => {
+    if (!img) { e.stopPropagation(); document.getElementById('fileInput').click(); }
   });
 }
 
