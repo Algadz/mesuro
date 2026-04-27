@@ -161,7 +161,6 @@
     font-size: 11px;
     padding: 4px 14px;
     border-radius: 100px;
-    pointer-events: none;
     z-index: 10;
     white-space: nowrap;
   }
@@ -1986,7 +1985,7 @@ function addMeasurement(obj) {
 let _gateLimitShown = false;
 function _measLimitGuard() {
   if (!isPro && meas.length >= 10) {
-    showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#C9913A;cursor:pointer;text-decoration:underline">Go Pro</a> or delete a measurement', 3000, true);
+    showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#fff;font-weight:600;cursor:pointer;text-decoration:underline">Go Pro</a> or delete a measurement', 3000, true);
     return true;
   }
   return false;
@@ -2033,7 +2032,7 @@ document.getElementById('replaceFileInput').onchange = e => { const f = e.target
 
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('click', e => {
-  if (e.target.closest('#bottomArea') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal') || e.target.closest('#filmstrip')) return;
+  if (e.target.closest('#bottomArea') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal') || e.target.closest('#filmstrip') || e.target.closest('#vpWrap')) return;
   const mgm = document.getElementById('mobileGateModal');
   if (mgm && mgm.style.display !== 'none') return;
   if (!pages.length) document.getElementById('fileInput').click();
@@ -3040,7 +3039,7 @@ function stopTool() {
   ptCoordPrevOrigin = null;
   mode='idle'; p0=null; p1=null; mp=null; areaPts=[]; areaCps=[]; stPts=[]; clearHint(); closeSubPanels(); updStraightenUI(); draw(); updUI();
   if (isMob()) {
-    
+
     const sr = document.getElementById('mobileSubRow');
     if (sr) { sr.style.display='none'; sr.dataset.tool=''; }
   }
@@ -3087,7 +3086,7 @@ function doDiam() {
   if (active) { stopTool(); document.getElementById('subDiam').style.display='none'; return; }
   if (!scFactor) return;
   if (_measLimitGuard()) return;
-  
+
   stopTool();
   const sub = document.getElementById('subDiam');
   sub.style.display = 'flex';
@@ -3096,7 +3095,7 @@ function doDiam() {
 
 function setDiamMode(m) {
   window._lastDiamMode = m;
-  
+
   p0=null; p1=null; mp=null; clearHint();
   document.getElementById('btnDiamCR').style.background  = m==='cr'  ? '#2a2a2a' : 'none';
   document.getElementById('btnDiam3P').style.background  = m==='3p'  ? '#2a2a2a' : 'none';
@@ -3258,7 +3257,7 @@ function invertMatrix3(m) {
 
 function applyStraighten() {
   if (stPts.length < 4) return;
-  
+
 
   // Work at full original image resolution
   const iW = img.width, iH = img.height;
@@ -3398,7 +3397,7 @@ function doAngle() {
 
 function setAngleMode(m) {
   window._lastAngleMode = m;
-  
+
   p0=null; p1=null; mp=null; clearHint();
   const c='#D4537E';
   const b3=document.getElementById('btnAngle3'), b4=document.getElementById('btnAngle4');
@@ -3412,7 +3411,7 @@ function setAngleMode(m) {
 // ── Point-to-line distance ──────────────────────────────────────────────────
 function setDistMode(m) {
   window._lastDistMode = m;
-  
+
   p0=null; p1=null; mp=null; clearHint();
   const btns = {pp:'btnDistPP',ce:'btnDistCE',pl:'btnDistPL',ll:'btnDistLL'};
   Object.entries(btns).forEach(([k,id])=>{
@@ -3724,7 +3723,7 @@ function setSegMode(tool, segModeVal) {
     b.style.color = active ? col : '#aaa';
   });
   // Analytics
-  
+
 }
 
 // Auto-generate smooth cubic bezier control points for a polyline
@@ -4050,11 +4049,20 @@ function updUI() {
   applyLang();
 }
 
-function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); }
+let _delNudgeCount = 0;
+function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); if(!isPro){_delNudgeCount++;if(_delNudgeCount%5===0)showToast('Unlock unlimited measurements per image — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#fff;font-weight:600;cursor:pointer;text-decoration:underline">Go Pro →</a>',4000,true);} }
 
 let toastTimer;
 function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
-function showToast(msg, duration, html) { if(html){toast.innerHTML=msg;}else{toast.textContent=msg;} toast.style.display='block'; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toast.style.display='none';}, duration||1800); }
+function showToast(msg, duration, html) {
+  if(html){toast.innerHTML=msg;}else{toast.textContent=msg;}
+  toast.style.display='block';
+  const ms = duration||1800;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{toast.style.display='none';},ms);
+  toast.onmouseenter=()=>clearTimeout(toastTimer);
+  toast.onmouseleave=()=>{toastTimer=setTimeout(()=>{toast.style.display='none';},800);};
+}
 
 /* ── draw ── */
 function draw() {
@@ -5009,7 +5017,7 @@ function exportImg() {
   const _testC = document.createElement('canvas'); _testC.width=1; _testC.height=1;
   const supportsWebP = _testC.toDataURL('image/webp').startsWith('data:image/webp');
   const fmt = supportsWebP ? 'webp' : 'png';
-  
+
   const mime = supportsWebP ? 'image/webp' : 'image/png';
   const quality = supportsWebP ? 0.92 : 1;
   const ec=document.createElement('canvas'); ec.width=img.width; ec.height=img.height;
