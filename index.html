@@ -1069,6 +1069,7 @@
       <div id="mLastSub" style="font-size:9px;color:#444;margin-top:1px;"></div>
     </div>
     <button id="mViewAllBtn" onclick="document.getElementById('mobileMeasSection').scrollIntoView({behavior:'smooth'})" style="visibility:hidden;width:62px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#252525;border:none;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">View all</button>
+    <label id="mLoadLabel" for="mFileInput" onclick="if(!isPro && _checkDailyLimit()){ event.preventDefault(); return; } if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="width:72px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;background:#252525;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">Load<span id="mLoadBadge" style="display:none;font-size:9px;font-weight:600;padding:1px 4px;border-radius:8px;"></span></label>
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
@@ -2074,7 +2075,7 @@ ca.addEventListener('click', e => {
   if (e.target.closest('#bottomArea') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal') || e.target.closest('#filmstrip') || e.target.closest('#vpWrap')) return;
   const mgm = document.getElementById('mobileGateModal');
   if (mgm && mgm.style.display !== 'none') return;
-  if (!pages.length) document.getElementById('fileInput').click();
+  if (!pages.length) { if (!isPro && _checkDailyLimit()) return; document.getElementById('fileInput').click(); }
 });
 ca.addEventListener('dragleave', () => { ca.style.outline=''; });
 ca.addEventListener('drop', e => {
@@ -5918,8 +5919,13 @@ applyMobileLayout();
 window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg(); else { const cw = cp.clientWidth; const ch = cp.clientHeight; cv.width = cw; cv.height = ch; cv.style.width = cw+'px'; cv.style.height = ch+'px'; } });
 
 // file inputs
+document.getElementById('mFileInput').addEventListener('click', e => {
+  if (!isPro && _checkDailyLimit()) { e.preventDefault(); return; }
+  if (!isPro && pages.length > 0) { e.preventDefault(); showReplaceSheet(null, 'load_btn'); }
+});
 document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
+  if (!isPro && _checkDailyLimit()) { e.target.value = ''; return; }
   if (isPro) {
     t('load_multi');
     files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); });
@@ -6049,6 +6055,20 @@ function updMobile() {
   // "View all" button — show when more than one measurement
   const vab = document.getElementById('mViewAllBtn');
   if (vab) vab.style.visibility = meas.length > 1 ? 'visible' : 'hidden';
+
+  // Mobile load button badge — mirrors desktop #loadDailyBadge logic
+  const mlb = document.getElementById('mLoadBadge');
+  if (mlb) {
+    const dc = _dailyCount();
+    if (!isPro && dc >= 1) {
+      mlb.textContent = `${dc}/3`;
+      mlb.style.display = 'inline';
+      mlb.style.background = dc >= 3 ? 'rgba(226,75,74,.2)' : 'rgba(201,145,58,.2)';
+      mlb.style.color     = dc >= 3 ? '#E24B4A' : '#C9913A';
+    } else {
+      mlb.style.display = 'none';
+    }
+  }
 
   // Show "Done" button for open path when 2+ points placed
   const pd = document.getElementById('mPerimDone');
@@ -6402,7 +6422,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 } else {
   // Desktop: click handler triggers fileInput
   document.getElementById('dz').addEventListener('click', (e) => {
-    if (!img) { e.stopPropagation(); document.getElementById('fileInput').click(); }
+    if (!img) { e.stopPropagation(); if (!isPro && _checkDailyLimit()) return; document.getElementById('fileInput').click(); }
   });
 }
 
