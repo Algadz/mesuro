@@ -383,10 +383,15 @@
     text-overflow: ellipsis;
   }
 
-  /* Desktop: scale status is clickable to adjust value when scale is set */
+  /* px baseline — no scale set */
+  #scaleStatus.no-scale { color: #C9913A; border-color: rgba(201,145,58,.35); }
+
+  /* Desktop: scale status clickable states */
   @media (min-width: 768px) {
     #scaleStatus.has-scale { cursor: pointer; user-select: none; }
     #scaleStatus.has-scale:hover { background: #252525; border-color: #1D9E75; }
+    #scaleStatus.no-scale.has-img { cursor: pointer; user-select: none; }
+    #scaleStatus.no-scale.has-img:hover { background: #252525; border-color: rgba(201,145,58,.6); }
   }
 
   @keyframes scalePulseOnce {
@@ -710,8 +715,8 @@
 
     <div>
       <div class="btn-row">
-        <label id="loadLabel" onclick="if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
-          <span id="loadLabelTxt">Load image or PDF</span>
+        <label id="loadLabel" onclick="if(!isPro && _checkDailyLimit()){ event.preventDefault(); return; } if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
+          <span id="loadLabelTxt">Load image or PDF</span><span id="loadDailyBadge" style="display:none;margin-left:6px;font-size:10px;font-weight:600;padding:1px 5px;border-radius:8px;"></span>
           <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         </label>
         <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
@@ -758,7 +763,7 @@
     <div style="margin-top:-6px">
       <div class="slbl" data-i18n="SCALE">SCALE</div>
       <div class="btn-row">
-        <div id="scaleStatus" style="flex:1;margin-bottom:0">Not set</div>
+        <div id="scaleStatus" class="no-scale" style="flex:1;margin-bottom:0">pixel mode</div>
         <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
       </div>
     </div>
@@ -1956,6 +1961,12 @@ function addMeasurement(obj) {
     else _measLimitGuard();
     return false;
   }
+  if (!isPro && !_currentImageMeasured) {
+    _currentImageMeasured = true;
+    _incrementDailyCount();
+    t('daily_qualified_load', { count: _dailyCount() });
+    updUI();
+  }
   pushHistory();
   meas.push(obj);
   // Track measurement completion by subtool
@@ -1983,6 +1994,33 @@ function addMeasurement(obj) {
 }
 
 let _gateLimitShown = false;
+let _currentImageMeasured = false;
+
+function _getDailyState() {
+  const today = new Date().toISOString().slice(0, 10);
+  try { const s = JSON.parse(localStorage.getItem('mesu_daily_imgs') || 'null'); if (s && s.date === today) return s; } catch {}
+  return { date: today, count: 0 };
+}
+function _dailyCount() { return _getDailyState().count; }
+function _incrementDailyCount() {
+  const s = _getDailyState(); s.count++;
+  localStorage.setItem('mesu_daily_imgs', JSON.stringify(s));
+}
+function _minsToMidnightUTC() {
+  const now = new Date();
+  const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  const ms = midnight - now;
+  const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+function _checkDailyLimit() {
+  if (isPro) return false;
+  if (_dailyCount() < 3) return false;
+  t('gate_daily_limit');
+  showGateSheet('daily_limit');
+  return true;
+}
+
 function _measLimitGuard() {
   if (!isPro && meas.length >= 10) {
     showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#fff;font-weight:600;cursor:pointer;text-decoration:underline">Go Pro</a> or delete a measurement', 3000, true);
@@ -2011,6 +2049,7 @@ let dragState = null;
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
+  if (_checkDailyLimit()) { e.target.value = ''; return; }
   const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
   if (!isPro && mediaFiles.length > 1) {
     showGateSheet('multi_image');
@@ -2043,6 +2082,7 @@ ca.addEventListener('drop', e => {
   const files = Array.from(e.dataTransfer.files);
   if (!files.length) return;
   const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
+  if (_checkDailyLimit()) return;
   // Free user with existing image: intercept and show replace/upsell sheet
   if (!isPro && pages.length >= 1 && mediaFiles.length >= 1) {
     if (mediaFiles.length > 1) {
@@ -2071,6 +2111,7 @@ ca.addEventListener('drop', e => {
 
 function loadImg(file) {
   _gateLimitShown = false;
+  _currentImageMeasured = false;
   const i = new Image();
   const url = URL.createObjectURL(file);
   i.onload = () => {
@@ -3016,11 +3057,11 @@ document.addEventListener('keydown', e => {
   if (e.key==='Enter'&&mode==='pa'&&areaPts.length>=3) { closeArea(); return; }
   if (e.key==='Enter'&&mode==='pp'&&areaPts.length>=2) { closePerim(); return; }
   if (!e.ctrlKey&&!e.metaKey&&!e.altKey) {
-    if ((e.key==='l'||e.key==='L')&&img&&scFactor) doMeasure();
-    if ((e.key==='d'||e.key==='D')&&img&&scFactor) doDiam();
-    if ((e.key==='a'||e.key==='A')&&img&&scFactor) doAngle();
+    if ((e.key==='l'||e.key==='L')&&img) doMeasure();
+    if ((e.key==='d'||e.key==='D')&&img) doDiam();
+    if ((e.key==='a'||e.key==='A')&&img) doAngle();
     if ((e.key==='n'||e.key==='N')&&img) doNote();
-    if ((e.key==='p'||e.key==='P')&&img&&scFactor) doPerim();
+    if ((e.key==='p'||e.key==='P')&&img) doPerim();
     if ((e.key==='z'||e.key==='Z')&&img) toggleZoom();
     if ((e.key==='c'||e.key==='C')&&img) toggleMag();
     if (e.key==='0'&&img) resetZoom();
@@ -3052,6 +3093,7 @@ function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopT
 function doScaleReset() {
   pushHistory();
   scLine = null; scPx = null; scFactor = null;
+  _recomputePtCoordPoints();
   draw(); updUI();
 }
 function applyScaleToAllPages() {
@@ -3071,7 +3113,7 @@ function applyScaleToAllPages() {
 function doMeasure() {
   const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
   if (active) { stopTool(); document.getElementById('subDist').style.display='none'; return; }
-  if (!scFactor) return;
+  if (!img) return;
   if (_measLimitGuard()) return;
   stopTool();
   // show sub-tool panel
@@ -3084,7 +3126,7 @@ function doMeasure() {
 function doDiam() {
   const active = mode==='da'||mode==='db'||mode==='d3a'||mode==='d3b'||mode==='d3c'||mode==='arc1'||mode==='arc2'||mode==='arc3';
   if (active) { stopTool(); document.getElementById('subDiam').style.display='none'; return; }
-  if (!scFactor) return;
+  if (!img) return;
   if (_measLimitGuard()) return;
 
   stopTool();
@@ -3462,8 +3504,8 @@ function setPtCoordMode(m) {
   else              setHint('Click to place coordinate points — Escape or Enter to finish');
   mode = 'ptc'; draw(); updUI();
 }
-function doArea()    { if(mode==='pa'){stopTool();return;} if(!scFactor)return; if(_measLimitGuard())return;  closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
-function doPerim()   { if(mode==='pp'){stopTool();return;} if(!scFactor)return; if(_measLimitGuard())return;  closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
+function doArea()    { if(mode==='pa'){stopTool();return;} if(!img)return; if(_measLimitGuard())return;  closeSubPanels(); stopTool(); mode='pa'; areaPts=[]; areaCps=[]; document.getElementById('subArea').style.display='flex'; setSegMode('area',segMode.area); setHint(LF('h_area_close')(1)); updUI(); }
+function doPerim()   { if(mode==='pp'){stopTool();return;} if(!img)return; if(_measLimitGuard())return;  closeSubPanels(); stopTool(); mode='pp'; areaPts=[]; areaCps=[]; document.getElementById('subPerim').style.display='flex'; setSegMode('perim',segMode.perim); setHint(LF('h_perim_close')(1)); updUI(); }
 function closePerim() {
   const isBezP=segMode.perim==='bezier';
   const cpsP=isBezP?autoSmooth([...areaPts],true):null;
@@ -3570,6 +3612,7 @@ function confirmScale(applyAll) {
     pLine=null;
   }
   modal.style.display='none'; document.body.style.overflow=''; t('use_scale', {unit:scUnit, value:+sv.value}); stopTool();
+  _recomputePtCoordPoints();
   if (applyAll) applyScaleToAllPages();
 }
 // click-to-clear preset value, restore on blur if empty
@@ -3591,7 +3634,8 @@ document.getElementById('sVal').addEventListener('keydown', e => { if(e.key==='E
   }
 
   scaleStatus.addEventListener('click', function() {
-    if (isMob() || !scFactor || _editing) return;
+    if (isMob() || _editing) return;
+    if (!scFactor) { if (img) doScale(); return; }
     _editing = true;
 
     // The value this scale line represents in real-world units
@@ -3952,6 +3996,18 @@ function updUI() {
   }
   const loadTxt = document.getElementById('loadLabelTxt');
   if (loadTxt) loadTxt.textContent = isPro ? 'Load image(s) or PDF' : 'Load image or PDF';
+  const dailyBadge = document.getElementById('loadDailyBadge');
+  if (dailyBadge) {
+    const dc = _dailyCount();
+    if (!isPro && dc >= 1) {
+      dailyBadge.textContent = `${dc}/3`;
+      dailyBadge.style.display = 'inline';
+      dailyBadge.style.background = dc >= 3 ? 'rgba(226,75,74,.2)' : 'rgba(201,145,58,.2)';
+      dailyBadge.style.color = dc >= 3 ? '#E24B4A' : '#C9913A';
+    } else {
+      dailyBadge.style.display = 'none';
+    }
+  }
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
   const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
@@ -3962,7 +4018,7 @@ function updUI() {
   const isArea=mode==='pa', isPerim=mode==='pp';
 
   disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
-  disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasSc);
+  disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasImg);
   const isNote=mode==='na';
   const btnNtEl=document.getElementById('btnNote');
   if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':''; btnNtEl.innerHTML=`<span style='position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px'>Aa</span>${L('note')} <span class='kbd'>N</span>`;
@@ -4000,8 +4056,8 @@ function updUI() {
   const isLabelDragUI = mode==='drag' && dragState && dragState.field==='label';
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):isLabelDragUI?'grab':isPointDragUI?'default':mode==='drag'?'grabbing':(mode==='st'?'crosshair':zoomEnabled?'grab':'default');
 
-  if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f=\u202f1\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; scaleStatus.classList.add('has-scale'); }
-  else { scaleStatus.textContent=L('not_set'); scaleStatus.style.color=''; scaleStatus.classList.remove('has-scale'); }
+  if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f=\u202f1\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; scaleStatus.classList.add('has-scale'); scaleStatus.classList.remove('no-scale','has-img'); scaleStatus.title=''; }
+  else { scaleStatus.textContent='pixel mode'; scaleStatus.style.color=''; scaleStatus.classList.remove('has-scale'); scaleStatus.classList.add('no-scale'); if(hasImg){scaleStatus.classList.add('has-img');scaleStatus.title='Measuring in pixels — click to set a real-world scale';}else{scaleStatus.classList.remove('has-img');scaleStatus.title='';} }
 
   measCount.textContent=meas.length?`(${meas.length})`:'';
   noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
@@ -5303,6 +5359,7 @@ function pdfLoadPage() { pdfLoadSelected(); }
 
 async function renderPDFPage(pageNum, switchTo) {
   if (switchTo === undefined) switchTo = true;
+  _currentImageMeasured = false;
   const page = await pdfDoc.getPage(pageNum);
   // Target ~400dpi for technical drawings — PDF native is 72dpi
   const SCALE_TARGET = 6;
@@ -5972,7 +6029,7 @@ function updMobile() {
 
   // sync mobile tool buttons
   const ids = ['mBtnScale','mBtnMeasure','mBtnDiam','mBtnAngle','mBtnArea','mBtnPerim','mBtnNote','mBtnPtCoord'];
-  const dis  = [!hasImg,    !hasSc,       !hasSc,    !hasImg,    !hasSc,    !hasSc,    !hasImg,   !hasImg];
+  const dis  = [!hasImg,    !hasImg,       !hasImg,    !hasImg,    !hasImg,    !hasImg,    !hasImg,   !hasImg];
   ids.forEach((id,i) => { const b=document.getElementById(id); if(b) b.disabled=dis[i]; });
   // Active tool highlight
   const activeModeMap = {
@@ -6443,6 +6500,7 @@ function _updatePromoCounter() {
 
 const _GATE_MSGS = {
   measurement_cap: 'Free limit reached (10 measurements). Go Pro for unlimited, or delete some to continue.',
+  daily_limit: () => `3 images measured today — free daily limit reached. Resets in ${_minsToMidnightUTC()}. Go Pro for unlimited images.`,
   _default: 'This is a Pro feature.'
 };
 
@@ -6456,7 +6514,8 @@ function showGateSheet(feature) {
     const modal = document.getElementById('mobileGateModal');
     if (!modal) return;
     const msg = document.getElementById('mGateMsg');
-    if (msg) msg.textContent = _GATE_MSGS[feature] || _GATE_MSGS._default;
+    const msgVal = _GATE_MSGS[feature] || _GATE_MSGS._default;
+    if (msg) msg.textContent = typeof msgVal === 'function' ? msgVal() : msgVal;
     document.getElementById('mGateKeyArea').style.display = 'none';
     document.getElementById('mGateKeyInput').value = '';
     document.getElementById('mGateKeyError').style.display = 'none';
@@ -6471,7 +6530,8 @@ function showGateSheet(feature) {
   document.getElementById('gateKeyInput').value = '';
   document.getElementById('gateKeyError').style.display = 'none';
   const msgEl = document.getElementById('gateCardMsg');
-  if (msgEl) msgEl.textContent = _GATE_MSGS[feature] || _GATE_MSGS._default;
+  const msgVal2 = _GATE_MSGS[feature] || _GATE_MSGS._default;
+  if (msgEl) msgEl.textContent = typeof msgVal2 === 'function' ? msgVal2() : msgVal2;
   card.style.display = 'block';
 }
 
@@ -6584,6 +6644,7 @@ function cancelReplace() {
 
 function confirmReplace() {
   document.getElementById('replaceSheet').style.display = 'none';
+  if (_checkDailyLimit()) return;
   const source = _pendingReplaceSource;
   const files = _pendingReplaceFiles;
   _pendingReplaceFiles = null;
