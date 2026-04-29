@@ -825,7 +825,13 @@
     <div style="flex:1;min-height:0;overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
         <div class="slbl" style="margin-bottom:0" data-i18n="RESULTS">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
-        <div id="measCounter"></div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div id="resultsActions" style="display:none;gap:4px">
+            <button onclick="copyAllMeasurements()" title="Copy all values" style="font-size:9px;padding:2px 6px;background:#2a2a2a;border:0.5px solid #444;border-radius:4px;color:#c0c0c0;cursor:pointer;white-space:nowrap;line-height:1.6">Copy all</button>
+            <button onclick="deleteAllMeasurements()" title="Delete all measurements" style="font-size:9px;padding:2px 6px;background:#2a2a2a;border:0.5px solid #444;border-radius:4px;color:#c0c0c0;cursor:pointer;white-space:nowrap;line-height:1.6">Del. all</button>
+          </div>
+          <div id="measCounter"></div>
+        </div>
       </div>
       <div id="resList"></div>
       <div id="noRes" style="font-size:12px;color:#555" data-i18n="no_meas">No measurements yet</div>
@@ -4061,6 +4067,8 @@ function updUI() {
   else { scaleStatus.textContent='pixel mode'; scaleStatus.style.color=''; scaleStatus.classList.remove('has-scale'); scaleStatus.classList.add('no-scale'); if(hasImg){scaleStatus.classList.add('has-img');scaleStatus.title='Measuring in pixels — click to set a real-world scale';}else{scaleStatus.classList.remove('has-img');scaleStatus.title='';} }
 
   measCount.textContent=meas.length?`(${meas.length})`:'';
+  const ra = document.getElementById('resultsActions');
+  if (ra) ra.style.display = (isPro && meas.length >= 1) ? 'flex' : 'none';
   noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
   resList.innerHTML='';
 
@@ -4111,6 +4119,34 @@ function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>
 
 let toastTimer;
 function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
+
+function copyAllMeasurements() {
+  if (!meas.length) return;
+  const lines = meas.map(m => {
+    if (m.type==='line')    { const r=scFactor?m.px*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.px)} px`; }
+    if (m.type==='diam')    { const r=scFactor?m.r*2*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.r*2)} px`; }
+    if (m.type==='angle')   return `${m.deg.toFixed(1)}°`;
+    if (m.type==='area')    { const r=scFactor?m.areaPx*scFactor*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}²`:`${Math.round(m.areaPx)} px²`; }
+    if (m.type==='perim')   { const r=scFactor?m.perimPx*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.perimPx)} px`; }
+    if (m.type==='arc')     { const r=scFactor?m.arcLen*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.arcLen)} px`; }
+    if (m.type==='note')    return m.text;
+    if (m.type==='angle4')  return `${m.deg.toFixed(1)}°`;
+    if (m.type==='ptline')  { const r=scFactor?m.distPx*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)} px`; }
+    if (m.type==='ll')      { const r=scFactor?m.distPx*scFactor:null; return r!==null?`${r.toFixed(2)} ${scUnit}`:`${Math.round(m.distPx)} px`; }
+    if (m.type==='ptcoord') { const u=m.unit||'px'; return `X: ${m.cx.toFixed(2)} ${u}  Y: ${m.cy.toFixed(2)} ${u}`; }
+    return '';
+  });
+  navigator.clipboard.writeText(lines.join('\n')).catch(()=>{});
+  showToast(`Copied ${meas.length} measurement${meas.length>1?'s':''}`);
+}
+
+function deleteAllMeasurements() {
+  if (!meas.length) return;
+  pushHistory();
+  clearAll();
+  draw();
+  updUI();
+}
 function showToast(msg, duration, html) {
   if(html){toast.innerHTML=msg;}else{toast.textContent=msg;}
   toast.style.display='block';
