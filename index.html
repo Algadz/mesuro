@@ -1962,6 +1962,44 @@ let isPro = (function() {
 })();
 if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true; }
 
+/* ── Daily-limit Worker (fingerprint-based) ── */
+const _WORKER_URL = 'https://api.mesu.ro';
+const _fpPromise = import('https://openfpcdn.io/fingerprintjs/v4').then(FP => FP.load()).catch(() => null);
+async function _getFingerprint() {
+  try { const fp = await _fpPromise; if (!fp) return null; const r = await fp.get(); return r.visitorId; } catch { return null; }
+}
+async function _workerCheckOnOpen() {
+  if (isPro) return;
+  if (_getDailyState().count > 0) return; // localStorage already has a count — no need to ask the worker
+  try {
+    const visitorId = await _getFingerprint();
+    if (!visitorId) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const res = await fetch(`${_WORKER_URL}/check?fp=${encodeURIComponent(visitorId)}&date=${today}`, { signal: AbortSignal.timeout(4000) });
+    const data = await res.json();
+    if (data.seen) {
+      // Zero in localStorage is fake — they cleared their cache; restore limit so gate triggers
+      t('cheat_cache_reset');
+      const s = { date: today, count: 3 };
+      localStorage.setItem('mesu_daily_imgs', JSON.stringify(s));
+      updUI();
+    }
+  } catch { /* network error — be lenient, don't block */ }
+}
+async function _workerFlagFirstLoad() {
+  try {
+    const visitorId = await _getFingerprint();
+    if (!visitorId) return;
+    const today = new Date().toISOString().slice(0, 10);
+    fetch(`${_WORKER_URL}/flag`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fp: visitorId, date: today }),
+      signal: AbortSignal.timeout(4000)
+    }).catch(() => {});
+  } catch { /* fire and forget */ }
+}
+
 function addMeasurement(obj) {
   if (!isPro && meas.length >= 10) {
     if (!_gateLimitShown) showGateSheet('measurement_cap');
@@ -2010,8 +2048,11 @@ function _getDailyState() {
 }
 function _dailyCount() { return _getDailyState().count; }
 function _incrementDailyCount() {
-  const s = _getDailyState(); s.count++;
+  const s = _getDailyState();
+  const wasZero = s.count === 0;
+  s.count++;
   localStorage.setItem('mesu_daily_imgs', JSON.stringify(s));
+  if (wasZero) _workerFlagFirstLoad(); // write flag to Worker on first load of the day
 }
 function _minsToMidnightUTC() {
   const now = new Date();
@@ -5931,6 +5972,8 @@ function exportCSV() {
 updUI();
 // init language
 setLang(currentLang);
+// Check Worker on open if localStorage shows zero (catches cache-clearers)
+if (!isPro) _workerCheckOnOpen();
 // Welcome back toast for returning Pro users
 if (isPro && localStorage.getItem('mesuro_license_key')) {
   setTimeout(() => showToast('✦ Mesuro Pro active', 2500), 1200);
