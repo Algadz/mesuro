@@ -299,8 +299,8 @@
     .m-sub.active { color:#fff; }
     #mobileMeasSection button[disabled] { opacity:.35; cursor:default; }
 
-    #canvasArea { flex:1; min-height:0; position:relative; flex-direction:column; }
-    #canvasPad { min-height:0; }
+    #canvasArea { flex:1; min-height:0; max-height:100%; position:relative; flex-direction:column; overflow:hidden; }
+    #canvasPad { min-height:0; height:0; overflow:hidden; }
 
 
     /* Hide "Keep both images with Pro" on mobile (multi-image disabled) */
@@ -2174,7 +2174,17 @@ function fitImg() {
   const isMobile = window.innerWidth <= 767;
   const dpr = isMobile ? (window.devicePixelRatio || 1) : 1;
   const cssW = cp.clientWidth;
-  const cssH = cp.clientHeight;
+  let cssH = cp.clientHeight;
+  if (isMobile) {
+    // Clamp against actual visible viewport to guard against svh/flex measurement bugs on mobile Safari/Chrome
+    const topbarEl = document.getElementById('mobileTopbar');
+    const mbarEl   = document.getElementById('mobileBar');
+    const fsEl     = document.getElementById('mobileFilmstrip');
+    const usedH = (topbarEl ? topbarEl.offsetHeight : 0)
+                + (mbarEl   ? mbarEl.offsetHeight   : 0)
+                + (fsEl && fsEl.offsetHeight && fsEl.style.display !== 'none' ? fsEl.offsetHeight : 0);
+    cssH = Math.min(cssH, window.innerHeight - usedH);
+  }
   cv.width  = Math.round(cssW * dpr);
   cv.height = Math.round(cssH * dpr);
   cv.style.width  = cssW + 'px';
