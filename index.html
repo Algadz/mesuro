@@ -4143,7 +4143,12 @@ function copyAllMeasurements() {
 function deleteAllMeasurements() {
   if (!meas.length) return;
   pushHistory();
-  clearAll();
+  meas = []; areaPts = []; ptCoordGlobalOrigin = null; stopTool();
+  if (currentPageIdx >= 0 && pages[currentPageIdx]) {
+    pages[currentPageIdx].meas = [];
+    pages[currentPageIdx].history = [];
+    pages[currentPageIdx].ptCoordGlobalOrigin = null;
+  }
   draw();
   updUI();
 }
