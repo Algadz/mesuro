@@ -11,7 +11,37 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","Multi-image loading (batch drop or select)","Multi-page PDF loading (all pages or custom range)","Filmstrip navigation between pages","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export with one section per page","Multi-page CSV export with page and source columns","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"Free to use with a daily limit of 20 measurements per device. Mesuro Pro is available as a paid subscription for unlimited measurements and Pro-only batch tools."},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","Multi-image loading (batch drop or select)","Multi-page PDF loading (all pages or custom range)","Filmstrip navigation between pages","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export with one section per page","Multi-page CSV export with page and source columns","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Can I measure distances in a PDF file?","acceptedAnswer":{"@type":"Answer","text":"Yes. Mesuro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open, load a custom range (e.g. 1, 3, 5–8), or load all pages at once. Each page is rendered at high resolution so measurements remain precise."}},
+{"@type":"Question","name":"Can I load multiple images at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the Load button or drag and drop multiple image files onto the canvas. Each image becomes a separate page in the filmstrip at the bottom. Click any thumbnail to switch between pages — scale calibrations and measurements are saved independently per page."}},
+{"@type":"Question","name":"How many measurements can I make for free?","acceptedAnswer":{"@type":"Answer","text":"20 measurements per day per device. The counter resets at midnight your local time and no account is required. Loading multiple images, switching pages, exporting and saving projects are all free with no daily limit. Mesuro Pro removes the 20/day cap entirely."}},
+{"@type":"Question","name":"What does Mesuro Pro include?","acceptedAnswer":{"@type":"Answer","text":"Unlimited measurements (no daily cap) and Pro-only batch tools — for example, applying a single scale calibration to every page in your project at once. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device."}},
+{"@type":"Question","name":"Can I load all pages of a PDF at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. When you open a multi-page PDF, the page picker lets you load the current page, a custom range (e.g. 1, 3, 5–8), or all pages at once. Each page becomes an independent entry in the filmstrip with its own scale and measurements."}},
+{"@type":"Question","name":"How does multi-page export work?","acceptedAnswer":{"@type":"Answer","text":"CSV export combines all pages into one file with page and source columns identifying each measurement's origin. PDF report export creates one section per page — each section contains the annotated image and its measurement table, all in a single downloadable PDF."}},
+{"@type":"Question","name":"How do I measure a distance in an image online?","acceptedAnswer":{"@type":"Answer","text":"Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. Mesuro converts the pixel distance into real-world units automatically."}},
+{"@type":"Question","name":"Is my image uploaded to a server?","acceptedAnswer":{"@type":"Answer","text":"No. Mesuro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded."}},
+{"@type":"Question","name":"Can I save my measurements and come back later?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the Save button to export a .mesuro project file containing your image and all measurements. Load it again anytime to resume exactly where you left off."}},
+{"@type":"Question","name":"What units can I use?","acceptedAnswer":{"@type":"Answer","text":"Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and Mesuro applies it to all measurements automatically."}},
+{"@type":"Question","name":"Can I export my annotated image?","acceptedAnswer":{"@type":"Answer","text":"Yes. Export as PNG, JPG or WebP at full original resolution with all annotations, or export a PDF report with the annotated image and measurement table, or export raw data as CSV."}},
+{"@type":"Question","name":"What types of measurements does Mesuro support?","acceptedAnswer":{"@type":"Answer","text":"Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight or bezier), path/perimeter, point coordinates, and text notes. Angles work without scale calibration."}},
+{"@type":"Question","name":"How do I correct perspective distortion in a photo?","acceptedAnswer":{"@type":"Answer","text":"Use the Perspective Correction tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). Mesuro applies a homographic transform to flatten the perspective before you measure."}},
+{"@type":"Question","name":"Can I add labels or text annotations to the image?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the Note tool to click anywhere on the image and type a label. Notes appear as yellow pins on the canvas and are included in PNG and PDF exports."}},
+{"@type":"Question","name":"How do I measure an angle without knowing the scale?","acceptedAnswer":{"@type":"Answer","text":"The Angle tool works without scale calibration. Click the first arm point, then the vertex, then the second arm. The angle in degrees is displayed immediately."}},
+{"@type":"Question","name":"Can I use Mesuro on mobile?","acceptedAnswer":{"@type":"Answer","text":"Yes. Mesuro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement."}},
+{"@type":"Question","name":"How accurate are the measurements?","acceptedAnswer":{"@type":"Answer","text":"Accuracy depends on your scale calibration and image resolution. The precision cursor magnifier zooms in 5× to help you place points on exact pixels. For best results, use the longest possible scale reference line."}},
+{"@type":"Question","name":"What is the bezier curve mode for area and path?","acceptedAnswer":{"@type":"Answer","text":"Instead of straight polygon segments, bezier mode fits a smooth curve through your clicked points using a natural cubic spline. This gives smooth, professional-looking outlines for organic shapes. Control points can be dragged after creation to fine-tune the curve."}},
+{"@type":"Question","name":"Can I measure the angle between two lines that don't share a vertex?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the 4-point protractor mode under the Angle tool. Click two points on the first line, then two points on the second line. Mesuro computes the angle at their intersection even if the lines don't physically cross in the image."}},
+{"@type":"Question","name":"How do I measure coordinates in an image?","acceptedAnswer":{"@type":"Answer","text":"Use the Point Coordinates tool. First click sets the origin (0,0). Then place measurement points — each shows its X and Y position relative to the origin in real-world units. Drag the origin or any point to update all coordinates dynamically."}},
+{"@type":"Question","name":"Does Mesuro detect edges automatically?","acceptedAnswer":{"@type":"Answer","text":"Yes. Enable Edge detect in the View panel. When active, measurement points snap to the nearest detected edge using a Canny edge detection algorithm. A snap indicator shows when edge snapping is active. This greatly improves precision on sharp-edged objects."}},
+{"@type":"Question","name":"Can I move measurement labels after placing them?","acceptedAnswer":{"@type":"Answer","text":"Yes. In idle mode (no tool selected), hover over any measurement label — the cursor changes to a grab hand. Drag the label to reposition it. A leader line connects it back to the measurement. All measurement points can also be dragged to adjust the measurement itself."}},
+{"@type":"Question","name":"What data does Mesuro collect?","acceptedAnswer":{"@type":"Answer","text":"Almost none. Your images, PDFs, and measurements never leave your device. We only store a short-lived device fingerprint hash (auto-deleted after 48 hours) to enforce the free-tier 20 measurements / day limit. No advertising, no third-party trackers, no profile building."}}
+]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"How to measure distances and angles in an image online","description":"Measure real-world distances, angles, and areas in any image or PDF using Mesuro — by setting a scale from a known reference and then placing measurement points.","totalTime":"PT2M","tool":[{"@type":"HowToTool","name":"Mesuro"},{"@type":"HowToTool","name":"An image or PDF containing an object of known size"}],"step":[{"@type":"HowToStep","position":1,"name":"Load your image or PDF","text":"Drag and drop one or more images, or a PDF, onto the canvas — or use the Load button. For multi-page PDFs, choose a single page, a custom range, or all pages at once.","url":"https://mesu.ro/#how-to"},{"@type":"HowToStep","position":2,"name":"Set the real-world scale","text":"Click the Scale tool, draw a line over an object with a known size, and enter its real-world length and unit (mm, cm, inches, etc.). Mesuro converts pixels to your chosen unit for every subsequent measurement.","url":"https://mesu.ro/#how-to"},{"@type":"HowToStep","position":3,"name":"Measure","text":"Pick a tool — Distance, Angle, Area, Diameter, Path/Perimeter, Arc length, or Point coordinates — and click on the image. Drag any endpoint to refine. Angles do not require a scale.","url":"https://mesu.ro/#how-to"},{"@type":"HowToStep","position":4,"name":"Export or save","text":"Export the annotated image as PNG, JPG, or WebP, generate a multi-page PDF report, or export raw data as CSV. Save the project as a .mesuro file to resume later.","url":"https://mesu.ro/#how-to"}]}
 </script>
 <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -303,9 +333,6 @@
     #canvasPad { min-height:0; height:0; overflow:hidden; }
 
 
-    /* Hide "Keep both images with Pro" on mobile (multi-image disabled) */
-    .rs-pro { display: none; }
-
     /* dz — full canvas overlay, centered, tap anywhere to load */
     #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
     #dz span:not(#dzMain) { display:none; }
@@ -558,16 +585,69 @@
   /* Hide PRO badges on buttons for Pro users */
   body.is-pro .pro-badge { display: none; }
 
-  /* ── Measurement counter ── */
-  #measCounter {
+  /* ── Daily measurement counter (top of measurement list) ── */
+  #dailyCounter {
+    display: none;
+    font-size: 11px;
+    color: #888;
+    background: #1f1f1f;
+    border: 0.5px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  #dailyCounter.warn {
+    color: #C9913A;
+    border-color: rgba(201,145,58,.35);
+    background: rgba(201,145,58,.06);
+  }
+  #dailyCounter.cap {
+    color: #d0d0d0;
+    border-color: rgba(37,99,235,.45);
+    background: rgba(37,99,235,.08);
+    padding: 10px;
+  }
+  #dailyCounter.cap .dc-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #d0d0d0;
+    margin-bottom: 6px;
+  }
+  #dailyCounter.cap .dc-sub {
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  #dailyCounter.cap .dc-btn {
+    display: block;
+    width: 100%;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 7px 0;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity .15s;
+  }
+  #dailyCounter.cap .dc-btn:hover { opacity: .88; }
+
+  /* Mobile compact variant inside #mobileBar */
+  #mDailyCounter {
     display: none;
     font-size: 10px;
-    color: #666;
-    text-align: right;
-    padding: 2px 2px 0;
-    transition: color .2s;
+    color: #888;
+    padding: 0 10px;
+    align-items: center;
+    flex-shrink: 0;
   }
-  #measCounter.warn { color: #C9913A; }
+  #mDailyCounter.warn { color: #C9913A; }
+  #mDailyCounter.cap { color: #2563eb; font-weight: 600; cursor: pointer; }
 
   /* ── Bottom area (feedback pill + gate card) ── */
   #bottomArea {
@@ -617,53 +697,6 @@
   }
   #gateCloseBtn:hover { color: #fff; background: #3e3e3e; }
 
-  /* ── Replace-image warning sheet ── */
-  #replaceSheet {
-    display: none;
-    position: absolute;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1e1e1e;
-    border: 0.5px solid #2e2e2e;
-    border-top: 2px solid #e24b4b;
-    border-radius: 10px;
-    padding: 14px 16px 16px;
-    width: 256px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.6);
-    z-index: 1100;
-    animation: gateCardIn .2s ease;
-  }
-  #replaceSheet .rs-title {
-    font-size: 9px; letter-spacing: .12em; color: #e24b4b;
-    text-transform: uppercase; font-weight: 700; margin-bottom: 8px;
-  }
-  #replaceSheet .rs-msg {
-    font-size: 12px; color: #aaa; line-height: 1.55; margin-bottom: 12px;
-  }
-  #replaceSheet .rs-actions {
-    display: flex; gap: 6px; margin-bottom: 10px;
-  }
-  #replaceSheet .rs-actions button {
-    flex: 1; font-size: 11px; padding: 7px 8px; border-radius: 6px;
-    border: none; cursor: pointer; font-family: inherit;
-  }
-  #replaceSheet .rs-replace { background: #333; color: #ddd; }
-  #replaceSheet .rs-replace:hover { background: #444; }
-  #replaceSheet .rs-cancel { background: transparent; color: #666; border: 0.5px solid #333 !important; }
-  #replaceSheet .rs-cancel:hover { color: #aaa; border-color: #555 !important; }
-  #replaceSheet .rs-divider {
-    border: none; border-top: 0.5px solid #2e2e2e; margin: 0 0 10px;
-  }
-  #replaceSheet .rs-pro {
-    display: block; width: 100%; font-size: 11px; padding: 8px;
-    background: rgba(201,145,58,.12); border: 0.5px solid rgba(201,145,58,.35);
-    border-radius: 6px; color: #C9913A; cursor: pointer;
-    font-family: inherit; text-align: center;
-    transition: background .15s;
-  }
-  #replaceSheet .rs-pro:hover { background: rgba(201,145,58,.22); }
-
   @keyframes gateCardIn {
     from { opacity:0; transform:translateY(8px); }
     to   { opacity:1; transform:translateY(0); }
@@ -709,20 +742,18 @@
         <line x1="98"  y1="28" x2="98"  y2="31" stroke="#555" stroke-width="0.75"/>
         <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
       </svg>
-      <div id="taglineSlot" style="font-size:10px;color:#555;letter-spacing:.02em;margin-top:5px;font-family:system-ui,-apple-system,sans-serif">&nbsp;</div>
-      <script>(function(){var T=["measure twice. in pixels.","trust no pixel. verify all of them.","rulers don't lie. people do.","eyeballing is not a unit.","close enough is a lie.","zoom in. the truth hides in subpixels.","pixels > vibes.","calibrate first. regret later.","approximation is a plan. measurement is a fact.","scale first, ask questions later.","the tape measure of the internet.","angles don't argue.","because \"looks right\" isn't a spec.","subpixel, superhuman.","one click, one truth.","no ruler? no problem.","right angle? prove it.","CAD's lazy cousin, but accurate.","dimensions on demand.","half a millimeter is still a millimeter.","geometry, but friendlier.","every pixel accounted for.","if it fits, we measured it.","the pixels remember.","millimeters matter.","engineers ship. we measure.","from blueprint to pixel, and back.","fewer guesses. better drawings.","rulers are analog. we're not.","draw a line. tell the truth.","quantify the photograph.","the measured response.","go ahead. zoom forever.","a protractor walked into a bar. it was 180° full.","measuring: the original photo filter.","for when \"about this big\" won't do.","precision, served cold.","straight lines, served straight.","bring receipts. bring measurements.","the answer is in the image.","measure first. argue never.","\"trust me\" is not a dimension.","π is still 3.14159. we checked.","two points define a line. also a fact.","the diagonal knows.","hypotenuse enthusiast.","a circle is a polygon with patience.","undo exists. regret doesn't have to.","the scale bar is the real hero.","perpendicular, with vibes.","parallel until proven otherwise.","your thumb is not a micrometer.","the image doesn't forget.","ship it. but measure it first.","some heroes set scale.","tolerance? we have opinions.","slope is angles with attitude.","the tape measure's spiritual successor.","centimeters are millimeters with confidence.","contours, quantified.","the edge detector has seen things.","if Euclid had a mouse.","vectors welcome. vibes checked at the door.","measure like no one's watching.","snap to edge. snap to sanity.","\"it'll buff out.\" — someone who didn't measure.","the only estimate we trust is ours.","coordinates, casually.","every photo is a secret ruler.","a pixel is worth a thousand guesses."];document.getElementById('taglineSlot').textContent=T[Math.floor(Math.random()*T.length)];})();</script>
+      
     </div>
 
     <div>
       <div class="btn-row">
-        <label id="loadLabel" onclick="if(!isPro && _checkDailyLimit()){ event.preventDefault(); return; } if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
-          <span id="loadLabelTxt">Load image or PDF</span><span id="loadDailyBadge" style="display:none;margin-left:6px;font-size:10px;font-weight:600;padding:1px 5px;border-radius:8px;"></span>
-          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+        <label id="loadLabel" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
+          <span id="loadLabelTxt">Load image(s) or PDF</span>
+          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" multiple style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
         </label>
         <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
       </div>
       <input type="file" id="projectInput" accept=".mesuro" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-      <input type="file" id="replaceFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
     </div>
 
     <div>
@@ -823,6 +854,8 @@
     </div>
 
     <div style="flex:1;min-height:0;overflow-y:auto">
+      <!-- Daily measurement counter (free users only) -->
+      <div id="dailyCounter"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
         <div class="slbl" style="margin-bottom:0" data-i18n="RESULTS">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
         <div style="display:flex;align-items:center;gap:4px">
@@ -830,7 +863,6 @@
             <button onclick="copyAllMeasurements()" title="Copy all values" style="font-size:9px;padding:2px 6px;background:#2a2a2a;border:0.5px solid #444;border-radius:4px;color:#c0c0c0;cursor:pointer;white-space:nowrap;line-height:1.6">Copy all</button>
             <button onclick="deleteAllMeasurements()" title="Delete all measurements" style="font-size:9px;padding:2px 6px;background:#2a2a2a;border:0.5px solid #444;border-radius:4px;color:#c0c0c0;cursor:pointer;white-space:nowrap;line-height:1.6">Del. all</button>
           </div>
-          <div id="measCounter"></div>
         </div>
       </div>
       <div id="resList"></div>
@@ -842,13 +874,13 @@
       <div style="margin-bottom:4px">
         <button id="btnExport" onclick="exportImg()" disabled style="width:100%;margin-bottom:6px">Export annotated image</button>
         <div class="btn-row">
-          <button id="btnExportCSV" onclick="exportCSV()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">CSV<span class="pro-badge">PRO</span></button>
-          <button id="btnExportPDF" onclick="exportPDF()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">PDF report<span class="pro-badge">PRO</span></button>
+          <button id="btnExportCSV" onclick="exportCSV()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">CSV</button>
+          <button id="btnExportPDF" onclick="exportPDF()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">PDF report</button>
         </div>
       </div>
       <div class="btn-row">
         <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:1;font-size:11px" data-i18n="save_proj">Save project</button>
-        <button onclick="isPro?document.getElementById('projectInput').click():showGateSheet('load_project')" style="flex:1;font-size:11px" data-i18n="load_proj">Load<span class="pro-badge">PRO</span></button>
+        <button onclick="document.getElementById('projectInput').click()" style="flex:1;font-size:11px" data-i18n="load_proj">Load</button>
       </div>
     </div>
   </div>
@@ -869,70 +901,15 @@
       </svg>
       <span id="dzMain" data-i18n="drop_main">Click or drop images / PDF here</span>
       <span data-i18n="drop_sub">or use Load button above</span>
-      <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
+      <input type="file" id="mFileInput" accept="image/*,.pdf,application/pdf" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
     </div>
     <canvas id="cv"></canvas>
     <canvas id="magOverlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
     <div id="hint"></div>
     <div id="toast"></div>
-    <div id="replaceSheet">
-      <div class="rs-title">Replace image?</div>
-      <div class="rs-msg" id="replaceSheetMsg"></div>
-      <div class="rs-actions">
-        <button class="rs-replace" onclick="confirmReplace()">Replace</button>
-        <button class="rs-cancel" onclick="cancelReplace()">Cancel</button>
-      </div>
-      <hr class="rs-divider">
-      <button class="rs-pro" onclick="cancelReplace(); showGateSheet('multi_image')">✦ Keep both images with Pro →</button>
-    </div>
 
-    <!-- Bottom area: gate card + feedback popup -->
+    <!-- Bottom area: feedback popup -->
     <div id="bottomArea">
-
-      <!-- Pro gate card (appears to the left of feedback popup) -->
-      <div id="gateCard">
-        <button id="gateCloseBtn" onclick="hideGateCard('dismiss')">×</button>
-        <!-- Launch offer badge -->
-        <div style="margin-bottom:14px;">
-          <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.4);border-radius:20px;padding:4px 10px;font-size:10px;color:#C9913A;font-weight:600;">⚠ Launch offer · <span id="gatePromoLeft"></span> of 100 left</span>
-        </div>
-        <!-- Title -->
-        <div style="font-size:18px;font-weight:700;color:#e8e8e8;margin-bottom:5px;padding-right:24px;">Unlock Mesuro Pro</div>
-        <!-- Subtitle / gate message -->
-        <div id="gateCardMsg" style="font-size:12px;color:#666;line-height:1.5;margin-bottom:14px;"></div>
-        <!-- Features 2-col grid -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 6px;margin-bottom:16px;">
-          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Unlimited measurements</div>
-          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Multi-image workflow</div>
-          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>PDF &amp; CSV export</div>
-          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Save &amp; load projects</div>
-          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Remove watermark</div>
-          <div style="font-size:11px;color:#bbb;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:14px;flex-shrink:0;">✓</span>Multi-page PDF support</div>
-        </div>
-        <!-- Pricing box -->
-        <div style="background:#151515;border:0.5px solid #2a2a2a;border-radius:10px;padding:13px 15px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;">
-          <div>
-            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:3px;">
-              <span style="font-size:26px;font-weight:700;color:#e8e8e8;line-height:1;">$9</span>
-              <span style="font-size:13px;color:#444;text-decoration:line-through;">$19</span>
-            </div>
-            <div style="font-size:10px;color:#555;">One-time · no subscription</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="background:rgba(29,158,117,.1);border:0.5px solid rgba(29,158,117,.45);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:#1D9E75;letter-spacing:.04em;margin-bottom:4px;">Code FIRST100</div>
-            <div style="font-size:10px;color:#555;">applied at checkout</div>
-          </div>
-        </div>
-        <!-- CTA -->
-        <a href="https://mesuro.lemonsqueezy.com/checkout/buy/7a034d3d-7009-46c8-b216-c710d145f02b?embed=1&media=0" class="lemonsqueezy-button" onclick="t('gate_click_checkout')" style="display:block;text-align:center;text-decoration:none;font-size:13px;font-weight:700;color:#fff;background:#2563eb;border-radius:9px;padding:11px 0;margin-bottom:10px;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Unlock Pro for $9 →</a>
-        <button onclick="hideGateCard('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:2px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">Continue with free</button>
-        <button onclick="toggleGateKeyInput();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:10px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;transition:opacity .15s;opacity:.7;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.7'">Have a license key?</button>
-        <div id="gateKeyArea" style="display:none;margin-top:10px;">
-          <input id="gateKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:5px;color:#e0e0e0;font-size:11px;padding:6px 8px;font-family:inherit;outline:none;margin-bottom:5px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
-          <button id="gateVerifyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:5px;color:#fff;font-size:11px;padding:7px 10px;cursor:pointer;font-family:inherit;">Verify</button>
-          <div id="gateKeyError" style="font-size:10px;color:#e24b4b;margin-top:5px;display:none;"></div>
-        </div>
-      </div>
 
       <!-- Feedback popup -->
       <div id="feedbackPopup">
@@ -954,10 +931,60 @@
     </div>
 
     <!-- Feedback modal -->
+
+    <!-- Privacy Policy modal -->
+    <div id="privacyModal" class="modal-overlay" style="background:rgba(0,0,0,.7);z-index:2500;align-items:flex-start;padding:20px;overflow-y:auto" onclick="if(event.target===this)hidePrivacyModal()">
+      <div style="background:#1a1a1a;border:0.5px solid #333;border-radius:12px;padding:28px 26px 24px;width:100%;max-width:640px;margin:auto;font-family:system-ui,-apple-system,sans-serif;position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <span style="font-size:15px;font-weight:600;color:#e0e0e0">Privacy Policy</span>
+          <button onclick="hidePrivacyModal()" aria-label="Close"
+            style="background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#aaa;width:22px;height:22px;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s"
+            onmouseenter="this.style.background='#e24b4b';this.style.color='#fff';this.style.borderColor='#e24b4b'"
+            onmouseleave="this.style.background='#2a2a2a';this.style.color='#aaa';this.style.borderColor='#3a3a3a'">&#xd7;</button>
+        </div>
+        <div style="font-size:11px;color:#555;margin-bottom:20px">Mesuro · mesu.ro · Last updated: 2026-05-08</div>
+
+        <p style="font-size:13px;color:#888;margin-bottom:16px">Mesuro is a free online image measurement tool. This page explains exactly what data we process, why, and for how long. We comply with GDPR / RGPD.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">1. Your images and measurements stay on your device</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px">All image processing, scale calibration, and measurement happens locally in your browser. <strong style="color:#ccc">Your images, PDFs, project files, and measurements are never uploaded to any server.</strong> They are not transmitted, stored, indexed, or shared.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">2. Daily-limit enforcement (free tier)</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:8px">The free tier is limited to 20 measurements per day per device. To enforce this without requiring an account, we generate a privacy-preserving device fingerprint hash (FingerprintJS open source). This hash is sent to our Cloudflare Worker along with the current measurement count.</p>
+        <ul style="margin:4px 0 12px 18px;font-size:13px;color:#888">
+          <li style="margin-bottom:5px"><strong style="color:#ccc">What we store:</strong> the fingerprint hash, a date key (your local day), and the measurement count.</li>
+          <li style="margin-bottom:5px"><strong style="color:#ccc">What we do NOT store:</strong> your IP address, image contents, measurements, name, or email.</li>
+          <li style="margin-bottom:5px"><strong style="color:#ccc">Retention:</strong> automatically deleted after ~48 hours. No profiles, no cross-day tracking.</li>
+          <li><strong style="color:#ccc">Legal basis:</strong> legitimate interest (GDPR Art. 6(1)(f)).</li>
+        </ul>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">3. Local browser storage</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px">We use <code style="background:#222;padding:1px 4px;border-radius:3px">localStorage</code> to remember your daily measurement count, Pro license key, and UI preferences. This data lives entirely on your device and is not accessible to us.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">4. Payments (Mesuro Pro)</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px">Payments are processed by <a href="https://www.lemonsqueezy.com/legal/privacy" target="_blank" rel="noopener" style="color:#5a9fff">LemonSqueezy</a>, the merchant of record. We never see your card data. After purchase, your license key is validated against their API.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">5. Anonymous usage analytics</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px">We use <a href="https://umami.is/" target="_blank" rel="noopener" style="color:#5a9fff">Umami</a> — no cookies, no IP storage, no user profiles. It records aggregate metrics (page views, anonymous feature interactions) so we can improve the product.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">6. No tracking, no advertising</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px">Mesuro contains no advertising trackers, no Google Analytics, no Facebook pixels, no marketing cookies. We do not sell or share data for advertising purposes.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">7. Your rights (GDPR / RGPD)</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:12px">You have the right to access, correct, delete, or restrict the processing of your personal data. The most direct way to exercise your rights is to clear your browser data. For paid-customer requests, contact us below.</p>
+
+        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">8. Contact</h2>
+        <p style="font-size:13px;color:#888;margin-bottom:20px">For privacy questions or GDPR requests: <a href="mailto:hello@mesu.ro" style="color:#5a9fff">hello@mesu.ro</a><br>Or use the <a href="#" onclick="hidePrivacyModal();openFeedback();return false;" style="color:#5a9fff">feedback &amp; contact form</a>.</p>
+
+        <div style="border-top:0.5px solid #2a2a2a;padding-top:16px;text-align:right">
+          <button onclick="hidePrivacyModal()" style="font-size:12px;padding:6px 16px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Close</button>
+        </div>
+      </div>
+    </div>
     <div id="feedbackModal" class="modal-overlay" style="background:rgba(0,0,0,.6)">
       <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <span style="font-size:14px;font-weight:500;color:#e0e0e0" data-i18n="feedback_title">Share feedback</span>
+          <span style="font-size:14px;font-weight:500;color:#e0e0e0" data-i18n="feedback_title">Feedback &amp; Contact</span>
           <button onclick="closeFeedback()" aria-label="Close"
             style="background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#aaa;width:22px;height:22px;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s"
             onmouseenter="this.style.background='#e24b4b';this.style.color='#fff';this.style.borderColor='#e24b4b'"
@@ -988,10 +1015,6 @@
             <div style="font-size:12px;color:#888">Page <span id="pdfPageNum">1</span> / <span id="pdfPageTotal">?</span></div>
           </div>
           <button id="pdfPageNext" onclick="pdfChangePage(1)" style="flex:0 0 36px;height:36px;font-size:18px;background:#2a2a2a;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">›</button>
-        </div>
-        <!-- Pro notice for free users (shown dynamically) -->
-        <div id="pdfProNotice" style="display:none;margin-bottom:12px;padding:8px 10px;background:rgba(201,145,58,.08);border:0.5px solid rgba(201,145,58,.3);border-radius:7px;font-size:11px;color:#C9913A;line-height:1.5">
-          ✦ Loading multiple pages is a <strong>Pro</strong> feature. You can load one page below. <span onclick="closePdfModal();showGateSheet('multi_image')" style="text-decoration:underline;cursor:pointer;opacity:.8">Unlock Pro →</span>
         </div>
         <!-- selection options -->
         <div id="pdfMultiOptions" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap">
@@ -1074,8 +1097,9 @@
       <div id="mLastVal" style="font-size:13px;font-weight:500;color:#333;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">No measurements yet</div>
       <div id="mLastSub" style="font-size:9px;color:#444;margin-top:1px;"></div>
     </div>
+    <div id="mDailyCounter" onclick="if(this.classList.contains('cap')) showProModal('counter')"></div>
     <button id="mViewAllBtn" onclick="document.getElementById('mobileMeasSection').scrollIntoView({behavior:'smooth'})" style="visibility:hidden;width:62px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#252525;border:none;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">View all</button>
-    <label id="mLoadLabel" for="mFileInput" onclick="if(!isPro && _checkDailyLimit()){ event.preventDefault(); return; } if(!isPro && pages.length > 0){ event.preventDefault(); showReplaceSheet(null,'load_btn'); }" style="width:72px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;background:#252525;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">Load<span id="mLoadBadge" style="display:none;font-size:9px;font-weight:600;padding:1px 4px;border-radius:8px;"></span></label>
+    <label id="mLoadLabel" for="mFileInput" style="width:72px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;background:#252525;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">Load</label>
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
@@ -1113,49 +1137,65 @@
 
 </div>
 
-<!-- Mobile Pro gate modal — outside #app so position:fixed works reliably on iOS Safari -->
-<div id="mobileGateModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:16px;width:100%;max-width:360px;padding:22px 20px 20px;position:relative;animation:gateCardIn .22s ease;">
-    <button onclick="hideMobileGate('dismiss')" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#666;font-size:14px;padding:0;z-index:10;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;">×</button>
-    <!-- Launch offer badge -->
-    <div style="margin-bottom:14px;">
-      <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#C9913A;font-weight:600;">⚠ Launch offer · <span id="mGatePromoLeft"></span> of 100 left</span>
-    </div>
-    <!-- Title -->
-    <div style="font-size:22px;font-weight:700;color:#e8e8e8;margin-bottom:5px;padding-right:20px;">Unlock Mesuro Pro</div>
-    <!-- Subtitle / gate message -->
-    <div id="mGateMsg" style="font-size:13px;color:#666;line-height:1.5;margin-bottom:16px;"></div>
-    <!-- Features 2-col grid -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 6px;margin-bottom:18px;">
-      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Unlimited measurements</div>
-      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Multi-image workflow</div>
-      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>PDF &amp; CSV export</div>
-      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Save &amp; load projects</div>
-      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Remove watermark</div>
-      <div style="font-size:13px;color:#bbb;display:flex;align-items:center;gap:7px;"><span style="color:#1D9E75;font-size:16px;flex-shrink:0;">✓</span>Multi-page PDF support</div>
-    </div>
-    <!-- Pricing box -->
-    <div style="background:#151515;border:0.5px solid #2a2a2a;border-radius:12px;padding:15px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:4px;">
-          <span style="font-size:30px;font-weight:700;color:#e8e8e8;line-height:1;">$9</span>
-          <span style="font-size:15px;color:#444;text-decoration:line-through;">$19</span>
+<!-- Mesuro Pro pricing modal (centered overlay; works on desktop + mobile) -->
+<!--
+  Subscription checkout URLs are configured via the constants in <script> below
+  (LS_CHECKOUT_MONTHLY / LS_CHECKOUT_YEARLY). See worker/SETUP.md for how to fill them in.
+-->
+<div id="proModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:16px;width:100%;max-width:420px;padding:24px 22px 20px;position:relative;animation:gateCardIn .22s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
+    <button onclick="hideProModal('dismiss')" style="position:absolute;top:14px;right:14px;width:26px;height:26px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#888;font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#888';this.style.background='#2a2a2a'">×</button>
+
+    <div style="font-size:9px;letter-spacing:.14em;color:#2563eb;font-weight:700;margin-bottom:8px;">MESURO PRO</div>
+    <div style="font-size:20px;font-weight:700;color:#e8e8e8;margin-bottom:6px;padding-right:30px;line-height:1.3;">Unlimited measurements, every day</div>
+    <div id="proModalSub" style="font-size:13px;color:#888;line-height:1.5;margin-bottom:18px;">Pick the plan that fits how you work.</div>
+
+    <!-- Pricing cards -->
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+
+      <!-- Monthly -->
+      <a id="proPlanMonthly" href="#" class="lemonsqueezy-button" data-plan="monthly" onclick="t('gate_click_monthly')" style="display:block;text-decoration:none;background:#181818;border:0.5px solid #2a2a2a;border-radius:10px;padding:14px 16px;transition:border-color .15s,background .15s;" onmouseenter="this.style.borderColor='#3a3a3a';this.style.background='#1f1f1f'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#181818'">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:2px;">Monthly</div>
+            <div style="font-size:11px;color:#666;">Cancel anytime</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:700;color:#e8e8e8;line-height:1;">$9.99<span style="font-size:11px;color:#666;font-weight:500;margin-left:2px;">/mo</span></div>
+          </div>
         </div>
-        <div style="font-size:11px;color:#555;">One-time · no subscription</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="background:rgba(29,158,117,.1);border:0.5px solid rgba(29,158,117,.45);border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;color:#1D9E75;letter-spacing:.04em;margin-bottom:5px;">Code FIRST100</div>
-        <div style="font-size:11px;color:#555;">applied at checkout</div>
-      </div>
+      </a>
+
+      <!-- Yearly (highlighted) -->
+      <a id="proPlanYearly" href="#" class="lemonsqueezy-button" data-plan="yearly" onclick="t('gate_click_yearly')" style="display:block;text-decoration:none;background:#181818;border:1px solid #2563eb;border-radius:10px;padding:14px 16px;position:relative;">
+        <span style="position:absolute;top:-8px;right:14px;background:#2563eb;color:#fff;font-size:9px;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:2px 6px;">SAVE 25%</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:2px;">Yearly</div>
+            <div style="font-size:11px;color:#888;">$7.42/mo, billed annually</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:700;color:#e8e8e8;line-height:1;">$89<span style="font-size:11px;color:#666;font-weight:500;margin-left:2px;">/yr</span></div>
+          </div>
+        </div>
+      </a>
+
     </div>
-    <!-- CTA -->
-    <a href="https://mesuro.lemonsqueezy.com/checkout/buy/7a034d3d-7009-46c8-b216-c710d145f02b" target="_blank" onclick="t('gate_click_checkout')" style="display:block;text-align:center;text-decoration:none;font-size:15px;font-weight:700;color:#fff;background:#2563eb;border-radius:11px;padding:14px 0;margin-bottom:12px;">Unlock Pro for $9 →</a>
-    <button onclick="hideMobileGate('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:13px;color:#555;font-family:inherit;padding:4px 0;text-align:center;">Continue with free</button>
-    <button onclick="toggleMobileGateKey();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:#C9913A;font-family:inherit;padding:8px 0 0;text-align:center;transition:opacity .15s;opacity:.7;">Have a license key?</button>
-    <div id="mGateKeyArea" style="display:none;margin-top:10px;">
-      <input id="mGateKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:7px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;margin-bottom:8px;" onkeydown="if(event.key==='Enter')doVerifyLicenseMobile()">
-      <button id="mGateVerifyBtn" onclick="doVerifyLicenseMobile()" style="width:100%;background:#1D9E75;border:none;border-radius:7px;color:#fff;font-size:13px;padding:11px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
-      <div id="mGateKeyError" style="font-size:11px;color:#e24b4b;margin-top:6px;display:none;"></div>
+
+    <!-- Feature list -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-bottom:14px;">
+      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Unlimited measurements</div>
+      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>PDF &amp; CSV export</div>
+      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Apply scale to all pages</div>
+      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Save &amp; load projects</div>
+    </div>
+
+    <button onclick="hideProModal('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:#666;font-family:inherit;padding:6px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Maybe later</button>
+    <button onclick="toggleProKeyInput();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;opacity:.75;transition:opacity .15s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.75'">Have a license key?</button>
+    <div id="proKeyArea" style="display:none;margin-top:10px;">
+      <input id="proKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:6px;color:#e0e0e0;font-size:12px;padding:8px 10px;font-family:inherit;outline:none;margin-bottom:6px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
+      <button id="proKeyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:6px;color:#fff;font-size:12px;padding:9px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
+      <div id="proKeyError" style="font-size:11px;color:#e24b4b;margin-top:6px;display:none;"></div>
     </div>
   </div>
 </div>
@@ -1201,13 +1241,13 @@
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
       <div style="display:flex;gap:8px;">
-        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report<span style="display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;line-height:1.5">PRO</span></button>
-        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV<span style="display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;line-height:1.5">PRO</span></button>
+        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report</button>
+        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV</button>
       </div>
       <div style="height:0.5px;background:#2a2a2a;margin:4px 0;"></div>
       <div style="display:flex;gap:8px;">
         <button id="mExpSave" onclick="saveProject()"                                    disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Save .mesuro</button>
-        <button              onclick="isPro?document.getElementById('projectInput').click():showGateSheet('load_project')"           style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro<span class="pro-badge">PRO</span></button>
+        <button              onclick="document.getElementById('projectInput').click()"           style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro</button>
       </div>
     </div>
 
@@ -1219,7 +1259,7 @@
   <p style="font-size:14px;color:#666;margin-bottom:56px">Measure distances, angles, areas and diameters in any image. Set a real-world scale and get precise measurements instantly — no upload, no install, no account.</p>
 
   <!-- how to use -->
-  <h2 style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:24px">How to measure an image</h2>
+  <h2 id="how-to" style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:24px">How to measure an image</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:56px">
 
     <div style="background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:16px">
@@ -1300,7 +1340,7 @@
   </div>
 
   <!-- use cases -->
-  <h2 style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:16px">Who uses Mesuro</h2>
+  <h2 id="use-cases" style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:16px">Who uses Mesuro</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:56px">
     <div style="border-left:2px solid #1D9E75;padding:10px 14px;background:#1a1a1a;border-radius:0 6px 6px 0">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:4px">Architecture & engineering</div>
@@ -1337,113 +1377,134 @@
   </div>
 
   <!-- faq -->
-  <h2 style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:20px">Frequently asked questions</h2>
+  <h2 id="faq" style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:20px">Frequently asked questions</h2>
   <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:56px">
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-pdf" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure distances in a PDF file?</div>
       <div style="font-size:13px;color:#666">Yes. Mesuro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open, load a custom range (e.g. 1, 3, 5–8), or load all pages at once. Each page is rendered at high resolution so measurements remain precise.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-multi-image" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I load multiple images at once?</div>
       <div style="font-size:13px;color:#666">Yes. Use the Load button or drag and drop multiple image files onto the canvas. Each image becomes a separate page in the filmstrip at the bottom. Click any thumbnail to switch between pages — scale calibrations and measurements are saved independently per page.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-free-limit" style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How many measurements can I make for free?</div>
+      <div style="font-size:13px;color:#666">20 measurements per day per device. The counter resets at midnight your local time and no account is required. Loading multiple images, switching pages, exporting and saving projects are all free with no daily limit. Mesuro Pro removes the 20/day cap entirely.</div>
+    </div>
+
+    <div id="faq-pro" style="border-bottom:0.5px solid #222;padding-bottom:16px">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What does Mesuro Pro include?</div>
+      <div style="font-size:13px;color:#666">Unlimited measurements (no daily cap) and Pro-only batch tools — for example, applying a single scale calibration to every page in your project at once. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device.</div>
+    </div>
+
+    <div id="faq-pdf-all-pages" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I load all pages of a PDF at once?</div>
       <div style="font-size:13px;color:#666">Yes. When you open a multi-page PDF, the page picker lets you load the current page, a custom range (e.g. 1, 3, 5–8), or all pages at once. Each page becomes an independent entry in the filmstrip with its own scale and measurements.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-multi-page-export" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How does multi-page export work?</div>
       <div style="font-size:13px;color:#666">CSV export combines all pages into one file with <em>page</em> and <em>source</em> columns identifying each measurement's origin. PDF report export creates one section per page — each section contains the annotated image and its measurement table, all in a single downloadable PDF.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-measure-distance" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure a distance in an image online?</div>
       <div style="font-size:13px;color:#666">Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. Mesuro converts the pixel distance into real-world units automatically.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-privacy" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Is my image uploaded to a server?</div>
       <div style="font-size:13px;color:#666">No. Mesuro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-save" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I save my measurements and come back later?</div>
       <div style="font-size:13px;color:#666">Yes. Use the Save button (↓S) to export a .mesuro project file containing your image and all measurements. Load it again anytime to resume exactly where you left off.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-units" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What units can I use?</div>
       <div style="font-size:13px;color:#666">Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and Mesuro applies it to all measurements automatically.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-export" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I export my annotated image?</div>
       <div style="font-size:13px;color:#666">Yes. Export as PNG, JPG or WebP at full original resolution with all annotations, or export a PDF report with the annotated image and measurement table, or export raw data as CSV.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-types" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does Mesuro support?</div>
       <div style="font-size:13px;color:#666">Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight or bezier), path/perimeter, point coordinates, and text notes. Angles work without scale calibration.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-perspective" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I correct perspective distortion in a photo?</div>
       <div style="font-size:13px;color:#666">Use the Perspective Correction tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). Mesuro applies a homographic transform to flatten the perspective before you measure.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-annotations" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I add labels or text annotations to the image?</div>
       <div style="font-size:13px;color:#666">Yes. Use the Note tool (✎ N) to click anywhere on the image and type a label. Notes appear as yellow pins on the canvas and are included in PNG and PDF exports.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-angle-no-scale" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure an angle without knowing the scale?</div>
       <div style="font-size:13px;color:#666">The Angle tool works without scale calibration. Click the first arm point, then the vertex, then the second arm. The angle in degrees is displayed immediately.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-mobile" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I use Mesuro on mobile?</div>
       <div style="font-size:13px;color:#666">Yes. Mesuro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-accuracy" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How accurate are the measurements?</div>
       <div style="font-size:13px;color:#666">Accuracy depends on your scale calibration and image resolution. The precision cursor magnifier zooms in 5× to help you place points on exact pixels. For best results, use the longest possible scale reference line.</div>
     </div>
 
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-bezier" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What is the bezier curve mode for area and path?</div>
       <div style="font-size:13px;color:#666">Instead of straight polygon segments, bezier mode fits a smooth curve through your clicked points using a natural cubic spline. This gives smooth, professional-looking outlines for organic shapes. Control points can be dragged after creation to fine-tune the curve.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-protractor" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure the angle between two lines that don't share a vertex?</div>
       <div style="font-size:13px;color:#666">Yes. Use the 4-point protractor mode under the Angle tool. Click two points on the first line, then two points on the second line. Mesuro computes the angle at their intersection even if the lines don't physically cross in the image.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-coordinates" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure coordinates in an image?</div>
       <div style="font-size:13px;color:#666">Use the Point Coordinates tool. First click sets the origin (0,0). Then place measurement points — each shows its X and Y position relative to the origin in real-world units. Drag the origin or any point to update all coordinates dynamically.</div>
     </div>
 
-    <div style="border-bottom:0.5px solid #222;padding-bottom:16px">
+    <div id="faq-edge-detect" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Does Mesuro detect edges automatically?</div>
       <div style="font-size:13px;color:#666">Yes. Enable Edge detect in the View panel. When active, measurement points snap to the nearest detected edge using a Canny edge detection algorithm. A snap indicator shows when edge snapping is active. This greatly improves precision on sharp-edged objects.</div>
     </div>
 
-    <div>
+    <div id="faq-move-labels" style="border-bottom:0.5px solid #222;padding-bottom:16px">
       <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I move measurement labels after placing them?</div>
       <div style="font-size:13px;color:#666">Yes. In idle mode (no tool selected), hover over any measurement label — the cursor changes to a grab hand. Drag the label to reposition it. A leader line connects it back to the measurement. All measurement points can also be dragged to adjust the measurement itself.</div>
     </div>
 
+    <div id="faq-data">
+      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What data does Mesuro collect?</div>
+      <div style="font-size:13px;color:#666">Almost none. Your images, PDFs, and measurements never leave your device. We only store a short-lived device fingerprint hash (auto-deleted after 48 hours) to enforce the free-tier 20 measurements / day limit. No advertising, no third-party trackers, no profile building. See the <a href="#" onclick="showPrivacyModal();return false;" style="color:#5a9fff">privacy policy</a> for full details.</div>
+    </div>
+
   </div>
 
-  <div style="font-size:11px;color:#333;text-align:center">Mesuro — free online image measurement tool</div>
+  <div style="font-size:11px;color:#333;text-align:center">
+    Mesuro — free online image measurement tool
+    <span style="margin:0 8px;color:#222;">·</span>
+    <a href="#" onclick="showPrivacyModal();return false;" style="color:#555;text-decoration:none;">Privacy</a>
+    <span style="margin:0 8px;color:#222;">·</span>
+    <a href="#" onclick="openFeedback();return false;" style="color:#555;text-decoration:none;">Contact</a>
+  </div>
 
 
 <script>
@@ -1796,19 +1857,17 @@ function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.getAttribute('data-i18n');
     if (tr[k] !== undefined && typeof tr[k] === 'string') {
-      const badge = el.querySelector('.pro-badge');
       el.textContent = tr[k];
-      if (badge) el.appendChild(badge);
     }
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const k = el.getAttribute('data-i18n-placeholder');
     if (tr[k]) el.placeholder = tr[k];
   });
-  // Load image label — respect pro status for plural
+  // Load image label — multi-image is free now, always plural
   const loadLabelTxtEl = document.getElementById('loadLabelTxt');
   if (loadLabelTxtEl) {
-    loadLabelTxtEl.textContent = isPro ? tr.load_img : tr.load_img.replace(/\(s\)|\(es\)|\(er\)|\/i/g, '').replace(/\s+/g, ' ').trim();
+    loadLabelTxtEl.textContent = tr.load_img || 'Load image(s) or PDF';
   }
   // Drop zone
   const dzMain = document.getElementById('dzMain');
@@ -1960,60 +2019,245 @@ let isPro = (function() {
   if (p.get('dev')) return true;
   return !!localStorage.getItem('mesuro_license_key');
 })();
-if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; document.getElementById('fileInput').multiple = true; document.getElementById('mFileInput').multiple = true; }
+if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; }
 
-/* ── Daily-limit Worker (fingerprint-based) ── */
+/* ── LemonSqueezy checkout URLs ──
+   Configure these after creating the Monthly and Yearly subscription products
+   in LemonSqueezy (with license keys enabled). See worker/SETUP.md.
+   Use the "Buy now" URL of each variant — paste it as-is. */
+const LS_CHECKOUT_MONTHLY = 'https://mesuro.lemonsqueezy.com/checkout/buy/64f4944d-2536-4fde-912d-9bd4724a89e4';
+const LS_CHECKOUT_YEARLY  = 'https://mesuro.lemonsqueezy.com/checkout/buy/5a14b50d-97e9-49d6-b2ab-2cac5f46cad9';
+
+/* ── Daily-limit Worker (fingerprint-based, cumulative measurements) ──
+   Free tier: 10 measurements per day, deletes do NOT decrement the counter.
+   Reset: per user's local day (Cloudflare Worker derives day from request.cf.timezone).
+   Sync model:
+     - Local count is the source of truth for the UI (instant feedback).
+     - Page open: GET /state to reconcile localStorage with server (take MAX).
+     - On measurement: increment locally, schedule debounced sync (10s).
+     - visibilitychange/pagehide: flush pending sync immediately.
+     - Server is strict: count never decreases; cache-clear cannot reset it. */
+
 const _WORKER_URL = 'https://api.mesu.ro';
+const FREE_DAILY_LIMIT = 20;
+const _SYNC_DEBOUNCE_MS = 10000;
+const _LS_DAILY_KEY = 'mesu_daily_meas';
+
 const _fpPromise = import('https://openfpcdn.io/fingerprintjs/v4').then(FP => FP.load()).catch(() => null);
 async function _getFingerprint() {
   try { const fp = await _fpPromise; if (!fp) return null; const r = await fp.get(); return r.visitorId; } catch { return null; }
 }
-async function _workerCheckOnOpen() {
-  if (isPro) return;
-  if (_getDailyState().count > 0) return; // localStorage already has a count — no need to ask the worker
-  try {
-    const visitorId = await _getFingerprint();
-    if (!visitorId) return;
-    const today = new Date().toISOString().slice(0, 10);
-    const res = await fetch(`${_WORKER_URL}/check?fp=${encodeURIComponent(visitorId)}&date=${today}`, { signal: AbortSignal.timeout(4000) });
-    const data = await res.json();
-    if (data.seen) {
-      // Zero in localStorage is fake — they cleared their cache; restore limit so gate triggers
-      t('cheat_cache_reset');
-      const s = { date: today, count: 3 };
-      localStorage.setItem('mesu_daily_imgs', JSON.stringify(s));
-      updUI();
-    }
-  } catch { /* network error — be lenient, don't block */ }
+
+/** Local day key as YYYY-MM-DD in the user's local timezone (matches what the Worker derives from request.cf.timezone). */
+function _localDayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
-async function _workerFlagFirstLoad() {
+
+/** Read the local daily state. Auto-resets when the day rolls over locally. */
+function _getDailyState() {
+  const today = _localDayKey();
+  try {
+    const s = JSON.parse(localStorage.getItem(_LS_DAILY_KEY) || 'null');
+    if (s && s.day === today) return { day: today, count: s.count|0, capped: !!s.capped };
+  } catch {}
+  return { day: today, count: 0, capped: false };
+}
+
+function _setDailyState(state) {
+  try { localStorage.setItem(_LS_DAILY_KEY, JSON.stringify(state)); } catch {}
+}
+
+function _dailyCount() { return _getDailyState().count; }
+function _dailyRemaining() { return Math.max(0, FREE_DAILY_LIMIT - _dailyCount()); }
+function _dailyCapped() {
+  const s = _getDailyState();
+  return s.capped || s.count >= FREE_DAILY_LIMIT;
+}
+
+/** Guard called before activating any measurement tool.
+ *  Returns true (and shows the Pro modal) if the free daily cap is reached. */
+function _measLimitGuard() {
+  if (isPro) return false;
+  if (!_dailyCapped()) return false;
+  showProModal('measurement_cap');
+  return true;
+}
+
+let _syncTimer = null;
+let _syncDirty = false;
+let _syncInFlight = false;
+
+async function _syncToWorker() {
+  if (isPro) return;
+  if (_syncInFlight) { _syncDirty = true; return; }
+  _syncInFlight = true;
   try {
     const visitorId = await _getFingerprint();
-    if (!visitorId) return;
-    const today = new Date().toISOString().slice(0, 10);
-    fetch(`${_WORKER_URL}/flag`, {
+    if (!visitorId) { _syncInFlight = false; return; }
+    const state = _getDailyState();
+    const res = await fetch(`${_WORKER_URL}/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fp: visitorId, date: today }),
-      signal: AbortSignal.timeout(4000)
-    }).catch(() => {});
-  } catch { /* fire and forget */ }
+      body: JSON.stringify({ fp: visitorId, count: state.count }),
+      signal: AbortSignal.timeout(6000),
+      keepalive: true,
+    });
+    if (res.ok) {
+      const data = await res.json().catch(() => null);
+      if (data && typeof data.count === 'number') {
+        // Server took MAX(local, server). Reconcile up if server was ahead.
+        if (data.count > state.count || !!data.capped !== state.capped) {
+          _setDailyState({ day: state.day, count: Math.max(state.count, data.count), capped: !!data.capped || data.count >= FREE_DAILY_LIMIT });
+          updUI();
+        }
+      }
+    }
+    _syncDirty = false;
+  } catch { /* fail open: keep local state, will retry next time */ }
+  _syncInFlight = false;
+  if (_syncDirty) { _syncDirty = false; _scheduleSync(0); }
+}
+
+function _scheduleSync(delay) {
+  if (isPro) return;
+  if (_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(_syncToWorker, delay !== undefined ? delay : _SYNC_DEBOUNCE_MS);
+}
+
+function _flushSyncNow() {
+  if (isPro) return;
+  if (_syncTimer) { clearTimeout(_syncTimer); _syncTimer = null; }
+  _syncToWorker();
+}
+
+/** Page-open reconciliation: ask worker for canonical {count, capped}. Fail-open on any error. */
+async function _workerReconcileOnOpen() {
+  if (isPro) return;
+  try {
+    const visitorId = await _getFingerprint();
+    if (!visitorId) return;
+    const res = await fetch(`${_WORKER_URL}/state?fp=${encodeURIComponent(visitorId)}`, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return;
+    const data = await res.json().catch(() => null);
+    if (!data || typeof data.count !== 'number') return;
+    const local = _getDailyState();
+    const serverDay = data.day || local.day;
+    // If server day differs from our local day, prefer server day (timezone authority).
+    const day = serverDay;
+    const merged = {
+      day,
+      count: Math.max(local.day === day ? local.count : 0, data.count),
+      capped: !!data.capped || data.count >= FREE_DAILY_LIMIT
+        || (local.day === day && local.capped),
+    };
+    if (merged.count !== local.count || merged.capped !== local.capped || merged.day !== local.day) {
+      _setDailyState(merged);
+      updUI();
+    }
+  } catch { /* fail open: keep local state */ }
+}
+
+/** Open the pricing modal. Source is just for analytics. */
+function showProModal(source) {
+  if (isPro) return;
+  if (typeof t === 'function') t('gate_show', { source: source || 'unknown' });
+  const modal = document.getElementById('proModal');
+  if (!modal) return;
+  // reset key area
+  const keyArea = document.getElementById('proKeyArea');
+  if (keyArea) keyArea.style.display = 'none';
+  const keyInput = document.getElementById('proKeyInput');
+  if (keyInput) keyInput.value = '';
+  const keyErr = document.getElementById('proKeyError');
+  if (keyErr) keyErr.style.display = 'none';
+  // refresh href on plan cards from constants (kept up to date in one place)
+  const m = document.getElementById('proPlanMonthly');
+  const y = document.getElementById('proPlanYearly');
+  if (m && typeof LS_CHECKOUT_MONTHLY !== 'undefined') m.href = LS_CHECKOUT_MONTHLY;
+  if (y && typeof LS_CHECKOUT_YEARLY !== 'undefined') y.href = LS_CHECKOUT_YEARLY;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function hideProModal(reason) {
+  const modal = document.getElementById('proModal');
+  if (!modal) return;
+  if (reason === 'dismiss' && typeof t === 'function') t('gate_click_dismiss');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function toggleProKeyInput() {
+  const area = document.getElementById('proKeyArea');
+  if (!area) return;
+  const visible = area.style.display !== 'none';
+  area.style.display = visible ? 'none' : 'block';
+  if (!visible) {
+    const inp = document.getElementById('proKeyInput');
+    if (inp) inp.focus();
+  }
+}
+
+/** Render the daily counter widget (desktop sidebar + mobile bottom bar). Hidden for Pro users. */
+function _renderDailyCounter() {
+  const dc  = document.getElementById('dailyCounter');
+  const mdc = document.getElementById('mDailyCounter');
+  if (isPro) {
+    if (dc)  { dc.style.display = 'none'; dc.className = ''; dc.innerHTML = ''; }
+    if (mdc) { mdc.style.display = 'none'; mdc.className = ''; mdc.textContent = ''; }
+    return;
+  }
+  const remaining = _dailyRemaining();
+  const used = _dailyCount();
+  const capped = _dailyCapped();
+  // Desktop widget
+  if (dc) {
+    dc.style.display = 'block';
+    if (capped) {
+      dc.className = 'cap';
+      dc.innerHTML =
+        '<div class="dc-title">Daily limit reached</div>' +
+        '<div class="dc-sub">You\'ve used your 20 free measurements today. Mesuro Pro is unlimited.</div>' +
+        '<button class="dc-btn" type="button" onclick="showProModal(\'counter\')">Mesuro Pro — Unlimited →</button>';
+    } else {
+      dc.className = remaining <= 3 ? 'warn' : '';
+      const label = remaining === 1 ? '1 measurement left today' : `${remaining} measurements left today`;
+      dc.textContent = label;
+    }
+  }
+  // Mobile compact widget
+  if (mdc) {
+    mdc.style.display = 'flex';
+    if (capped) {
+      mdc.className = 'cap';
+      mdc.textContent = 'Get Pro →';
+    } else {
+      mdc.className = remaining <= 3 ? 'warn' : '';
+      mdc.textContent = `${remaining}/${FREE_DAILY_LIMIT}`;
+    }
+  }
 }
 
 function addMeasurement(obj) {
-  if (!isPro && meas.length >= 10) {
-    if (!_gateLimitShown) showGateSheet('measurement_cap');
-    else _measLimitGuard();
+  // Free-user daily cap (cumulative; deletes don't decrement)
+  if (!isPro && _dailyCapped()) {
+    showProModal('measurement_cap');
     return false;
-  }
-  if (!isPro && !_currentImageMeasured) {
-    _currentImageMeasured = true;
-    _incrementDailyCount();
-    t('daily_qualified_load', { count: _dailyCount() });
-    updUI();
   }
   pushHistory();
   meas.push(obj);
+  // Increment cumulative daily counter for free users
+  if (!isPro) {
+    const s = _getDailyState();
+    s.count = Math.min(FREE_DAILY_LIMIT, s.count + 1);
+    s.capped = s.count >= FREE_DAILY_LIMIT;
+    _setDailyState(s);
+    _scheduleSync(s.capped ? 0 : _SYNC_DEBOUNCE_MS);
+  }
   // Track measurement completion by subtool
   const _mt = {
     line:    obj.subtype==='ce' ? 'meas_dist_ce' : 'meas_dist_pp',
@@ -2029,52 +2273,14 @@ function addMeasurement(obj) {
     note:    'meas_note'
   };
   if (_mt[obj.type]) t(_mt[obj.type]);
-  if (!isPro && meas.length === 10) {
+  // When the user completes the measurement that hits the cap, stop the active tool
+  // and pop the upgrade modal once.
+  if (!isPro && _dailyCapped()) {
     t('meas_limit');
-    _gateLimitShown = true;
     stopTool();
-    setTimeout(() => showGateSheet('measurement_cap'), 400);
+    setTimeout(() => showProModal('measurement_cap'), 400);
   }
   return true;
-}
-
-let _gateLimitShown = false;
-let _currentImageMeasured = false;
-
-function _getDailyState() {
-  const today = new Date().toISOString().slice(0, 10);
-  try { const s = JSON.parse(localStorage.getItem('mesu_daily_imgs') || 'null'); if (s && s.date === today) return s; } catch {}
-  return { date: today, count: 0 };
-}
-function _dailyCount() { return _getDailyState().count; }
-function _incrementDailyCount() {
-  const s = _getDailyState();
-  const wasZero = s.count === 0;
-  s.count++;
-  localStorage.setItem('mesu_daily_imgs', JSON.stringify(s));
-  if (wasZero) _workerFlagFirstLoad(); // write flag to Worker on first load of the day
-}
-function _minsToMidnightUTC() {
-  const now = new Date();
-  const midnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
-  const ms = midnight - now;
-  const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
-}
-function _checkDailyLimit() {
-  if (isPro) return false;
-  if (_dailyCount() < 3) return false;
-  t('gate_daily_limit');
-  showGateSheet('daily_limit');
-  return true;
-}
-
-function _measLimitGuard() {
-  if (!isPro && meas.length >= 10) {
-    showToast('Free limit reached — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#fff;font-weight:600;cursor:pointer;text-decoration:underline">Go Pro</a> or delete a measurement', 3000, true);
-    return true;
-  }
-  return false;
 }
 
 /* ── pages (multi-image / multi-PDF) ── */
@@ -2097,15 +2303,6 @@ let dragState = null;
 /* ── file loading ── */
 document.getElementById('fileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
-  if (_checkDailyLimit()) { e.target.value = ''; return; }
-  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
-  if (!isPro && mediaFiles.length > 1) {
-    showGateSheet('multi_image');
-    const f = mediaFiles[0];
-    t('load_image');
-    if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f);
-    e.target.value = ''; return;
-  }
   t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'picker'});
   files.forEach(f => {
     if (f.name.endsWith('.mesuro')) loadProject(f);
@@ -2114,40 +2311,20 @@ document.getElementById('fileInput').onchange = e => {
   });
   e.target.value = '';
 };
-document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { if (!isPro) { showGateSheet('load_project'); e.target.value=''; return; } loadProject(e.target.files[0]); e.target.value=''; } };
-document.getElementById('replaceFileInput').onchange = e => { const f = e.target.files[0]; e.target.value=''; if (!f) return; if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); };
+document.getElementById('projectInput').onchange = e => { if (e.target.files[0]) { loadProject(e.target.files[0]); e.target.value=''; } };
 
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('click', e => {
-  if (e.target.closest('#bottomArea') || e.target.closest('#feedbackModal') || e.target.closest('#pdfModal') || e.target.closest('#filmstrip') || e.target.closest('#vpWrap')) return;
-  const mgm = document.getElementById('mobileGateModal');
-  if (mgm && mgm.style.display !== 'none') return;
-  if (!pages.length) { if (!isPro && _checkDailyLimit()) return; document.getElementById('fileInput').click(); }
+  if (e.target.closest('#bottomArea') || e.target.closest('.modal-overlay') || e.target.closest('#filmstrip') || e.target.closest('#vpWrap')) return;
+  const pm = document.getElementById('proModal');
+  if (pm && pm.style.display !== 'none') return;
+  if (!pages.length) { document.getElementById('fileInput').click(); }
 });
 ca.addEventListener('dragleave', () => { ca.style.outline=''; });
 ca.addEventListener('drop', e => {
   e.preventDefault(); ca.style.outline='';
   const files = Array.from(e.dataTransfer.files);
   if (!files.length) return;
-  const mediaFiles = files.filter(f => !f.name.endsWith('.mesuro') && (isPDF(f) || isImage(f)));
-  if (_checkDailyLimit()) return;
-  // Free user with existing image: intercept and show replace/upsell sheet
-  if (!isPro && pages.length >= 1 && mediaFiles.length >= 1) {
-    if (mediaFiles.length > 1) {
-      showGateSheet('multi_image');
-      showReplaceSheet([mediaFiles[0]], 'drop');
-    } else {
-      showReplaceSheet(mediaFiles, 'drop');
-    }
-    return;
-  }
-  if (!isPro && mediaFiles.length > 1) {
-    showGateSheet('multi_image');
-    const f = mediaFiles[0];
-    t('load_image');
-    if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f);
-    return;
-  }
   t(files.length > 1 ? 'load_multi' : 'load_single', {count: files.length, source: 'drop'});
   files.forEach(f => {
     if (f.name.endsWith('.mesuro')) loadProject(f);
@@ -2158,8 +2335,6 @@ ca.addEventListener('drop', e => {
 
 
 function loadImg(file) {
-  _gateLimitShown = false;
-  _currentImageMeasured = false;
   const i = new Image();
   const url = URL.createObjectURL(file);
   i.onload = () => {
@@ -2317,7 +2492,7 @@ let snapPt = null;
 function togglePtSnap() {
   ptSnapEnabled = !ptSnapEnabled;
   localStorage.setItem('mesu_ptsnap', ptSnapEnabled);
-  t('opt_snap');
+  t('opt_ptsnap');
   updUI();
 }
 
@@ -3103,7 +3278,7 @@ function closeArea() {
 
 /* ── keyboard ── */
 document.addEventListener('keydown', e => {
-  if (e.target.matches('input')) return;
+  if (e.target.matches('input,textarea,[contenteditable=""],[contenteditable="true"]')) return;
   if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undoLast(); return; }
   if (e.key==='Escape') {
     closeSubPanels();
@@ -4040,32 +4215,10 @@ function disableButtons(ids, disabled) {
 
 function updUI() {
   updFilmstrip();
-  // Measurement counter (free users only)
-  const mcEl = document.getElementById('measCounter');
-  if (mcEl) {
-    if (!isPro && img) {
-      const used = meas.length;
-      mcEl.style.display = 'block';
-      mcEl.textContent = `${used}/10 measurements`;
-      mcEl.className = used >= 7 ? 'warn' : '';
-    } else {
-      mcEl.style.display = 'none';
-    }
-  }
+  // Daily measurement counter widget (free users only — at top of measurement list)
+  _renderDailyCounter();
   const loadTxt = document.getElementById('loadLabelTxt');
-  if (loadTxt) loadTxt.textContent = isPro ? 'Load image(s) or PDF' : 'Load image or PDF';
-  const dailyBadge = document.getElementById('loadDailyBadge');
-  if (dailyBadge) {
-    const dc = _dailyCount();
-    if (!isPro && dc >= 1) {
-      dailyBadge.textContent = `${dc}/3`;
-      dailyBadge.style.display = 'inline';
-      dailyBadge.style.background = dc >= 3 ? 'rgba(226,75,74,.2)' : 'rgba(201,145,58,.2)';
-      dailyBadge.style.color = dc >= 3 ? '#E24B4A' : '#C9913A';
-    } else {
-      dailyBadge.style.display = 'none';
-    }
-  }
+  if (loadTxt) loadTxt.textContent = 'Load image(s) or PDF';
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
   const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
@@ -4119,7 +4272,7 @@ function updUI() {
 
   measCount.textContent=meas.length?`(${meas.length})`:'';
   const ra = document.getElementById('resultsActions');
-  if (ra) ra.style.display = (isPro && meas.length >= 1) ? 'flex' : 'none';
+  if (ra) ra.style.display = meas.length >= 1 ? 'flex' : 'none';
   noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
   resList.innerHTML='';
 
@@ -4165,8 +4318,7 @@ function updUI() {
   applyLang();
 }
 
-let _delNudgeCount = 0;
-function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); if(!isPro){_delNudgeCount++;if(_delNudgeCount%5===0)showToast('Unlock unlimited measurements per image — <a onclick="showGateSheet(\'measurement_cap\')" style="color:#fff;font-weight:600;cursor:pointer;text-decoration:underline">Go Pro →</a>',4000,true);} }
+function delM(i) { pushHistory(); meas.splice(i,1); t('meas_delete'); if(hovIdx>=meas.length)hovIdx=-1; draw(); updUI(); }
 
 let toastTimer;
 function copyVal(txt) { navigator.clipboard.writeText(txt).catch(()=>{}); showToast(L('copied')+txt); }
@@ -4188,11 +4340,13 @@ function copyAllMeasurements() {
     return '';
   });
   navigator.clipboard.writeText(lines.join('\n')).catch(()=>{});
+  t('meas_copy_all', { count: meas.length });
   showToast(`Copied ${meas.length} measurement${meas.length>1?'s':''}`);
 }
 
 function deleteAllMeasurements() {
   if (!meas.length) return;
+  t('meas_delete_all', { count: meas.length });
   pushHistory();
   meas = []; areaPts = []; ptCoordGlobalOrigin = null; stopTool();
   if (currentPageIdx >= 0 && pages[currentPageIdx]) {
@@ -5088,7 +5242,6 @@ function saveProject() {
 }
 
 function loadProject(file) {
-  if (!isPro) { showGateSheet('load_project'); return; }
   t('proj_load');
   const r = new FileReader();
   r.onload = ev => {
@@ -5188,31 +5341,9 @@ function exportImg() {
     else if(m.type==='ptcoord'){drawPtCoordOn(ec_ctx,m.px,m.py,m.ox,m.oy,`${i+1}`,vs);}
     else if(m.type==='note'){drawNoteOn(ec_ctx,m.x,m.y,m.text,vs);}
   });
-  // Watermark — bottom right (free users only)
-  if (isPro) {
-    ec.toBlob(b => { if(!b)return; const u=URL.createObjectURL(b); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.${fmt}`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000); }, mime, quality);
-    return;
-  }
-  const wmText = 'Made with Mesuro';
-  const wmFs = Math.max(12, img.width * 0.036);
-  ec_ctx.save();
-  ec_ctx.font = `600 ${wmFs}px -apple-system, sans-serif`;
-  const wmPad = wmFs * 0.7;
-  const wmW = ec_ctx.measureText(wmText).width + wmPad * 2;
-  const wmH = wmFs * 1.6;
-  const wmX = img.width  - wmW - wmFs * 0.5;
-  const wmY = img.height - wmH - wmFs * 0.5;
-  ec_ctx.fillStyle = 'rgba(0,0,0,0.38)';
-  ec_ctx.beginPath();
-  if (ec_ctx.roundRect) { ec_ctx.roundRect(wmX, wmY, wmW, wmH, wmFs * 0.25); }
-  else { ec_ctx.rect(wmX, wmY, wmW, wmH); }
-  ec_ctx.fill();
-  ec_ctx.fillStyle = 'rgba(255,255,255,0.82)';
-  ec_ctx.textAlign = 'left';
-  ec_ctx.textBaseline = 'middle';
-  ec_ctx.fillText(wmText, wmX + wmPad, wmY + wmH / 2);
-  ec_ctx.restore();
+  // Free and Pro: no watermark — full feature parity for image exports
   ec.toBlob(b => { if(!b)return; const u=URL.createObjectURL(b); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.${fmt}`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000); }, mime, quality);
+  t('export_img', { format: fmt, meas_count: meas.length });
 }
 
 function drawLblOn(ec,x,y,text,col,s){ec.save();const fs=Math.max(11,11*s);ec.font=`bold ${fs}px monospace`;const tw=ec.measureText(text).width,p=5*s,h=17*s,r=4*s,rx=x-tw/2-p,ry=y-h/2;ec.fillStyle='rgba(0,0,0,.8)';ec.beginPath();ec.moveTo(rx+r,ry);ec.lineTo(rx+tw+p*2-r,ry);ec.arcTo(rx+tw+p*2,ry,rx+tw+p*2,ry+r,r);ec.lineTo(rx+tw+p*2,ry+h-r);ec.arcTo(rx+tw+p*2,ry+h,rx+tw+p*2-r,ry+h,r);ec.lineTo(rx+r,ry+h);ec.arcTo(rx,ry+h,rx,ry+h-r,r);ec.lineTo(rx,ry+r);ec.arcTo(rx,ry,rx+r,ry,r);ec.closePath();ec.fill();ec.fillStyle=col;ec.textAlign='center';ec.textBaseline='middle';ec.fillText(text,x,y);ec.restore();}
@@ -5310,7 +5441,6 @@ async function loadPDF(file) {
 }
 
 function openPdfModal() {
-  const isFree = !isPro;
   document.getElementById('pdfPageTotal').textContent = pdfDoc.numPages;
   document.getElementById('pdfPageNum').textContent = pdfCurrentPage;
   document.getElementById('pdfAllCount').textContent = pdfDoc.numPages;
@@ -5318,12 +5448,11 @@ function openPdfModal() {
   document.getElementById('pdfSelNum').textContent = pdfCurrentPage;
   document.getElementById('pdfSelectCurrent').checked = true;
   document.getElementById('pdfSelectAll').checked = false;
-  document.getElementById('pdfSelectAll').disabled = isFree;
+  document.getElementById('pdfSelectAll').disabled = false;
   document.getElementById('pdfRangeRow').style.display = 'none';
   document.getElementById('pdfRangeInput').value = '';
-  document.getElementById('pdfRangeBtn').style.display = isFree ? 'none' : '';
-  document.getElementById('pdfMultiOptions').style.display = isFree ? 'none' : '';
-  document.getElementById('pdfProNotice').style.display = isFree ? 'block' : 'none';
+  document.getElementById('pdfRangeBtn').style.display = '';
+  document.getElementById('pdfMultiOptions').style.display = 'flex';
   pdfSelectedPages = new Set([pdfCurrentPage]);
   pdfUpdateSelSummary();
   document.getElementById('pdfModal').style.display = 'flex';
@@ -5437,10 +5566,6 @@ async function renderPDFThumb(pageNum) {
 async function pdfLoadSelected() {
   document.getElementById('pdfModal').style.display = 'none';
   let pagesToLoad = [...pdfSelectedPages].sort((a, b) => a - b);
-  if (!isPro && pagesToLoad.length > 1) {
-    showGateSheet('multi_image');
-    pagesToLoad = [pagesToLoad[0]];
-  }
   for (let i = 0; i < pagesToLoad.length; i++) {
     await renderPDFPage(pagesToLoad[i], i === pagesToLoad.length - 1);
   }
@@ -5452,7 +5577,6 @@ function pdfLoadPage() { pdfLoadSelected(); }
 
 async function renderPDFPage(pageNum, switchTo) {
   if (switchTo === undefined) switchTo = true;
-  _currentImageMeasured = false;
   const page = await pdfDoc.getPage(pageNum);
   // Target ~400dpi for technical drawings — PDF native is 72dpi
   const SCALE_TARGET = 6;
@@ -5559,7 +5683,6 @@ function saveCurrentPageState() {
 }
 
 function activatePage(idx) {
-  _gateLimitShown = false;
   // cancel any in-progress tool
   mode = 'idle'; p0 = null; p1 = null; mp = null; areaPts = []; areaCps = []; stPts = []; pLine = null;
   closeSubPanels(); clearHint();
@@ -5584,15 +5707,6 @@ function activatePage(idx) {
 
 function addPage(ps, switchTo) {
   if (switchTo === undefined) switchTo = true;
-  // Free users: loading a new image replaces the current one
-  if (!isPro && pages.length >= 1) {
-    const targetIdx = currentPageIdx;
-    currentPageIdx = -1; // prevent saveCurrentPageState() inside activatePage from overwriting ps
-    pages[targetIdx] = ps;
-    if (switchTo) activatePage(targetIdx);
-    else { currentPageIdx = targetIdx; updFilmstrip(); }
-    return;
-  }
   pages.push(ps);
   if (switchTo) {
     activatePage(pages.length - 1);
@@ -5662,21 +5776,11 @@ function updFilmstrip() {
     el.onclick = () => { if (i !== currentPageIdx) activatePage(i); };
     fs.appendChild(el);
   });
-  if (isPro) {
-    // Pro: native file picker label
-    const addLbl = document.createElement('label');
-    addLbl.className = 'fs-add'; addLbl.title = 'Add image or PDF';
-    addLbl.textContent = '+'; addLbl.htmlFor = 'fileInput';
-    fs.appendChild(addLbl);
-  } else {
-    // Free: button that shows replace/upsell sheet
-    const addBtn = document.createElement('button');
-    addBtn.className = 'fs-add fs-add-free';
-    addBtn.title = 'Load a new image';
-    addBtn.innerHTML = '+<span class="fs-pro-pill">PRO</span>';
-    addBtn.onclick = () => { showGateSheet('multi_image'); };
-    fs.appendChild(addBtn);
-  }
+  // Native file picker label — multi-image is a free feature now
+  const addLbl = document.createElement('label');
+  addLbl.className = 'fs-add'; addLbl.title = 'Add image or PDF';
+  addLbl.textContent = '+'; addLbl.htmlFor = 'fileInput';
+  fs.appendChild(addLbl);
   const activeEl = fs.querySelector('.fs-active');
   if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
   updMobileFilmstrip();
@@ -5711,22 +5815,13 @@ function updMobileFilmstrip() {
     el.onclick = () => { if (i !== currentPageIdx) activatePage(i); };
     mfs.appendChild(el);
   });
-  // Add button: Pro → file picker, Free → gate
-  if (isPro) {
-    const addLbl = document.createElement('label');
-    addLbl.className = 'mfs-add';
-    addLbl.title = 'Add image';
-    addLbl.textContent = '+';
-    addLbl.htmlFor = 'mFileInput';
-    mfs.appendChild(addLbl);
-  } else {
-    const addBtn = document.createElement('button');
-    addBtn.className = 'mfs-add mfs-add-free';
-    addBtn.title = 'Multi-image requires Pro';
-    addBtn.innerHTML = '+<span style="font-size:7px;font-weight:700;letter-spacing:.06em;color:#C9913A;background:rgba(201,145,58,.12);border:0.5px solid rgba(201,145,58,.35);border-radius:3px;padding:1px 3px;line-height:1.4;display:block;">PRO</span>';
-    addBtn.onclick = () => showGateSheet('multi_image');
-    mfs.appendChild(addBtn);
-  }
+  // Add button — multi-image is free now
+  const addLbl = document.createElement('label');
+  addLbl.className = 'mfs-add';
+  addLbl.title = 'Add image';
+  addLbl.textContent = '+';
+  addLbl.htmlFor = 'mFileInput';
+  mfs.appendChild(addLbl);
   const activeEl = mfs.querySelector('.mfs-active');
   if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
 }
@@ -5786,7 +5881,6 @@ function buildPdfTableRows(pgMeas, pgSc, pgUnit) {
 
 function exportPDF() {
   if (!img) return;
-  if (!isPro) { showGateSheet('pdf_export'); return; }
   // Show title prompt modal
   const now = new Date();
   const defaultTitle = 'Mesuro Report — ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -5906,7 +6000,6 @@ function _doExportPDF(docTitle, docNote) {
 }
 
 function exportCSV() {
-  if (!isPro) { showGateSheet('csv_export'); return; }
   saveCurrentPageState();
   if (!pages.some(p => p.meas.length)) { if (!meas.length) return; }
   t('export_csv');
@@ -5972,8 +6065,13 @@ function exportCSV() {
 updUI();
 // init language
 setLang(currentLang);
-// Check Worker on open if localStorage shows zero (catches cache-clearers)
-if (!isPro) _workerCheckOnOpen();
+// Reconcile local daily counter with worker (catches cache-clear, cross-device usage)
+if (!isPro) _workerReconcileOnOpen();
+// Flush pending sync immediately when the user leaves / hides the tab
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') _flushSyncNow();
+});
+window.addEventListener('pagehide', () => _flushSyncNow());
 // Welcome back toast for returning Pro users
 if (isPro && localStorage.getItem('mesuro_license_key')) {
   setTimeout(() => showToast('✦ Mesuro Pro active', 2500), 1200);
@@ -6013,22 +6111,10 @@ applyMobileLayout();
 window.addEventListener('resize', () => { applyMobileLayout(); if (img) fitImg(); else { const cw = cp.clientWidth; const ch = cp.clientHeight; cv.width = cw; cv.height = ch; cv.style.width = cw+'px'; cv.style.height = ch+'px'; } });
 
 // file inputs
-document.getElementById('mFileInput').addEventListener('click', e => {
-  if (!isPro && _checkDailyLimit()) { e.preventDefault(); return; }
-  if (!isPro && pages.length > 0) { e.preventDefault(); showReplaceSheet(null, 'load_btn'); }
-});
 document.getElementById('mFileInput').onchange = e => {
   const files = Array.from(e.target.files); if (!files.length) return;
-  if (!isPro && _checkDailyLimit()) { e.target.value = ''; return; }
-  if (isPro) {
-    t('load_multi');
-    files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); });
-  } else {
-    const f = files[0];
-    t('load_image');
-    if (isPDF(f)) loadPDF(f);
-    else if (isImage(f)) loadImg(f);
-  }
+  t(files.length > 1 ? 'load_multi' : 'load_image');
+  files.forEach(f => { if (isPDF(f)) loadPDF(f); else if (isImage(f)) loadImg(f); });
   e.target.value='';
 };
 
@@ -6149,20 +6235,6 @@ function updMobile() {
   // "View all" button — show when more than one measurement
   const vab = document.getElementById('mViewAllBtn');
   if (vab) vab.style.visibility = meas.length > 1 ? 'visible' : 'hidden';
-
-  // Mobile load button badge — mirrors desktop #loadDailyBadge logic
-  const mlb = document.getElementById('mLoadBadge');
-  if (mlb) {
-    const dc = _dailyCount();
-    if (!isPro && dc >= 1) {
-      mlb.textContent = `${dc}/3`;
-      mlb.style.display = 'inline';
-      mlb.style.background = dc >= 3 ? 'rgba(226,75,74,.2)' : 'rgba(201,145,58,.2)';
-      mlb.style.color     = dc >= 3 ? '#E24B4A' : '#C9913A';
-    } else {
-      mlb.style.display = 'none';
-    }
-  }
 
   // Show "Done" button for open path when 2+ points placed
   const pd = document.getElementById('mPerimDone');
@@ -6516,7 +6588,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 } else {
   // Desktop: click handler triggers fileInput
   document.getElementById('dz').addEventListener('click', (e) => {
-    if (!img) { e.stopPropagation(); if (!isPro && _checkDailyLimit()) return; document.getElementById('fileInput').click(); }
+    if (!img) { e.stopPropagation(); document.getElementById('fileInput').click(); }
   });
 }
 
@@ -6562,8 +6634,8 @@ async function submitFeedback(e) {
 document.getElementById('feedbackModal').addEventListener('click', e => {
   if (e.target === document.getElementById('feedbackModal')) closeFeedback();
 });
-document.getElementById('mobileGateModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('mobileGateModal')) hideMobileGate('dismiss');
+document.getElementById('proModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('proModal')) hideProModal('dismiss');
 });
 document.getElementById('pdfTitleModal').addEventListener('click', e => {
   if (e.target === document.getElementById('pdfTitleModal')) closePdfTitleModal();
@@ -6587,92 +6659,10 @@ function toggleViewPanel() {
   }
 })();
 
-/* ── Pro gate card ── */
-let _gateFeature = null;
-
-let _promoLeft = 87; // fallback until worker responds
-
-(async function _fetchPromoCount() {
-  try {
-    const res = await fetch('https://api.mesu.ro/');
-    if (!res.ok) return;
-    const data = await res.json().catch(() => null);
-    if (data === null) return;
-    const val = data.remaining ?? null;
-    if (typeof val === 'number' && val >= 0) {
-      _promoLeft = val;
-      _updatePromoCounter();
-    }
-  } catch { /* keep fallback */ }
-})();
-
-function _updatePromoCounter() {
-  document.querySelectorAll('#gatePromoLeft, #mGatePromoLeft').forEach(el => {
-    el.textContent = _promoLeft;
-  });
-}
-
-const _GATE_MSGS = {
-  measurement_cap: 'Free limit reached (10 measurements). Go Pro for unlimited, or delete some to continue.',
-  daily_limit: () => `3 images measured today — free daily limit reached. Resets in ${_minsToMidnightUTC()}. Go Pro for unlimited images.`,
-  _default: 'This is a Pro feature.'
-};
-
-function showGateSheet(feature) {
-  if (isPro) return;
-  _gateFeature = feature;
-  _updatePromoCounter();
-  t({measurement_cap:'gate_meas_limit',csv_export:'gate_csv',pdf_export:'gate_pdf',multi_image:'gate_multi',load_project:'gate_load'}[feature]||'gate_show');
-  if (isMob()) {
-    // Mobile: show centered modal
-    const modal = document.getElementById('mobileGateModal');
-    if (!modal) return;
-    const msg = document.getElementById('mGateMsg');
-    const msgVal = _GATE_MSGS[feature] || _GATE_MSGS._default;
-    if (msg) msg.textContent = typeof msgVal === 'function' ? msgVal() : msgVal;
-    document.getElementById('mGateKeyArea').style.display = 'none';
-    document.getElementById('mGateKeyInput').value = '';
-    document.getElementById('mGateKeyError').style.display = 'none';
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    document.getElementById('canvasArea').style.pointerEvents = 'none';
-    return;
-  }
-  const card = document.getElementById('gateCard');
-  if (!card) return;
-  document.getElementById('gateKeyArea').style.display = 'none';
-  document.getElementById('gateKeyInput').value = '';
-  document.getElementById('gateKeyError').style.display = 'none';
-  const msgEl = document.getElementById('gateCardMsg');
-  const msgVal2 = _GATE_MSGS[feature] || _GATE_MSGS._default;
-  if (msgEl) msgEl.textContent = typeof msgVal2 === 'function' ? msgVal2() : msgVal2;
-  card.style.display = 'block';
-}
-
-function hideGateCard(reason) {
-  const card = document.getElementById('gateCard');
-  if (card) card.style.display = 'none';
-  hideMobileGate(reason);
-}
-
-function hideMobileGate(reason) {
-  const modal = document.getElementById('mobileGateModal');
-  if (!modal) return;
-  if (reason === 'dismiss' && _gateFeature) t('gate_click_dismiss');
-  modal.style.display = 'none';
-  document.body.style.overflow = '';
-  document.getElementById('canvasArea').style.pointerEvents = '';
-}
-
-// Keep alias so existing gate calls work
-function hideGateSheet(reason) { hideGateCard(reason); }
-
-function toggleMobileGateKey() {
-  const area = document.getElementById('mGateKeyArea');
-  const visible = area.style.display !== 'none';
-  area.style.display = visible ? 'none' : 'block';
-  if (!visible) document.getElementById('mGateKeyInput').focus();
-}
+/* ── Pro gate (legacy aliases — keep so any callers still work) ── */
+function showGateSheet(feature) { showProModal(feature || 'legacy'); }
+function hideGateSheet(reason)   { hideProModal(reason); }
+function hideGateCard(reason)    { hideProModal(reason); }
 
 // Shared license activation/validation helper
 const _LS_STORE_ID = 350420;
@@ -6711,8 +6701,6 @@ function _revokePro() {
   localStorage.removeItem('mesuro_instance_id');
   localStorage.removeItem('mesuro_last_validated');
   document.body.classList.remove('is-pro');
-  document.getElementById('fileInput').multiple = false;
-  document.getElementById('mFileInput').multiple = false;
   updUI();
 }
 
@@ -6740,125 +6728,49 @@ async function _lsCheckLicenseBackground() {
   }
 }
 
-async function doVerifyLicenseMobile() {
-  const key = document.getElementById('mGateKeyInput').value.trim();
-  if (!key) return;
-  const btn = document.getElementById('mGateVerifyBtn');
-  const errEl = document.getElementById('mGateKeyError');
-  btn.textContent = '…'; btn.disabled = true;
-  errEl.style.display = 'none';
-  try {
-    const ok = await _lsActivateOrValidate(key);
-    if (ok) {
-      isPro = true;
-      localStorage.setItem('mesuro_license_key', key);
-      t('gate_unlock_ok');
-      hideMobileGate();
-      showToast('✓ Mesuro Pro unlocked!');
-      document.body.classList.add('is-pro');
-      document.getElementById('fileInput').multiple = true;
-      document.getElementById('mFileInput').multiple = true;
-      updUI();
-    } else {
-      t('gate_unlock_fail'); errEl.textContent = 'Invalid or inactive key — please try again.';
-      errEl.style.display = 'block';
-    }
-  } catch(e) {
-    t('gate_unlock_fail'); errEl.textContent = 'Verification failed — check your connection.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.textContent = 'Verify'; btn.disabled = false;
-  }
-}
-
 function closeFeedbackPopup() {
   const fp = document.getElementById('feedbackPopup');
   if (fp) fp.style.display = 'none';
 }
 
-// ── Replace-image warning sheet ──
-let _pendingReplaceFiles = null;
-let _pendingReplaceSource = null; // 'picker' | 'drop' | 'load_btn'
-
-function showReplaceSheet(files, source) {
-  _pendingReplaceFiles = files;
-  _pendingReplaceSource = source;
-  const n = meas.length;
-  const msg = document.getElementById('replaceSheetMsg');
-  if (msg) {
-    if (n > 0) {
-      msg.textContent = `Loading a new image will replace the current one and clear your ${n} measurement${n > 1 ? 's' : ''}.`;
-    } else {
-      msg.textContent = 'Loading a new image will replace the current one.';
-    }
-  }
-  document.getElementById('replaceSheet').style.display = 'block';
-}
-
-function cancelReplace() {
-  _pendingReplaceFiles = null;
-  _pendingReplaceSource = null;
-  document.getElementById('replaceSheet').style.display = 'none';
-}
-
-function confirmReplace() {
-  document.getElementById('replaceSheet').style.display = 'none';
-  if (_checkDailyLimit()) return;
-  const source = _pendingReplaceSource;
-  const files = _pendingReplaceFiles;
-  _pendingReplaceFiles = null;
-  _pendingReplaceSource = null;
-  if (source === 'load_btn') {
-    document.getElementById('replaceFileInput').click();
-    return;
-  }
-  if (!files || !files.length) return;
-  const f = files[0];
-  if (f.name.endsWith('.mesuro')) loadProject(f);
-  else if (isPDF(f)) loadPDF(f);
-  else if (isImage(f)) loadImg(f);
-}
-
-function toggleGateKeyInput() {
-  const area = document.getElementById('gateKeyArea');
-  const visible = area.style.display !== 'none';
-  area.style.display = visible ? 'none' : 'block';
-  if (!visible) document.getElementById('gateKeyInput').focus();
-}
-
 async function doVerifyLicense() {
-  const key = document.getElementById('gateKeyInput').value.trim();
+  const inp = document.getElementById('proKeyInput');
+  const key = (inp && inp.value || '').trim();
   if (!key) return;
-  const btn = document.getElementById('gateVerifyBtn');
-  const errEl = document.getElementById('gateKeyError');
-  btn.textContent = '…'; btn.disabled = true;
-  errEl.style.display = 'none';
+  const btn = document.getElementById('proKeyBtn');
+  const errEl = document.getElementById('proKeyError');
+  if (btn) { btn.textContent = '…'; btn.disabled = true; }
+  if (errEl) errEl.style.display = 'none';
   try {
     const ok = await _lsActivateOrValidate(key);
     if (ok) {
       isPro = true;
       localStorage.setItem('mesuro_license_key', key);
       t('gate_unlock_ok');
-      hideGateCard();
+      hideProModal();
       showToast('✓ Mesuro Pro unlocked!');
       document.body.classList.add('is-pro');
-      document.getElementById('fileInput').multiple = true;
-      document.getElementById('mFileInput').multiple = true;
+      _renderDailyCounter();
       updUI();
     } else {
-      errEl.textContent = 'Invalid or inactive key — please try again.';
-      errEl.style.display = 'block';
+      t('gate_unlock_fail');
+      if (errEl) { errEl.textContent = 'Invalid or inactive key — please try again.'; errEl.style.display = 'block'; }
     }
   } catch(e) {
-    errEl.textContent = 'Verification failed — check your connection.';
-    errEl.style.display = 'block';
+    t('gate_unlock_fail');
+    if (errEl) { errEl.textContent = 'Verification failed — check your connection.'; errEl.style.display = 'block'; }
   } finally {
-    btn.textContent = 'Verify'; btn.disabled = false;
+    if (btn) { btn.textContent = 'Verify'; btn.disabled = false; }
   }
 }
-
-// Kick off background license validation after page has settled
-setTimeout(_lsCheckLicenseBackground, 3000);
+function showPrivacyModal() {
+  const m = document.getElementById('privacyModal');
+  if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function hidePrivacyModal() {
+  const m = document.getElementById('privacyModal');
+  if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+}
 
 </script>
 <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
