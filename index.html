@@ -701,6 +701,50 @@
     from { opacity:0; transform:translateY(8px); }
     to   { opacity:1; transform:translateY(0); }
   }
+
+  /* ── FAQ accordion (collapsed by default; SEO-safe — full content is in the DOM) ── */
+  details.faq-item {
+    border-bottom: 0.5px solid #222;
+    padding-bottom: 16px;
+  }
+  details.faq-item > summary {
+    font-size: 13px;
+    color: #e0e0e0;
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+    padding: 2px 28px 2px 0;
+    transition: color .15s;
+    user-select: none;
+    outline: none;
+  }
+  details.faq-item > summary::-webkit-details-marker { display: none; }
+  details.faq-item > summary:hover { color: #fff; }
+  details.faq-item > summary:focus-visible { color: #fff; }
+  details.faq-item > summary::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid #888;
+    border-bottom: 1.5px solid #888;
+    transform: translate(0, -70%) rotate(45deg);
+    transition: transform .2s ease, border-color .15s;
+  }
+  details.faq-item > summary:hover::after { border-color: #ccc; }
+  details.faq-item[open] > summary::after {
+    transform: translate(0, -30%) rotate(-135deg);
+  }
+  details.faq-item .faq-answer {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.55;
+    margin-top: 8px;
+    padding-right: 28px;
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1380,121 +1424,120 @@
   <h2 id="faq" style="font-size:16px;font-weight:500;color:#e0e0e0;margin-bottom:20px">Frequently asked questions</h2>
   <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:56px">
 
-    <div id="faq-pdf" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure distances in a PDF file?</div>
-      <div style="font-size:13px;color:#666">Yes. Mesuro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open, load a custom range (e.g. 1, 3, 5–8), or load all pages at once. Each page is rendered at high resolution so measurements remain precise.</div>
-    </div>
+    <details id="faq-pdf" class="faq-item">
+      <summary>Can I measure distances in a PDF file?</summary>
+      <div class="faq-answer">Yes. Mesuro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open, load a custom range (e.g. 1, 3, 5–8), or load all pages at once. Each page is rendered at high resolution so measurements remain precise.</div>
+    </details>
 
-    <div id="faq-multi-image" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I load multiple images at once?</div>
-      <div style="font-size:13px;color:#666">Yes. Use the Load button or drag and drop multiple image files onto the canvas. Each image becomes a separate page in the filmstrip at the bottom. Click any thumbnail to switch between pages — scale calibrations and measurements are saved independently per page.</div>
-    </div>
+    <details id="faq-multi-image" class="faq-item">
+      <summary>Can I load multiple images at once?</summary>
+      <div class="faq-answer">Yes. Use the Load button or drag and drop multiple image files onto the canvas. Each image becomes a separate page in the filmstrip at the bottom. Click any thumbnail to switch between pages — scale calibrations and measurements are saved independently per page.</div>
+    </details>
 
-    <div id="faq-free-limit" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How many measurements can I make for free?</div>
-      <div style="font-size:13px;color:#666">20 measurements per day per device. The counter resets at midnight your local time and no account is required. Loading multiple images, switching pages, exporting and saving projects are all free with no daily limit. Mesuro Pro removes the 20/day cap entirely.</div>
-    </div>
+    <details id="faq-free-limit" class="faq-item">
+      <summary>How many measurements can I make for free?</summary>
+      <div class="faq-answer">20 measurements per day per device. The counter resets at midnight your local time and no account is required. Loading multiple images, switching pages, exporting and saving projects are all free with no daily limit. Mesuro Pro removes the 20/day cap entirely.</div>
+    </details>
 
-    <div id="faq-pro" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What does Mesuro Pro include?</div>
-      <div style="font-size:13px;color:#666">Unlimited measurements (no daily cap) and Pro-only batch tools — for example, applying a single scale calibration to every page in your project at once. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device.</div>
-    </div>
+    <details id="faq-pro" class="faq-item">
+      <summary>What does Mesuro Pro include?</summary>
+      <div class="faq-answer">Unlimited measurements (no daily cap) and Pro-only batch tools — for example, applying a single scale calibration to every page in your project at once. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device.</div>
+    </details>
 
-    <div id="faq-pdf-all-pages" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I load all pages of a PDF at once?</div>
-      <div style="font-size:13px;color:#666">Yes. When you open a multi-page PDF, the page picker lets you load the current page, a custom range (e.g. 1, 3, 5–8), or all pages at once. Each page becomes an independent entry in the filmstrip with its own scale and measurements.</div>
-    </div>
+    <details id="faq-pdf-all-pages" class="faq-item">
+      <summary>Can I load all pages of a PDF at once?</summary>
+      <div class="faq-answer">Yes. When you open a multi-page PDF, the page picker lets you load the current page, a custom range (e.g. 1, 3, 5–8), or all pages at once. Each page becomes an independent entry in the filmstrip with its own scale and measurements.</div>
+    </details>
 
-    <div id="faq-multi-page-export" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How does multi-page export work?</div>
-      <div style="font-size:13px;color:#666">CSV export combines all pages into one file with <em>page</em> and <em>source</em> columns identifying each measurement's origin. PDF report export creates one section per page — each section contains the annotated image and its measurement table, all in a single downloadable PDF.</div>
-    </div>
+    <details id="faq-multi-page-export" class="faq-item">
+      <summary>How does multi-page export work?</summary>
+      <div class="faq-answer">CSV export combines all pages into one file with <em>page</em> and <em>source</em> columns identifying each measurement's origin. PDF report export creates one section per page — each section contains the annotated image and its measurement table, all in a single downloadable PDF.</div>
+    </details>
 
-    <div id="faq-measure-distance" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure a distance in an image online?</div>
-      <div style="font-size:13px;color:#666">Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. Mesuro converts the pixel distance into real-world units automatically.</div>
-    </div>
+    <details id="faq-measure-distance" class="faq-item">
+      <summary>How do I measure a distance in an image online?</summary>
+      <div class="faq-answer">Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. Mesuro converts the pixel distance into real-world units automatically.</div>
+    </details>
 
-    <div id="faq-privacy" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Is my image uploaded to a server?</div>
-      <div style="font-size:13px;color:#666">No. Mesuro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded.</div>
-    </div>
+    <details id="faq-privacy" class="faq-item">
+      <summary>Is my image uploaded to a server?</summary>
+      <div class="faq-answer">No. Mesuro runs entirely in your browser. Your image never leaves your device — no upload, no storage, no account required. It works offline once the page is loaded.</div>
+    </details>
 
-    <div id="faq-save" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I save my measurements and come back later?</div>
-      <div style="font-size:13px;color:#666">Yes. Use the Save button (↓S) to export a .mesuro project file containing your image and all measurements. Load it again anytime to resume exactly where you left off.</div>
-    </div>
+    <details id="faq-save" class="faq-item">
+      <summary>Can I save my measurements and come back later?</summary>
+      <div class="faq-answer">Yes. Use the Save button (↓S) to export a .mesuro project file containing your image and all measurements. Load it again anytime to resume exactly where you left off.</div>
+    </details>
 
-    <div id="faq-units" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What units can I use?</div>
-      <div style="font-size:13px;color:#666">Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and Mesuro applies it to all measurements automatically.</div>
-    </div>
+    <details id="faq-units" class="faq-item">
+      <summary>What units can I use?</summary>
+      <div class="faq-answer">Any unit you want — mm, cm, m, inches, feet, or any custom label. You define the scale once and Mesuro applies it to all measurements automatically.</div>
+    </details>
 
-    <div id="faq-export" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I export my annotated image?</div>
-      <div style="font-size:13px;color:#666">Yes. Export as PNG, JPG or WebP at full original resolution with all annotations, or export a PDF report with the annotated image and measurement table, or export raw data as CSV.</div>
-    </div>
+    <details id="faq-export" class="faq-item">
+      <summary>Can I export my annotated image?</summary>
+      <div class="faq-answer">Yes. Export as PNG, JPG or WebP at full original resolution with all annotations, or export a PDF report with the annotated image and measurement table, or export raw data as CSV.</div>
+    </details>
 
-    <div id="faq-types" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What types of measurements does Mesuro support?</div>
-      <div style="font-size:13px;color:#666">Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight or bezier), path/perimeter, point coordinates, and text notes. Angles work without scale calibration.</div>
-    </div>
+    <details id="faq-types" class="faq-item">
+      <summary>What types of measurements does Mesuro support?</summary>
+      <div class="faq-answer">Distance (point-to-point, center-to-edge, point-to-line), angle (3-point or 4-point protractor), arc length, diameter (center+radius or 3-point circle), area (straight or bezier), path/perimeter, point coordinates, and text notes. Angles work without scale calibration.</div>
+    </details>
 
-    <div id="faq-perspective" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I correct perspective distortion in a photo?</div>
-      <div style="font-size:13px;color:#666">Use the Perspective Correction tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). Mesuro applies a homographic transform to flatten the perspective before you measure.</div>
-    </div>
+    <details id="faq-perspective" class="faq-item">
+      <summary>How do I correct perspective distortion in a photo?</summary>
+      <div class="faq-answer">Use the Perspective Correction tool. Click the 4 corners of a known rectangle in the image (a door, tile, window, sheet of paper). Mesuro applies a homographic transform to flatten the perspective before you measure.</div>
+    </details>
 
-    <div id="faq-annotations" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I add labels or text annotations to the image?</div>
-      <div style="font-size:13px;color:#666">Yes. Use the Note tool (✎ N) to click anywhere on the image and type a label. Notes appear as yellow pins on the canvas and are included in PNG and PDF exports.</div>
-    </div>
+    <details id="faq-annotations" class="faq-item">
+      <summary>Can I add labels or text annotations to the image?</summary>
+      <div class="faq-answer">Yes. Use the Note tool (✎ N) to click anywhere on the image and type a label. Notes appear as yellow pins on the canvas and are included in PNG and PDF exports.</div>
+    </details>
 
-    <div id="faq-angle-no-scale" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure an angle without knowing the scale?</div>
-      <div style="font-size:13px;color:#666">The Angle tool works without scale calibration. Click the first arm point, then the vertex, then the second arm. The angle in degrees is displayed immediately.</div>
-    </div>
+    <details id="faq-angle-no-scale" class="faq-item">
+      <summary>How do I measure an angle without knowing the scale?</summary>
+      <div class="faq-answer">The Angle tool works without scale calibration. Click the first arm point, then the vertex, then the second arm. The angle in degrees is displayed immediately.</div>
+    </details>
 
-    <div id="faq-mobile" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I use Mesuro on mobile?</div>
-      <div style="font-size:13px;color:#666">Yes. Mesuro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement.</div>
-    </div>
+    <details id="faq-mobile" class="faq-item">
+      <summary>Can I use Mesuro on mobile?</summary>
+      <div class="faq-answer">Yes. Mesuro has a mobile interface. Tap to load an image, use the toolbar to select tools. Long-press on the canvas to activate a precision zoom cursor for accurate point placement.</div>
+    </details>
 
-    <div id="faq-accuracy" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How accurate are the measurements?</div>
-      <div style="font-size:13px;color:#666">Accuracy depends on your scale calibration and image resolution. The precision cursor magnifier zooms in 5× to help you place points on exact pixels. For best results, use the longest possible scale reference line.</div>
-    </div>
+    <details id="faq-accuracy" class="faq-item">
+      <summary>How accurate are the measurements?</summary>
+      <div class="faq-answer">Accuracy depends on your scale calibration and image resolution. The precision cursor magnifier zooms in 5× to help you place points on exact pixels. For best results, use the longest possible scale reference line.</div>
+    </details>
 
+    <details id="faq-bezier" class="faq-item">
+      <summary>What is the bezier curve mode for area and path?</summary>
+      <div class="faq-answer">Instead of straight polygon segments, bezier mode fits a smooth curve through your clicked points using a natural cubic spline. This gives smooth, professional-looking outlines for organic shapes. Control points can be dragged after creation to fine-tune the curve.</div>
+    </details>
 
-    <div id="faq-bezier" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What is the bezier curve mode for area and path?</div>
-      <div style="font-size:13px;color:#666">Instead of straight polygon segments, bezier mode fits a smooth curve through your clicked points using a natural cubic spline. This gives smooth, professional-looking outlines for organic shapes. Control points can be dragged after creation to fine-tune the curve.</div>
-    </div>
+    <details id="faq-protractor" class="faq-item">
+      <summary>Can I measure the angle between two lines that don't share a vertex?</summary>
+      <div class="faq-answer">Yes. Use the 4-point protractor mode under the Angle tool. Click two points on the first line, then two points on the second line. Mesuro computes the angle at their intersection even if the lines don't physically cross in the image.</div>
+    </details>
 
-    <div id="faq-protractor" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I measure the angle between two lines that don't share a vertex?</div>
-      <div style="font-size:13px;color:#666">Yes. Use the 4-point protractor mode under the Angle tool. Click two points on the first line, then two points on the second line. Mesuro computes the angle at their intersection even if the lines don't physically cross in the image.</div>
-    </div>
+    <details id="faq-coordinates" class="faq-item">
+      <summary>How do I measure coordinates in an image?</summary>
+      <div class="faq-answer">Use the Point Coordinates tool. First click sets the origin (0,0). Then place measurement points — each shows its X and Y position relative to the origin in real-world units. Drag the origin or any point to update all coordinates dynamically.</div>
+    </details>
 
-    <div id="faq-coordinates" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">How do I measure coordinates in an image?</div>
-      <div style="font-size:13px;color:#666">Use the Point Coordinates tool. First click sets the origin (0,0). Then place measurement points — each shows its X and Y position relative to the origin in real-world units. Drag the origin or any point to update all coordinates dynamically.</div>
-    </div>
+    <details id="faq-edge-detect" class="faq-item">
+      <summary>Does Mesuro detect edges automatically?</summary>
+      <div class="faq-answer">Yes. Enable Edge detect in the View panel. When active, measurement points snap to the nearest detected edge using a Canny edge detection algorithm. A snap indicator shows when edge snapping is active. This greatly improves precision on sharp-edged objects.</div>
+    </details>
 
-    <div id="faq-edge-detect" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Does Mesuro detect edges automatically?</div>
-      <div style="font-size:13px;color:#666">Yes. Enable Edge detect in the View panel. When active, measurement points snap to the nearest detected edge using a Canny edge detection algorithm. A snap indicator shows when edge snapping is active. This greatly improves precision on sharp-edged objects.</div>
-    </div>
+    <details id="faq-move-labels" class="faq-item">
+      <summary>Can I move measurement labels after placing them?</summary>
+      <div class="faq-answer">Yes. In idle mode (no tool selected), hover over any measurement label — the cursor changes to a grab hand. Drag the label to reposition it. A leader line connects it back to the measurement. All measurement points can also be dragged to adjust the measurement itself.</div>
+    </details>
 
-    <div id="faq-move-labels" style="border-bottom:0.5px solid #222;padding-bottom:16px">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">Can I move measurement labels after placing them?</div>
-      <div style="font-size:13px;color:#666">Yes. In idle mode (no tool selected), hover over any measurement label — the cursor changes to a grab hand. Drag the label to reposition it. A leader line connects it back to the measurement. All measurement points can also be dragged to adjust the measurement itself.</div>
-    </div>
-
-    <div id="faq-data">
-      <div style="font-size:13px;color:#e0e0e0;font-weight:500;margin-bottom:6px">What data does Mesuro collect?</div>
-      <div style="font-size:13px;color:#666">Almost none. Your images, PDFs, and measurements never leave your device. We only store a short-lived device fingerprint hash (auto-deleted after 48 hours) to enforce the free-tier 20 measurements / day limit. No advertising, no third-party trackers, no profile building. See the <a href="#" onclick="showPrivacyModal();return false;" style="color:#5a9fff">privacy policy</a> for full details.</div>
-    </div>
+    <details id="faq-data" class="faq-item">
+      <summary>What data does Mesuro collect?</summary>
+      <div class="faq-answer">Almost none. Your images, PDFs, and measurements never leave your device. We only store a short-lived device fingerprint hash (auto-deleted after 48 hours) to enforce the free-tier 20 measurements / day limit. No advertising, no third-party trackers, no profile building. See the <a href="#" onclick="showPrivacyModal();return false;" style="color:#5a9fff">privacy policy</a> for full details.</div>
+    </details>
 
   </div>
 
@@ -2014,11 +2057,7 @@ let scLine = null, scPx = null, scFactor = null, scUnit = 'mm';
 let meas = [], pLine = null, hovIdx = -1, history = [];
 
 /* ── Pro license ── */
-let isPro = (function() {
-  const p = new URLSearchParams(location.search);
-  if (p.get('dev')) return true;
-  return !!localStorage.getItem('mesuro_license_key');
-})();
+let isPro = !!localStorage.getItem('mesuro_license_key');
 if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; }
 
 /* ── LemonSqueezy checkout URLs ──
@@ -2078,11 +2117,32 @@ function _dailyCapped() {
   return s.capped || s.count >= FREE_DAILY_LIMIT;
 }
 
+/** Milliseconds remaining until the next local midnight (when the daily counter auto-resets). */
+function _msUntilLocalMidnight() {
+  const now = new Date();
+  const m = new Date(now);
+  m.setHours(24, 0, 0, 0);
+  return m - now;
+}
+
+/** Format a duration in ms as a compact human string: "4h 32m", "47m", "<1m", or "soon". */
+function _formatResetIn(ms) {
+  if (ms <= 0) return 'soon';
+  const totalMin = Math.ceil(ms / 60000);
+  if (totalMin <= 0) return 'soon';
+  if (totalMin < 1)  return '<1m';
+  if (totalMin < 60) return totalMin + 'm';
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return m === 0 ? (h + 'h') : (h + 'h ' + m + 'm');
+}
+
 /** Guard called before activating any measurement tool.
  *  Returns true (and shows the Pro modal) if the free daily cap is reached. */
 function _measLimitGuard() {
   if (isPro) return false;
   if (!_dailyCapped()) return false;
+  t('meas_limit');
   showProModal('measurement_cap');
   return true;
 }
@@ -2167,6 +2227,18 @@ function showProModal(source) {
   if (typeof t === 'function') t('gate_show', { source: source || 'unknown' });
   const modal = document.getElementById('proModal');
   if (!modal) return;
+  // Source-aware subtitle: if the user landed here because they hit the daily cap,
+  // tell them when the cap resets so they have a real choice (wait vs upgrade).
+  const sub = document.getElementById('proModalSub');
+  if (sub) {
+    const cappedSource = (source === 'measurement_cap' || source === 'counter');
+    if (cappedSource && _dailyCapped()) {
+      const resetIn = _formatResetIn(_msUntilLocalMidnight());
+      sub.textContent = `You've used today's ${FREE_DAILY_LIMIT} free measurements. They reset in ${resetIn}, or unlock unlimited now.`;
+    } else {
+      sub.textContent = 'Pick the plan that fits how you work.';
+    }
+  }
   // reset key area
   const keyArea = document.getElementById('proKeyArea');
   if (keyArea) keyArea.style.display = 'none';
@@ -2218,10 +2290,11 @@ function _renderDailyCounter() {
   if (dc) {
     dc.style.display = 'block';
     if (capped) {
+      const resetIn = _formatResetIn(_msUntilLocalMidnight());
       dc.className = 'cap';
       dc.innerHTML =
         '<div class="dc-title">Daily limit reached</div>' +
-        '<div class="dc-sub">You\'ve used your 20 free measurements today. Mesuro Pro is unlimited.</div>' +
+        `<div class="dc-sub">You've used your ${FREE_DAILY_LIMIT} free measurements today. Resets in ${resetIn}, or unlock unlimited now.</div>` +
         '<button class="dc-btn" type="button" onclick="showProModal(\'counter\')">Mesuro Pro — Unlimited →</button>';
     } else {
       dc.className = remaining <= 3 ? 'warn' : '';
@@ -2234,7 +2307,11 @@ function _renderDailyCounter() {
     mdc.style.display = 'flex';
     if (capped) {
       mdc.className = 'cap';
-      mdc.textContent = 'Get Pro →';
+      // Compact: hours-only when >=1h, otherwise minutes. Tapping still opens the Pro modal.
+      const ms = _msUntilLocalMidnight();
+      const totalMin = Math.ceil(ms / 60000);
+      const short = totalMin >= 60 ? Math.floor(totalMin / 60) + 'h' : (totalMin > 0 ? totalMin + 'm' : 'soon');
+      mdc.textContent = `Reset ${short}`;
     } else {
       mdc.className = remaining <= 3 ? 'warn' : '';
       mdc.textContent = `${remaining}/${FREE_DAILY_LIMIT}`;
@@ -2242,9 +2319,17 @@ function _renderDailyCounter() {
   }
 }
 
+/** Keep the capped counter's reset-time string fresh once a minute. Cheap; only re-renders the small widget. */
+setInterval(() => { try { _renderDailyCounter(); } catch {} }, 60_000);
+
 function addMeasurement(obj) {
-  // Free-user daily cap (cumulative; deletes don't decrement)
+  // Free-user daily cap. The 20th measurement completes silently; the cap modal
+  // only triggers when the user *attempts* a 21st measurement — either by clicking
+  // a tool button (caught by _measLimitGuard) or by completing one through this
+  // path. This avoids interrupting the user just as they finished their last
+  // free measurement.
   if (!isPro && _dailyCapped()) {
+    t('meas_limit');
     showProModal('measurement_cap');
     return false;
   }
@@ -2273,13 +2358,6 @@ function addMeasurement(obj) {
     note:    'meas_note'
   };
   if (_mt[obj.type]) t(_mt[obj.type]);
-  // When the user completes the measurement that hits the cap, stop the active tool
-  // and pop the upgrade modal once.
-  if (!isPro && _dailyCapped()) {
-    t('meas_limit');
-    stopTool();
-    setTimeout(() => showProModal('measurement_cap'), 400);
-  }
   return true;
 }
 
@@ -6072,9 +6150,23 @@ window.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') _flushSyncNow();
 });
 window.addEventListener('pagehide', () => _flushSyncNow());
-// Welcome back toast for returning Pro users
-if (isPro && localStorage.getItem('mesuro_license_key')) {
+// Welcome back toast + background re-validation for returning Pro users.
+if (isPro) {
   setTimeout(() => showToast('✦ Mesuro Pro active', 2500), 1200);
+  // Analytics: Pro page-open. Lets us measure Pro DAU/MAU and retention,
+  // independent of activation events. Works for permanent, monthly, and yearly.
+  t('pro_session_start');
+  // Re-validate the license against LemonSqueezy at most once per 24h.
+  // This catches cancellations / refunds / failed renewals — for monthly &
+  // yearly subscriptions LemonSqueezy flips license_key.status away from
+  // "active" and _lsCheckLicenseBackground will then call _revokePro().
+  // Permanent licenses stay "active" forever and just update the timestamp.
+  const _lastValidated = parseInt(localStorage.getItem('mesuro_last_validated') || '0', 10);
+  const _ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  if (!_lastValidated || Date.now() - _lastValidated > _ONE_DAY_MS) {
+    // Slight delay so the validation request doesn't compete with page-load work.
+    setTimeout(_lsCheckLicenseBackground, 2000);
+  }
 }
 // pulse load button on page open when no image is loaded
 setTimeout(() => {
