@@ -11,14 +11,14 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"Free to use with a daily limit of 20 measurements per device. Mesuro Pro is available as a paid subscription for unlimited measurements and Pro-only batch tools."},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","Multi-image loading (batch drop or select)","Multi-page PDF loading (all pages or custom range)","Filmstrip navigation between pages","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export with one section per page","Multi-page CSV export with page and source columns","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"Free to use with a daily limit of 20 measurements per device. Mesuro Pro is available as a paid subscription for unlimited measurements."},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","Multi-image loading (batch drop or select)","Multi-page PDF loading (all pages or custom range)","Apply scale to all pages","Show or hide scale in annotated exports","Filmstrip navigation between pages","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export with one section per page","Multi-page CSV export with page and source columns","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"Can I measure distances in a PDF file?","acceptedAnswer":{"@type":"Answer","text":"Yes. Mesuro supports PDF files directly — drag and drop a PDF or use the Load button. For multi-page PDFs, a page selector lets you choose which page to open, load a custom range (e.g. 1, 3, 5–8), or load all pages at once. Each page is rendered at high resolution so measurements remain precise."}},
 {"@type":"Question","name":"Can I load multiple images at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the Load button or drag and drop multiple image files onto the canvas. Each image becomes a separate page in the filmstrip at the bottom. Click any thumbnail to switch between pages — scale calibrations and measurements are saved independently per page."}},
 {"@type":"Question","name":"How many measurements can I make for free?","acceptedAnswer":{"@type":"Answer","text":"20 measurements per day per device. The counter resets at midnight your local time and no account is required. Loading multiple images, switching pages, exporting and saving projects are all free with no daily limit. Mesuro Pro removes the 20/day cap entirely."}},
-{"@type":"Question","name":"What does Mesuro Pro include?","acceptedAnswer":{"@type":"Answer","text":"Unlimited measurements (no daily cap) and Pro-only batch tools — for example, applying a single scale calibration to every page in your project at once. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device."}},
+{"@type":"Question","name":"What does Mesuro Pro include?","acceptedAnswer":{"@type":"Answer","text":"Unlimited measurements with no daily cap. Applying a scale to every page and showing or hiding the scale in exports are available to everyone. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device."}},
 {"@type":"Question","name":"Can I load all pages of a PDF at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. When you open a multi-page PDF, the page picker lets you load the current page, a custom range (e.g. 1, 3, 5–8), or all pages at once. Each page becomes an independent entry in the filmstrip with its own scale and measurements."}},
 {"@type":"Question","name":"How does multi-page export work?","acceptedAnswer":{"@type":"Answer","text":"CSV export combines all pages into one file with page and source columns identifying each measurement's origin. PDF report export creates one section per page — each section contains the annotated image and its measurement table, all in a single downloadable PDF."}},
 {"@type":"Question","name":"How do I measure a distance in an image online?","acceptedAnswer":{"@type":"Answer","text":"Set a scale by drawing a line over an object with a known size, then use the Distance tool to click two points. Mesuro converts the pixel distance into real-world units automatically."}},
@@ -841,6 +841,11 @@
         <div id="scaleStatus" class="no-scale" style="flex:1;margin-bottom:0">pixel mode</div>
         <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
       </div>
+      <div class="btn-row" id="scaleBulkActions" style="margin-top:4px">
+        <button id="btnScaleApplyAll" onclick="applyScaleToAllPages()" disabled style="flex:1;font-size:10px;padding:5px 6px;text-align:center">Apply all</button>
+        <button id="btnScaleHideAll" onclick="setScaleVisibleAll(false)" disabled style="flex:1;font-size:10px;padding:5px 6px;text-align:center">Hide</button>
+        <button id="btnScaleShowAll" onclick="setScaleVisibleAll(true)" disabled style="flex:1;font-size:10px;padding:5px 6px;text-align:center">Show</button>
+      </div>
     </div>
 
     <div>
@@ -1230,7 +1235,6 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-bottom:14px;">
       <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Unlimited measurements</div>
       <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>PDF &amp; CSV export</div>
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Apply scale to all pages</div>
       <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Save &amp; load projects</div>
     </div>
 
@@ -1441,7 +1445,7 @@
 
     <details id="faq-pro" class="faq-item">
       <summary>What does Mesuro Pro include?</summary>
-      <div class="faq-answer">Unlimited measurements (no daily cap) and Pro-only batch tools — for example, applying a single scale calibration to every page in your project at once. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device.</div>
+      <div class="faq-answer">Unlimited measurements with no daily cap. Applying a scale to every page and showing or hiding the scale in exports are available to everyone. Pro is available as a monthly or yearly subscription via LemonSqueezy. Your images and measurements still never leave your device.</div>
     </details>
 
     <details id="faq-pdf-all-pages" class="faq-item">
@@ -2054,6 +2058,7 @@ let mode = 'idle'; // idle|sa|sb|wait|ma|mb|da|db|aa|ab|ac|pa|pp|drag|st|na
 let p0 = null, p1 = null, mp = null;
 let areaPts = [];
 let scLine = null, scPx = null, scFactor = null, scUnit = 'mm';
+let scaleVisible = true;
 let meas = [], pLine = null, hovIdx = -1, history = [];
 
 /* ── Pro license ── */
@@ -2871,7 +2876,7 @@ function findDrag(wp) {
       if (near(m.px,m.py)) return {idx:i,field:'pt'};
     }
   }
-  if (scLine) {
+  if (scLine && scaleVisible !== false) {
     if (near(scLine.x1,scLine.y1)) return {idx:-1,field:'p1'};
     if (near(scLine.x2,scLine.y2)) return {idx:-1,field:'p2'};
   }
@@ -3403,12 +3408,12 @@ function closeSubPanels() {
 function doScale()      { if(mode==='sa'||mode==='sb'){stopTool();return;} stopTool(); mode='sa'; setHint(L('h_scale_a')); updUI(); }
 function doScaleReset() {
   pushHistory();
-  scLine = null; scPx = null; scFactor = null;
+  scLine = null; scPx = null; scFactor = null; scaleVisible = true;
   _recomputePtCoordPoints();
   draw(); updUI();
 }
 function applyScaleToAllPages() {
-  if (!isPro || !scFactor || pages.length <= 1) return;
+  if (!scFactor || pages.length <= 1) return;
   saveCurrentPageState();
   const count = pages.length - 1;
   pages.forEach((p, i) => {
@@ -3417,9 +3422,34 @@ function applyScaleToAllPages() {
     p.scPx = scPx;
     p.scFactor = scFactor;
     p.scUnit = scUnit;
+    p.scaleVisible = scaleVisible;
   });
   showToast(L('batch_scale_toast')(count));
   updUI();
+}
+function setScaleVisibleAll(visible) {
+  if (!img) return;
+  saveCurrentPageState();
+  pages.forEach(p => { p.scaleVisible = visible; });
+  scaleVisible = visible;
+  draw();
+  updUI();
+  showToast(visible ? 'Scale shown on all pages' : 'Scale hidden on all pages');
+}
+function pageHasScale(pg, idx) {
+  if (idx === currentPageIdx) return !!(scLine && scFactor);
+  return !!(pg && pg.scLine && pg.scFactor);
+}
+function pageScaleVisible(pg, idx) {
+  return idx === currentPageIdx ? scaleVisible !== false : pg.scaleVisible !== false;
+}
+function anyVisibleScalePage() {
+  if (!pages.length) return !!(scLine && scFactor && scaleVisible !== false);
+  return pages.some((pg, idx) => pageHasScale(pg, idx) && pageScaleVisible(pg, idx));
+}
+function anyHiddenScalePage() {
+  if (!pages.length) return !!(scLine && scFactor && scaleVisible === false);
+  return pages.some((pg, idx) => pageHasScale(pg, idx) && !pageScaleVisible(pg, idx));
 }
 function doMeasure() {
   const active = mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
@@ -3483,11 +3513,14 @@ function restoreOriginal() {
   t('rectify_revert');
   pushHistory();
   img = originalImg;
-  meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; stPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
+  meas=[]; scLine=null; scPx=null; scFactor=null; scaleVisible=true; areaPts=[]; stPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
   mode='idle'; zoom=1; panX=0; panY=0;
   edgeMap=null; edgeGx=null; edgeGy=null; edgeBlurred=null;
   if (currentPageIdx >= 0 && pages[currentPageIdx]) {
     pages[currentPageIdx].imgEl = originalImg;
+    pages[currentPageIdx].meas=[]; pages[currentPageIdx].scLine=null;
+    pages[currentPageIdx].scPx=null; pages[currentPageIdx].scFactor=null;
+    pages[currentPageIdx].scaleVisible=true;
     pages[currentPageIdx].edgeMap=null; pages[currentPageIdx].edgeGx=null;
     pages[currentPageIdx].edgeGy=null; pages[currentPageIdx].edgeBlurred=null;
     generateThumb(pages[currentPageIdx]);
@@ -3716,11 +3749,14 @@ function applyStraighten() {
     const ni = new Image();
     ni.onload = () => {
       img = ni;
-      meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
+      meas=[]; scLine=null; scPx=null; scFactor=null; scaleVisible=true; areaPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
       stPts=[]; mode='idle'; zoom=1; panX=0; panY=0;
       edgeMap=null; edgeGx=null; edgeGy=null; edgeBlurred=null;
       if (currentPageIdx >= 0 && pages[currentPageIdx]) {
         pages[currentPageIdx].imgEl = ni;
+        pages[currentPageIdx].meas=[]; pages[currentPageIdx].scLine=null;
+        pages[currentPageIdx].scPx=null; pages[currentPageIdx].scFactor=null;
+        pages[currentPageIdx].scaleVisible=true;
         pages[currentPageIdx].edgeMap=null; pages[currentPageIdx].edgeGx=null;
         pages[currentPageIdx].edgeGy=null; pages[currentPageIdx].edgeBlurred=null;
         generateThumb(pages[currentPageIdx]);
@@ -3837,10 +3873,11 @@ function saveOpenPath() {
   const sr=document.getElementById('mobileSubRow'); if(sr){sr.style.display='none';sr.dataset.tool='';}
 }
 function clearAll()  {
-  meas=[]; scLine=null; scPx=null; scFactor=null; history=[]; areaPts=[]; ptCoordGlobalOrigin=null; stopTool();
+  meas=[]; scLine=null; scPx=null; scFactor=null; scaleVisible=true; history=[]; areaPts=[]; ptCoordGlobalOrigin=null; stopTool();
   if (currentPageIdx >= 0 && pages[currentPageIdx]) {
     pages[currentPageIdx].meas=[]; pages[currentPageIdx].scLine=null;
     pages[currentPageIdx].scPx=null; pages[currentPageIdx].scFactor=null;
+    pages[currentPageIdx].scaleVisible=true;
     pages[currentPageIdx].history=[]; pages[currentPageIdx].ptCoordGlobalOrigin=null;
   }
 }
@@ -3876,9 +3913,9 @@ function showModal() {
   document.querySelector('#scaleModal h3').textContent = L('define_scale');
   document.querySelector('#scaleModal p').textContent  = L('line_represents');
   document.querySelector('#scaleModal .btn-confirm').textContent = L('set_scale_btn');
-  // show batch-scale row for Pro users with multiple pages
+  // Batch scale is exposed in the sidebar for all users.
   const batchRow = document.getElementById('scaleBatchRow');
-  if (batchRow) batchRow.style.display = (isPro && pages.length > 1) ? 'block' : 'none';
+  if (batchRow) batchRow.style.display = 'none';
 }
 
 // Mobile: tap on existing scale bar label → adjust value without redrawing
@@ -3920,6 +3957,7 @@ function confirmScale(applyAll) {
     _scEditMode = false;
   } else {
     scLine=pLine; scPx=Math.hypot(scLine.x2-scLine.x1,scLine.y2-scLine.y1); scFactor=val/scPx;
+    scaleVisible = true;
     pLine=null;
   }
   modal.style.display='none'; document.body.style.overflow=''; t('use_scale', {unit:scUnit, value:+sv.value}); stopTool();
@@ -4308,6 +4346,12 @@ function updUI() {
 
   disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
   disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasImg);
+  const btnScaleApplyAll = document.getElementById('btnScaleApplyAll');
+  const btnScaleHideAll = document.getElementById('btnScaleHideAll');
+  const btnScaleShowAll = document.getElementById('btnScaleShowAll');
+  if (btnScaleApplyAll) btnScaleApplyAll.disabled = !(hasSc && pages.length > 1);
+  if (btnScaleHideAll) btnScaleHideAll.disabled = !anyVisibleScalePage();
+  if (btnScaleShowAll) btnScaleShowAll.disabled = !anyHiddenScalePage();
   const isNote=mode==='na';
   const btnNtEl=document.getElementById('btnNote');
   if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':''; btnNtEl.innerHTML=`<span style='position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px'>Aa</span>${L('note')} <span class='kbd'>N</span>`;
@@ -4455,7 +4499,7 @@ function draw() {
 
   ctx.save(); ctx.setTransform(zoom*dpr,0,0,zoom*dpr,panX*dpr,panY*dpr);
   ctx.drawImage(img,0,0,img.width,img.height);
-  if (scLine) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75',`${(scPx*scFactor).toFixed(2)} ${scUnit}`,false,dpr);
+  if (scLine && scaleVisible !== false) annLine(scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75',`${(scPx*scFactor).toFixed(2)} ${scUnit}`,false,dpr);
   if (pLine)  annLine(pLine.x1,pLine.y1,pLine.x2,pLine.y2,'#1D9E75',null,false,dpr);
 
   meas.forEach((m,i) => {
@@ -5294,6 +5338,7 @@ function saveProject() {
     const pgScPx     = (i === currentPageIdx) ? scPx     : pg.scPx;
     const pgScFactor = (i === currentPageIdx) ? scFactor : pg.scFactor;
     const pgScUnit   = (i === currentPageIdx) ? scUnit   : pg.scUnit;
+    const pgScaleVisible = (i === currentPageIdx) ? scaleVisible : pg.scaleVisible;
     const pgPtCoordOrigin = (i === currentPageIdx) ? ptCoordGlobalOrigin : pg.ptCoordGlobalOrigin;
     return {
       label: pg.label,
@@ -5302,6 +5347,7 @@ function saveProject() {
       pdfPageNum: pg.pdfPageNum || null,
       image: ec.toDataURL('image/jpeg', 0.92),
       scale: pgScFactor ? { line: pgScLine, px: pgScPx, factor: pgScFactor, unit: pgScUnit } : null,
+      scaleVisible: pgScaleVisible !== false,
       measurements: pgMeas || [],
       ptCoordGlobalOrigin: pgPtCoordOrigin || null
     };
@@ -5353,6 +5399,7 @@ function loadProject(file) {
             scPx:     pd.scale ? pd.scale.px     : null,
             scFactor: pd.scale ? pd.scale.factor : null,
             scUnit:   pd.scale ? (pd.scale.unit || 'mm') : 'mm',
+            scaleVisible: pd.scaleVisible !== false,
             meas:     pd.measurements || [],
             history:  [],
             // Load saved origin; fall back to first ptcoord measurement's ox/oy for old files
@@ -5405,7 +5452,7 @@ function exportImg() {
   // Visual scale: match annotation size to canvas at fit-to-frame zoom
   const fitZoom = Math.min(cp.clientWidth / img.width, cp.clientHeight / img.height, 1);
   const vs = 1 / fitZoom;
-  if (scLine){drawAnnOn(ec_ctx,scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75',`${(scPx*scFactor).toFixed(2)} ${scUnit}`,vs);}
+  if (scLine && scaleVisible !== false){drawAnnOn(ec_ctx,scLine.x1,scLine.y1,scLine.x2,scLine.y2,'#1D9E75',`${(scPx*scFactor).toFixed(2)} ${scUnit}`,vs);}
   meas.forEach((m,i)=>{
     if (m.type==='line'){const r=scFactor?m.px*scFactor:null;drawAnnOn(ec_ctx,m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${scUnit}`:`#${i+1}  ${Math.round(m.px)}px`,vs,m.lpos||null);}
     else if(m.type==='diam'){const r=scFactor?m.r*2*scFactor:null;drawDiamOn(ec_ctx,m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${scUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,vs,m.lpos||null);}
@@ -5453,12 +5500,13 @@ function rotateImg(deg) {
   const ni = new Image();
   ni.onload = () => {
     img = ni; originalImg = ni;
-    meas=[]; scLine=null; scPx=null; scFactor=null; areaPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
+  meas=[]; scLine=null; scPx=null; scFactor=null; scaleVisible=true; areaPts=[]; p0=null; p1=null; ptCoordGlobalOrigin=null;
     mode='idle'; zoom=1; panX=0; panY=0;
     if (currentPageIdx >= 0 && pages[currentPageIdx]) {
       pages[currentPageIdx].imgEl = ni; pages[currentPageIdx].originalImgEl = ni;
       pages[currentPageIdx].meas=[]; pages[currentPageIdx].scLine=null;
       pages[currentPageIdx].scPx=null; pages[currentPageIdx].scFactor=null;
+      pages[currentPageIdx].scaleVisible=true;
       pages[currentPageIdx].history=[];
       pages[currentPageIdx].edgeMap=null; pages[currentPageIdx].edgeGx=null;
       pages[currentPageIdx].edgeGy=null; pages[currentPageIdx].edgeBlurred=null;
@@ -5741,6 +5789,7 @@ function makePageState(o) {
     scPx:     o.scPx     !== undefined ? o.scPx     : null,
     scFactor: o.scFactor !== undefined ? o.scFactor : null,
     scUnit:   o.scUnit   || 'mm',
+    scaleVisible: o.scaleVisible !== undefined ? o.scaleVisible : true,
     meas:     Array.isArray(o.meas)    ? o.meas    : [],
     history:  Array.isArray(o.history) ? o.history : [],
     ptCoordGlobalOrigin: o.ptCoordGlobalOrigin || null,
@@ -5754,6 +5803,7 @@ function saveCurrentPageState() {
   const p = pages[currentPageIdx];
   p.imgEl = img; p.originalImgEl = originalImg;
   p.scLine = scLine; p.scPx = scPx; p.scFactor = scFactor; p.scUnit = scUnit;
+  p.scaleVisible = scaleVisible;
   p.meas = meas; p.history = history;
   p.ptCoordGlobalOrigin = ptCoordGlobalOrigin;
   p.edgeMap = edgeMap; p.edgeGx = edgeGx; p.edgeGy = edgeGy;
@@ -5769,6 +5819,7 @@ function activatePage(idx) {
   const p = pages[idx];
   img = p.imgEl; originalImg = p.originalImgEl;
   scLine = p.scLine; scPx = p.scPx; scFactor = p.scFactor; scUnit = p.scUnit;
+  scaleVisible = p.scaleVisible !== false;
   meas = p.meas; history = p.history;
   ptCoordGlobalOrigin = p.ptCoordGlobalOrigin || null; ptCoordPrevOrigin = null;
   edgeMap = p.edgeMap; edgeGx = p.edgeGx; edgeGy = p.edgeGy;
@@ -5799,7 +5850,7 @@ function removePage(idx) {
   if (pages.length === 0) {
     currentPageIdx = -1;
     img = null; originalImg = null;
-    scLine = null; scPx = null; scFactor = null; scUnit = 'mm';
+    scLine = null; scPx = null; scFactor = null; scUnit = 'mm'; scaleVisible = true;
     meas = []; history = []; areaPts = []; ptCoordGlobalOrigin = null;
     edgeMap = null; edgeGx = null; edgeGy = null; edgeBlurred = null;
     mode = 'idle'; p0 = null; p1 = null; zoom = 1; panX = 0; panY = 0;
@@ -5911,6 +5962,7 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   const pgUnit = pg.scUnit || scUnit;
   const pgScLine = pg.scLine !== undefined ? pg.scLine : scLine;
   const pgScPx = pg.scPx !== undefined ? pg.scPx : scPx;
+  const pgScaleVisible = pg.scaleVisible !== undefined ? pg.scaleVisible : scaleVisible;
   const pgMeas = pg.meas !== undefined ? pg.meas : meas;
   const ec = document.createElement('canvas');
   // Cap canvas size for iOS memory safety (2000px max side, enough for A4 PDF)
@@ -5924,7 +5976,7 @@ function renderAnnotatedPageToDataUrl(pg, pdfRatio) {
   // Visual scale: same rule as exportImg — match fit-to-frame canvas zoom
   const fitZoomPdf = Math.min(cp.clientWidth / pgImg.width, cp.clientHeight / pgImg.height, 1);
   const sx = 1 / fitZoomPdf;
-  if (pgScLine){drawAnnOn(ec_ctx,pgScLine.x1,pgScLine.y1,pgScLine.x2,pgScLine.y2,'#1D9E75',`${(pgScPx*pgSc).toFixed(2)} ${pgUnit}`,sx);}
+  if (pgScLine && pgScaleVisible !== false){drawAnnOn(ec_ctx,pgScLine.x1,pgScLine.y1,pgScLine.x2,pgScLine.y2,'#1D9E75',`${(pgScPx*pgSc).toFixed(2)} ${pgUnit}`,sx);}
   pgMeas.forEach((m,i)=>{
     if(m.type==='line'){const r=pgSc?m.px*pgSc:null;drawAnnOn(ec_ctx,m.x1,m.y1,m.x2,m.y2,'#EF9F27',r!==null?`#${i+1}  ${r.toFixed(2)} ${pgUnit}`:`#${i+1}  ${Math.round(m.px)}px`,sx,m.lpos||null);}
     else if(m.type==='diam'){const r=pgSc?m.r*2*pgSc:null;drawDiamOn(ec_ctx,m.cx,m.cy,m.r,m.x1,m.y1,m.x2,m.y2,'#5DCAA5',r!==null?`⌀${i+1}  ${r.toFixed(2)} ${pgUnit}`:`⌀${i+1}  ${Math.round(m.r*2)}px`,sx,m.lpos||null);}
@@ -6005,7 +6057,7 @@ function _doExportPDF(docTitle, docNote) {
   const mg = 40;
   const now = new Date().toLocaleDateString('en-GB');
 
-  const allPages = pages.length ? pages : [{ label: '', imgEl: img, meas, scFactor, scUnit, scLine }];
+  const allPages = pages.length ? pages : [{ label: '', imgEl: img, meas, scFactor, scUnit, scLine, scaleVisible }];
 
   allPages.forEach((pg, pi) => {
     const pgImg = pg.imgEl || img;
