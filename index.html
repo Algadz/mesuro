@@ -786,7 +786,7 @@
         <line x1="98"  y1="28" x2="98"  y2="31" stroke="#555" stroke-width="0.75"/>
         <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
       </svg>
-      
+
     </div>
 
     <div>
@@ -2995,7 +2995,8 @@ function _applyDragPerim(m, wp, field, ptIdx) {
     m.pts[ptIdx]={x:wp.x,y:wp.y};
     if(m.cps) m.cps=localResmooth(m.pts,m.cps,ptIdx,!m.open);
   }
-  m.perimPx=m.cps?bezierPolyPerim(m.pts,m.cps,m.open):polyPerim(m.pts);
+  const closed = !m.open;
+  m.perimPx=m.cps?bezierPolyPerim(m.pts,m.cps,closed):polyPerim(m.pts,closed);
 }
 
 function _applyDragArc(m, wp, field) {
@@ -3873,10 +3874,9 @@ function closePerim() {
 }
 function saveOpenPath() {
   if (areaPts.length<2) { mode='idle'; areaPts=[]; clearHint(); draw(); updUI(); return; }
-  let perimPx=0;
   const isBezO=segMode.perim==='bezier';
   const cpsO=isBezO?autoSmooth([...areaPts],false):null;
-  const perimPxO=isBezO?bezierPolyPerim([...areaPts],cpsO,false):polyPerim(areaPts);
+  const perimPxO=isBezO?bezierPolyPerim([...areaPts],cpsO,false):polyPerim(areaPts,false);
   addMeasurement({type:'perim',pts:[...areaPts],perimPx:perimPxO,open:true,cps:cpsO});
   areaCps=[]; mp=null; mode='idle'; clearHint(); closeSubPanels(); draw(); updUI();
   areaPts=[]; mp=null; mode='idle'; clearHint(); draw(); updUI();
@@ -4102,9 +4102,10 @@ function polyArea(pts) {
   for (let i=0;i<pts.length;i++){const j=(i+1)%pts.length; a+=pts[i].x*pts[j].y-pts[j].x*pts[i].y;}
   return Math.abs(a)/2;
 }
-function polyPerim(pts) {
+function polyPerim(pts, closed=true) {
   let p=0;
-  for (let i=0;i<pts.length;i++){const j=(i+1)%pts.length; p+=Math.hypot(pts[j].x-pts[i].x,pts[j].y-pts[i].y);}
+  const segs = closed ? pts.length : Math.max(pts.length-1,0);
+  for (let i=0;i<segs;i++){const j=(i+1)%pts.length; p+=Math.hypot(pts[j].x-pts[i].x,pts[j].y-pts[i].y);}
   return p;
 }
 
@@ -4301,7 +4302,7 @@ function bezierLen(p0,cp1,cp2,p3,steps=16) {
 
 // Compute bezier perimeter
 function bezierPolyPerim(pts, cps, closed) {
-  if (!cps || !cps.length) return polyPerim(pts);
+  if (!cps || !cps.length) return polyPerim(pts,closed);
   const n=pts.length, segs=closed?n:n-1;
   let len=0;
   for (let i=0;i<segs;i++) {
