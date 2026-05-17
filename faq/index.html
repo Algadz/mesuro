@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mesuro FAQ &mdash; Calibration, Privacy, PDFs and Workflow Questions</title>
+<meta name="description" content="Technical FAQ for Mesuro: calibration, accuracy, privacy, PDF support, exports, offline use, microscopy, CAD drawings, floor plans, photo measurement and industrial workflows.">
+<link rel="canonical" href="https://mesu.ro/faq/">
+<link rel="icon" type="image/png" sizes="192x192" href="../favicon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mesu.ro/faq/">
+<meta property="og:title" content="Mesuro FAQ">
+<meta property="og:description" content="Technical answers about calibration, privacy, PDF support, exports and workflow use.">
+<meta property="og:image" content="https://mesu.ro/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mesuro FAQ">
+<meta name="twitter:description" content="Technical answers about calibration, privacy, PDF support, exports and workflow use.">
+<meta name="twitter:image" content="https://mesu.ro/og.png">
+<link rel="stylesheet" href="../assets/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How do I calibrate scale?","acceptedAnswer":{"@type":"Answer","text":"Draw a line over an object with a known size, then enter the real-world value and unit. Mesuro uses that reference to convert pixel distances into calibrated measurements."}},
+{"@type":"Question","name":"Can I apply one scale to multiple images?","acceptedAnswer":{"@type":"Answer","text":"Yes. If several loaded images share the same scale, calibrate once and apply that scale across the batch."}},
+{"@type":"Question","name":"How accurate are Mesuro measurements?","acceptedAnswer":{"@type":"Answer","text":"Accuracy depends on calibration quality, source resolution and point placement. Use the longest reliable reference available and place points carefully for best results."}},
+{"@type":"Question","name":"Are files uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Images, PDFs and measurements stay on your device while you work in the browser."}},
+{"@type":"Question","name":"Can Mesuro measure PDF files?","acceptedAnswer":{"@type":"Answer","text":"Yes. Mesuro opens PDF files directly, including multi-page documents, and supports annotated PDF and CSV exports."}},
+{"@type":"Question","name":"Does Mesuro work offline?","acceptedAnswer":{"@type":"Answer","text":"Once the app has loaded in the browser, the measurement workflow can continue locally without uploading files."}},
+{"@type":"Question","name":"Is Mesuro free?","acceptedAnswer":{"@type":"Answer","text":"Yes. Mesuro is free for up to 20 measurements each day. Mesuro Pro removes the daily cap for frequent use."}},
+{"@type":"Question","name":"What happens when I reach the free daily limit?","acceptedAnswer":{"@type":"Answer","text":"You can wait for the next daily reset or upgrade to Mesuro Pro for unlimited measurements."}},
+{"@type":"Question","name":"Can I use Mesuro for SEM images?","acceptedAnswer":{"@type":"Answer","text":"Yes. Calibrate from the SEM scale bar, measure structures on the image, and export annotated results for reports or review."}},
+{"@type":"Question","name":"Can Mesuro help with laser engraving calibration?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use point coordinates or calibrated measurements to compare engraved test marks, check offsets, and document setup corrections from output images."}},
+{"@type":"Question","name":"Can I measure from a known object in a photo?","acceptedAnswer":{"@type":"Answer","text":"Yes. If a reference object with a known size is visible in the same plane as the item you want to measure, use it to calibrate the photo before measuring."}}
+]}</script>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
+</head>
+<body>
+<header class="site-header shell">
+  <a class="brand" href="../" aria-label="Mesuro home">
+    <svg class="brand-logo" width="160" height="36" viewBox="0 0 160 36" fill="none" aria-hidden="true">
+      <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
+        <tspan x="0" y="22" fill="#e0e0e0">Mesuro</tspan>
+      </text>
+      <line x1="0" y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
+      <line x1="0" y1="28" x2="0" y2="34" stroke="#666" stroke-width="1.2"/>
+      <line x1="33" y1="28" x2="33" y2="31" stroke="#555" stroke-width="0.75"/>
+      <line x1="65" y1="28" x2="65" y2="33" stroke="#666" stroke-width="1"/>
+      <line x1="98" y1="28" x2="98" y2="31" stroke="#555" stroke-width="0.75"/>
+      <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
+    </svg>
+  </a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <details class="nav-dropdown">
+      <summary>Use cases</summary>
+      <div class="nav-dropdown-menu">
+        <a href="../use-cases/sem-images/">Microscopy analysis</a>
+        <a href="../use-cases/cad-drawings/">CAD drawing analysis</a>
+        <a href="../use-cases/laser-alignment/">Industrial applications</a>
+        <a href="../use-cases/pdf-blueprints/">Floor plan measurement</a>
+        <a href="../use-cases/known-object/">Photo measurement</a>
+      </div>
+    </details>
+    <a href="../pricing/">Pricing</a>
+    <a href="./" aria-current="page">FAQ</a>
+    <a class="nav-cta" href="../app/?from=nav" data-umami-event="cta_open_app" data-umami-event-source="nav">Open App</a>
+  </nav>
+</header>
+<main class="shell">
+  <section class="page-hero">
+    <p class="eyebrow">Technical FAQ</p>
+    <h1>Answers for calibration, privacy, PDFs and workflow use</h1>
+    <p>Mesuro stays intentionally small, so the FAQ is where the operational detail lives.</p>
+    <div class="kicker-links">
+      <a href="#calibration">Calibration</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#technical">Technical</a>
+      <a href="#workflow">Workflow</a>
+    </div>
+  </section>
+
+  <section class="faq-section" id="calibration">
+    <h2>Calibration</h2>
+    <details open><summary>How do I calibrate scale?</summary><p>Use the Scale tool, draw a line over an object with a known size, then enter the real-world value and unit. Mesuro applies that conversion to later measurements on the same page.</p></details>
+    <details><summary>Can I apply one scale to multiple images?</summary><p>Yes. If several loaded images share the same scale, you can calibrate once and apply that scale across the batch.</p></details>
+    <details><summary>How accurate are measurements?</summary><p>Accuracy depends on the reliability of your reference, the source resolution, and how precisely points are placed. For best results, use the longest dependable reference line available and zoom in when placing points.</p></details>
+    <details><summary>How does perspective correction work?</summary><p>Select the four corners of a known rectangle in the image. Mesuro applies a homographic correction so the photographed plane is flattened before measurement.</p></details>
+  </section>
+
+  <section class="faq-section" id="privacy">
+    <h2>Privacy</h2>
+    <details open><summary>Are files uploaded?</summary><p>No. Images, PDFs, annotations and measurements stay on your device while you work.</p></details>
+    <details><summary>Is processing local-only?</summary><p>Yes. The measurement workflow runs in the browser. Mesuro only stores a short-lived device fingerprint hash for free-tier limit enforcement; the actual files never leave your device.</p></details>
+    <details><summary>Does Mesuro work offline?</summary><p>Once the app page has loaded, the measurement workflow can continue locally. File processing itself does not require an upload round trip.</p></details>
+  </section>
+
+  <section class="faq-section" id="pricing">
+    <h2>Pricing</h2>
+    <details open><summary>Is Mesuro free?</summary><p>Yes. Mesuro is free for up to 20 measurements each day. Mesuro Pro removes the daily cap for frequent use.</p></details>
+    <details><summary>What happens when I reach the free daily limit?</summary><p>You can wait for the next daily reset or upgrade to <a href="../pricing/">Mesuro Pro</a> for unlimited measurements.</p></details>
+  </section>
+
+  <section class="faq-section" id="technical">
+    <h2>Technical</h2>
+    <details open><summary>What formats are supported?</summary><p>Mesuro supports common image formats accepted by modern browsers and PDF files. It can also save and reload Mesuro project files for later continuation.</p></details>
+    <details><summary>Can I measure PDF files?</summary><p>Yes. You can open PDF pages directly, load page ranges or entire multi-page documents, and export annotated PDF reports or CSV data.</p></details>
+    <details><summary>What can I export?</summary><p>Annotated images, PDF reports, CSV data and project files. Exports are designed for practical handoff rather than presentation-heavy reporting.</p></details>
+    <details><summary>Which browsers work best?</summary><p>Use a current desktop or mobile browser with Canvas support. The app is optimized around modern browser capabilities rather than a packaged install.</p></details>
+  </section>
+
+  <section class="faq-section" id="workflow">
+    <h2>Workflow</h2>
+    <details open><summary>Can I use Mesuro for SEM image measurement?</summary><p>Yes. Calibrate from the visible scale bar, measure structures on the image, and export the annotated result for technical review or reporting.</p></details>
+    <details><summary>Can I use it for microscopy annotation?</summary><p>Yes. The same calibrated workflow works for microscopy images when you have a reliable scale reference.</p></details>
+    <details><summary>Can I measure technical blueprints?</summary><p>Yes. Open the PDF or image, calibrate from a known dimension, then measure lengths, areas, angles or coordinates directly.</p></details>
+    <details><summary>Can I use Mesuro for CAD drawing review?</summary><p>Yes. Open an exported CAD drawing or technical drawing, calibrate from a known dimension, then measure distances, angles, areas or diameters directly.</p></details>
+    <details><summary>Can Mesuro help with laser engraving calibration?</summary><p>Yes. Use point coordinates or calibrated measurements to compare engraved test marks, check offsets, and document setup corrections from output images.</p></details>
+    <details><summary>Can I measure from a known object in a photo?</summary><p>Yes. If a reference object with a known size is visible in the same plane as the item you want to measure, use it to calibrate the photo before measuring.</p></details>
+  </section>
+
+  <section class="section">
+    <div class="note-card">
+      <strong>Need the workspace rather than the explanation?</strong>
+      <p><a href="../app/?from=faq" data-umami-event="cta_open_app" data-umami-event-source="faq">Open the app</a> and start from a local image or PDF.</p>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="shell footer-row">
+    <div>Mesuro &mdash; calibrated image and PDF measurement in the browser.</div>
+    <div class="footer-links">
+      <a href="../app/?from=footer">Open App</a>
+      <a href="../pricing/">Pricing</a>
+      <a href="./">FAQ</a>
+      <a href="./#privacy">Privacy</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

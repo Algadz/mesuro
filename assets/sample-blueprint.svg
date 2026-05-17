@@ -1,0 +1,43 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="760" fill="#F4F0E8"/>
+  <rect x="54" y="54" width="1092" height="652" rx="12" stroke="#B9B2A5" stroke-width="4"/>
+  <g stroke="#CDC6B8" stroke-width="2">
+    <path d="M120 120H1080"/>
+    <path d="M120 210H1080"/>
+    <path d="M120 300H1080"/>
+    <path d="M120 390H1080"/>
+    <path d="M120 480H1080"/>
+    <path d="M120 570H1080"/>
+    <path d="M180 100V650"/>
+    <path d="M330 100V650"/>
+    <path d="M480 100V650"/>
+    <path d="M630 100V650"/>
+    <path d="M780 100V650"/>
+    <path d="M930 100V650"/>
+  </g>
+  <g stroke="#354052" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M180 570V180H855V570H180Z"/>
+    <path d="M420 180V350H855"/>
+    <path d="M420 350H180"/>
+    <path d="M630 350V570"/>
+    <path d="M855 300H1002V570H855"/>
+  </g>
+  <g stroke="#354052" stroke-width="5" stroke-linecap="round">
+    <path d="M210 220H350"/>
+    <path d="M210 252H350"/>
+    <path d="M458 220H600"/>
+    <path d="M458 252H600"/>
+  </g>
+  <g fill="#354052" font-family="Arial, Helvetica, sans-serif">
+    <text x="120" y="96" font-size="28" font-weight="700">Mesuro sample blueprint</text>
+    <text x="120" y="676" font-size="24">Known reference: 100 mm</text>
+    <text x="186" y="167" font-size="22">Room A</text>
+    <text x="446" y="167" font-size="22">Room B</text>
+    <text x="640" y="534" font-size="22">Inspection bay</text>
+  </g>
+  <g stroke="#1D9E75" stroke-width="8" stroke-linecap="round">
+    <path d="M120 634H360"/>
+    <path d="M120 620V648"/>
+    <path d="M360 620V648"/>
+  </g>
+</svg>
