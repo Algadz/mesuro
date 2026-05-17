@@ -198,6 +198,7 @@ h1 {
 }
 
 .demo-card {
+  margin: 0;
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 18px;
