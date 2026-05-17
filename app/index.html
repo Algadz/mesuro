@@ -344,7 +344,7 @@
 
     /* dz — full canvas overlay, centered, tap anywhere to load */
     #dz { pointer-events:all; cursor:pointer; position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; }
-    #dz span:not(#dzMain) { display:none; }
+    #dz > span:not(#dzMain) { display:none; }
     #dz svg  { display:block; opacity:.4; width:64px; height:64px; }
     #dzMain  { font-size:17px; color:#aaa; margin-top:6px; }
     #dzSteps { grid-template-columns:1fr 1fr; width:calc(100% - 28px); margin-top:12px; }
