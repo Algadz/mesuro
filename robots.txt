@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /app-beta/
 
 Sitemap: https://mesu.ro/sitemap.xml
