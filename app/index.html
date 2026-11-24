@@ -1014,6 +1014,10 @@
     #resPanel.collapsed .fp-x .ic { transform: none; }
     #resPanel.collapsed .fp-body { display: none; }
     #resPanel.collapsed .fp-head { border-bottom: 0; }
+    @media (min-width: 768px) {
+      #resPanel.collapsed { width: auto; min-width: 150px; }
+      #resPanel.collapsed #resultsActions { display: none !important; }
+    }
     .fp-body { padding: 8px; overflow-y: auto; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
     #resList { gap: 4px; overflow: visible; }
     .res-item {
@@ -1241,6 +1245,9 @@
     .seg { border-radius: 10px; }
     .seg-btn { padding: 10px 13px; font-size: 13.5px; }
     #btnDistLL, #btnDiamArc { display: none; }              /* no touch input for these modes */
+    #straightenStatus .st-text { display: none; }            /* the hint above the canvas says which corner is next */
+    #straightenStatus { padding: 0 6px 0 8px; font-size: 18px; letter-spacing: 2px; display: flex; align-items: center; }
+    #straightenApplyRow .tbtn { height: 42px; padding: 0 16px; font-size: 13.5px; border-radius: 10px; }
     #optDone { height: 42px; padding: 0 16px; font-size: 13.5px; border-radius: 10px; }
 
     /* tool bar: one row, icon + label, sized for thumbs */
@@ -1491,11 +1498,11 @@
       <button type="button" class="seg-btn" id="btnPlacePoint" onclick="setPtCoordMode('point')"><span>Place point</span></button>
     </div>
     <div id="straightenStatus" style="display:none">
-      Click the <span id="stCornerLabel" style="font-weight:600">top-left</span> corner &nbsp;<span id="stDots">○ ○ ○ ○</span>
+      <span class="st-text">Corner: <span id="stCornerLabel" style="font-weight:600">top-left</span> &nbsp;</span><span id="stDots">○ ○ ○ ○</span>
     </div>
     <button type="button" class="tbtn tbtn-text primary" id="optDone" onclick="optDone()" style="display:none">Done</button>
     <div id="straightenApplyRow" style="display:none">
-      <button type="button" class="tbtn tbtn-text primary" onclick="applyStraighten()" data-i18n="apply">Apply</button>
+      <button type="button" class="tbtn tbtn-text primary" id="stApplyBtn" onclick="applyStraighten()" data-i18n="apply">Apply</button>
       <button type="button" class="tbtn tbtn-text" onclick="cancelStraighten()">Cancel</button>
     </div>
   </div>
@@ -1784,6 +1791,7 @@
       </div></div>
       <div class="msec"><div class="mlbl">Image &amp; scale</div><div class="mgrid">
         <button type="button" class="mitem needs-img m-rotate" id="mRotate" onclick="mAct(()=>rotateImg(90))"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span>Rotate 90°</span></button>
+        <button type="button" class="mitem needs-img m-phone" id="mPersp" onclick="mAct(doStraighten)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5h10l3.5 14h-17z"/><path d="M7 5l13.5 14M17 5 3.5 19" stroke-dasharray="2 2.5" opacity=".5"/></svg><span>Perspective</span></button>
         <button type="button" class="mitem needs-orig" id="mRestore" onclick="mAct(restoreOriginal)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg><span>Original image</span></button>
         <button type="button" class="mitem needs-multi" id="mScaleAll" onclick="mAct(applyScaleToAllPages)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg><span>Scale → all pages</span></button>
         <button type="button" class="mitem needs-scale" id="mScaleVis" onclick="mAct(()=>setScaleVisibleAll(!anyVisibleScalePage()))"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show / hide scale</span></button>
@@ -1792,7 +1800,7 @@
         <button type="button" class="mitem needs-img m-wide tog" id="mPan" onclick="mAct(toggleZoom)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m9 6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg><span>Pan &amp; zoom</span></button>
         <button type="button" class="mitem needs-img tog" id="mMag" onclick="mAct(toggleMag)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4M11 8v6M8 11h6"/></svg><span>Magnifier</span></button>
         <button type="button" class="mitem needs-img tog" id="mPtSnap" onclick="mAct(togglePtSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg><span>Snap to points</span></button>
-        <button type="button" class="mitem needs-img m-wide tog" id="mEdge" onclick="mAct(toggleSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 18 4" stroke-dasharray="2.5 2.5"/><circle cx="11" cy="11" r="3.2"/><path d="M11 5v2M11 15v2M5 11h2M15 11h2"/></svg><span>Edge snapping</span></button>
+        <button type="button" class="mitem needs-img tog" id="mEdge" onclick="mAct(toggleSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 18 4" stroke-dasharray="2.5 2.5"/><circle cx="11" cy="11" r="3.2"/><path d="M11 5v2M11 15v2M5 11h2M15 11h2"/></svg><span>Edge snapping</span></button>
         <button type="button" class="mitem" id="mTheme" onclick="mAct(toggleTheme)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span>Light / dark</span></button>
       </div></div>
       <div class="mfoot m-phone">
@@ -2150,6 +2158,7 @@ function toggleResPanel() {
   if (!p) return;
   const collapsed = p.classList.toggle('collapsed');
   try { localStorage.setItem('mesu_res_collapsed', collapsed); } catch (e) {}
+  if (typeof img !== 'undefined' && img) fitImg();          // the clear area changed size
 }
 
 function _fitZoomMin() { return Math.min(cp.clientWidth / img.width, cp.clientHeight / img.height, 1); }
@@ -3083,7 +3092,7 @@ function loadImg(file) {
     generateThumb(ps);
     addPage(ps, true);
     t('load_image');
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    if (snapEnabled) computeEdges();
     const _mts = document.getElementById('mobileToolsScroll');
     if (_mts) _mts.scrollLeft = 0;
     setTimeout(() => {
@@ -3105,7 +3114,7 @@ function loadImg(file) {
         generateThumb(ps);
         addPage(ps, true);
         t('load_image');
-        if (snapEnabled && window.innerWidth > 767) computeEdges();
+        if (snapEnabled) computeEdges();
         const _mts = document.getElementById('mobileToolsScroll');
         if (_mts) _mts.scrollLeft = 0;
       };
@@ -3149,11 +3158,11 @@ function fitImg() {
     panX = (cssW - img.width  * r) / 2;
     panY = (cssH - img.height * r) / 2;
   } else {
-    const pad = 20;
-    const r = Math.min((cssW - pad) / img.width, (cssH - pad) / img.height, 1);
+    const pad = 20, L = _viewInsetL(), R = _viewInsetR(), T = _viewInsetT(), B = _viewInsetB();   // keep the image clear of the floating panels
+    const r = Math.min((cssW - L - R - pad) / img.width, (cssH - T - B - pad) / img.height, 1);
     zoom = r;
-    panX = (cssW - img.width  * r) / 2;
-    panY = (cssH - img.height * r) / 2;
+    panX = L + (cssW - L - R - img.width * r) / 2;
+    panY = T + (cssH - T - B - img.height * r) / 2;
   }
   cv.style.display = 'block';
   draw();
@@ -3198,15 +3207,42 @@ cv.addEventListener('wheel', e => {
   zoom=nz; clampPan(); draw();
 }, { passive:false });
 
+// Width covered by the floating tool palette on the left (desktop/tablet); 0 on phones
+function _viewInsetL() {
+  if (isMob()) return 0;
+  const tb = document.getElementById('toolbar');
+  return (tb && tb.offsetParent) ? tb.offsetLeft + tb.offsetWidth + 8 : 0;
+}
+// Results panel (desktop/tablet): expanded → keep the image beside it; collapsed → it is a small header, keep the image below it
+function _resPanelBox() {
+  if (isMob()) return null;
+  const rp = document.getElementById('resPanel');
+  return (rp && rp.offsetParent) ? rp : null;
+}
+function _viewInsetR() {
+  const rp = _resPanelBox();
+  return (rp && !rp.classList.contains('collapsed')) ? Math.max(0, cp.clientWidth - rp.offsetLeft) + 8 : 0;
+}
+function _viewInsetT() {
+  const rp = _resPanelBox();
+  return (rp && rp.classList.contains('collapsed')) ? rp.offsetTop + rp.offsetHeight + 8 : 0;
+}
+// Zoom controls (bottom right): only in the way when the results column is not already reserving the right side
+function _viewInsetB() {
+  if (isMob() || _viewInsetR()) return 0;
+  const z = document.getElementById('zoomCtl');
+  return (z && z.offsetParent) ? Math.max(0, cp.clientHeight - z.offsetTop) + 8 : 0;
+}
 function clampPan() {
   if (!img) return;
   const iw = img.width * zoom, ih = img.height * zoom;
-  const cw = cp.clientWidth, ch = cp.clientHeight;
-  // If image fits inside canvas, center it
-  if (iw <= cw) panX = (cw - iw) / 2;
-  else panX = Math.max(cw - iw, Math.min(0, panX));
-  if (ih <= ch) panY = (ch - ih) / 2;
-  else panY = Math.max(ch - ih, Math.min(0, panY));
+  const cw = cp.clientWidth, ch = cp.clientHeight, L = _viewInsetL(), R = _viewInsetR();
+  // Image fits between the panels: center it there. Larger: any edge can be panned clear of both panels.
+  if (iw <= cw - L - R) panX = L + (cw - L - R - iw) / 2;
+  else panX = Math.max(cw - R - iw, Math.min(L, panX));
+  const T = _viewInsetT(), B = _viewInsetB();
+  if (ih <= ch - T - B) { panY = T + (ch - T - B - ih) / 2; return; }
+  panY = Math.max(ch - B - ih, Math.min(T, panY));
 }
 function toggleZoom() {
   zoomEnabled=!zoomEnabled;
@@ -3235,8 +3271,9 @@ function togglePtSnap() {
 
 function toggleSnap() {
   snapEnabled = !snapEnabled;
+  if (!snapEnabled) showToast('Edge snapping off');
   localStorage.setItem('mesu_snap', snapEnabled);
-  if (snapEnabled && img && !edgeMap && window.innerWidth > 767) computeEdges();
+  if (snapEnabled && img && !edgeMap) computeEdges();
   t('opt_edge');
   updUI();
 }
@@ -3250,7 +3287,8 @@ function computeEdges() {
 function _doComputeEdges() {
   if (!img) return;
   // For high-res PDFs, use full resolution up to 5000px — precision matters more than speed
-  const MAX = 5000;
+  // Phones/tablets have less memory and CPU: a 2400 px edge map is plenty for finger precision
+  const MAX = (window.matchMedia && matchMedia('(pointer: coarse)').matches) ? 2400 : 5000;
   const sc = Math.min(1, MAX / Math.max(img.width, img.height));
   edgeW = Math.round(img.width * sc);
   edgeH = Math.round(img.height * sc);
@@ -3484,8 +3522,10 @@ function defaultLabelPos(m, i) {
   return null;
 }
 
+const _COARSE = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
 function findDrag(wp) {
-  function near(ax,ay) { return dst(wp,{x:ax,y:ay})*zoom<DRAG_R; }
+  const hitR = _COARSE ? 22 : DRAG_R;                 // ~fingertip on touch screens
+  function near(ax,ay) { return dst(wp,{x:ax,y:ay})*zoom<hitR; }
   for (let i=meas.length-1;i>=0;i--) {
     const m=meas[i];
     if (m.type==='line') {
@@ -4220,13 +4260,13 @@ function updStraightenUI() {
 
   if (active) {
     status.style.display = 'block';
+    applyRow.style.display = 'flex';
+    const ab = document.getElementById('stApplyBtn'); if (ab) ab.disabled = stPts.length < 4;
     if (stPts.length < 4) {
-      applyRow.style.display = 'none';
       label.textContent = ST_LABELS[stPts.length];
       label.style.color = ST_COLORS[stPts.length];
     } else {
-      applyRow.style.display = 'flex';
-      label.textContent = 'ready — drag to adjust';
+      label.textContent = 'all set — drag to adjust';
       label.style.color = '#1D9E75';
     }
     const filled = ['●','●','●','●'].map((c,i) => i < stPts.length
@@ -6410,13 +6450,13 @@ function loadImgFromImage(imgEl, replaceCurrentPage) {
       generateThumb(pages[currentPageIdx]);
     }
     fitImg(); updUI();
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    if (snapEnabled) computeEdges();
   } else {
     // New page (PDF page load)
     const ps = makePageState({ imgEl: imgEl, originalImgEl: imgEl, label: pdfSourceName || 'pdf', sourceName: pdfSourceName || 'pdf', sourceType: 'pdf' });
     generateThumb(ps);
     addPage(ps, true);
-    if (snapEnabled && window.innerWidth > 767) computeEdges();
+    if (snapEnabled) computeEdges();
     setTimeout(() => {
       const bs = document.getElementById('btnScale');
       if (bs) { bs.classList.remove('scale-pulse-once'); void bs.offsetWidth; bs.classList.add('scale-pulse-once'); bs.addEventListener('animationend', () => bs.classList.remove('scale-pulse-once'), {once:true}); }
@@ -7348,6 +7388,23 @@ function getTouchPt(touch) {
   return { x: (x-panX)/zoom, y: (y-panY)/zoom };
 }
 
+// Touch point with the same snapping as the mouse (snap to points, then edges)
+function touchPt(touch) {
+  const raw = getTouchPt(touch);
+  if (ptSnapEnabled && meas.length) {
+    const excludeIdx = (mode==='drag' && dragState) ? dragState.idx : -1;
+    const ps = findPointSnap(raw, excludeIdx);
+    if (ps) { snapPt = {...ps, _isPoint:true}; return ps; }
+  }
+  if (snapEnabled && edgeMap) {
+    const es = findEdgeSnap(raw);
+    snapPt = es ? {...es, _isPoint:false} : null;
+    return es || raw;
+  }
+  snapPt = null;
+  return raw;
+}
+
 /* ── mobile long-press state (read by draw()) ── */
 let longPressActive = false;
 
@@ -7370,6 +7427,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     clearLongPress();
     longPressTimer = setTimeout(() => { if (!tPanning && !gestureMulti) { longPressActive = true; draw(); } }, AIM_HOLD_MS);
   }
+  const isPlacing = () => TOOL_MODES.includes(mode) || (mode==='st' && stPts.length < 4);
   function clearLongPress() {
     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer=null; }
   }
@@ -7397,15 +7455,15 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     const t=e.touches[0];
     txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
     tPanLastX=t.clientX; tPanLastY=t.clientY;
-    if (TOOL_MODES.includes(mode)) {
+    if (isPlacing()) {
       e.preventDefault();
-      mp = getTouchPt(t);
+      mp = touchPt(t);
       startLongPress(t.clientX, t.clientY);
       return;
     }
-    if (mode==='idle') {
+    if (mode==='idle' || mode==='st') {                    // drag a handle (perspective corners once all 4 are placed)
       const d=findDrag(getTouchPt(t));
-      if (d) { e.preventDefault(); pushHistory(); dragState=d; mode='drag'; }
+      if (d) { e.preventDefault(); if (mode==='idle') pushHistory(); dragState=d; mode='drag'; }
       // else: wait for touchmove to decide if scrolling
     }
   }, {passive:false});
@@ -7433,10 +7491,10 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     const moved = dx>PAN_SLOP || dy>PAN_SLOP;
     if (gestureMulti) { e.preventDefault(); return; }               // leftover finger after a pinch
     if (mode==='drag'&&dragState) {
-      e.preventDefault(); mp=getTouchPt(t); applyDrag(mp); draw(); updUI();
-    } else if (TOOL_MODES.includes(mode) && longPressActive) {
-      e.preventDefault(); mp=getTouchPt(t); draw();               // aiming with the magnifier
-    } else if (TOOL_MODES.includes(mode) || (mode==='idle' && !dragState)) {
+      e.preventDefault(); mp=touchPt(t); applyDrag(mp); draw(); if (!(dragState && dragState.idx===-2)) updUI();
+    } else if (isPlacing() && longPressActive) {
+      e.preventDefault(); mp=touchPt(t); draw();                  // aiming with the magnifier (snaps live)
+    } else if (isPlacing() || mode==='st' || (mode==='idle' && !dragState)) {
       e.preventDefault();
       if (moved && !tPanning) { tPanning = true; tMoved = true; clearLongPress(); mp = null; }
       if (tPanning) {
@@ -7461,11 +7519,15 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       if (e.touches.length === 0) gestureMulti = false;
       e.preventDefault(); mp=null; longPressActive=false; draw(); return;
     }
-    if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
-    if (tMoved || tPanning) { tPanning=false; mp=null; draw(); return; }
+    if (mode==='drag') {
+      const wasSt = dragState && dragState.idx===-2;
+      mode = wasSt ? 'st' : 'idle'; dragState=null; mp=null; snapPt=null; if (wasSt) updStraightenUI(); updUI(); draw(); return;
+    }
+    if (tMoved || tPanning) { tPanning=false; mp=null; snapPt=null; draw(); return; }
     e.preventDefault();
     const wasLongPress = longPressActive;
-    const p = wasLongPress ? {...mp} : getTouchPt(e.changedTouches[0]);
+    const p = (wasLongPress && mp) ? {...mp} : touchPt(e.changedTouches[0]);
+    snapPt = null;
     longPressActive = false;
     if (!p) { mp=null; draw(); return; }
 
@@ -7480,6 +7542,18 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
 
     if (mode==='idle'||mode==='wait') { mp=null; draw(); return; }
+
+    // Perspective correction: tap the 4 corners, then drag to adjust and Apply
+    if (mode==='st') {
+      if (stPts.length < 4) {
+        stPts.push({x:p.x, y:p.y}); mp=null;
+        updStraightenUI();
+        if (stPts.length < 4) setHint(LF('h_rect_corner')(ST_LABELS[stPts.length]));
+        else setHint('Drag corners to adjust, then Apply');
+        draw(); updUI();
+      }
+      return;
+    }
 
     // Route to correct handler based on mode
     if (mode==='sa') { p0=p; mode='sb'; mp=null; setHint(L('mh_scale_b')); draw(); }
@@ -7791,7 +7865,11 @@ function hidePrivacyModal() {
   const sc = document.getElementById('scaleStatus');
   if (sc) sc.addEventListener('click', () => { if (isMob() && img) doScale(); });
   window.addEventListener('resize', () => { if (!_isSheetLayout()) document.getElementById('resPanel').classList.remove('m-open'); });
-  try { if (localStorage.getItem('mesu_res_collapsed') === 'true') document.getElementById('resPanel').classList.add('collapsed'); } catch (e) {}
+  try {
+    const pref = localStorage.getItem('mesu_res_collapsed');
+    // tablets and narrow windows start with results collapsed (more room for the image); a saved choice wins
+    if (pref === 'true' || (pref === null && window.innerWidth >= 768 && window.innerWidth < 1240)) document.getElementById('resPanel').classList.add('collapsed');
+  } catch (e) {}
   updUI();
 })();
 </script>
