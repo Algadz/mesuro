@@ -1920,6 +1920,13 @@ function _updOptbar(st) {
     iconEl.style.color = b.style.getPropertyValue('--tc') || '';
     nameEl.textContent = b.dataset.tip || '';
     bar.classList.add('has-tool');
+    if (isMob()) {                                    // once per device: how touch works with tools
+      let seen = false; try { seen = localStorage.getItem('mesu_touch_tip') === '1'; } catch (e) {}
+      if (!seen) {
+        try { localStorage.setItem('mesu_touch_tip', '1'); } catch (e) {}
+        setTimeout(() => showToast('Tap to place · Drag or pinch to move · Hold to aim', 4200), 300);
+      }
+    }
   } else {
     iconEl.innerHTML = '';
     nameEl.textContent = st.hasImg ? 'No tool selected' : 'Get started';
@@ -7219,6 +7226,11 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   let longPressTimer=null;
   // Pinch state
   let pinchDist0=0, pinchZoom0=1, pinchPanX0=0, pinchPanY0=0, pinchMid0X=0, pinchMid0Y=0, isPinching=false;
+  // A gesture that ever had two fingers is a view gesture: it never places a point.
+  // One finger: quick drag pans the view; touch-and-hold aims with the magnifier; a tap places.
+  let gestureMulti=false, tPanning=false, tPanLastX=0, tPanLastY=0;
+  const AIM_HOLD_MS = 250, PAN_SLOP = 10;
+  function panViewBy(dx, dy) { panX += dx; panY += dy; clampPan(); draw(); }
 
   // All modes that accept taps to place points
   const TOOL_MODES = ['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c',
@@ -7226,7 +7238,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
   function startLongPress(cx, cy) {
     clearLongPress();
-    longPressTimer = setTimeout(() => { longPressActive = true; draw(); }, 100);
+    longPressTimer = setTimeout(() => { if (!tPanning && !gestureMulti) { longPressActive = true; draw(); } }, AIM_HOLD_MS);
   }
   function clearLongPress() {
     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer=null; }
@@ -7239,9 +7251,9 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   cv.addEventListener('touchstart', e => {
     if (!img) return;
     // Pinch (2 fingers): zoom + pan
-    if (e.touches.length === 2) {
-      isPinching = true; _isScrolling = false;
-      clearLongPress();
+    if (e.touches.length >= 2) {
+      isPinching = true; _isScrolling = false; gestureMulti = true; tPanning = false;
+      clearLongPress(); longPressActive = false; mp = null;
       const t0=e.touches[0], t1=e.touches[1];
       const rc=cv.getBoundingClientRect();
       pinchDist0 = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
@@ -7251,8 +7263,10 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       e.preventDefault(); return;
     }
     isPinching = false; _isScrolling = false;
+    if (e.touches.length === 1) { gestureMulti = false; tPanning = false; }   // first finger down = new gesture
     const t=e.touches[0];
     txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
+    tPanLastX=t.clientX; tPanLastY=t.clientY;
     if (TOOL_MODES.includes(mode)) {
       e.preventDefault();
       mp = getTouchPt(t);
@@ -7286,29 +7300,39 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
     const t=e.touches[0];
     const dx=Math.abs(t.clientX-txStart), dy=Math.abs(t.clientY-tyStart);
-    const moved = dx>15 || dy>15;
+    const moved = dx>PAN_SLOP || dy>PAN_SLOP;
+    if (gestureMulti) { e.preventDefault(); return; }               // leftover finger after a pinch
     if (mode==='drag'&&dragState) {
       e.preventDefault(); mp=getTouchPt(t); applyDrag(mp); draw(); updUI();
-    } else if (TOOL_MODES.includes(mode)) {
-      e.preventDefault(); mp=getTouchPt(t); draw();
-    } else if (mode==='idle' && !dragState) {
-      // Manual scroll: simulate native one-finger page scroll
-      if (moved && !_isScrolling) { _isScrolling = true; tMoved = true; clearLongPress(); }
-      if (_isScrolling) {
-        e.preventDefault();
-        window.scrollBy(0, tyStart - t.clientY);
-        txStart = t.clientX; tyStart = t.clientY;
+    } else if (TOOL_MODES.includes(mode) && longPressActive) {
+      e.preventDefault(); mp=getTouchPt(t); draw();               // aiming with the magnifier
+    } else if (TOOL_MODES.includes(mode) || (mode==='idle' && !dragState)) {
+      e.preventDefault();
+      if (moved && !tPanning) { tPanning = true; tMoved = true; clearLongPress(); mp = null; }
+      if (tPanning) {
+        panViewBy(t.clientX - tPanLastX, t.clientY - tPanLastY);
+        tPanLastX = t.clientX; tPanLastY = t.clientY;
       }
     }
   }, {passive:false});
+
+  cv.addEventListener('touchcancel', () => {
+    clearLongPress(); isPinching=false; gestureMulti=false; tPanning=false; longPressActive=false;
+    if (mode==='drag') { mode='idle'; dragState=null; }
+    mp=null; draw();
+  });
 
   cv.addEventListener('touchend', e => {
     clearLongPress();
     _isScrolling = false;
     if (!img) return;
-    if (isPinching && e.touches.length < 2) { isPinching=false; return; }
+    if (isPinching && e.touches.length < 2) { isPinching=false; }
+    if (gestureMulti) {                                              // pinch/two-finger pan: view only
+      if (e.touches.length === 0) gestureMulti = false;
+      e.preventDefault(); mp=null; longPressActive=false; draw(); return;
+    }
     if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
-    if (tMoved) return;
+    if (tMoved || tPanning) { tPanning=false; mp=null; draw(); return; }
     e.preventDefault();
     const wasLongPress = longPressActive;
     const p = wasLongPress ? {...mp} : getTouchPt(e.changedTouches[0]);
