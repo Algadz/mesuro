@@ -772,9 +772,10 @@
     --border-soft:   #2a313b;
     --text:          #e3e7ec;
     --text-soft:     #a9b2bd;
-    --text-muted:    #7d8793;
+    --text-muted:    #8a94a0;
     --accent:        #1D9E75;
     --accent-ink:    #ffffff;
+    --accent-fill:   #15805f;
     --accent-soft:   rgba(29,158,117,.16);
     --accent-border: rgba(29,158,117,.5);
     --hover:         #262d36;
@@ -786,8 +787,8 @@
     --tip-ink:       #e9edf1;
     color-scheme: dark;
   }
-  @media (min-width: 768px) {
-    :root[data-theme="light"] {
+
+  :root[data-theme="light"] {
       --bg:            #eef1f4;
       --panel:         #f6f7f9;
       --panel-2:       #ffffff;
@@ -797,8 +798,9 @@
       --border-soft:   #e4e8ee;
       --text:          #1b2028;
       --text-soft:     #58616d;
-      --text-muted:    #858f9b;
+      --text-muted:    #69727e;
       --accent:        #0F7A5C;
+      --accent-fill:   #0F7A5C;
       --accent-soft:   #dcf1e9;
       --accent-border: #9fd3bf;
       --hover:         #eef2f6;
@@ -809,7 +811,7 @@
       --tip-bg:        #1b2028;
       --tip-ink:       #ffffff;
       color-scheme: light;
-    }
+    
   }
 
   body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Inter, system-ui, sans-serif; }
@@ -820,7 +822,7 @@
   .modal-box { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--float-shadow); }
   .modal-box h3 { color: var(--text); }
   .modal-box p { color: var(--text-soft); }
-  .btn-confirm { background: var(--accent); border-color: var(--accent); }
+  .btn-confirm { background: var(--accent-fill); border-color: var(--accent-fill); }
   #canvasArea { background: radial-gradient(circle at 50% 35%, var(--canvas-a) 0%, var(--canvas-b) 100%); }
   #dz { color: var(--text-soft); }
   #dz span { color: var(--text-muted); }
@@ -836,8 +838,8 @@
   /* New shell is desktop only — the phone layout keeps its own bars */
   #topbar, #optbar, #toolbar, #resPanel, #zoomCtl, #statusbar { display: none; }
 
-  @media (min-width: 768px) {
-    body { overflow: hidden; }
+
+  @media (min-width: 768px) { body { overflow: hidden; } }
     #app {
       flex-direction: column;
       height: 100vh; min-height: 0;
@@ -893,12 +895,12 @@
     .tbtn:active:not(:disabled) { transform: none; }
     .tbtn:disabled { opacity: .38; cursor: default; }
     .tbtn-text { padding: 0 12px; border-color: var(--border); background: var(--field); font-weight: 500; }
-    .tbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-    .tbtn.primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
+    .tbtn.primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+    .tbtn.primary:hover:not(:disabled) { background: var(--accent-fill); filter: brightness(1.1); }
     .tbtn.toggle.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
-    .tbtn.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-    #loadLabel { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; padding: 0 12px 0 10px; }
-    #loadLabel:hover { background: var(--accent); filter: brightness(1.08); }
+    .tbtn.active { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+    #loadLabel { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); font-weight: 600; padding: 0 12px 0 10px; }
+    #loadLabel:hover { background: var(--accent-fill); filter: brightness(1.1); }
     #scaleStatus {
       height: 28px; padding: 0 10px; margin-right: 4px;
       font: 12px/26px ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -941,7 +943,7 @@
     }
     .seg-btn + .seg-btn { border-left: 1px solid var(--border); }
     .seg-btn:hover:not(:disabled) { background: var(--hover); color: var(--text); border-color: var(--border); }
-    .seg-btn.on, .seg-btn.on:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
+    .seg-btn.on, .seg-btn.on:hover:not(:disabled) { background: var(--accent-fill); color: var(--accent-ink); }
     #straightenStatus { color: var(--text-soft); }
     #straightenApplyRow { gap: 6px; }
 
@@ -1048,7 +1050,7 @@
       box-shadow: var(--float-shadow); font-size: 12.5px; padding: 6px 16px;
       backdrop-filter: blur(8px);
     }
-    #toast { bottom: 16px; background: var(--accent); color: var(--accent-ink); font-size: 12px; padding: 6px 16px; }
+    #toast { bottom: 16px; background: var(--accent-fill); color: var(--accent-ink); font-size: 12px; padding: 6px 16px; }
 
     /* ---------- Status bar ---------- */
     #statusbar {
@@ -1096,7 +1098,231 @@
     /* ---------- Narrower desktop windows: drop text labels before anything else ---------- */
     @media (max-width: 1380px) { #topbar .lbl { display: none; } #loadLabel .lbl { display: inline; } }
     @media (max-width: 1120px) { .glabel { display: none; } #scaleStatus { min-width: 96px; max-width: 140px; } }
-    @media (max-width: 960px)  { #topbar .brand a { font-size: 0; } #topbar .brand a::before { content: 'M'; font-size: 17px; } #resPanel { width: 240px; } }
+    @media (min-width: 768px) and (max-width: 960px)  { #topbar .brand a { font-size: 0; } #topbar .brand a::before { content: 'M'; font-size: 17px; } #resPanel { width: 240px; } }
+  
+
+  /* ============================================================
+     Sheets & menu (phones: bottom sheets · tablets: popover)
+     ============================================================ */
+  #btnResults, #btnMenu { display: none; }
+  .modal-footer button, #pdfTitleModal button, #proModal button, #pdfModal button, #feedbackModal button, #privacyModal button { text-align: center; }
+  .tool-btn .tl { display: none; }
+  #btnResults .count:empty { display: none; }
+  #btnResults .count {
+    position: absolute; top: 3px; right: 1px; min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 999px; background: var(--accent-fill); color: var(--accent-ink);
+    font: 700 10.5px/18px -apple-system, "Segoe UI", Inter, system-ui, sans-serif; text-align: center;
+  }
+  #btnResults .count.bump { animation: countBump .35s ease; }
+  @keyframes countBump { 50% { transform: scale(1.3); } }
+  #mSheetBack {
+    position: fixed; inset: 0; z-index: 55; background: rgba(8,10,14,.45);
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  body.sheet-open #mSheetBack { opacity: 1; pointer-events: auto; }
+  .msheet {
+    position: fixed; z-index: 60; display: flex; flex-direction: column;
+    background: var(--panel); border: 1px solid var(--border); box-shadow: var(--float-shadow);
+  }
+  .msheet-head, #resPanel .fp-head { cursor: default; }
+  .msheet-head {
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--border-soft);
+    font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-soft);
+  }
+  .msheet-body { overflow-y: auto; padding: 4px 12px 14px; overscroll-behavior: contain; }
+  .mlbl { margin: 12px 4px 7px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+  .mgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .mitem {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: auto; min-height: 68px; padding: 8px 4px;
+    background: var(--field); border: 1px solid var(--border-soft); border-radius: 12px;
+    color: var(--text); font-size: 11.5px; line-height: 1.2; text-align: center; cursor: pointer;
+  }
+  .mitem .ic { width: 21px; height: 21px; }
+  .mitem:hover:not(:disabled) { background: var(--hover); border-color: var(--border); }
+  .mitem.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+  .mitem:disabled { opacity: .35; cursor: default; }
+  .mfoot {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px;
+    margin-top: 16px; padding: 14px 4px 2px; border-top: 1px solid var(--border-soft);
+  }
+  .mfoot a { color: var(--text-soft); text-decoration: none; font-size: 13.5px; }
+  .mfoot select {
+    margin-left: auto; background: var(--field); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 8px; font: inherit; font-size: 13px;
+  }
+
+  /* Keyboard focus — visible everywhere, never on mouse/touch */
+  button:focus-visible, label:focus-visible, a:focus-visible, select:focus-visible, .tool-btn:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  label#loadLabel:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: none) { [data-tip]::after { display: none !important; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+  /* ============================================================
+     Wide desktop (≥1100): everything sits in the top bar
+     Compact (768–1099, incl. tablets): rarely used controls move to the menu popover
+     ============================================================ */
+  @media (min-width: 768px) {
+    .msheet { display: none; top: 54px; right: 10px; width: 360px; max-height: calc(100vh - 70px); border-radius: 14px; }
+    .msheet.m-open { display: flex; }
+    #mSheetBack { background: transparent; }
+    .m-phone { display: none !important; }
+    #resPanel .fp-x { display: inline-flex; }
+  }
+  @media (min-width: 768px) and (max-width: 1099px) {
+    #btnMenu { display: inline-flex; }
+    #topbar .g-view, #topbar .g-theme, .x-bulk, .x-restore { display: none !important; }
+    #topbar .group.g-export { border-right: 1px solid var(--border-soft); padding-right: 8px; }
+  }
+  @media (min-width: 1100px) { #topbar .g-more { display: none; } }
+
+  /* Touch screens wider than a phone: bigger targets */
+  @media (min-width: 768px) and (pointer: coarse) {
+    #topbar { height: 56px; }
+    .tbtn { height: 42px; min-width: 42px; }
+    #scaleStatus { height: 36px; line-height: 34px; }
+    .tool-btn { width: 48px; height: 48px; }
+    .seg-btn { padding: 10px 15px; }
+    #optbar { height: 50px; }
+    .zbtn { width: 42px; height: 42px; }
+    .res-item { padding: 10px; }
+    .res-item .del { font-size: 18px; padding: 0 6px; }
+  }
+
+  /* ============================================================
+     Phones (≤767): top bar · canvas · floating tool bar at the thumb
+     ============================================================ */
+  @media (max-width: 767px) {
+    html, body { height: 100%; }
+    body { overflow: hidden; }
+    #mobileTopbar, #mobileBar, #mobileSubRow, #mobileSupportSection { display: none !important; }
+    #app {
+      height: 100svh; min-height: 0;
+      padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+
+    /* top bar: brand · scale · results · menu */
+    #topbar { height: 54px; padding: 0 6px 0 12px; gap: 4px; padding-top: env(safe-area-inset-top); box-sizing: content-box; }
+    #topbar .g-file, #topbar .g-view, #topbar .g-export, #topbar .g-theme, #topbar .glabel,
+    #topbar .spacer, .x-bulk, .x-restore, #btnRotR, #btnScale { display: none !important; }
+    #topbar .group { border-right: 0; padding-right: 0; height: 44px; }
+    #topbar .brand { padding: 0 4px 0 0; font-size: 17px; }
+    #topbar .g-scale { flex: 1; min-width: 0; justify-content: center; }
+    #scaleStatus {
+      min-width: 0; max-width: 100%; height: 36px; margin: 0;
+      font: 13px/34px ui-monospace, SFMono-Regular, Menlo, monospace;
+      padding: 0 14px; border-radius: 999px; text-align: center;
+    }
+    body.has-img #scaleStatus.no-scale { animation: scaleNudge 2.4s ease-in-out infinite; }
+    @keyframes scaleNudge { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 25%, transparent); } }
+    #btnResults, #btnMenu { display: inline-flex; }
+    #btnResults:disabled { opacity: .35; }
+    .tbtn { height: 44px; min-width: 44px; }
+    .tbtn .ic { width: 21px; height: 21px; }
+
+    /* tool options: a floating pill just above the tool bar, only when the tool has choices */
+    #optbar {
+      position: fixed; z-index: 45; display: none;
+      left: 50%; transform: translateX(-50%);
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      width: max-content; max-width: calc(100% - 16px); height: auto;
+      padding: 5px; gap: 6px; border: 1px solid var(--border); border-radius: 14px;
+      background: color-mix(in srgb, var(--panel) 96%, transparent); box-shadow: var(--float-shadow);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    #optbar.has-subs { display: flex; }
+    #optTool, #optIdle, #optbar .opt-sep { display: none !important; }
+    .seg { border-radius: 10px; }
+    .seg-btn { padding: 10px 13px; font-size: 13.5px; }
+    #btnDistLL, #btnDiamArc { display: none; }              /* no touch input for these modes */
+    #optDone { height: 42px; padding: 0 16px; font-size: 13.5px; border-radius: 10px; }
+
+    /* tool bar: one row, icon + label, sized for thumbs */
+    #canvasPad > #toolbar {
+      position: fixed; z-index: 46; top: auto;
+      left: 6px; right: 6px; bottom: calc(8px + env(safe-area-inset-bottom));
+      flex-direction: row; justify-content: space-between; gap: 0; padding: 3px; border-radius: 18px;
+    }
+    #toolbar .tool-sep, #btnStraighten { display: none; }
+    .tool-btn {
+      flex: 1 1 0; min-width: 0; width: auto; height: 58px; padding: 0;
+      flex-direction: column; gap: 4px; border-radius: 13px;
+    }
+    .tool-btn .ic { width: 23px; height: 23px; }
+    .tool-btn .tl {
+      display: block; max-width: 100%; padding: 0 1px;
+      font-size: 9.5px; font-weight: 500; letter-spacing: -.15px; color: var(--text-soft);
+      overflow: hidden; text-overflow: clip; white-space: nowrap;
+    }
+    .tool-btn.active .tl { color: var(--text); font-weight: 650; }
+    .tool-btn::before { left: 50%; top: 4px; width: 18px; height: 3px; margin: 0 0 0 -9px; }
+    .tool-btn:disabled { opacity: .3; }
+
+    /* results: bottom sheet */
+    #canvasPad > #resPanel {
+      position: fixed; z-index: 60; display: flex; top: auto;
+      left: 0; right: 0; bottom: 0; width: auto; max-height: 75svh;
+      border-radius: 20px 20px 0 0; border-bottom: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      transform: translateY(105%); visibility: hidden;
+      transition: transform .24s ease, visibility 0s linear .24s;
+    }
+    #canvasPad > #resPanel.m-open { transform: none; visibility: visible; transition: transform .24s ease; }
+    #resPanel.collapsed .fp-body { display: block; }
+    #resPanel .fp-head { padding: 10px 8px 10px 16px; font-size: 11px; }
+    #resPanel .fp-x { width: 40px; height: 40px; }
+    #resPanel .fp-x .ic { width: 20px; height: 20px; transform: none; }
+    .mini { padding: 7px 12px; font-size: 13px; border-radius: 8px; }
+    .fp-body { padding: 10px 12px 16px; }
+    .res-item { padding: 12px; font-size: 14.5px; border-radius: 10px; }
+    .res-item .num { min-width: 30px; }
+    .res-item .del { font-size: 22px; padding: 0 6px; min-width: 32px; text-align: center; }
+    #noRes { font-size: 14px; padding: 10px 4px; }
+    #dailyCounter { font-size: 13px; }
+
+    /* menu: bottom sheet */
+    .msheet {
+      left: 0; right: 0; bottom: 0; max-height: 85svh; border-radius: 20px 20px 0 0; border-bottom: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      transform: translateY(105%); visibility: hidden;
+      transition: transform .24s ease, visibility 0s linear .24s;
+    }
+    .msheet.m-open { transform: none; visibility: visible; transition: transform .24s ease; }
+    .m-wide { display: none !important; }
+    .msheet-head .fp-x, #resPanel .fp-x { color: var(--text-soft); }
+
+    /* on-canvas feedback */
+    #zoomCtl, #statusbar { display: none !important; }
+    #hint {
+      top: 10px; bottom: auto; max-width: calc(100% - 24px);
+      white-space: normal; text-align: center; font-size: 13.5px; line-height: 1.35; padding: 8px 16px;
+      background: color-mix(in srgb, var(--panel-2) 94%, transparent); color: var(--text);
+      border: 1px solid var(--border); box-shadow: var(--float-shadow);
+    }
+    #toast { bottom: 12px; font-size: 13px; padding: 7px 16px; background: var(--accent-fill); }
+
+    /* pages strip (only shown with 2+ pages) */
+    #mobileFilmstrip { background: var(--panel); border-top: 1px solid var(--border-soft); border-bottom: 0; }
+    .mfs-thumb { border-color: var(--border); background: var(--field); }
+    .mfs-thumb.mfs-active { border-color: var(--accent); }
+    .mfs-label { color: var(--text-muted); }
+    .mfs-add { border-color: var(--border); color: var(--text-muted); }
+
+    /* small phones (iPhone SE / mini) */
+    @media (max-width: 380px) {
+      #topbar .brand a { font-size: 0; }
+      #topbar .brand a::before { content: 'M'; font-size: 18px; }
+      #scaleStatus { padding: 0 10px; font-size: 12.5px; }
+      .tool-btn .tl { font-size: 9px; letter-spacing: -.3px; }
+    }
+
+    /* first run */
+    #dz { padding: 0 16px; }
+    #dzMain { color: var(--text); font-size: 17px; font-weight: 500; }
+    .dz-step { background: var(--panel); }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1127,7 +1353,7 @@
   <header id="topbar" class="no-dz">
     <div class="brand" title="Mesuro"><a href="../" aria-label="Mesuro home">Mesuro</a><span id="logoPro" class="pro-tag">PRO</span></div>
 
-    <div class="group" aria-label="File">
+    <div class="group g-file" aria-label="File">
       <label id="loadLabel" class="tbtn" data-tip="Open image(s) or PDF"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><path d="M12 10v6M9 13l3-3 3 3"/></svg><span class="lbl" id="loadLabelTxt">Open</span>
         <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" multiple style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       </label>
@@ -1136,22 +1362,22 @@
       <input type="file" id="projectInput" accept=".mesuro" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
     </div>
 
-    <div class="group" aria-label="Edit">
+    <div class="group g-edit" aria-label="Edit">
       <button type="button" class="tbtn" id="btnUndoTop" onclick="undoLast()" disabled data-tip="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
       <button type="button" class="tbtn" id="btnRotR" onclick="rotateImg(90)" disabled data-tip="Rotate 90°" aria-label="Rotate 90°"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
-      <button type="button" class="tbtn" id="btnRestoreOriginal" onclick="restoreOriginal()" disabled data-tip="Restore original image" aria-label="Restore original image"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg></button>
+      <button type="button" class="tbtn x-restore" id="btnRestoreOriginal" onclick="restoreOriginal()" disabled data-tip="Restore original image" aria-label="Restore original image"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg></button>
     </div>
 
-    <div class="group scale-group" aria-label="Scale">
+    <div class="group g-scale" aria-label="Scale">
       <span class="glabel" data-i18n="SCALE">SCALE</span>
       <div id="scaleStatus" class="no-scale">pixel mode</div>
       <button type="button" class="tbtn tbtn-text" id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled>Set</button>
-      <button type="button" class="tbtn" id="btnScaleApplyAll" onclick="applyScaleToAllPages()" disabled data-tip="Apply this scale to all pages" aria-label="Apply scale to all pages"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></button>
-      <button type="button" class="tbtn" id="btnScaleHideAll" onclick="setScaleVisibleAll(false)" disabled data-tip="Hide scale bar on all pages" aria-label="Hide scale"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.2 3.2M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 7 9.5 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="m3 3 18 18M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
-      <button type="button" class="tbtn" id="btnScaleShowAll" onclick="setScaleVisibleAll(true)" disabled data-tip="Show scale bar on all pages" aria-label="Show scale"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button type="button" class="tbtn x-bulk" id="btnScaleApplyAll" onclick="applyScaleToAllPages()" disabled data-tip="Apply this scale to all pages" aria-label="Apply scale to all pages"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></button>
+      <button type="button" class="tbtn x-bulk" id="btnScaleHideAll" onclick="setScaleVisibleAll(false)" disabled data-tip="Hide scale bar on all pages" aria-label="Hide scale"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.2 3.2M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 7 9.5 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="m3 3 18 18M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
+      <button type="button" class="tbtn x-bulk" id="btnScaleShowAll" onclick="setScaleVisibleAll(true)" disabled data-tip="Show scale bar on all pages" aria-label="Show scale"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
 
-    <div class="group" aria-label="View">
+    <div class="group g-view" aria-label="View">
       <button type="button" class="tbtn toggle" id="btnZoom" onclick="toggleZoom()" disabled data-tip="Pan &amp; zoom (Z)" aria-label="Pan and zoom"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m9 6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg></button>
       <button type="button" class="tbtn toggle" id="btnMag" onclick="toggleMag()" disabled data-tip="Zoom cursor / magnifier (C)" aria-label="Zoom cursor"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4M11 8v6M8 11h6"/></svg></button>
       <button type="button" class="tbtn toggle" id="btnSnap" onclick="toggleSnap()" disabled data-tip="Edge detection snapping" aria-label="Edge detection"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 18 4" stroke-dasharray="2.5 2.5"/><circle cx="11" cy="11" r="3.2"/><path d="M11 5v2M11 15v2M5 11h2M15 11h2"/></svg></button>
@@ -1160,7 +1386,7 @@
 
     <div class="spacer"></div>
 
-    <div class="group" aria-label="Export">
+    <div class="group g-export" aria-label="Export">
       <span class="glabel">EXPORT</span>
       <button type="button" class="tbtn" id="btnExport" onclick="exportImg()" disabled data-tip="Export annotated image"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span class="lbl">Image</span></button>
       <button type="button" class="tbtn" id="btnExportCSV" onclick="exportCSV()" disabled data-tip="Export measurements as CSV"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></svg><span class="lbl">CSV</span></button>
@@ -1168,12 +1394,16 @@
       <button type="button" class="tbtn" id="btnExportDXF" onclick="exportDXF()" disabled data-tip="Export DXF for CAD (scaled geometry, one layer per tool)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 20 4" opacity=".45"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/><path d="M4 4h7v7H4z"/><path d="M13 20a7 7 0 0 1 7-7"/></svg><span class="lbl">DXF</span></button>
     </div>
 
-    <div class="group" aria-label="Preferences">
+    <div class="group g-theme" aria-label="Preferences">
       <button type="button" class="tbtn" id="btnTheme" onclick="toggleTheme()" data-tip="Light / dark theme" aria-label="Toggle light or dark theme"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="moon" d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg></button>
+    </div>
+    <div class="group g-more">
+      <button type="button" class="tbtn" id="btnResults" onclick="mOpenSheet('resPanel')" aria-label="Results" data-tip="Results"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg><span id="mResCount" class="count"></span></button>
+      <button type="button" class="tbtn" id="btnMenu" onclick="mOpenSheet('mMenu')" aria-label="Menu" aria-haspopup="dialog" data-tip="More: view, image, export, settings"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
   </header>
 
-  <!-- ===== Tool options bar (desktop) ===== -->
+  <!-- ===== Tool options bar ===== -->
   <div id="optbar" class="no-dz" role="toolbar" aria-label="Tool options">
     <div id="optTool"><span id="optToolIcon"></span><span id="optToolName">No tool</span></div>
     <div class="opt-sep"></div>
@@ -1208,6 +1438,7 @@
     <div id="straightenStatus" style="display:none">
       Click the <span id="stCornerLabel" style="font-weight:600">top-left</span> corner &nbsp;<span id="stDots">○ ○ ○ ○</span>
     </div>
+    <button type="button" class="tbtn tbtn-text primary" id="optDone" onclick="optDone()" style="display:none">Done</button>
     <div id="straightenApplyRow" style="display:none">
       <button type="button" class="tbtn tbtn-text primary" onclick="applyStraighten()" data-i18n="apply">Apply</button>
       <button type="button" class="tbtn tbtn-text" onclick="cancelStraighten()">Cancel</button>
@@ -1246,17 +1477,17 @@
 
     <!-- ===== Floating tool palette ===== -->
     <nav id="toolbar" class="fpanel no-dz" aria-label="Measurement tools">
-      <button type="button" class="tool-btn" id="tbScale" onclick="doScale()" disabled data-tip="Set scale" data-key="S" aria-label="Set scale" style="--tc:#1D9E75"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 13-13 5 5L8 21z"/><path d="m7 12 2 2M10 9l1.5 1.5M13 6l2 2"/></svg></button>
+      <button type="button" class="tool-btn" id="tbScale" onclick="doScale()" disabled data-tip="Set scale" data-key="S" aria-label="Set scale" style="--tc:#1D9E75"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 13-13 5 5L8 21z"/><path d="m7 12 2 2M10 9l1.5 1.5M13 6l2 2"/></svg><span class="tl">Scale</span></button>
       <div class="tool-sep"></div>
-      <button type="button" class="tool-btn" id="btnMeasure" onclick="doMeasure()" disabled data-tip="Distance" data-key="L" aria-label="Distance" style="--tc:#EF9F27"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"/><path d="m7 9-3 3 3 3M17 9l3 3-3 3"/><path d="M4 6v12M20 6v12" opacity=".45"/></svg></button>
-      <button type="button" class="tool-btn" id="btnDiam" onclick="doDiam()" disabled data-tip="Diameter" data-key="D" aria-label="Diameter" style="--tc:#5DCAA5"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></svg></button>
-      <button type="button" class="tool-btn" id="btnAngle" onclick="doAngle()" disabled data-tip="Angle" data-key="A" aria-label="Angle" style="--tc:#D4537E"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M4 20 14.5 5"/><path d="M10 20a6 6 0 0 0-2.5-4.9"/></svg></button>
-      <button type="button" class="tool-btn" id="btnArea" onclick="doArea()" disabled data-tip="Area" data-key="R" aria-label="Area" style="--tc:#9F77DD"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8.5 12 3.5l7 5-2.2 11H7.2z" fill="currentColor" fill-opacity=".18"/></svg></button>
-      <button type="button" class="tool-btn" id="btnPerim" onclick="doPerim()" disabled data-tip="Path" data-key="P" aria-label="Path" style="--tc:#F0994A"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 18 5-11 5 8 6-11"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/><circle cx="20" cy="4" r="1.6" fill="currentColor"/></svg></button>
-      <button type="button" class="tool-btn" id="btnPtCoord" onclick="doPtCoord()" disabled data-tip="Point XY" aria-label="Point XY" style="--tc:#5DCAA5"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3v17h17"/><path d="M15 9H4M15 9v11" stroke-dasharray="2 2.2" opacity=".6"/><circle cx="15" cy="9" r="2.2" fill="currentColor"/></svg></button>
-      <button type="button" class="tool-btn" id="btnNote" onclick="doNote()" disabled data-tip="Note" data-key="N" aria-label="Note" style="--tc:#E8C93A"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7V5h14v2M12 5v14M9 19h6"/></svg></button>
-      <div class="tool-sep"></div>
-      <button type="button" class="tool-btn" id="btnStraighten" onclick="doStraighten()" disabled data-tip="Perspective correction" aria-label="Perspective correction" style="--tc:#9F77DD"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5h10l3.5 14h-17z"/><path d="M7 5l13.5 14M17 5 3.5 19" stroke-dasharray="2 2.5" opacity=".5"/></svg></button>
+      <button type="button" class="tool-btn" id="btnMeasure" onclick="doMeasure()" disabled data-tip="Distance" data-key="L" aria-label="Distance" style="--tc:#EF9F27"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"/><path d="m7 9-3 3 3 3M17 9l3 3-3 3"/><path d="M4 6v12M20 6v12" opacity=".45"/></svg><span class="tl">Distance</span></button>
+      <button type="button" class="tool-btn" id="btnDiam" onclick="doDiam()" disabled data-tip="Diameter" data-key="D" aria-label="Diameter" style="--tc:#5DCAA5"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></svg><span class="tl">Diameter</span></button>
+      <button type="button" class="tool-btn" id="btnAngle" onclick="doAngle()" disabled data-tip="Angle" data-key="A" aria-label="Angle" style="--tc:#D4537E"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M4 20 14.5 5"/><path d="M10 20a6 6 0 0 0-2.5-4.9"/></svg><span class="tl">Angle</span></button>
+      <button type="button" class="tool-btn" id="btnArea" onclick="doArea()" disabled data-tip="Area" data-key="R" aria-label="Area" style="--tc:#9F77DD"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8.5 12 3.5l7 5-2.2 11H7.2z" fill="currentColor" fill-opacity=".18"/></svg><span class="tl">Area</span></button>
+      <button type="button" class="tool-btn" id="btnPerim" onclick="doPerim()" disabled data-tip="Path" data-key="P" aria-label="Path" style="--tc:#F0994A"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 18 5-11 5 8 6-11"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/><circle cx="20" cy="4" r="1.6" fill="currentColor"/></svg><span class="tl">Path</span></button>
+      <button type="button" class="tool-btn" id="btnPtCoord" onclick="doPtCoord()" disabled data-tip="Point XY" aria-label="Point XY" style="--tc:#5DCAA5"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3v17h17"/><path d="M15 9H4M15 9v11" stroke-dasharray="2 2.2" opacity=".6"/><circle cx="15" cy="9" r="2.2" fill="currentColor"/></svg><span class="tl">Point</span></button>
+      <button type="button" class="tool-btn" id="btnNote" onclick="doNote()" disabled data-tip="Note" data-key="N" aria-label="Note" style="--tc:#E8C93A"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7V5h14v2M12 5v14M9 19h6"/></svg><span class="tl">Note</span></button>
+      <div class="tool-sep sep-persp"></div>
+      <button type="button" class="tool-btn" id="btnStraighten" onclick="doStraighten()" disabled data-tip="Perspective correction" aria-label="Perspective correction" style="--tc:#9F77DD"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5h10l3.5 14h-17z"/><path d="M7 5l13.5 14M17 5 3.5 19" stroke-dasharray="2 2.5" opacity=".5"/></svg><span class="tl">Persp.</span></button>
     </nav>
 
     <!-- ===== Floating results panel ===== -->
@@ -1332,7 +1563,7 @@
         <p style="font-size:13px;color:var(--text-soft);margin-bottom:20px">For privacy questions or GDPR requests: <a href="mailto:hello@mesu.ro" style="color:#5a9fff">hello@mesu.ro</a><br>Or use the <a href="#" onclick="hidePrivacyModal();openFeedback();return false;" style="color:#5a9fff">feedback &amp; contact form</a>.</p>
 
         <div style="border-top:0.5px solid var(--border-soft);padding-top:16px;text-align:right">
-          <button onclick="hidePrivacyModal()" style="font-size:12px;padding:6px 16px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Close</button>
+          <button onclick="hidePrivacyModal()" style="font-size:12px;padding:6px 16px;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Close</button>
         </div>
       </div>
     </div>
@@ -1350,7 +1581,7 @@
           <input type="email" name="email" data-i18n-placeholder="email_optional" placeholder="Your email (optional)" style="width:100%;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button type="button" onclick="closeFeedback()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid var(--border);border-radius:6px;color:var(--text-soft);cursor:pointer;font-family:inherit">Cancel</button>
-            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit" data-i18n="send">Send</button>
+            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit" data-i18n="send">Send</button>
           </div>
         </form>
         <div id="feedbackThanks" style="display:none;text-align:center;padding:12px 0;font-size:13px;color:#1D9E75" data-i18n="thanks_feedback">Thanks for your feedback!</div>
@@ -1392,7 +1623,7 @@
           <button id="pdfRangeBtn" onclick="togglePdfRange()" style="font-size:11px;color:var(--text-muted);background:none;border:0.5px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-family:inherit">Custom range</button>
           <div style="display:flex;gap:8px">
             <button onclick="closePdfModal()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid var(--border);border-radius:6px;color:var(--text-soft);cursor:pointer;font-family:inherit">Cancel</button>
-            <button onclick="pdfLoadSelected()" id="pdfLoadBtn" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Load <span id="pdfLoadBtnCount">1</span> page(s)</button>
+            <button onclick="pdfLoadSelected()" id="pdfLoadBtn" style="font-size:12px;padding:6px 14px;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Load <span id="pdfLoadBtnCount">1</span> page(s)</button>
           </div>
         </div>
       </div>
@@ -1479,6 +1710,46 @@
 
 </div>
 
+  <!-- ===== Menu sheet (phones: bottom sheet · tablets: popover) ===== -->
+  <div id="mSheetBack" class="no-dz" onclick="mCloseSheets()"></div>
+  <section id="mMenu" class="msheet no-dz" role="dialog" aria-modal="true" aria-label="Menu">
+    <header class="msheet-head"><span>Menu</span><button type="button" class="fp-x" onclick="mCloseSheets()" aria-label="Close menu"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <div class="msheet-body">
+      <div class="msec m-phone"><div class="mlbl">Export</div><div class="mgrid">
+        <button type="button" class="mitem needs-img" id="mExportImg" onclick="mAct(exportImg)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span>Image</span></button>
+        <button type="button" class="mitem needs-img" id="mExportPdf" onclick="mAct(exportPDF)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>PDF</span></button>
+        <button type="button" class="mitem needs-img" id="mExportCsv" onclick="mAct(exportCSV)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></svg><span>CSV</span></button>
+        <button type="button" class="mitem needs-img" id="mExportDxf" onclick="mAct(exportDXF)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 20 4" opacity=".45"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/><path d="M4 4h7v7H4z"/><path d="M13 20a7 7 0 0 1 7-7"/></svg><span>DXF</span></button>
+      </div></div>
+      <div class="msec m-phone"><div class="mlbl">File</div><div class="mgrid">
+        <label class="mitem" for="mFileInput" onclick="mCloseSheets()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><path d="M12 10v6M9 13l3-3 3 3"/></svg><span>Open image</span></label>
+        <button type="button" class="mitem needs-img" id="mSaveProj" onclick="mAct(saveProject)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h11l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 1-2z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg><span>Save project</span></button>
+        <button type="button" class="mitem" id="mLoadProj" onclick="mAct(()=>document.getElementById('projectInput').click())"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><path d="M12 4v11M8 11l4 4 4-4"/></svg><span>Open project</span></button>
+      </div></div>
+      <div class="msec"><div class="mlbl">Image &amp; scale</div><div class="mgrid">
+        <button type="button" class="mitem needs-img m-phone" id="mRotate" onclick="mAct(()=>rotateImg(90))"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span>Rotate 90°</span></button>
+        <button type="button" class="mitem needs-orig" id="mRestore" onclick="mAct(restoreOriginal)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg><span>Original image</span></button>
+        <button type="button" class="mitem needs-multi" id="mScaleAll" onclick="mAct(applyScaleToAllPages)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg><span>Scale → all pages</span></button>
+        <button type="button" class="mitem needs-scale" id="mScaleVis" onclick="mAct(()=>setScaleVisibleAll(!anyVisibleScalePage()))"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show / hide scale</span></button>
+      </div></div>
+      <div class="msec"><div class="mlbl">View</div><div class="mgrid">
+        <button type="button" class="mitem needs-img m-wide tog" id="mPan" onclick="mAct(toggleZoom)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m9 6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg><span>Pan &amp; zoom</span></button>
+        <button type="button" class="mitem needs-img tog" id="mMag" onclick="mAct(toggleMag)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4M11 8v6M8 11h6"/></svg><span>Magnifier</span></button>
+        <button type="button" class="mitem needs-img tog" id="mPtSnap" onclick="mAct(togglePtSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg><span>Snap to points</span></button>
+        <button type="button" class="mitem needs-img m-wide tog" id="mEdge" onclick="mAct(toggleSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 18 4" stroke-dasharray="2.5 2.5"/><circle cx="11" cy="11" r="3.2"/><path d="M11 5v2M11 15v2M5 11h2M15 11h2"/></svg><span>Edge snapping</span></button>
+        <button type="button" class="mitem" id="mTheme" onclick="mAct(toggleTheme)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span>Light / dark</span></button>
+      </div></div>
+      <div class="mfoot m-phone">
+        <a href="../">Home</a><a href="../faq/">FAQ</a>
+        <a href="#" onclick="mCloseSheets();showPrivacyModal();return false;">Privacy</a>
+        <a href="#" onclick="mCloseSheets();openFeedback();return false;">Feedback</a>
+        <select id="mLangSelect" onchange="setLang(this.value)" aria-label="Language">
+          <option value="en">EN</option><option value="fr">FR</option><option value="es">ES</option><option value="de">DE</option><option value="it">IT</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== Status bar (desktop) ===== -->
   <footer id="statusbar" class="no-dz">
     <span class="sb-item"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Files stay on your device</span></span>
@@ -1555,7 +1826,7 @@
     <button onclick="toggleProKeyInput();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;opacity:.75;transition:opacity .15s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.75'">Have a license key?</button>
     <div id="proKeyArea" style="display:none;margin-top:10px;">
       <input id="proKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:8px 10px;font-family:inherit;outline:none;margin-bottom:6px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
-      <button id="proKeyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:6px;color:#fff;font-size:12px;padding:9px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
+      <button id="proKeyBtn" onclick="doVerifyLicense()" style="width:100%;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;font-size:12px;padding:9px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
       <div id="proKeyError" style="font-size:11px;color:#e24b4b;margin-top:6px;display:none;"></div>
     </div>
   </div>
@@ -1585,7 +1856,7 @@
     <!-- Actions -->
     <div style="display:flex;gap:8px;margin-top:16px;">
       <button onclick="closePdfTitleModal()" style="flex:1;background:var(--panel-2);border:0.5px solid var(--border);border-radius:8px;color:var(--text-soft);font-size:12px;font-weight:500;padding:10px 0;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseenter="this.style.background='#2e2e2e'" onmouseleave="this.style.background='#252525'">Cancel</button>
-      <button onclick="confirmPdfExport()" style="flex:2;background:#1D9E75;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 0;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Export PDF →</button>
+      <button onclick="confirmPdfExport()" style="flex:2;background:var(--accent-fill);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 0;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Export PDF →</button>
     </div>
   </div>
 </div>
@@ -1660,8 +1931,73 @@ function _updOptbar(st) {
     + 'Tools: <kbd>L</kbd> distance <kbd>D</kbd> diameter <kbd>A</kbd> angle <kbd>R</kbd> area <kbd>P</kbd> path <kbd>N</kbd> note &nbsp;·&nbsp; <kbd>Esc</kbd> stop &nbsp;·&nbsp; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo';
   idle.innerHTML = html;
   idle.style.display = html ? '' : 'none';
+  _updShellExtras(st);
   const sp = document.getElementById('sbPage');
   if (sp) sp.textContent = (pages && pages.length > 1) ? `Page ${currentPageIdx + 1} of ${pages.length}  ·  [ and ] to switch` : '';
+}
+
+
+/* ── Sheets (phone bottom sheets; menu is a popover on tablets) ── */
+function _isSheetLayout() { return window.innerWidth <= 767; }
+function mOpenSheet(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const wasOpen = el.classList.contains('m-open');
+  mCloseSheets();
+  if (wasOpen) return;
+  if (id === 'resPanel' && !_isSheetLayout()) {            // wider screens: results is the floating panel
+    el.classList.remove('collapsed'); try { localStorage.setItem('mesu_res_collapsed', false); } catch (e) {}
+    return;
+  }
+  el.classList.add('m-open');
+  document.body.classList.add('sheet-open');
+  const f = el.querySelector('button, [href], select, label'); if (f) f.focus({ preventScroll: true });
+}
+function mCloseSheets() {
+  document.querySelectorAll('.m-open').forEach(e => e.classList.remove('m-open'));
+  document.body.classList.remove('sheet-open');
+}
+function mAct(fn) { mCloseSheets(); if (typeof fn === 'function') fn(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('sheet-open')) { mCloseSheets(); e.stopPropagation(); } }, true);
+
+/* Finish button for multi-point tools (touch has no Enter key) */
+function optDone() {
+  if (mode === 'pa' && areaPts.length >= 3) closeArea();
+  else if (mode === 'pp' && areaPts.length >= 2) saveOpenPath();
+}
+function _updDone() {
+  const d = document.getElementById('optDone');
+  if (!d) return;
+  const show = (mode === 'pa' && areaPts.length >= 3) || (mode === 'pp' && areaPts.length >= 2);
+  d.style.display = show ? '' : 'none';
+  d.textContent = mode === 'pa' ? 'Close area' : 'Finish path';
+  const bar = document.getElementById('optbar');
+  if (bar) bar.classList.toggle('has-subs', show || bar.classList.contains('_subs'));
+}
+
+function _updShellExtras(st) {
+  // option bar: does the active tool have choices to show?
+  const bar = document.getElementById('optbar');
+  if (bar) {
+    const subs = [...bar.querySelectorAll('.seg, #straightenStatus, #straightenApplyRow')].some(e => e.style.display !== 'none');
+    bar.classList.toggle('_subs', subs);
+    bar.classList.toggle('has-subs', subs);
+  }
+  _updDone();
+  // results count on the phone top bar
+  const rc = document.getElementById('mResCount');
+  if (rc) { const n = meas.length; if (rc.textContent !== String(n || '')) { rc.textContent = n || ''; if (n) { rc.classList.remove('bump'); void rc.offsetWidth; rc.classList.add('bump'); } } }
+  // menu items
+  const multi = pages && pages.length > 1;
+  document.querySelectorAll('#mMenu .needs-img').forEach(b => b.disabled = !st.hasImg);
+  const mr = document.getElementById('mRestore'); if (mr) mr.disabled = !(originalImg && originalImg !== img);
+  const ms = document.getElementById('mScaleAll'); if (ms) ms.disabled = !(st.hasSc && multi);
+  const mv = document.getElementById('mScaleVis'); if (mv) mv.disabled = !st.hasSc;
+  const tog = (id, on) => { const b = document.getElementById(id); if (b) b.classList.toggle('on', !!on); };
+  tog('mPan', zoomEnabled); tog('mMag', magEnabled); tog('mPtSnap', ptSnapEnabled); tog('mEdge', snapEnabled);
+  const ml = document.getElementById('mLangSelect'); if (ml && typeof currentLang !== 'undefined') ml.value = currentLang;
+  document.body.classList.toggle('has-img', !!st.hasImg);
+  document.body.classList.toggle('multi-page', !!multi);
 }
 
 function toggleTheme() {
@@ -1672,6 +2008,7 @@ function toggleTheme() {
 }
 
 function toggleResPanel() {
+  if (_isSheetLayout()) { mCloseSheets(); return; }
   const p = document.getElementById('resPanel');
   if (!p) return;
   const collapsed = p.classList.toggle('collapsed');
@@ -2083,7 +2420,11 @@ function applyLang() {
     btnScale.textContent = _isSc ? tr.scale_cancel : (_hasSc ? tr.scale_reset : tr.scale_set);
   }
   // tool buttons — icon-only palette: translate the tooltip, keep the SVG icon
-  const _tip = (el, label) => { if (el && label) { el.dataset.tip = label; el.setAttribute('aria-label', label); } };
+  const _tip = (el, label) => {
+    if (!el || !label) return;
+    el.dataset.tip = label; el.setAttribute('aria-label', label);
+    const tl = el.querySelector('.tl'); if (tl) tl.textContent = label;     // short label under the icon (phones)
+  };
   _tip(btnMeasure, tr.distance);
   _tip(btnDiam,    tr.diameter);
   _tip(btnAngle,   tr.angle);
@@ -6095,7 +6436,7 @@ function updMobileFilmstrip() {
   if (!isMob()) return;
   const mfs = document.getElementById('mobileFilmstrip');
   if (!mfs) return;
-  if (pages.length === 0) { mfs.classList.remove('has-pages'); mfs.innerHTML = ''; return; }
+  if (pages.length < 2) { mfs.classList.remove('has-pages'); mfs.innerHTML = ''; return; }
   mfs.classList.add('has-pages');
   mfs.innerHTML = '';
   pages.forEach((p, i) => {
@@ -7284,7 +7625,18 @@ function hidePrivacyModal() {
 /* ── Beta UI shell: hooks that run after the app script ── */
 (function () {
   const _draw = draw;
-  draw = function () { const r = _draw.apply(this, arguments); _updZoomLabel(); return r; };
+  draw = function () { const r = _draw.apply(this, arguments); _updZoomLabel(); _updDone(); return r; };
+  const _upd = updUI;
+  updUI = function () {
+    const r = _upd.apply(this, arguments);
+    const sc = document.getElementById('scaleStatus');
+    if (sc && isMob() && !scFactor) sc.textContent = img ? 'Set scale' : 'No image';
+    return r;
+  };
+  // Phones: tapping the scale chip starts calibration (desktop keeps inline editing)
+  const sc = document.getElementById('scaleStatus');
+  if (sc) sc.addEventListener('click', () => { if (isMob() && img) doScale(); });
+  window.addEventListener('resize', () => { if (!_isSheetLayout()) document.getElementById('resPanel').classList.remove('m-open'); });
   try { if (localStorage.getItem('mesu_res_collapsed') === 'true') document.getElementById('resPanel').classList.add('collapsed'); } catch (e) {}
   updUI();
 })();
