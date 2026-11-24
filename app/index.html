@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mesuro App ? Calibrated Image and PDF Measurement Workspace</title>
+<title>Mesuro App – Calibrated Image and PDF Measurement Workspace</title>
 <meta name="description" content="Calibrated browser-based image and PDF measurement workspace. Load files locally, set scale, measure, annotate, and export without uploading.">
 <meta name="robots" content="noindex, follow">
 <meta name="author" content="Mesuro">
 <meta name="application-name" content="Mesuro">
-<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mesu.ro/app/">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"Mesuro","alternateName":"mesu.ro","url":"https://mesu.ro/","description":"Free online image measurement tool. Measure distances, angles, areas, perimeters and diameters in any image with a real-world scale.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with HTML5 Canvas support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"Free to use with a daily limit of 20 measurements per device. Mesuro Pro is available as a paid subscription for unlimited measurements."},"featureList":["Distance measurement","Center-to-edge symmetric distance","Point-to-line perpendicular distance","Angle measurement","4-point protractor (two independent lines)","Area measurement with bezier curves","Path/perimeter measurement with bezier curves","Diameter measurement","3-point circle measurement","Arc length measurement","Point coordinate system","Scale calibration","Text notes and annotations","Perspective correction (rectify)","Edge detection snapping","Snap to existing measurement points","Image rotation","Multi-image loading (batch drop or select)","Multi-page PDF loading (all pages or custom range)","Apply scale to all pages","Show or hide scale in annotated exports","Filmstrip navigation between pages","PDF file support with page selection","PNG export","JPG export","WebP export","PDF report export with one section per page","Multi-page CSV export with page and source columns","Project save and load (.mesuro)","Mobile touch interface with pinch zoom"]}
@@ -29,6 +28,7 @@
 <meta name="twitter:description" content="Calibrated browser-based image and PDF measurement workspace. No upload required.">
 <meta name="twitter:image" content="https://mesu.ro/og.png">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
+<script>try{var _t=localStorage.getItem("mesu_theme");if(_t)document.documentElement.dataset.theme=_t;}catch(e){}</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -758,6 +758,624 @@
     margin-top: 8px;
     padding-right: 28px;
   }
+
+  /* ============================================================
+     Mesuro beta UI — design tokens (dark default, light on desktop)
+     ============================================================ */
+  :root {
+    --bg:            #15191f;
+    --panel:         #1b2027;
+    --panel-2:       #20262e;
+    --panel-head:    linear-gradient(#232a33, #20262e);
+    --field:         #161a20;
+    --border:        #333b46;
+    --border-soft:   #2a313b;
+    --text:          #e3e7ec;
+    --text-soft:     #a9b2bd;
+    --text-muted:    #8a94a0;
+    --accent:        #1D9E75;
+    --accent-ink:    #ffffff;
+    --accent-fill:   #15805f;
+    --accent-soft:   rgba(29,158,117,.16);
+    --accent-border: rgba(29,158,117,.5);
+    --hover:         #262d36;
+    --canvas-a:      #1d232b;
+    --canvas-b:      #101318;
+    --amber:         #C9913A;
+    --float-shadow:  0 10px 30px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.35);
+    --tip-bg:        #0d1014;
+    --tip-ink:       #e9edf1;
+    color-scheme: dark;
+  }
+
+  :root[data-theme="light"] {
+      --bg:            #eef1f4;
+      --panel:         #f6f7f9;
+      --panel-2:       #ffffff;
+      --panel-head:    linear-gradient(#ffffff, #fafbfc);
+      --field:         #ffffff;
+      --border:        #cfd5dd;
+      --border-soft:   #e4e8ee;
+      --text:          #1b2028;
+      --text-soft:     #58616d;
+      --text-muted:    #69727e;
+      --accent:        #0F7A5C;
+      --accent-fill:   #0F7A5C;
+      --accent-soft:   #dcf1e9;
+      --accent-border: #9fd3bf;
+      --hover:         #eef2f6;
+      --canvas-a:      #fbfcfd;
+      --canvas-b:      #dde3ea;
+      --amber:         #9a6716;
+      --float-shadow:  0 10px 30px rgba(15,20,30,.16), 0 1px 3px rgba(15,20,30,.12);
+      --tip-bg:        #1b2028;
+      --tip-ink:       #ffffff;
+      color-scheme: light;
+    
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Inter, system-ui, sans-serif; }
+  button { border-color: var(--border); color: var(--text); }
+  button:hover:not(:disabled) { background: var(--hover); border-color: var(--border); }
+  input[type="number"], input[type="text"] { background: var(--field); border-color: var(--border); color: var(--text); }
+  input:focus { border-color: var(--accent); }
+  .modal-box { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--float-shadow); }
+  .modal-box h3 { color: var(--text); }
+  .modal-box p { color: var(--text-soft); }
+  .btn-confirm { background: var(--accent-fill); border-color: var(--accent-fill); }
+  #canvasArea { background: radial-gradient(circle at 50% 35%, var(--canvas-a) 0%, var(--canvas-b) 100%); }
+  #dz { color: var(--text-soft); }
+  #dz span { color: var(--text-muted); }
+  .dz-step { background: var(--panel); border: 1px solid var(--border-soft); color: var(--text-soft); }
+  #dzPrivacy { color: var(--text-muted); }
+  #filmstrip { background: var(--panel); border-left: 1px solid var(--border); }
+  .fs-thumb { border-color: var(--border); background: var(--field); }
+  .fs-thumb.fs-active { border-color: var(--accent); }
+  .fs-thumb.fs-active .fs-label { color: var(--accent); }
+  .fs-add { border-color: var(--border); color: var(--text-muted); }
+  #scaleStatus.no-scale { color: var(--amber); }
+
+  /* New shell is desktop only — the phone layout keeps its own bars */
+  #topbar, #optbar, #toolbar, #resPanel, #zoomCtl, #statusbar { display: none; }
+
+
+  @media (min-width: 768px) { body { overflow: hidden; } }
+    #app {
+      flex-direction: column;
+      height: 100vh; min-height: 0;
+      margin: 0; border: 0; border-radius: 0;
+    }
+    #canvasArea { flex: 1; min-height: 0; }
+
+    .ic { width: 18px; height: 18px; flex-shrink: 0; display: block; }
+
+    /* ---------- Top menu bar ---------- */
+    #topbar {
+      display: flex; align-items: center; gap: 8px;
+      height: 48px; flex-shrink: 0;
+      padding: 0 10px;
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 2px rgba(0,0,0,.12);
+      position: relative; z-index: 40;
+      white-space: nowrap;
+    }
+    #topbar .brand {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 8px 0 4px; margin-right: 2px;
+      font-size: 17px; font-weight: 650; letter-spacing: -.3px;
+    }
+    #topbar .brand a { color: var(--text); text-decoration: none; }
+    .pro-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: .1em;
+      color: #C9913A; background: rgba(201,145,58,.12);
+      border: 1px solid rgba(201,145,58,.45); border-radius: 4px; padding: 1px 5px;
+    }
+    #topbar .group {
+      display: flex; align-items: center; gap: 2px;
+      height: 32px; padding-right: 8px;
+      border-right: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
+    #topbar .group:last-child { border-right: 0; padding-right: 0; }
+    #topbar .spacer { flex: 1; min-width: 8px; }
+    .glabel {
+      font-size: 9.5px; font-weight: 700; letter-spacing: .09em;
+      color: var(--text-muted); margin: 0 6px 0 4px;
+    }
+    .tbtn {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      width: auto; height: 32px; min-width: 32px; padding: 0 8px;
+      background: transparent; border: 1px solid transparent; border-radius: 7px;
+      color: var(--text); font-size: 12.5px; text-align: center; cursor: pointer;
+      transition: background .12s, border-color .12s, color .12s;
+    }
+    .tbtn:hover:not(:disabled) { background: var(--hover); border-color: var(--border-soft); }
+    .tbtn:active:not(:disabled) { transform: none; }
+    .tbtn:disabled { opacity: .38; cursor: default; }
+    .tbtn-text { padding: 0 12px; border-color: var(--border); background: var(--field); font-weight: 500; }
+    .tbtn.primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+    .tbtn.primary:hover:not(:disabled) { background: var(--accent-fill); filter: brightness(1.1); }
+    .tbtn.toggle.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+    .tbtn.active { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+    #loadLabel { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); font-weight: 600; padding: 0 12px 0 10px; }
+    #loadLabel:hover { background: var(--accent-fill); filter: brightness(1.1); }
+    #scaleStatus {
+      height: 28px; padding: 0 10px; margin-right: 4px;
+      font: 12px/26px ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: var(--field); border: 1px solid var(--border); border-radius: 7px;
+      min-width: 120px; max-width: 190px;
+    }
+    #scaleStatus.no-scale { border-color: color-mix(in srgb, var(--amber) 55%, transparent); }
+    #scaleStatus.has-scale { border-color: var(--accent-border); }
+    #scaleStatus.has-scale:hover, #scaleStatus.no-scale.has-img:hover { background: var(--hover); }
+    #btnTheme .sun { display: none; }
+    :root[data-theme="light"] #btnTheme .sun { display: inline; }
+    :root[data-theme="light"] #btnTheme .moon { display: none; }
+
+    /* ---------- Tool options bar ---------- */
+    #optbar {
+      display: flex; align-items: center; gap: 12px;
+      height: 42px; flex-shrink: 0; padding: 0 14px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px; color: var(--text-soft);
+      white-space: nowrap; overflow-x: auto; overflow-y: hidden;
+      scrollbar-width: none; position: relative; z-index: 30;
+    }
+    #optTool { display: inline-flex; align-items: center; gap: 8px; min-width: 150px; color: var(--text); font-weight: 600; }
+    #optToolIcon:empty { display: none; }
+    #optToolIcon .ic { width: 20px; height: 20px; }
+    .opt-sep { width: 1px; height: 22px; background: var(--border-soft); flex-shrink: 0; }
+    #optIdle { color: var(--text-soft); overflow: hidden; text-overflow: ellipsis; }
+    #optIdle b { color: var(--amber); font-weight: 600; }
+    kbd {
+      display: inline-block; min-width: 18px; padding: 0 5px; margin: 0 1px;
+      font: 11px/17px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center;
+      color: var(--text); background: var(--field);
+      border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px;
+    }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--field); flex-shrink: 0; }
+    .seg-btn {
+      width: auto; border: 0; border-radius: 0; padding: 6px 13px;
+      background: transparent; color: var(--text-soft); font-size: 12.5px; text-align: center;
+    }
+    .seg-btn + .seg-btn { border-left: 1px solid var(--border); }
+    .seg-btn:hover:not(:disabled) { background: var(--hover); color: var(--text); border-color: var(--border); }
+    .seg-btn.on, .seg-btn.on:hover:not(:disabled) { background: var(--accent-fill); color: var(--accent-ink); }
+    #straightenStatus { color: var(--text-soft); }
+    #straightenApplyRow { gap: 6px; }
+
+    /* ---------- Floating panels ---------- */
+    #canvasPad > .fpanel {
+      position: absolute; z-index: 15;
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: var(--float-shadow);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    #toolbar {
+      display: flex; flex-direction: column; gap: 2px;
+      top: 14px; left: 14px; padding: 6px;
+    }
+    .tool-btn {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; padding: 0;
+      border: 1px solid transparent; border-radius: 9px;
+      background: transparent; color: var(--text);
+      transition: background .12s, border-color .12s;
+    }
+    .tool-btn .ic { width: 21px; height: 21px; }
+    .tool-btn:hover:not(:disabled) { background: var(--hover); border-color: var(--border-soft); }
+    .tool-btn:active:not(:disabled) { transform: scale(.96); }
+    .tool-btn:disabled { opacity: .35; }
+    .tool-btn.active, .tool-btn.active:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--tc) 22%, transparent);
+      border-color: var(--tc); color: var(--text);
+    }
+    .tool-btn::before {                       /* colour key matching the measurement colour on canvas */
+      content: ''; position: absolute; left: 3px; top: 50%; width: 3px; height: 14px;
+      margin-top: -7px; border-radius: 2px; background: var(--tc); opacity: 0;
+      transition: opacity .12s;
+    }
+    .tool-btn.active::before { opacity: 1; }
+    .tool-sep { height: 1px; background: var(--border-soft); margin: 4px 5px; }
+
+    #resPanel {
+      top: 14px; right: 14px; width: 290px;
+      max-height: calc(100% - 84px);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .fp-head {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+      padding: 6px 6px 6px 12px;
+      font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--text-soft);
+      background: var(--panel-head); border-bottom: 1px solid var(--border-soft);
+    }
+    .fp-head .badge:empty { display: none; }
+    .fp-head .badge {
+      font-weight: 600; letter-spacing: 0; color: var(--text);
+      border: 1px solid var(--border-soft); border-radius: 999px; padding: 0 7px; font-size: 10.5px;
+    }
+    .fp-head .sp { flex: 1; }
+    #resultsActions { gap: 4px; }
+    .mini {
+      width: auto; padding: 2px 8px; font-size: 11px; letter-spacing: 0; font-weight: 500;
+      background: var(--field); border: 1px solid var(--border); border-radius: 6px; color: var(--text-soft); text-align: center;
+    }
+    .mini:hover:not(:disabled) { color: var(--text); }
+    .fp-x {
+      width: 26px; height: 26px; padding: 0; border: 0; border-radius: 6px; background: transparent;
+      color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center;
+    }
+    .fp-x .ic { width: 16px; height: 16px; transform: rotate(180deg); transition: transform .15s; }
+    #resPanel.collapsed .fp-x .ic { transform: none; }
+    #resPanel.collapsed .fp-body { display: none; }
+    #resPanel.collapsed .fp-head { border-bottom: 0; }
+    .fp-body { padding: 8px; overflow-y: auto; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    #resList { gap: 4px; overflow: visible; }
+    .res-item {
+      background: var(--field); border: 1px solid var(--border-soft); border-radius: 8px;
+      padding: 6px 8px; font-size: 12px; gap: 7px;
+    }
+    .res-item:hover { border-color: var(--border); }
+    .res-item .val { color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .res-item .val:hover { color: var(--text); text-decoration-color: var(--text-muted); }
+    .res-item .px { color: var(--text-muted); }
+    .res-item .del { color: var(--text-muted); }
+    #noRes { color: var(--text-muted); font-size: 12px; padding: 4px 2px; }
+    #dailyCounter { background: var(--panel-2); border: 1px solid var(--border-soft); color: var(--text-soft); border-radius: 8px; }
+    #dailyCounter.cap { color: var(--text); }
+    #dailyCounter.cap .dc-title { color: var(--text); }
+    #dailyCounter.cap .dc-sub { color: var(--text-soft); }
+
+    #zoomCtl {
+      right: 14px; bottom: 14px; padding: 4px;
+      display: flex; align-items: center; gap: 2px;
+    }
+    .zbtn {
+      position: relative; width: 32px; height: 32px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--text);
+    }
+    .zbtn:hover:not(:disabled) { background: var(--hover); border-color: var(--border-soft); }
+    #zoomPct { min-width: 50px; text-align: center; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text-soft); }
+
+    #hint {
+      top: 14px; bottom: auto;
+      background: color-mix(in srgb, var(--panel-2) 94%, transparent);
+      color: var(--text); border: 1px solid var(--border);
+      box-shadow: var(--float-shadow); font-size: 12.5px; padding: 6px 16px;
+      backdrop-filter: blur(8px);
+    }
+    #toast { bottom: 16px; background: var(--accent-fill); color: var(--accent-ink); font-size: 12px; padding: 6px 16px; }
+
+    /* ---------- Status bar ---------- */
+    #statusbar {
+      display: flex; align-items: center; gap: 16px;
+      height: 30px; flex-shrink: 0; padding: 0 12px;
+      background: var(--panel-2); border-top: 1px solid var(--border);
+      font-size: 11.5px; color: var(--text-soft); white-space: nowrap;
+    }
+    #statusbar .spacer { flex: 1; }
+    #statusbar .sb-item { display: inline-flex; align-items: center; gap: 6px; }
+    #statusbar .sb-item .ic { width: 13px; height: 13px; color: var(--accent); }
+    #statusbar a, .sb-link {
+      color: var(--text-soft); text-decoration: none; font-size: 11.5px;
+      width: auto; padding: 0; border: 0; background: none;
+    }
+    #statusbar a:hover, .sb-link:hover:not(:disabled) { color: var(--text); background: none; }
+    #langSelect {
+      background: var(--field); color: var(--text-soft); border: 1px solid var(--border);
+      border-radius: 5px; font: inherit; font-size: 11px; padding: 1px 4px; cursor: pointer; outline: none;
+    }
+
+    /* ---------- Tooltips (hover / keyboard focus) ---------- */
+    [data-tip]:hover::after, [data-tip]:focus-visible::after {
+      content: attr(data-tip) "  " attr(data-key);
+      position: absolute; z-index: 100; pointer-events: none;
+      padding: 5px 9px; border-radius: 6px;
+      background: var(--tip-bg); color: var(--tip-ink);
+      font: 500 11.5px/1.3 -apple-system, "Segoe UI", Inter, system-ui, sans-serif;
+      letter-spacing: 0; text-transform: none; white-space: pre;
+      box-shadow: 0 4px 14px rgba(0,0,0,.3);
+    }
+    #topbar [data-tip]:hover::after, #topbar [data-tip]:focus-visible::after {
+      top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    }
+    #topbar .group:last-child [data-tip]:hover::after, #topbar .group:last-child [data-tip]:focus-visible::after {
+      left: auto; right: 0; transform: none;
+    }
+    #toolbar [data-tip]:hover::after, #toolbar [data-tip]:focus-visible::after {
+      left: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+    }
+    #zoomCtl [data-tip]:hover::after, #zoomCtl [data-tip]:focus-visible::after {
+      bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    }
+
+    /* ---------- Narrower desktop windows: drop text labels before anything else ---------- */
+    @media (max-width: 1520px) { #topbar .lbl { display: none; } #loadLabel .lbl { display: inline; } }
+    @media (max-width: 1640px) { .glabel { display: none; } }
+    @media (max-width: 1120px) { .glabel { display: none; } #scaleStatus { min-width: 96px; max-width: 140px; } }
+    @media (min-width: 768px) and (max-width: 960px)  { #topbar .brand a { font-size: 0; } #topbar .brand a::before { content: 'M'; font-size: 17px; } #resPanel { width: 240px; } }
+  
+
+  /* ============================================================
+     Sheets & menu (phones: bottom sheets · tablets: popover)
+     ============================================================ */
+  #btnResults, #btnMenu { display: none; }
+  .modal-footer button, #pdfTitleModal button, #proModal button, #pdfModal button, #feedbackModal button, #privacyModal button { text-align: center; }
+  .tool-btn .tl { display: none; }
+  #btnResults .count:empty { display: none; }
+  #btnResults .count {
+    position: absolute; top: 3px; right: 1px; min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 999px; background: var(--accent-fill); color: var(--accent-ink);
+    font: 700 10.5px/18px -apple-system, "Segoe UI", Inter, system-ui, sans-serif; text-align: center;
+  }
+  #btnResults .count.bump { animation: countBump .35s ease; }
+  @keyframes countBump { 50% { transform: scale(1.3); } }
+  #mSheetBack {
+    position: fixed; inset: 0; z-index: 55; background: rgba(8,10,14,.45);
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  body.sheet-open #mSheetBack { opacity: 1; pointer-events: auto; }
+  .msheet {
+    position: fixed; z-index: 60; display: flex; flex-direction: column;
+    background: var(--panel); border: 1px solid var(--border); box-shadow: var(--float-shadow);
+  }
+  .msheet-head, #resPanel .fp-head { cursor: default; }
+  .msheet-head {
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--border-soft);
+    font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-soft);
+  }
+  .msheet-body { overflow-y: auto; padding: 4px 12px 14px; overscroll-behavior: contain; }
+  .mlbl { margin: 12px 4px 7px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+  .mgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .mitem {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: auto; min-height: 68px; padding: 8px 4px;
+    background: var(--field); border: 1px solid var(--border-soft); border-radius: 12px;
+    color: var(--text); font-size: 11.5px; line-height: 1.2; text-align: center; cursor: pointer;
+  }
+  .mitem .ic { width: 21px; height: 21px; }
+  .mitem:hover:not(:disabled) { background: var(--hover); border-color: var(--border); }
+  .mitem.on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+  .mitem:disabled { opacity: .35; cursor: default; }
+  .mfoot {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px;
+    margin-top: 16px; padding: 14px 4px 2px; border-top: 1px solid var(--border-soft);
+  }
+  .mfoot a { color: var(--text-soft); text-decoration: none; font-size: 13.5px; }
+  .mfoot select {
+    margin-left: auto; background: var(--field); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 8px; font: inherit; font-size: 13px;
+  }
+
+  /* Keyboard focus — visible everywhere, never on mouse/touch */
+  button:focus-visible, label:focus-visible, a:focus-visible, select:focus-visible, .tool-btn:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  label#loadLabel:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: none) { [data-tip]::after { display: none !important; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+  /* ============================================================
+     Wide desktop (≥1100): everything sits in the top bar
+     Compact (768–1099, incl. tablets): rarely used controls move to the menu popover
+     ============================================================ */
+  @media (min-width: 901px) { .m-rotate { display: none !important; } }
+  @media (min-width: 768px) {
+    .msheet { display: none; top: 54px; right: 10px; width: 360px; max-height: calc(100vh - 70px); border-radius: 14px; }
+    .msheet.m-open { display: flex; }
+    #mSheetBack { background: transparent; }
+    .m-phone { display: none !important; }
+    #resPanel .fp-x { display: inline-flex; }
+  }
+  @media (min-width: 768px) and (max-width: 1239px) {
+    #btnMenu { display: inline-flex; }
+    #topbar .g-view, #topbar .g-theme, .x-bulk, .x-restore { display: none !important; }
+    #topbar .group.g-export { border-right: 1px solid var(--border-soft); padding-right: 8px; }
+  }
+  @media (min-width: 1240px) { #topbar .g-more { display: none; } }
+  @media (min-width: 768px) and (max-width: 900px) { #btnRotR { display: none !important; } }
+
+  /* Touch screens wider than a phone: bigger targets */
+  @media (min-width: 768px) and (pointer: coarse) {
+    #topbar { height: 56px; }
+    .tbtn { height: 42px; min-width: 42px; }
+    #scaleStatus { height: 36px; line-height: 34px; }
+    .tool-btn { width: 48px; height: 48px; }
+    .seg-btn { padding: 10px 15px; }
+    #optbar { height: 50px; }
+    .zbtn { width: 42px; height: 42px; }
+    .res-item { padding: 10px; }
+    .res-item .del { font-size: 18px; padding: 0 6px; }
+  }
+
+  /* ============================================================
+     Phones (≤767): top bar · canvas · floating tool bar at the thumb
+     ============================================================ */
+  @media (max-width: 767px) {
+    html, body { height: 100%; }
+    body { overflow: hidden; }
+    #mobileTopbar, #mobileBar, #mobileSubRow, #mobileSupportSection { display: none !important; }
+    #app {
+      height: 100svh; min-height: 0;
+      padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    }
+
+    /* top bar: brand · scale · results · menu */
+    #topbar { height: 54px; padding: 0 6px 0 12px; gap: 4px; padding-top: env(safe-area-inset-top); box-sizing: content-box; }
+    #topbar .g-file, #topbar .g-view, #topbar .g-export, #topbar .g-theme, #topbar .glabel,
+    #topbar .spacer, .x-bulk, .x-restore, #btnRotR, #btnScale { display: none !important; }
+    #topbar .group { border-right: 0; padding-right: 0; height: 44px; }
+    #topbar .brand { padding: 0 4px 0 0; font-size: 17px; }
+    #topbar .g-scale { flex: 1; min-width: 0; justify-content: center; }
+    #scaleStatus {
+      min-width: 0; max-width: 100%; height: 36px; margin: 0;
+      font: 13px/34px ui-monospace, SFMono-Regular, Menlo, monospace;
+      padding: 0 14px; border-radius: 999px; text-align: center;
+    }
+    body.has-img #scaleStatus.no-scale { animation: scaleNudge 2.4s ease-in-out infinite; }
+    @keyframes scaleNudge { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 25%, transparent); } }
+    #btnResults, #btnMenu { display: inline-flex; }
+    #btnResults:disabled { opacity: .35; }
+    .tbtn { height: 44px; min-width: 44px; }
+    .tbtn .ic { width: 21px; height: 21px; }
+
+    /* tool options: a floating pill just above the tool bar, only when the tool has choices */
+    #optbar {
+      position: fixed; z-index: 45; display: none;
+      left: 50%; transform: translateX(-50%);
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      width: max-content; max-width: calc(100% - 16px); height: auto;
+      padding: 5px; gap: 6px; border: 1px solid var(--border); border-radius: 14px;
+      background: color-mix(in srgb, var(--panel) 96%, transparent); box-shadow: var(--float-shadow);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    #optbar.has-subs { display: flex; }
+    #optTool, #optIdle, #optbar .opt-sep { display: none !important; }
+    .seg { border-radius: 10px; }
+    .seg-btn { padding: 10px 13px; font-size: 13.5px; }
+    #btnDistLL, #btnDiamArc { display: none; }              /* no touch input for these modes */
+    #optDone { height: 42px; padding: 0 16px; font-size: 13.5px; border-radius: 10px; }
+
+    /* tool bar: one row, icon + label, sized for thumbs */
+    #canvasPad > #toolbar {
+      position: fixed; z-index: 46; top: auto;
+      left: 6px; right: 6px; bottom: calc(8px + env(safe-area-inset-bottom));
+      flex-direction: row; justify-content: space-between; gap: 0; padding: 3px; border-radius: 18px;
+    }
+    #toolbar .tool-sep, #btnStraighten { display: none; }
+    .tool-btn {
+      flex: 1 1 0; min-width: 0; width: auto; height: 58px; padding: 0;
+      flex-direction: column; gap: 4px; border-radius: 13px;
+    }
+    .tool-btn .ic { width: 23px; height: 23px; }
+    .tool-btn .tl {
+      display: block; max-width: 100%; padding: 0 1px;
+      font-size: 9.5px; font-weight: 500; letter-spacing: -.15px; color: var(--text-soft);
+      overflow: hidden; text-overflow: clip; white-space: nowrap;
+    }
+    .tool-btn.active .tl { color: var(--text); font-weight: 650; }
+    .tool-btn::before { left: 50%; top: 4px; width: 18px; height: 3px; margin: 0 0 0 -9px; }
+    .tool-btn:disabled { opacity: .3; }
+
+    /* results: bottom sheet */
+    #canvasPad > #resPanel {
+      position: fixed; z-index: 60; display: flex; top: auto;
+      left: 0; right: 0; bottom: 0; width: auto; max-height: 75svh;
+      border-radius: 20px 20px 0 0; border-bottom: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      transform: translateY(105%); visibility: hidden;
+      transition: transform .24s ease, visibility 0s linear .24s;
+    }
+    #canvasPad > #resPanel.m-open { transform: none; visibility: visible; transition: transform .24s ease; }
+    #resPanel.collapsed .fp-body { display: block; }
+    #resPanel .fp-head { padding: 10px 8px 10px 16px; font-size: 11px; }
+    #resPanel .fp-x { width: 40px; height: 40px; }
+    #resPanel .fp-x .ic { width: 20px; height: 20px; transform: none; }
+    .mini { padding: 7px 12px; font-size: 13px; border-radius: 8px; }
+    .fp-body { padding: 10px 12px 16px; }
+    .res-item { padding: 12px; font-size: 14.5px; border-radius: 10px; }
+    .res-item .num { min-width: 30px; }
+    .res-item .del { font-size: 22px; padding: 0 6px; min-width: 32px; text-align: center; }
+    #noRes { font-size: 14px; padding: 10px 4px; }
+    #dailyCounter { font-size: 13px; }
+
+    /* menu: bottom sheet */
+    .msheet {
+      left: 0; right: 0; bottom: 0; max-height: 85svh; border-radius: 20px 20px 0 0; border-bottom: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      transform: translateY(105%); visibility: hidden;
+      transition: transform .24s ease, visibility 0s linear .24s;
+    }
+    .msheet.m-open { transform: none; visibility: visible; transition: transform .24s ease; }
+    .m-wide { display: none !important; }
+    .msheet-head .fp-x, #resPanel .fp-x { color: var(--text-soft); }
+
+    /* on-canvas feedback */
+    #zoomCtl, #statusbar { display: none !important; }
+    #hint {
+      top: 10px; bottom: auto; max-width: calc(100% - 24px);
+      white-space: normal; text-align: center; font-size: 13.5px; line-height: 1.35; padding: 8px 16px;
+      background: color-mix(in srgb, var(--panel-2) 94%, transparent); color: var(--text);
+      border: 1px solid var(--border); box-shadow: var(--float-shadow);
+    }
+    #toast { bottom: 12px; font-size: 13px; padding: 7px 16px; background: var(--accent-fill); }
+
+    /* pages strip (only shown with 2+ pages) */
+    #mobileFilmstrip { background: var(--panel); border-top: 1px solid var(--border-soft); border-bottom: 0; }
+    .mfs-thumb { border-color: var(--border); background: var(--field); }
+    .mfs-thumb.mfs-active { border-color: var(--accent); }
+    .mfs-label { color: var(--text-muted); }
+    .mfs-add { border-color: var(--border); color: var(--text-muted); }
+
+    /* small phones (iPhone SE / mini) */
+    @media (max-width: 380px) {
+      #topbar .brand a { font-size: 0; }
+      #topbar .brand a::before { content: 'M'; font-size: 18px; }
+      #scaleStatus { padding: 0 10px; font-size: 12.5px; }
+      .tool-btn .tl { font-size: 9px; letter-spacing: -.3px; }
+    }
+
+    /* first run */
+    #dz { padding: 0 16px; }
+    #dzMain { color: var(--text); font-size: 17px; font-weight: 500; }
+    .dz-step { background: var(--panel); }
+  }
+
+  /* ============================================================
+     Plan: Go Pro, free counter, Pro account
+     ============================================================ */
+  :root { --pro: #2563eb; --pro-text: #7aa2ff; --pro-soft: rgba(37,99,235,.14); }
+  :root[data-theme="light"] { --pro-text: #1d4fd8; --pro-soft: #e6eeff; }
+  body.is-pro .free-only { display: none !important; }
+  .pro-tag { cursor: pointer; font-family: inherit; }
+  .pro-tag:hover { background: rgba(201,145,58,.22); }
+  .tbtn.gopro { color: var(--pro-text); border-color: color-mix(in srgb, var(--pro) 45%, transparent); background: var(--pro-soft); font-weight: 600; padding: 0 12px; }
+  .tbtn.gopro:hover:not(:disabled) { background: var(--pro-soft); border-color: var(--pro); }
+  #sbPlan { gap: 10px; }
+  #sbPlan .warn { color: var(--amber); font-weight: 600; }
+  #sbPlan .cap { color: #e5484d; font-weight: 600; }
+  #statusbar .sb-pro { color: var(--pro-text); font-weight: 600; }
+  .plan-card { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--field); border: 1px solid var(--border-soft); border-radius: 12px; }
+  .plan-head { display: flex; align-items: center; justify-content: space-between; }
+  .plan-title { font-size: 15px; font-weight: 650; color: var(--text); }
+  .plan-title.pro { color: var(--pro-text); }
+  .plan-pill { font-size: 11px; font-weight: 600; color: var(--accent); border: 1px solid var(--accent-border); border-radius: 999px; padding: 1px 8px; }
+  .plan-sub { font-size: 13px; color: var(--text-soft); }
+  .plan-sub.warn { color: var(--amber); font-weight: 600; }
+  .plan-sub.cap { color: #e5484d; font-weight: 600; }
+  :root[data-theme="light"] .plan-sub.cap, :root[data-theme="light"] #sbPlan .cap { color: #c4262c; }
+  .plan-meter { height: 6px; border-radius: 3px; background: var(--border-soft); overflow: hidden; }
+  .plan-meter i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .plan-sub.warn + .plan-meter i { background: var(--amber); }
+  .plan-sub.cap + .plan-meter i { background: #e5484d; }
+  .plan-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 2px; }
+  .plan-btn {
+    display: inline-flex; align-items: center; justify-content: center; width: auto; min-height: 40px; padding: 0 16px;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); color: var(--text);
+    font-size: 13.5px; font-weight: 600; text-decoration: none; text-align: center; cursor: pointer;
+  }
+  .plan-btn.pro { background: var(--pro); border-color: var(--pro); color: #fff; flex: 1 1 auto; }
+  .plan-btn.pro:hover:not(:disabled) { background: var(--pro); filter: brightness(1.08); }
+  .plan-link { width: auto; padding: 4px 0; border: 0; background: none; color: var(--text-soft); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .plan-link:hover:not(:disabled) { background: none; color: var(--text); }
+  .plan-link.danger { color: #e5484d; }
+  #planSheet .plan-card { border: 0; background: transparent; padding: 4px 2px; }
+  @media (min-width: 768px) {
+    #planSheet { left: 10px; right: auto; width: 340px; }
+  }
+  .plbl-s { display: none; }
+  @media (max-width: 1239px) { .g-plan .plbl { display: none; } .g-plan .plbl-s { display: inline; } }
+  @media (max-width: 767px) {
+    #topbar .g-plan { display: none !important; }
+    .pro-tag { padding: 3px 6px; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -783,167 +1401,102 @@
 
   <!-- Mobile view options modal (centered overlay) -->
 
-  <div id="sidebar">
-    <div style="padding-bottom:12px;border-bottom:0.5px solid #333">
-      <svg width="160" height="36" viewBox="0 0 160 36" fill="none">
-        <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
-          <tspan x="0" y="22" fill="#e0e0e0">Mesuro</tspan>
-        </text>
-        <!-- PRO badge — visible only for .is-pro -->
-        <rect id="logoProBg" x="82" y="9" width="26" height="12" rx="2.5" fill="rgba(201,145,58,.12)" stroke="rgba(201,145,58,.45)" stroke-width="0.5"/>
-        <text id="logoPro" x="95" y="18.5" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="7.5" font-weight="700" letter-spacing=".10em" fill="#C9913A">PRO</text>
-        <line x1="0"   y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
-        <line x1="0"   y1="28" x2="0"   y2="34" stroke="#666" stroke-width="1.2"/>
-        <line x1="33"  y1="28" x2="33"  y2="31" stroke="#555" stroke-width="0.75"/>
-        <line x1="65"  y1="28" x2="65"  y2="33" stroke="#666" stroke-width="1"/>
-        <line x1="98"  y1="28" x2="98"  y2="31" stroke="#555" stroke-width="0.75"/>
-        <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
-      </svg>
+  <!-- ===== Top menu bar (desktop) ===== -->
+  <header id="topbar" class="no-dz">
+    <div class="brand" title="Mesuro"><a href="../" aria-label="Mesuro home">Mesuro</a><button type="button" id="logoPro" class="pro-tag" onclick="mOpenSheet('planSheet')" aria-label="Mesuro Pro account">PRO</button></div>
 
-    </div>
-
-    <div>
-      <div class="btn-row">
-        <label id="loadLabel" style="flex:1;display:flex;align-items:center;justify-content:center;background:#1e1e1e;border:0.5px solid #444;border-radius:6px;padding:7px 6px;font-size:12px;color:#d0d0d0;cursor:pointer;transition:background .15s,border-color .15s;text-align:center">
-          <span id="loadLabelTxt">Load image(s) or PDF</span>
-          <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" multiple style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-        </label>
-        <button onclick="rotateImg(90)" disabled id="btnRotR" style="flex:0 0 44px;font-size:11px" title="Rotate 90°">↻ 90°</button>
-      </div>
+    <div class="group g-file" aria-label="File">
+      <label id="loadLabel" class="tbtn" data-tip="Open image(s) or PDF"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><path d="M12 10v6M9 13l3-3 3 3"/></svg><span class="lbl" id="loadLabelTxt">Open</span>
+        <input type="file" id="fileInput" accept="image/*,.pdf,application/pdf" multiple style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+      </label>
+      <button type="button" class="tbtn" id="btnSaveProject" onclick="saveProject()" disabled data-tip="Save project (.mesuro)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h11l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 1-2z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg><span class="lbl" data-i18n="save_proj">Save project</span></button>
+      <button type="button" class="tbtn" id="btnLoadProject" onclick="document.getElementById('projectInput').click()" data-tip="Open a saved project (.mesuro)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><path d="M12 4v11M8 11l4 4 4-4"/></svg><span class="lbl" data-i18n="load_proj">Load</span></button>
       <input type="file" id="projectInput" accept=".mesuro" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
     </div>
 
-    <div>
-      <div class="slbl" data-i18n="RECTIFY">PERSP. CORRECTION</div>
-      <div class="btn-row" style="margin-bottom:4px">
-        <button id="btnStraighten" onclick="doStraighten()" disabled style="flex:1;display:flex;align-items:center;justify-content:center;padding:6px 4px;">
-          <svg width="64" height="16" viewBox="0 0 390 100" fill="none" style="display:block">
-            <polygon points="22,88 118,88 98,12 42,12" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/>
-            <line x1="22" y1="88" x2="98" y2="12" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
-            <line x1="118" y1="88" x2="42" y2="12" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
-            <circle cx="22"  cy="88" r="8" fill="currentColor"/>
-            <circle cx="118" cy="88" r="8" fill="currentColor"/>
-            <circle cx="98"  cy="12" r="8" fill="currentColor"/>
-            <circle cx="42"  cy="12" r="8" fill="currentColor"/>
-            <line x1="148" y1="50" x2="218" y2="50" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
-            <polyline points="210,40 222,50 210,60" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
-            <rect x="252" y="12" width="116" height="76" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/>
-            <line x1="252" y1="12" x2="368" y2="88" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
-            <line x1="368" y1="12" x2="252" y2="88" stroke="currentColor" stroke-width="3" stroke-dasharray="8 6" opacity=".4"/>
-            <circle cx="252" cy="12" r="8" fill="currentColor"/>
-            <circle cx="368" cy="12" r="8" fill="currentColor"/>
-            <circle cx="368" cy="88" r="8" fill="currentColor"/>
-            <circle cx="252" cy="88" r="8" fill="currentColor"/>
-          </svg>
-        </button>
-        <button id="btnRestoreOriginal" onclick="restoreOriginal()" disabled style="flex:1;font-size:11px;color:#888" data-i18n="original">↩ Original</button>
-      </div>
-      <div id="straightenStatus" style="display:none;font-size:10px;color:#555;margin-bottom:4px;line-height:1.6;padding:4px 0">
-        Click <span id="stCornerLabel" style="color:#9F77DD;font-weight:500">top-left</span> corner<br>
-        <span id="stDots">○ ○ ○ ○</span>
-      </div>
-      <div id="straightenApplyRow" style="display:none" class="btn-row">
-        <button class="btn-confirm" onclick="applyStraighten()" style="flex:1;font-size:11px" data-i18n="apply">Apply</button>
-        <button onclick="cancelStraighten()" style="flex:1;font-size:11px">Cancel</button>
-      </div>
+    <div class="group g-edit" aria-label="Edit">
+      <button type="button" class="tbtn" id="btnUndoTop" onclick="undoLast()" disabled data-tip="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
+      <button type="button" class="tbtn" id="btnRotR" onclick="rotateImg(90)" disabled data-tip="Rotate 90°" aria-label="Rotate 90°"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
+      <button type="button" class="tbtn x-restore" id="btnRestoreOriginal" onclick="restoreOriginal()" disabled data-tip="Restore original image" aria-label="Restore original image"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg></button>
     </div>
 
-    <div style="margin-top:-6px">
-      <div class="slbl" data-i18n="SCALE">SCALE</div>
-      <div class="btn-row">
-        <div id="scaleStatus" class="no-scale" style="flex:1;margin-bottom:0">pixel mode</div>
-        <button id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled style="flex-grow:0;flex-shrink:0;padding:5px 14px">Set</button>
-      </div>
-      <div class="btn-row" id="scaleBulkActions" style="margin-top:4px">
-        <button id="btnScaleApplyAll" onclick="applyScaleToAllPages()" disabled style="flex:1;font-size:10px;padding:5px 6px;text-align:center" data-i18n="scale_apply_all">Apply all</button>
-        <button id="btnScaleHideAll" onclick="setScaleVisibleAll(false)" disabled style="flex:1;font-size:10px;padding:5px 6px;text-align:center" data-i18n="scale_hide">Hide</button>
-        <button id="btnScaleShowAll" onclick="setScaleVisibleAll(true)" disabled style="flex:1;font-size:10px;padding:5px 6px;text-align:center" data-i18n="scale_show">Show</button>
-      </div>
+    <div class="group g-scale" aria-label="Scale">
+      <span class="glabel" data-i18n="SCALE">SCALE</span>
+      <div id="scaleStatus" class="no-scale">pixel mode</div>
+      <button type="button" class="tbtn tbtn-text" id="btnScale" onclick="scFactor?doScaleReset():doScale()" disabled>Set</button>
+      <button type="button" class="tbtn x-bulk" id="btnScaleApplyAll" onclick="applyScaleToAllPages()" disabled data-tip="Apply this scale to all pages" aria-label="Apply scale to all pages"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></button>
+      <button type="button" class="tbtn x-bulk" id="btnScaleHideAll" onclick="setScaleVisibleAll(false)" disabled data-tip="Hide scale bar on all pages" aria-label="Hide scale"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-2.2 3.2M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 7 9.5 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="m3 3 18 18M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>
+      <button type="button" class="tbtn x-bulk" id="btnScaleShowAll" onclick="setScaleVisibleAll(true)" disabled data-tip="Show scale bar on all pages" aria-label="Show scale"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
     </div>
 
-    <div>
-      <div class="slbl" data-i18n="MEASURE">MEASURE</div>
-      <div style="display:flex;flex-direction:column;gap:4px">
-        <div class="btn-row">
-          <button id="btnMeasure" onclick="doMeasure()" disabled style="flex:1;font-size:11px">↔ Distance <span class="kbd">L</span></button>
-          <button id="btnDiam"    onclick="doDiam()"    disabled style="flex:1;font-size:11px">⌀ Diameter <span class="kbd">D</span></button>
-        </div>
-        <!-- Distance sub-tools -->
-        <div id="subDist" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #EF9F27">
-          <button id="btnDistPP"  onclick="setDistMode('pp')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="dist_pp">↔ Point to point</button>
-          <button id="btnDistCE"  onclick="setDistMode('ce')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="dist_ce">⊕ Center to edge (sym.)</button>
-          <button id="btnDistPL"  onclick="setDistMode('pl')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⊥ Point to line</button>
-          <button id="btnDistLL"  onclick="setDistMode('ll')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">∥ Line to line</button>
-        </div>
-        <!-- Diameter sub-tools -->
-        <div id="subDiam" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #5DCAA5">
-          <button id="btnDiamCR"  onclick="setDiamMode('cr')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="diam_cr">⊙ Center + radius</button>
-          <button id="btnDiam3P"  onclick="setDiamMode('3p')"  style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="diam_3p">◉ 3 points on perimeter</button>
-          <button id="btnDiamArc" onclick="setDiamMode('arc')" style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer" data-i18n="diam_arc">⌒ Arc length</button>
-        </div>
-        <div class="btn-row">
-          <button id="btnAngle" onclick="doAngle()" disabled style="flex:1;font-size:11px">∠ Angle <span class="kbd">A</span></button>
-          <button id="btnArea"  onclick="doArea()"  disabled style="flex:1;font-size:11px">⬡ Area <span class="kbd">R</span></button>
-        </div>
-        <!-- Angle sub-tools -->
-        <div id="subAngle" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #D4537E">
-          <button id="btnAngle3" onclick="setAngleMode('3p')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#D4537E;cursor:pointer">∠ 3 points (vertex)</button>
-          <button id="btnAngle4" onclick="setAngleMode('4p')" style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">∡ 4 points (2 lines)</button>
-        </div>
-        <!-- Area sub-tools -->
-        <div id="subArea" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #9F77DD">
-          <button id="btnAreaStr" onclick="setSegMode('area','straight')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#9F77DD;cursor:pointer">— Straight segments</button>
-          <button id="btnAreaBez" onclick="setSegMode('area','bezier')"   style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⌒ Bezier segments</button>
-        </div>
-        <div class="btn-row">
-          <button id="btnPerim" onclick="doPerim()" disabled style="flex:1;font-size:11px"><svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>Path <span class="kbd">P</span></button>
-          <button id="btnNote"  onclick="doNote()"  disabled style="flex:1;font-size:11px"><span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>Note <span class="kbd">N</span></button>
-        </div>
-        <!-- Path sub-tools -->
-        <div id="subPerim" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #F0994A">
-          <button id="btnPerimStr" onclick="setSegMode('perim','straight')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#F0994A;cursor:pointer">— Straight segments</button>
-          <button id="btnPerimBez" onclick="setSegMode('perim','bezier')"   style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⌒ Bezier segments</button>
-        </div>
-        <div class="btn-row">
-          <button id="btnPtCoord" onclick="doPtCoord()" disabled style="flex:1;font-size:11px">⊙ Pt Coord</button>
-        </div>
-        <!-- Point coordinate sub-tools -->
-        <div id="subPtCoord" style="display:none;flex-direction:column;gap:3px;padding:3px 0 3px 8px;border-left:2px solid #5DCAA5">
-          <button id="btnSetOrigin" onclick="setPtCoordMode('origin')" style="flex:1;font-size:10px;text-align:left;background:none;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#aaa;cursor:pointer">⊕ Set origin</button>
-          <button id="btnPlacePoint" onclick="setPtCoordMode('point')" style="flex:1;font-size:10px;text-align:left;background:#2a2a2a;border:0.5px solid #333;border-radius:4px;padding:4px 8px;color:#5DCAA5;cursor:pointer">⊙ Place point</button>
-        </div>
-      </div>
+    <div class="group g-view" aria-label="View">
+      <button type="button" class="tbtn toggle" id="btnZoom" onclick="toggleZoom()" disabled data-tip="Pan &amp; zoom (Z)" aria-label="Pan and zoom"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m9 6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg></button>
+      <button type="button" class="tbtn toggle" id="btnMag" onclick="toggleMag()" disabled data-tip="Zoom cursor / magnifier (C)" aria-label="Zoom cursor"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4M11 8v6M8 11h6"/></svg></button>
+      <button type="button" class="tbtn toggle" id="btnSnap" onclick="toggleSnap()" disabled data-tip="Edge detection snapping" aria-label="Edge detection"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 18 4" stroke-dasharray="2.5 2.5"/><circle cx="11" cy="11" r="3.2"/><path d="M11 5v2M11 15v2M5 11h2M15 11h2"/></svg></button>
+      <button type="button" class="tbtn toggle" id="btnPtSnap" onclick="togglePtSnap()" disabled data-tip="Snap to existing points" aria-label="Snap to points"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button>
     </div>
 
-    <div style="flex:1;min-height:0;overflow-y:auto">
-      <!-- Daily measurement counter (free users only) -->
-      <div id="dailyCounter"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <div class="slbl" style="margin-bottom:0" data-i18n="RESULTS">RESULTS <span id="measCount" style="color:#888;font-weight:500"></span></div>
-        <div style="display:flex;align-items:center;gap:4px">
-          <div id="resultsActions" style="display:none;gap:4px">
-            <button onclick="copyAllMeasurements()" title="Copy all values" style="font-size:9px;padding:2px 6px;background:#2a2a2a;border:0.5px solid #444;border-radius:4px;color:#c0c0c0;cursor:pointer;white-space:nowrap;line-height:1.6">Copy all</button>
-            <button onclick="deleteAllMeasurements()" title="Delete all measurements" style="font-size:9px;padding:2px 6px;background:#2a2a2a;border:0.5px solid #444;border-radius:4px;color:#c0c0c0;cursor:pointer;white-space:nowrap;line-height:1.6">Del. all</button>
-          </div>
-        </div>
-      </div>
-      <div id="resList"></div>
-      <div id="noRes" style="font-size:12px;color:#555" data-i18n="no_meas">No measurements yet</div>
+    <div class="spacer"></div>
+
+    <div class="group g-export" aria-label="Export">
+      <span class="glabel">EXPORT</span>
+      <button type="button" class="tbtn" id="btnExport" onclick="exportImg()" disabled data-tip="Export annotated image"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span class="lbl">Image</span></button>
+      <button type="button" class="tbtn" id="btnExportCSV" onclick="exportCSV()" disabled data-tip="Export measurements as CSV"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></svg><span class="lbl">CSV</span></button>
+      <button type="button" class="tbtn" id="btnExportPDF" onclick="exportPDF()" disabled data-tip="Export PDF report"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span class="lbl">PDF</span></button>
+      <button type="button" class="tbtn" id="btnExportDXF" onclick="exportDXF()" disabled data-tip="Export DXF for CAD (scaled geometry, one layer per tool)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 20 4" opacity=".45"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/><path d="M4 4h7v7H4z"/><path d="M13 20a7 7 0 0 1 7-7"/></svg><span class="lbl">DXF</span></button>
     </div>
 
-    <div>
+    <div class="group g-plan free-only" aria-label="Plan">
+      <button type="button" class="tbtn gopro" id="btnGoPro" onclick="showProModal('topbar')" data-tip="Unlimited measurements every day">✦ <span class="plbl">Go Pro</span><span class="plbl-s">Pro</span></button>
+    </div>
+    <div class="group g-theme" aria-label="Preferences">
+      <button type="button" class="tbtn" id="btnTheme" onclick="toggleTheme()" data-tip="Light / dark theme" aria-label="Toggle light or dark theme"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="moon" d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg></button>
+    </div>
+    <div class="group g-more">
+      <button type="button" class="tbtn" id="btnResults" onclick="mOpenSheet('resPanel')" aria-label="Results" data-tip="Results"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg><span id="mResCount" class="count"></span></button>
+      <button type="button" class="tbtn" id="btnMenu" onclick="mOpenSheet('mMenu')" aria-label="Menu" aria-haspopup="dialog" data-tip="More: view, image, export, settings"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </header>
 
-      <div style="margin-bottom:4px">
-        <button id="btnExport" onclick="exportImg()" disabled style="width:100%;margin-bottom:6px">Export annotated image</button>
-        <div class="btn-row">
-          <button id="btnExportCSV" onclick="exportCSV()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">CSV</button>
-          <button id="btnExportPDF" onclick="exportPDF()" disabled style="display:flex;align-items:center;justify-content:left;gap:4px;white-space:nowrap">PDF report</button>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button id="btnSaveProject" onclick="saveProject()" disabled style="flex:1;font-size:11px" data-i18n="save_proj">Save project</button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:1;font-size:11px" data-i18n="load_proj">Load</button>
-      </div>
+  <!-- ===== Tool options bar ===== -->
+  <div id="optbar" class="no-dz" role="toolbar" aria-label="Tool options">
+    <div id="optTool"><span id="optToolIcon"></span><span id="optToolName">No tool</span></div>
+    <div class="opt-sep"></div>
+    <div id="optIdle"></div>
+    <div id="subDist" class="seg" style="display:none">
+      <button type="button" class="seg-btn" id="btnDistPP" onclick="setDistMode('pp')"><span data-i18n="dist_pp">Point to point</span></button>
+      <button type="button" class="seg-btn" id="btnDistCE" onclick="setDistMode('ce')"><span data-i18n="dist_ce">Center to edge (sym.)</span></button>
+      <button type="button" class="seg-btn" id="btnDistPL" onclick="setDistMode('pl')"><span>Point to line</span></button>
+      <button type="button" class="seg-btn" id="btnDistLL" onclick="setDistMode('ll')"><span>Line to line</span></button>
+    </div>
+    <div id="subDiam" class="seg" style="display:none">
+      <button type="button" class="seg-btn" id="btnDiamCR" onclick="setDiamMode('cr')"><span data-i18n="diam_cr">Center + radius</span></button>
+      <button type="button" class="seg-btn" id="btnDiam3P" onclick="setDiamMode('3p')"><span data-i18n="diam_3p">3 points on perimeter</span></button>
+      <button type="button" class="seg-btn" id="btnDiamArc" onclick="setDiamMode('arc')"><span data-i18n="diam_arc">Arc length</span></button>
+    </div>
+    <div id="subAngle" class="seg" style="display:none">
+      <button type="button" class="seg-btn" id="btnAngle3" onclick="setAngleMode('3p')"><span>3 points (vertex)</span></button>
+      <button type="button" class="seg-btn" id="btnAngle4" onclick="setAngleMode('4p')"><span>4 points (2 lines)</span></button>
+    </div>
+    <div id="subArea" class="seg" style="display:none">
+      <button type="button" class="seg-btn" id="btnAreaStr" onclick="setSegMode('area','straight')"><span>Straight segments</span></button>
+      <button type="button" class="seg-btn" id="btnAreaBez" onclick="setSegMode('area','bezier')"><span>Bezier segments</span></button>
+    </div>
+    <div id="subPerim" class="seg" style="display:none">
+      <button type="button" class="seg-btn" id="btnPerimStr" onclick="setSegMode('perim','straight')"><span>Straight segments</span></button>
+      <button type="button" class="seg-btn" id="btnPerimBez" onclick="setSegMode('perim','bezier')"><span>Bezier segments</span></button>
+    </div>
+    <div id="subPtCoord" class="seg" style="display:none">
+      <button type="button" class="seg-btn" id="btnSetOrigin" onclick="setPtCoordMode('origin')"><span>Set origin</span></button>
+      <button type="button" class="seg-btn" id="btnPlacePoint" onclick="setPtCoordMode('point')"><span>Place point</span></button>
+    </div>
+    <div id="straightenStatus" style="display:none">
+      Click the <span id="stCornerLabel" style="font-weight:600">top-left</span> corner &nbsp;<span id="stDots">○ ○ ○ ○</span>
+    </div>
+    <button type="button" class="tbtn tbtn-text primary" id="optDone" onclick="optDone()" style="display:none">Done</button>
+    <div id="straightenApplyRow" style="display:none">
+      <button type="button" class="tbtn tbtn-text primary" onclick="applyStraighten()" data-i18n="apply">Apply</button>
+      <button type="button" class="tbtn tbtn-text" onclick="cancelStraighten()">Cancel</button>
     </div>
   </div>
 
@@ -951,7 +1504,7 @@
     <div id="canvasPad">
 
     <!-- Mobile sub-tool row — absolute overlay so it never resizes the canvas -->
-    <div id="mobileSubRow" style="display:none;position:absolute;top:0;left:0;right:0;z-index:19;background:#1e1e1e;border-bottom:0.5px solid #2a2a2a;overflow-x:auto;scrollbar-width:none;">
+    <div id="mobileSubRow" style="display:none;position:absolute;top:0;left:0;right:0;z-index:19;background:var(--panel);border-bottom:0.5px solid var(--border-soft);overflow-x:auto;scrollbar-width:none;">
       <div id="mobileSubScroll" style="display:flex;gap:4px;padding:5px 8px;min-width:max-content;">
       </div>
     </div>
@@ -977,94 +1530,113 @@
     <div id="hint"></div>
     <div id="toast"></div>
 
-    <!-- Bottom area: feedback popup -->
-    <div id="bottomArea">
+    <!-- ===== Floating tool palette ===== -->
+    <nav id="toolbar" class="fpanel no-dz" aria-label="Measurement tools">
+      <button type="button" class="tool-btn" id="tbScale" onclick="doScale()" disabled data-tip="Set scale" data-key="S" aria-label="Set scale" style="--tc:#1D9E75"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 13-13 5 5L8 21z"/><path d="m7 12 2 2M10 9l1.5 1.5M13 6l2 2"/></svg><span class="tl">Scale</span></button>
+      <div class="tool-sep"></div>
+      <button type="button" class="tool-btn" id="btnMeasure" onclick="doMeasure()" disabled data-tip="Distance" data-key="L" aria-label="Distance" style="--tc:#EF9F27"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"/><path d="m7 9-3 3 3 3M17 9l3 3-3 3"/><path d="M4 6v12M20 6v12" opacity=".45"/></svg><span class="tl">Distance</span></button>
+      <button type="button" class="tool-btn" id="btnDiam" onclick="doDiam()" disabled data-tip="Diameter" data-key="D" aria-label="Diameter" style="--tc:#5DCAA5"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></svg><span class="tl">Diameter</span></button>
+      <button type="button" class="tool-btn" id="btnAngle" onclick="doAngle()" disabled data-tip="Angle" data-key="A" aria-label="Angle" style="--tc:#D4537E"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M4 20 14.5 5"/><path d="M10 20a6 6 0 0 0-2.5-4.9"/></svg><span class="tl">Angle</span></button>
+      <button type="button" class="tool-btn" id="btnArea" onclick="doArea()" disabled data-tip="Area" data-key="R" aria-label="Area" style="--tc:#9F77DD"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8.5 12 3.5l7 5-2.2 11H7.2z" fill="currentColor" fill-opacity=".18"/></svg><span class="tl">Area</span></button>
+      <button type="button" class="tool-btn" id="btnPerim" onclick="doPerim()" disabled data-tip="Path" data-key="P" aria-label="Path" style="--tc:#F0994A"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 18 5-11 5 8 6-11"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/><circle cx="20" cy="4" r="1.6" fill="currentColor"/></svg><span class="tl">Path</span></button>
+      <button type="button" class="tool-btn" id="btnPtCoord" onclick="doPtCoord()" disabled data-tip="Point XY" aria-label="Point XY" style="--tc:#5DCAA5"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3v17h17"/><path d="M15 9H4M15 9v11" stroke-dasharray="2 2.2" opacity=".6"/><circle cx="15" cy="9" r="2.2" fill="currentColor"/></svg><span class="tl">Point</span></button>
+      <button type="button" class="tool-btn" id="btnNote" onclick="doNote()" disabled data-tip="Note" data-key="N" aria-label="Note" style="--tc:#E8C93A"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7V5h14v2M12 5v14M9 19h6"/></svg><span class="tl">Note</span></button>
+      <div class="tool-sep sep-persp"></div>
+      <button type="button" class="tool-btn" id="btnStraighten" onclick="doStraighten()" disabled data-tip="Perspective correction" aria-label="Perspective correction" style="--tc:#9F77DD"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5h10l3.5 14h-17z"/><path d="M7 5l13.5 14M17 5 3.5 19" stroke-dasharray="2 2.5" opacity=".5"/></svg><span class="tl">Persp.</span></button>
+    </nav>
 
-      <!-- Feedback popup -->
-      <div id="feedbackPopup">
-        <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:10px;white-space:nowrap">
-          <button onclick="openFeedback()" style="background:none;border:none;cursor:pointer;padding:0;font-size:11px;color:#666;white-space:nowrap;font-family:inherit;transition:color .15s" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'" data-i18n="feedback">Share feedback</button>
-          <span style="color:#333;font-size:11px">|</span>
-          <select id="langSelect" onchange="setLang(this.value)" style="background:#1e1e1e;border:0.5px solid #333;border-radius:4px;color:#666;font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit;outline:none">
-            <option value="en">EN</option>
-            <option value="fr">FR</option>
-            <option value="es">ES</option>
-            <option value="de">DE</option>
-            <option value="it">IT</option>
-          </select>
-          <span style="color:#333;font-size:11px">|</span>
-          <button onclick="closeFeedbackPopup()" style="background:none;border:none;cursor:pointer;color:#555;font-size:14px;line-height:1;padding:0 2px;transition:color .15s;font-family:inherit" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#555'">×</button>
+    <!-- ===== Floating results panel ===== -->
+    <section id="resPanel" class="fpanel no-dz" aria-label="Results">
+      <header class="fp-head">
+        <span data-i18n="RESULTS">RESULTS</span><span id="measCount" class="badge"></span>
+        <span class="sp"></span>
+        <div id="resultsActions" style="display:none">
+          <button type="button" class="mini" onclick="copyAllMeasurements()" title="Copy all values">Copy all</button>
+          <button type="button" class="mini" onclick="deleteAllMeasurements()" title="Delete all measurements">Clear</button>
         </div>
+        <button type="button" class="fp-x" id="resToggle" onclick="toggleResPanel()" aria-label="Collapse results" title="Collapse / expand"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      </header>
+      <div class="fp-body">
+        <div id="dailyCounter"></div>
+        <div id="resList"></div>
+        <div id="noRes" data-i18n="no_meas">No measurements yet</div>
       </div>
+    </section>
 
+    <!-- ===== Zoom controls ===== -->
+    <div id="zoomCtl" class="fpanel no-dz" aria-label="Zoom">
+      <button type="button" class="zbtn" onclick="zoomStep(1/1.25)" data-tip="Zoom out" aria-label="Zoom out"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+      <span id="zoomPct">–</span>
+      <button type="button" class="zbtn" onclick="zoomStep(1.25)" data-tip="Zoom in" aria-label="Zoom in"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button type="button" class="zbtn" onclick="zoomFit()" data-tip="Fit to screen" aria-label="Fit to screen"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
 
     <!-- Feedback modal -->
 
     <!-- Privacy Policy modal -->
     <div id="privacyModal" class="modal-overlay" style="background:rgba(0,0,0,.7);z-index:2500;align-items:flex-start;padding:20px;overflow-y:auto" onclick="if(event.target===this)hidePrivacyModal()">
-      <div style="background:#1a1a1a;border:0.5px solid #333;border-radius:12px;padding:28px 26px 24px;width:100%;max-width:640px;margin:auto;font-family:system-ui,-apple-system,sans-serif;position:relative">
+      <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:12px;padding:28px 26px 24px;width:100%;max-width:640px;margin:auto;font-family:system-ui,-apple-system,sans-serif;position:relative">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-          <span style="font-size:15px;font-weight:600;color:#e0e0e0">Privacy Policy</span>
+          <span style="font-size:15px;font-weight:600;color:var(--text)">Privacy Policy</span>
           <button onclick="hidePrivacyModal()" aria-label="Close"
-            style="background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#aaa;width:22px;height:22px;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s"
+            style="background:var(--panel-2);border:0.5px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text-soft);width:22px;height:22px;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s"
             onmouseenter="this.style.background='#e24b4b';this.style.color='#fff';this.style.borderColor='#e24b4b'"
             onmouseleave="this.style.background='#2a2a2a';this.style.color='#aaa';this.style.borderColor='#3a3a3a'">&#xd7;</button>
         </div>
-        <div style="font-size:11px;color:#555;margin-bottom:20px">Mesuro · mesu.ro · Last updated: 2026-05-08</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:20px">Mesuro · mesu.ro · Last updated: 2026-05-08</div>
 
-        <p style="font-size:13px;color:#888;margin-bottom:16px">Mesuro is a free online image measurement tool. This page explains exactly what data we process, why, and for how long. We comply with GDPR / RGPD.</p>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:16px">Mesuro is a free online image measurement tool. This page explains exactly what data we process, why, and for how long. We comply with GDPR / RGPD.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">1. Your images and measurements stay on your device</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:12px">All image processing, scale calibration, and measurement happens locally in your browser. <strong style="color:#ccc">Your images, PDFs, project files, and measurements are never uploaded to any server.</strong> They are not transmitted, stored, indexed, or shared.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">1. Your images and measurements stay on your device</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">All image processing, scale calibration, and measurement happens locally in your browser. <strong style="color:var(--text)">Your images, PDFs, project files, and measurements are never uploaded to any server.</strong> They are not transmitted, stored, indexed, or shared.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">2. Daily-limit enforcement (free tier)</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:8px">The free tier is limited to 20 measurements per day per device. To enforce this without requiring an account, we generate a privacy-preserving device fingerprint hash (FingerprintJS open source). This hash is sent to our Cloudflare Worker along with the current measurement count.</p>
-        <ul style="margin:4px 0 12px 18px;font-size:13px;color:#888">
-          <li style="margin-bottom:5px"><strong style="color:#ccc">What we store:</strong> the fingerprint hash, a date key (your local day), and the measurement count.</li>
-          <li style="margin-bottom:5px"><strong style="color:#ccc">What we do NOT store:</strong> your IP address, image contents, measurements, name, or email.</li>
-          <li style="margin-bottom:5px"><strong style="color:#ccc">Retention:</strong> automatically deleted after ~48 hours. No profiles, no cross-day tracking.</li>
-          <li><strong style="color:#ccc">Legal basis:</strong> legitimate interest (GDPR Art. 6(1)(f)).</li>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">2. Daily-limit enforcement (free tier)</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:8px">The free tier is limited to 20 measurements per day per device. To enforce this without requiring an account, we generate a privacy-preserving device fingerprint hash (FingerprintJS open source). This hash is sent to our Cloudflare Worker along with the current measurement count.</p>
+        <ul style="margin:4px 0 12px 18px;font-size:13px;color:var(--text-soft)">
+          <li style="margin-bottom:5px"><strong style="color:var(--text)">What we store:</strong> the fingerprint hash, a date key (your local day), and the measurement count.</li>
+          <li style="margin-bottom:5px"><strong style="color:var(--text)">What we do NOT store:</strong> your IP address, image contents, measurements, name, or email.</li>
+          <li style="margin-bottom:5px"><strong style="color:var(--text)">Retention:</strong> automatically deleted after ~48 hours. No profiles, no cross-day tracking.</li>
+          <li><strong style="color:var(--text)">Legal basis:</strong> legitimate interest (GDPR Art. 6(1)(f)).</li>
         </ul>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">3. Local browser storage</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:12px">We use <code style="background:#222;padding:1px 4px;border-radius:3px">localStorage</code> to remember your daily measurement count, Pro license key, and UI preferences. This data lives entirely on your device and is not accessible to us.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">3. Local browser storage</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">We use <code style="background:var(--panel-2);padding:1px 4px;border-radius:3px">localStorage</code> to remember your daily measurement count, Pro license key, and UI preferences. This data lives entirely on your device and is not accessible to us.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">4. Payments (Mesuro Pro)</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:12px">Payments are processed by <a href="https://www.lemonsqueezy.com/legal/privacy" target="_blank" rel="noopener" style="color:#5a9fff">LemonSqueezy</a>, the merchant of record. We never see your card data. After purchase, your license key is validated against their API.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">4. Payments (Mesuro Pro)</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Payments are processed by <a href="https://www.lemonsqueezy.com/legal/privacy" target="_blank" rel="noopener" style="color:#5a9fff">LemonSqueezy</a>, the merchant of record. We never see your card data. After purchase, your license key is validated against their API.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">5. Anonymous usage analytics</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:12px">We use <a href="https://umami.is/" target="_blank" rel="noopener" style="color:#5a9fff">Umami</a> — no cookies, no IP storage, no user profiles. It records aggregate metrics (page views, anonymous feature interactions) so we can improve the product.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">5. Anonymous usage analytics</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">We use <a href="https://umami.is/" target="_blank" rel="noopener" style="color:#5a9fff">Umami</a> — no cookies, no IP storage, no user profiles. It records aggregate metrics (page views, anonymous feature interactions) so we can improve the product.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">6. No tracking, no advertising</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:12px">Mesuro contains no advertising trackers, no Google Analytics, no Facebook pixels, no marketing cookies. We do not sell or share data for advertising purposes.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">6. No tracking, no advertising</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">Mesuro contains no advertising trackers, no Google Analytics, no Facebook pixels, no marketing cookies. We do not sell or share data for advertising purposes.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">7. Your rights (GDPR / RGPD)</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:12px">You have the right to access, correct, delete, or restrict the processing of your personal data. The most direct way to exercise your rights is to clear your browser data. For paid-customer requests, contact us below.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">7. Your rights (GDPR / RGPD)</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:12px">You have the right to access, correct, delete, or restrict the processing of your personal data. The most direct way to exercise your rights is to clear your browser data. For paid-customer requests, contact us below.</p>
 
-        <h2 style="font-size:13px;font-weight:600;color:#e0e0e0;margin:20px 0 8px">8. Contact</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:20px">For privacy questions or GDPR requests: <a href="mailto:hello@mesu.ro" style="color:#5a9fff">hello@mesu.ro</a><br>Or use the <a href="#" onclick="hidePrivacyModal();openFeedback();return false;" style="color:#5a9fff">feedback &amp; contact form</a>.</p>
+        <h2 style="font-size:13px;font-weight:600;color:var(--text);margin:20px 0 8px">8. Contact</h2>
+        <p style="font-size:13px;color:var(--text-soft);margin-bottom:20px">For privacy questions or GDPR requests: <a href="mailto:hello@mesu.ro" style="color:#5a9fff">hello@mesu.ro</a><br>Or use the <a href="#" onclick="hidePrivacyModal();openFeedback();return false;" style="color:#5a9fff">feedback &amp; contact form</a>.</p>
 
-        <div style="border-top:0.5px solid #2a2a2a;padding-top:16px;text-align:right">
-          <button onclick="hidePrivacyModal()" style="font-size:12px;padding:6px 16px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Close</button>
+        <div style="border-top:0.5px solid var(--border-soft);padding-top:16px;text-align:right">
+          <button onclick="hidePrivacyModal()" style="font-size:12px;padding:6px 16px;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Close</button>
         </div>
       </div>
     </div>
     <div id="feedbackModal" class="modal-overlay" style="background:rgba(0,0,0,.6)">
-      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
+      <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:12px;padding:24px;width:340px;max-width:90vw;font-family:system-ui,-apple-system,sans-serif">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <span style="font-size:14px;font-weight:500;color:#e0e0e0" data-i18n="feedback_title">Feedback &amp; Contact</span>
+          <span style="font-size:14px;font-weight:500;color:var(--text)" data-i18n="feedback_title">Feedback &amp; Contact</span>
           <button onclick="closeFeedback()" aria-label="Close"
-            style="background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#aaa;width:22px;height:22px;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s"
+            style="background:var(--panel-2);border:0.5px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text-soft);width:22px;height:22px;font-size:14px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s,border-color .15s"
             onmouseenter="this.style.background='#e24b4b';this.style.color='#fff';this.style.borderColor='#e24b4b'"
             onmouseleave="this.style.background='#2a2a2a';this.style.color='#aaa';this.style.borderColor='#3a3a3a'">×</button>
         </div>
         <form id="feedbackForm" action="https://formspree.io/f/mvzvpyad" method="POST" onsubmit="submitFeedback(event)">
-          <textarea name="message" id="feedbackText" data-i18n-placeholder="feedback_placeholder" placeholder="What could be improved? What do you use Mesuro for?" required style="width:100%;height:100px;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
-          <input type="email" name="email" data-i18n-placeholder="email_optional" placeholder="Your email (optional)" style="width:100%;background:#141414;border:0.5px solid #333;border-radius:6px;color:#d0d0d0;font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
+          <textarea name="message" id="feedbackText" data-i18n-placeholder="feedback_placeholder" placeholder="What could be improved? What do you use Mesuro for?" required style="width:100%;height:100px;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;padding:10px;box-sizing:border-box;resize:vertical;outline:none;margin-bottom:10px"></textarea>
+          <input type="email" name="email" data-i18n-placeholder="email_optional" placeholder="Your email (optional)" style="width:100%;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;padding:8px 10px;box-sizing:border-box;outline:none;margin-bottom:12px">
           <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button type="button" onclick="closeFeedback()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
-            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit" data-i18n="send">Send</button>
+            <button type="button" onclick="closeFeedback()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid var(--border);border-radius:6px;color:var(--text-soft);cursor:pointer;font-family:inherit">Cancel</button>
+            <button type="submit" id="feedbackSubmit" style="font-size:12px;padding:6px 14px;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit" data-i18n="send">Send</button>
           </div>
         </form>
         <div id="feedbackThanks" style="display:none;text-align:center;padding:12px 0;font-size:13px;color:#1D9E75" data-i18n="thanks_feedback">Thanks for your feedback!</div>
@@ -1072,41 +1644,41 @@
     </div>
     <!-- PDF page picker modal -->
     <div id="pdfModal" class="modal-overlay" style="background:rgba(0,0,0,.6)">
-      <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:12px;padding:24px;width:460px;max-width:94vw;font-family:system-ui,-apple-system,sans-serif">
-        <div style="font-size:14px;font-weight:500;color:#e0e0e0;margin-bottom:4px">PDF — select pages</div>
-        <div id="pdfPageCount" style="font-size:12px;color:#555;margin-bottom:14px"></div>
+      <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:12px;padding:24px;width:460px;max-width:94vw;font-family:system-ui,-apple-system,sans-serif">
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px">PDF — select pages</div>
+        <div id="pdfPageCount" style="font-size:12px;color:var(--text-muted);margin-bottom:14px"></div>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <button id="pdfPagePrev" onclick="pdfChangePage(-1)" style="flex:0 0 36px;height:36px;font-size:18px;background:#2a2a2a;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">‹</button>
+          <button id="pdfPagePrev" onclick="pdfChangePage(-1)" style="flex:0 0 36px;height:36px;font-size:18px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">‹</button>
           <div style="flex:1;text-align:center">
-            <div id="pdfThumb" style="background:#111;border-radius:6px;overflow:hidden;margin-bottom:8px;display:flex;align-items:center;justify-content:center;min-height:120px">
+            <div id="pdfThumb" style="background:var(--field);border-radius:6px;overflow:hidden;margin-bottom:8px;display:flex;align-items:center;justify-content:center;min-height:120px">
               <canvas id="pdfThumbCanvas" style="max-width:100%;max-height:240px;display:block"></canvas>
             </div>
-            <div style="font-size:12px;color:#888">Page <span id="pdfPageNum">1</span> / <span id="pdfPageTotal">?</span></div>
+            <div style="font-size:12px;color:var(--text-soft)">Page <span id="pdfPageNum">1</span> / <span id="pdfPageTotal">?</span></div>
           </div>
-          <button id="pdfPageNext" onclick="pdfChangePage(1)" style="flex:0 0 36px;height:36px;font-size:18px;background:#2a2a2a;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">›</button>
+          <button id="pdfPageNext" onclick="pdfChangePage(1)" style="flex:0 0 36px;height:36px;font-size:18px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s" onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#2a2a2a'">›</button>
         </div>
         <!-- selection options -->
         <div id="pdfMultiOptions" style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#aaa;cursor:pointer">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-soft);cursor:pointer">
             <input type="checkbox" id="pdfSelectCurrent" checked onchange="pdfUpdateSelection()" style="accent-color:#1D9E75">
             <span>Page <span id="pdfSelNum">1</span> only</span>
           </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#aaa;cursor:pointer;margin-left:auto">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-soft);cursor:pointer;margin-left:auto">
             <input type="checkbox" id="pdfSelectAll" onchange="pdfToggleAll()" style="accent-color:#1D9E75">
             Load all <span id="pdfAllCount"></span> pages
           </label>
         </div>
         <div id="pdfRangeRow" style="display:none;margin-bottom:10px">
-          <div style="font-size:11px;color:#555;margin-bottom:5px">Custom range (e.g. 1,3,5-8):</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px">Custom range (e.g. 1,3,5-8):</div>
           <input type="text" id="pdfRangeInput" placeholder="1,3,5-8" oninput="pdfUpdateSelection()"
-            style="width:100%;background:#141414;border:0.5px solid #444;border-radius:6px;color:#d0d0d0;font-size:12px;padding:6px 10px;outline:none;font-family:inherit">
+            style="width:100%;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:6px 10px;outline:none;font-family:inherit">
         </div>
-        <div id="pdfSelSummary" style="font-size:11px;color:#555;margin-bottom:12px;min-height:14px"></div>
+        <div id="pdfSelSummary" style="font-size:11px;color:var(--text-muted);margin-bottom:12px;min-height:14px"></div>
         <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-          <button id="pdfRangeBtn" onclick="togglePdfRange()" style="font-size:11px;color:#555;background:none;border:0.5px solid #444;border-radius:6px;padding:5px 10px;cursor:pointer;font-family:inherit">Custom range</button>
+          <button id="pdfRangeBtn" onclick="togglePdfRange()" style="font-size:11px;color:var(--text-muted);background:none;border:0.5px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-family:inherit">Custom range</button>
           <div style="display:flex;gap:8px">
-            <button onclick="closePdfModal()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid #444;border-radius:6px;color:#888;cursor:pointer;font-family:inherit">Cancel</button>
-            <button onclick="pdfLoadSelected()" id="pdfLoadBtn" style="font-size:12px;padding:6px 14px;background:#1D9E75;border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Load <span id="pdfLoadBtnCount">1</span> page(s)</button>
+            <button onclick="closePdfModal()" style="font-size:12px;padding:6px 14px;background:none;border:0.5px solid var(--border);border-radius:6px;color:var(--text-soft);cursor:pointer;font-family:inherit">Cancel</button>
+            <button onclick="pdfLoadSelected()" id="pdfLoadBtn" style="font-size:12px;padding:6px 14px;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">Load <span id="pdfLoadBtnCount">1</span> page(s)</button>
           </div>
         </div>
       </div>
@@ -1123,7 +1695,7 @@
           <button onclick="cancelScale()" style="width:auto">Cancel</button>
           <button class="btn-confirm" onclick="confirmScale()" style="width:auto" data-i18n="set_scale_btn">Set scale</button>
         </div>
-        <div id="scaleBatchRow" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid #333;">
+        <div id="scaleBatchRow" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);">
           <button id="scaleBatchBtn" onclick="confirmScale(true)" style="width:100%;background:rgba(201,145,58,.1);border:0.5px solid rgba(201,145,58,.4);border-radius:6px;color:#C9913A;font-size:12px;padding:7px 14px;cursor:pointer;font-family:inherit;text-align:center;" data-i18n="batch_scale_btn">Set scale for all pages</button>
         </div>
       </div>
@@ -1143,32 +1715,21 @@
     </div>
   </div>
 
-  <!-- view panel (desktop only) -->
-  <div id="vpWrap" class="vp-open">
-    <div id="vpTab" onclick="toggleViewPanel()" title="Toggle view options"><span id="vpTabText">Hide Options</span></div>
-    <div id="vpButtons">
-      <button id="btnMag"    onclick="toggleMag()"    disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">◎ Zoom cursor</button>
-      <button id="btnZoom"   onclick="toggleZoom()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">⊕ Pan &amp; zoom</button>
-      <button id="btnSnap"   onclick="toggleSnap()"   disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Detect edges for snapping">⌖ Edge detect</button>
-      <button id="btnPtSnap" onclick="togglePtSnap()" disabled style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Snap to existing measurement points">◎ Snap point</button>
-    </div>
-  </div>
-
   <!-- Mobile horizontal filmstrip (below canvas, above bottom bar) — mobile only -->
   <div id="mobileFilmstrip"></div>
 
   <!-- mobile bottom bar — last measure always visible (hidden on desktop) -->
   <div id="mobileBar">
-    <div id="mLastChip" style="background:#222;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
-      <span id="mLastIcon" style="font-size:10px;color:#333;">—</span>
+    <div id="mLastChip" style="background:var(--panel-2);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">
+      <span id="mLastIcon" style="font-size:10px;color:var(--text-muted);">—</span>
     </div>
     <div style="flex:1;min-width:0;">
-      <div id="mLastVal" style="font-size:13px;font-weight:500;color:#333;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">No measurements yet</div>
-      <div id="mLastSub" style="font-size:9px;color:#444;margin-top:1px;"></div>
+      <div id="mLastVal" style="font-size:13px;font-weight:500;color:var(--text-muted);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">No measurements yet</div>
+      <div id="mLastSub" style="font-size:9px;color:var(--text-muted);margin-top:1px;"></div>
     </div>
     <div id="mDailyCounter" onclick="if(this.classList.contains('cap')) showProModal('counter')"></div>
-    <button id="mViewAllBtn" onclick="document.getElementById('mobileMeasSection').scrollIntoView({behavior:'smooth'})" style="visibility:hidden;width:62px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#252525;border:none;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">View all</button>
-    <label id="mLoadLabel" for="mFileInput" style="width:72px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;background:#252525;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;font-family:inherit;">Load</label>
+    <button id="mViewAllBtn" onclick="document.getElementById('mobileMeasSection').scrollIntoView({behavior:'smooth'})" style="visibility:hidden;width:62px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--panel-2);border:none;border-radius:6px;font-size:11px;color:var(--text-soft);cursor:pointer;font-family:inherit;">View all</button>
+    <label id="mLoadLabel" for="mFileInput" style="width:72px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:4px;background:var(--panel-2);border-radius:6px;font-size:11px;color:var(--text-soft);cursor:pointer;font-family:inherit;">Load</label>
   </div>
 
   <!-- hidden inputs for mobile, kept for JS refs -->
@@ -1181,7 +1742,7 @@
 
   <div id="adUnit" style="position:fixed;bottom:24px;right:24px;width:230px;z-index:100;pointer-events:all;display:none">
 
-    <div style="background:#1e1e1e;border:0.5px solid #333;border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.5)">
+    <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.5)">
       <div style="background:#2a2a3a;width:100%;height:90px;display:flex;align-items:center;justify-content:center">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <rect x="6" y="14" width="36" height="20" rx="3" stroke="#5a7fbf" stroke-width="1.5"/>
@@ -1196,13 +1757,78 @@
           <line x1="29" y1="24" x2="31" y2="24" stroke="#5a7fbf" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
-      <div style="padding:8px 10px 4px;font-size:11px;color:#999;line-height:1.5">Digital calipers — measure to 0.01mm. Engineers trust Mitutoyo.</div>
-      <div style="padding:0 10px 8px;font-size:9px;color:#444;letter-spacing:.04em">ads via Carbon</div>
+      <div style="padding:8px 10px 4px;font-size:11px;color:var(--text-soft);line-height:1.5">Digital calipers — measure to 0.01mm. Engineers trust Mitutoyo.</div>
+      <div style="padding:0 10px 8px;font-size:9px;color:var(--text-muted);letter-spacing:.04em">ads via Carbon</div>
     </div>
   </div>
   <div id="filmstrip"></div>
 
 </div>
+
+  <!-- ===== Menu sheet (phones: bottom sheet · tablets: popover) ===== -->
+  <div id="mSheetBack" class="no-dz" onclick="mCloseSheets()"></div>
+  <section id="mMenu" class="msheet no-dz" role="dialog" aria-modal="true" aria-label="Menu">
+    <header class="msheet-head"><span>Menu</span><button type="button" class="fp-x" onclick="mCloseSheets()" aria-label="Close menu"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+    <div class="msheet-body">
+      <div class="msec m-phone"><div class="mlbl">Plan</div><div id="mPlanCard" class="plan-card"></div></div>
+      <div class="msec m-phone"><div class="mlbl">Export</div><div class="mgrid">
+        <button type="button" class="mitem needs-img" id="mExportImg" onclick="mAct(exportImg)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span>Image</span></button>
+        <button type="button" class="mitem needs-img" id="mExportPdf" onclick="mAct(exportPDF)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>PDF</span></button>
+        <button type="button" class="mitem needs-img" id="mExportCsv" onclick="mAct(exportCSV)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></svg><span>CSV</span></button>
+        <button type="button" class="mitem needs-img" id="mExportDxf" onclick="mAct(exportDXF)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 20 4" opacity=".45"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/><path d="M4 4h7v7H4z"/><path d="M13 20a7 7 0 0 1 7-7"/></svg><span>DXF</span></button>
+      </div></div>
+      <div class="msec m-phone"><div class="mlbl">File</div><div class="mgrid">
+        <label class="mitem" for="mFileInput" onclick="mCloseSheets()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z"/><path d="M12 10v6M9 13l3-3 3 3"/></svg><span>Open image</span></label>
+        <button type="button" class="mitem needs-img" id="mSaveProj" onclick="mAct(saveProject)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h11l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 1-2z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg><span>Save project</span></button>
+        <button type="button" class="mitem" id="mLoadProj" onclick="mAct(()=>document.getElementById('projectInput').click())"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><path d="M12 4v11M8 11l4 4 4-4"/></svg><span>Open project</span></button>
+      </div></div>
+      <div class="msec"><div class="mlbl">Image &amp; scale</div><div class="mgrid">
+        <button type="button" class="mitem needs-img m-rotate" id="mRotate" onclick="mAct(()=>rotateImg(90))"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span>Rotate 90°</span></button>
+        <button type="button" class="mitem needs-orig" id="mRestore" onclick="mAct(restoreOriginal)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg><span>Original image</span></button>
+        <button type="button" class="mitem needs-multi" id="mScaleAll" onclick="mAct(applyScaleToAllPages)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg><span>Scale → all pages</span></button>
+        <button type="button" class="mitem needs-scale" id="mScaleVis" onclick="mAct(()=>setScaleVisibleAll(!anyVisibleScalePage()))"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show / hide scale</span></button>
+      </div></div>
+      <div class="msec"><div class="mlbl">View</div><div class="mgrid">
+        <button type="button" class="mitem needs-img m-wide tog" id="mPan" onclick="mAct(toggleZoom)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m9 6 3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg><span>Pan &amp; zoom</span></button>
+        <button type="button" class="mitem needs-img tog" id="mMag" onclick="mAct(toggleMag)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4M11 8v6M8 11h6"/></svg><span>Magnifier</span></button>
+        <button type="button" class="mitem needs-img tog" id="mPtSnap" onclick="mAct(togglePtSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg><span>Snap to points</span></button>
+        <button type="button" class="mitem needs-img m-wide tog" id="mEdge" onclick="mAct(toggleSnap)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 18 4" stroke-dasharray="2.5 2.5"/><circle cx="11" cy="11" r="3.2"/><path d="M11 5v2M11 15v2M5 11h2M15 11h2"/></svg><span>Edge snapping</span></button>
+        <button type="button" class="mitem" id="mTheme" onclick="mAct(toggleTheme)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 1 1 10 3.5a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span>Light / dark</span></button>
+      </div></div>
+      <div class="mfoot m-phone">
+        <a href="../">Home</a><a href="../faq/">FAQ</a>
+        <a href="#" onclick="mCloseSheets();showPrivacyModal();return false;">Privacy</a>
+        <a href="#" onclick="mCloseSheets();openFeedback();return false;">Feedback</a>
+        <select id="mLangSelect" onchange="setLang(this.value)" aria-label="Language">
+          <option value="en">EN</option><option value="fr">FR</option><option value="es">ES</option><option value="de">DE</option><option value="it">IT</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section id="planSheet" class="msheet no-dz" role="dialog" aria-modal="true" aria-label="Your plan">
+    <header class="msheet-head"><span>Your plan</span><button type="button" class="fp-x" onclick="mCloseSheets()" aria-label="Close">✕</button></header>
+    <div class="msheet-body"><div id="planBody" class="plan-card"></div></div>
+  </section>
+
+  <!-- ===== Status bar (desktop) ===== -->
+  <footer id="statusbar" class="no-dz">
+    <span class="sb-item"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Files stay on your device</span></span>
+    <span class="sb-item" id="sbPage"></span>
+    <span class="sb-item" id="sbPlan"></span>
+    <span class="spacer"></span>
+    <a href="../">Home</a>
+    <a href="../faq/">FAQ</a>
+    <a href="#" onclick="showPrivacyModal();return false;">Privacy</a>
+    <button type="button" class="sb-link" onclick="openFeedback()" data-i18n="feedback">Share feedback</button>
+    <select id="langSelect" onchange="setLang(this.value)" aria-label="Language">
+      <option value="en">EN</option>
+      <option value="fr">FR</option>
+      <option value="es">ES</option>
+      <option value="de">DE</option>
+      <option value="it">IT</option>
+    </select>
+  </footer>
 
 </div>
 
@@ -1212,39 +1838,39 @@
   (LS_CHECKOUT_MONTHLY / LS_CHECKOUT_YEARLY). See worker/SETUP.md for how to fill them in.
 -->
 <div id="proModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:16px;width:100%;max-width:420px;padding:24px 22px 20px;position:relative;animation:gateCardIn .22s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
-    <button onclick="hideProModal('dismiss')" style="position:absolute;top:14px;right:14px;width:26px;height:26px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#888;font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#888';this.style.background='#2a2a2a'">×</button>
+  <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:420px;padding:24px 22px 20px;position:relative;animation:gateCardIn .22s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
+    <button onclick="hideProModal('dismiss')" style="position:absolute;top:14px;right:14px;width:26px;height:26px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text-soft);font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#888';this.style.background='#2a2a2a'">×</button>
 
     <div style="font-size:9px;letter-spacing:.14em;color:#2563eb;font-weight:700;margin-bottom:8px;">MESURO PRO</div>
-    <div style="font-size:20px;font-weight:700;color:#e8e8e8;margin-bottom:6px;padding-right:30px;line-height:1.3;">Unlimited measurements, every day</div>
-    <div id="proModalSub" style="font-size:13px;color:#888;line-height:1.5;margin-bottom:18px;">Pick the plan that fits how you work.</div>
+    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;padding-right:30px;line-height:1.3;">Unlimited measurements, every day</div>
+    <div id="proModalSub" style="font-size:13px;color:var(--text-soft);line-height:1.5;margin-bottom:18px;">Pick the plan that fits how you work.</div>
 
     <!-- Pricing cards -->
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
 
       <!-- Monthly -->
-      <a id="proPlanMonthly" href="#" class="lemonsqueezy-button" data-plan="monthly" onclick="t('gate_click_monthly')" style="display:block;text-decoration:none;background:#181818;border:0.5px solid #2a2a2a;border-radius:10px;padding:14px 16px;transition:border-color .15s,background .15s;" onmouseenter="this.style.borderColor='#3a3a3a';this.style.background='#1f1f1f'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#181818'">
+      <a id="proPlanMonthly" href="#" class="lemonsqueezy-button" data-plan="monthly" onclick="t('gate_click_monthly')" style="display:block;text-decoration:none;background:var(--panel);border:0.5px solid var(--border-soft);border-radius:10px;padding:14px 16px;transition:border-color .15s,background .15s;" onmouseenter="this.style.borderColor='#3a3a3a';this.style.background='#1f1f1f'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#181818'">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:2px;">Monthly</div>
-            <div style="font-size:11px;color:#666;">Cancel anytime</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">Monthly</div>
+            <div style="font-size:11px;color:var(--text-muted);">Cancel anytime</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:20px;font-weight:700;color:#e8e8e8;line-height:1;">$9.99<span style="font-size:11px;color:#666;font-weight:500;margin-left:2px;">/mo</span></div>
+            <div style="font-size:20px;font-weight:700;color:var(--text);line-height:1;">$9.99<span style="font-size:11px;color:var(--text-muted);font-weight:500;margin-left:2px;">/mo</span></div>
           </div>
         </div>
       </a>
 
       <!-- Yearly (highlighted) -->
-      <a id="proPlanYearly" href="#" class="lemonsqueezy-button" data-plan="yearly" onclick="t('gate_click_yearly')" style="display:block;text-decoration:none;background:#181818;border:1px solid #2563eb;border-radius:10px;padding:14px 16px;position:relative;">
+      <a id="proPlanYearly" href="#" class="lemonsqueezy-button" data-plan="yearly" onclick="t('gate_click_yearly')" style="display:block;text-decoration:none;background:var(--panel);border:1px solid #2563eb;border-radius:10px;padding:14px 16px;position:relative;">
         <span style="position:absolute;top:-8px;right:14px;background:#2563eb;color:#fff;font-size:9px;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:2px 6px;">SAVE 25%</span>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:2px;">Yearly</div>
-            <div style="font-size:11px;color:#888;">$7.42/mo, billed annually</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">Yearly</div>
+            <div style="font-size:11px;color:var(--text-soft);">$7.42/mo, billed annually</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:20px;font-weight:700;color:#e8e8e8;line-height:1;">$89<span style="font-size:11px;color:#666;font-weight:500;margin-left:2px;">/yr</span></div>
+            <div style="font-size:20px;font-weight:700;color:var(--text);line-height:1;">$89<span style="font-size:11px;color:var(--text-muted);font-weight:500;margin-left:2px;">/yr</span></div>
           </div>
         </div>
       </a>
@@ -1253,16 +1879,16 @@
 
     <!-- Feature list -->
     <div style="display:grid;grid-template-columns:1fr;gap:6px 10px;margin-bottom:14px;">
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Unlimited measurements</div>
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>No daily cap or reset wait</div>
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Same local-only workflow</div>
+      <div style="font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Unlimited measurements</div>
+      <div style="font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>No daily cap or reset wait</div>
+      <div style="font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Same local-only workflow</div>
     </div>
 
-    <button onclick="hideProModal('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:#666;font-family:inherit;padding:6px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Maybe later</button>
+    <button onclick="hideProModal('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);font-family:inherit;padding:6px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Maybe later</button>
     <button onclick="toggleProKeyInput();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;opacity:.75;transition:opacity .15s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.75'">Have a license key?</button>
     <div id="proKeyArea" style="display:none;margin-top:10px;">
-      <input id="proKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:6px;color:#e0e0e0;font-size:12px;padding:8px 10px;font-family:inherit;outline:none;margin-bottom:6px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
-      <button id="proKeyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:6px;color:#fff;font-size:12px;padding:9px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
+      <input id="proKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:8px 10px;font-family:inherit;outline:none;margin-bottom:6px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
+      <button id="proKeyBtn" onclick="doVerifyLicense()" style="width:100%;background:var(--accent-fill);border:none;border-radius:6px;color:#fff;font-size:12px;padding:9px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
       <div id="proKeyError" style="font-size:11px;color:#e24b4b;margin-top:6px;display:none;"></div>
     </div>
   </div>
@@ -1270,66 +1896,278 @@
 
 <!-- PDF title modal -->
 <div id="pdfTitleModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:14px;width:100%;max-width:380px;padding:22px 22px 20px;position:relative;animation:gateCardIn .2s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
-    <button onclick="closePdfTitleModal()" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#666;font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#666';this.style.background='#2a2a2a'">×</button>
-    <div style="font-size:9px;letter-spacing:.12em;color:#555;font-weight:600;margin-bottom:10px;">EXPORT PDF</div>
-    <div style="font-size:16px;font-weight:700;color:#e8e8e8;margin-bottom:16px;padding-right:20px;">Name your document</div>
+  <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:14px;width:100%;max-width:380px;padding:22px 22px 20px;position:relative;animation:gateCardIn .2s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
+    <button onclick="closePdfTitleModal()" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text-muted);font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#666';this.style.background='#2a2a2a'">×</button>
+    <div style="font-size:9px;letter-spacing:.12em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">EXPORT PDF</div>
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;padding-right:20px;">Name your document</div>
     <!-- Title field -->
     <div style="margin-bottom:12px;">
-      <label style="display:block;font-size:10px;letter-spacing:.08em;color:#555;font-weight:600;margin-bottom:6px;">DOCUMENT TITLE</label>
-      <input id="pdfTitleInput" type="text" style="width:100%;box-sizing:border-box;background:#141414;border:0.5px solid #333;border-radius:8px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
-      <div style="font-size:10px;color:#444;margin-top:5px;">Appears as the document heading in the PDF</div>
+      <label style="display:block;font-size:10px;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">DOCUMENT TITLE</label>
+      <input id="pdfTitleInput" type="text" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">Appears as the document heading in the PDF</div>
     </div>
     <!-- Note toggle -->
     <div id="pdfNoteToggleRow" style="margin-bottom:4px;">
-      <button onclick="togglePdfNote()" id="pdfNoteToggleBtn" style="background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:0;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">+ Add a note</button>
+      <button onclick="togglePdfNote()" id="pdfNoteToggleBtn" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);font-family:inherit;padding:0;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">+ Add a note</button>
     </div>
     <!-- Note field (hidden by default) -->
     <div id="pdfNoteArea" style="display:none;margin-bottom:12px;margin-top:8px;">
-      <label style="display:block;font-size:10px;letter-spacing:.08em;color:#555;font-weight:600;margin-bottom:6px;">NOTE <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#444;">(optional)</span></label>
-      <input id="pdfNoteInput" type="text" placeholder="e.g. client name, address, job number…" style="width:100%;box-sizing:border-box;background:#141414;border:0.5px solid #333;border-radius:8px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
+      <label style="display:block;font-size:10px;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">NOTE <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--text-muted);">(optional)</span></label>
+      <input id="pdfNoteInput" type="text" placeholder="e.g. client name, address, job number…" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
     </div>
     <!-- Actions -->
     <div style="display:flex;gap:8px;margin-top:16px;">
-      <button onclick="closePdfTitleModal()" style="flex:1;background:#252525;border:0.5px solid #333;border-radius:8px;color:#888;font-size:12px;font-weight:500;padding:10px 0;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseenter="this.style.background='#2e2e2e'" onmouseleave="this.style.background='#252525'">Cancel</button>
-      <button onclick="confirmPdfExport()" style="flex:2;background:#1D9E75;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 0;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Export PDF →</button>
+      <button onclick="closePdfTitleModal()" style="flex:1;background:var(--panel-2);border:0.5px solid var(--border);border-radius:8px;color:var(--text-soft);font-size:12px;font-weight:500;padding:10px 0;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseenter="this.style.background='#2e2e2e'" onmouseleave="this.style.background='#252525'">Cancel</button>
+      <button onclick="confirmPdfExport()" style="flex:2;background:var(--accent-fill);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 0;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Export PDF →</button>
     </div>
   </div>
 </div>
 
 <!-- Mobile utility section (shown only below the app on small screens) -->
-<div id="mobileSupportSection" style="max-width:860px;margin:0 auto;padding:28px 20px 40px;font-family:system-ui,-apple-system,sans-serif;color:#bbb;line-height:1.8">
+<div id="mobileSupportSection" style="max-width:860px;margin:0 auto;padding:28px 20px 40px;font-family:system-ui,-apple-system,sans-serif;color:var(--text-soft);line-height:1.8">
 
   <div id="mobileMeasSection" style="display:none;margin-bottom:24px;">
-    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-bottom:10px;">MEASUREMENTS</div>
+    <div style="font-size:10px;color:var(--text-muted);letter-spacing:.08em;margin-bottom:10px;">MEASUREMENTS</div>
     <div id="mMeasList" style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px;"></div>
-    <div id="mMeasEmpty" style="font-size:13px;color:#333;margin-bottom:16px;">No measurements yet.</div>
-    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin:20px 0 10px;">EXPORT</div>
+    <div id="mMeasEmpty" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">No measurements yet.</div>
+    <div style="font-size:10px;color:var(--text-muted);letter-spacing:.08em;margin:20px 0 10px;">EXPORT</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
+      <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
       <div style="display:flex;gap:8px;">
-        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report</button>
-        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV</button>
+        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">PDF report</button>
+        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">CSV</button>
+        <button id="mExpDxf" onclick="exportDXF()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">DXF</button>
       </div>
-      <div style="height:0.5px;background:#2a2a2a;margin:4px 0;"></div>
+      <div style="height:0.5px;background:var(--panel-2);margin:4px 0;"></div>
       <div style="display:flex;gap:8px;">
-        <button id="mExpSave" onclick="saveProject()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Save .mesuro</button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro</button>
+        <button id="mExpSave" onclick="saveProject()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">Save .mesuro</button>
+        <button onclick="document.getElementById('projectInput').click()" style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">Load .mesuro</button>
       </div>
     </div>
   </div>
 
-  <div style="font-size:11px;color:#444;text-align:center">
+  <div style="font-size:11px;color:var(--text-muted);text-align:center">
     Mesuro app
     <span style="margin:0 8px;color:#222;">?</span>
-    <a href="../" style="color:#666;text-decoration:none;">Home</a>
+    <a href="../" style="color:var(--text-muted);text-decoration:none;">Home</a>
     <span style="margin:0 8px;color:#222;">?</span>
-    <a href="../faq/" style="color:#666;text-decoration:none;">FAQ</a>
+    <a href="../faq/" style="color:var(--text-muted);text-decoration:none;">FAQ</a>
     <span style="margin:0 8px;color:#222;">?</span>
-    <a href="#" onclick="showPrivacyModal();return false;" style="color:#666;text-decoration:none;">Privacy</a>
+    <a href="#" onclick="showPrivacyModal();return false;" style="color:var(--text-muted);text-decoration:none;">Privacy</a>
   </div>
 </div>
 
+<script>
+/* ── Beta UI shell: option bar, theme, results panel, zoom controls ── */
+function _updOptbar(st) {
+  const bar = document.getElementById('optbar');
+  if (!bar) return;
+  let key = null;
+  if (st.isSc) key = 'tbScale';
+  else if (st.isMeas || st.isPtLine) key = 'btnMeasure';
+  else if (st.isDiam) key = 'btnDiam';
+  else if (st.isAngle) key = 'btnAngle';
+  else if (st.isArea) key = 'btnArea';
+  else if (st.isPerim) key = 'btnPerim';
+  else if (st.isPtCoordMode) key = 'btnPtCoord';
+  else if (st.isNote) key = 'btnNote';
+  else if (st.isSt) key = 'btnStraighten';
+  const nameEl = document.getElementById('optToolName');
+  const iconEl = document.getElementById('optToolIcon');
+  const idle = document.getElementById('optIdle');
+  const b = key && document.getElementById(key);
+  if (b) {
+    const ic = b.querySelector('svg');
+    iconEl.innerHTML = ic ? ic.outerHTML : '';
+    iconEl.style.color = b.style.getPropertyValue('--tc') || '';
+    nameEl.textContent = b.dataset.tip || '';
+    bar.classList.add('has-tool');
+    if (isMob()) {                                    // once per device: how touch works with tools
+      let seen = false; try { seen = localStorage.getItem('mesu_touch_tip') === '1'; } catch (e) {}
+      if (!seen) {
+        try { localStorage.setItem('mesu_touch_tip', '1'); } catch (e) {}
+        setTimeout(() => showToast('Tap to place · Drag or pinch to move · Hold to aim', 4200), 300);
+      }
+    }
+  } else {
+    iconEl.innerHTML = '';
+    nameEl.textContent = st.hasImg ? 'No tool selected' : 'Get started';
+    bar.classList.remove('has-tool');
+  }
+  let html = '';
+  if (!st.hasImg) html = 'Open an image or PDF (top left), or drop a file on the canvas. Everything stays on your device.';
+  else if (!key) html = (st.hasSc ? '' : '<b>First:</b> set the scale <kbd>S</kbd> so results are in real units. &nbsp;·&nbsp; ')
+    + 'Tools: <kbd>L</kbd> distance <kbd>D</kbd> diameter <kbd>A</kbd> angle <kbd>R</kbd> area <kbd>P</kbd> path <kbd>N</kbd> note &nbsp;·&nbsp; <kbd>Esc</kbd> stop &nbsp;·&nbsp; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo';
+  idle.innerHTML = html;
+  idle.style.display = html ? '' : 'none';
+  _updShellExtras(st);
+  const sp = document.getElementById('sbPage');
+  if (sp) sp.textContent = (pages && pages.length > 1) ? `Page ${currentPageIdx + 1} of ${pages.length}  ·  [ and ] to switch` : '';
+}
+
+
+/* ── Plan: free counter, Go Pro, license entry, Pro account ── */
+const LS_BILLING_URL = 'https://mesuro.lemonsqueezy.com/billing';   // customer portal: manage / cancel subscription
+let _lastRemaining = null;
+function openLicenseEntry(src) {
+  mCloseSheets();
+  showProModal(src || 'license');
+  const area = document.getElementById('proKeyArea');
+  if (area && area.style.display === 'none') toggleProKeyInput();
+}
+async function removeLicense() {
+  if (!confirm('Remove Mesuro Pro from this device?\nYou can enter your license key again at any time.')) return;
+  const key = localStorage.getItem('mesuro_license_key'), inst = localStorage.getItem('mesuro_instance_id');
+  if (key && inst) {                    // free the activation slot so the key can be used on another device
+    try {
+      await fetch('https://api.lemonsqueezy.com/v1/licenses/deactivate', {
+        method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'license_key=' + encodeURIComponent(key) + '&instance_id=' + encodeURIComponent(inst)
+      });
+    } catch (e) {}
+  }
+  t('pro_license_removed');
+  _revokePro(); mCloseSheets(); _lastRemaining = null;
+  showToast('Pro removed from this device');
+}
+function _planHTML() {
+  if (isPro) {
+    const key = localStorage.getItem('mesuro_license_key') || '';
+    return `<div class="plan-head"><span class="plan-title pro">✦ Mesuro Pro</span><span class="plan-pill">Active</span></div>
+      <div class="plan-sub">Unlimited measurements on this device${key ? ` · key ••••${key.slice(-4).replace(/[<>&"]/g, '')}` : ''}</div>
+      <div class="plan-actions">
+        <a class="plan-btn" href="${LS_BILLING_URL}" target="_blank" rel="noopener">Manage subscription</a>
+        <button type="button" class="plan-link danger" onclick="removeLicense()">Remove from this device</button>
+      </div>`;
+  }
+  const r = _dailyRemaining(), capped = _dailyCapped();
+  const sub = capped ? `Daily limit reached · resets in ${_formatResetIn(_msUntilLocalMidnight())}`
+                     : `${r} of ${FREE_DAILY_LIMIT} free measurements left today`;
+  return `<div class="plan-head"><span class="plan-title">Free plan</span></div>
+    <div class="plan-sub ${capped ? 'cap' : r <= 3 ? 'warn' : ''}">${sub}</div>
+    <div class="plan-meter"><i style="width:${Math.round(100 * (FREE_DAILY_LIMIT - r) / FREE_DAILY_LIMIT)}%"></i></div>
+    <div class="plan-actions">
+      <button type="button" class="plan-btn pro" onclick="mAct(()=>showProModal('plan_card'))">✦ Go Pro — unlimited</button>
+      <button type="button" class="plan-link" onclick="openLicenseEntry('plan_card')">Have a license key?</button>
+    </div>`;
+}
+function _renderPlan() {
+  const html = _planHTML();
+  ['mPlanCard', 'planBody'].forEach(id => { const el = document.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; });
+  const sb = document.getElementById('sbPlan');
+  if (sb) {
+    if (isPro) sb.innerHTML = `<button type="button" class="sb-link sb-pro" onclick="mOpenSheet('planSheet')">✦ Mesuro Pro</button>`;
+    else {
+      const r = _dailyRemaining(), capped = _dailyCapped();
+      sb.innerHTML = `<span class="${capped ? 'cap' : r <= 3 ? 'warn' : ''}">${capped ? 'Daily limit reached' : `${r} of ${FREE_DAILY_LIMIT} free left today`}</span>`
+        + `<button type="button" class="sb-link sb-pro" onclick="showProModal('statusbar')">Go Pro</button>`
+        + `<button type="button" class="sb-link" onclick="openLicenseEntry('statusbar')">Enter key</button>`;
+    }
+  }
+  // heads-up as the free allowance runs low (only when it changes during use, not on page load)
+  if (!isPro) {
+    const r = _dailyRemaining();
+    if (_lastRemaining !== null && r < _lastRemaining && (r === 3 || r === 1))
+      setTimeout(() => showToast(`${r} free measurement${r > 1 ? 's' : ''} left today`, 2600), 900);
+    _lastRemaining = r;
+  }
+}
+
+/* ── Sheets (phone bottom sheets; menu is a popover on tablets) ── */
+function _isSheetLayout() { return window.innerWidth <= 767; }
+function mOpenSheet(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const wasOpen = el.classList.contains('m-open');
+  mCloseSheets();
+  if (wasOpen) return;
+  if (id === 'resPanel' && !_isSheetLayout()) {            // wider screens: results is the floating panel
+    el.classList.remove('collapsed'); try { localStorage.setItem('mesu_res_collapsed', false); } catch (e) {}
+    return;
+  }
+  el.classList.add('m-open');
+  document.body.classList.add('sheet-open');
+  const f = el.querySelector('button, [href], select, label'); if (f) f.focus({ preventScroll: true });
+}
+function mCloseSheets() {
+  document.querySelectorAll('.m-open').forEach(e => e.classList.remove('m-open'));
+  document.body.classList.remove('sheet-open');
+}
+function mAct(fn) { mCloseSheets(); if (typeof fn === 'function') fn(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('sheet-open')) { mCloseSheets(); e.stopPropagation(); } }, true);
+
+/* Finish button for multi-point tools (touch has no Enter key) */
+function optDone() {
+  if (mode === 'pa' && areaPts.length >= 3) closeArea();
+  else if (mode === 'pp' && areaPts.length >= 2) saveOpenPath();
+}
+function _updDone() {
+  const d = document.getElementById('optDone');
+  if (!d) return;
+  const show = (mode === 'pa' && areaPts.length >= 3) || (mode === 'pp' && areaPts.length >= 2);
+  d.style.display = show ? '' : 'none';
+  d.textContent = mode === 'pa' ? 'Close area' : 'Finish path';
+  const bar = document.getElementById('optbar');
+  if (bar) bar.classList.toggle('has-subs', show || bar.classList.contains('_subs'));
+}
+
+function _updShellExtras(st) {
+  // option bar: does the active tool have choices to show?
+  const bar = document.getElementById('optbar');
+  if (bar) {
+    const subs = [...bar.querySelectorAll('.seg, #straightenStatus, #straightenApplyRow')].some(e => e.style.display !== 'none');
+    bar.classList.toggle('_subs', subs);
+    bar.classList.toggle('has-subs', subs);
+  }
+  _updDone();
+  // results count on the phone top bar
+  const rc = document.getElementById('mResCount');
+  if (rc) { const n = meas.length; if (rc.textContent !== String(n || '')) { rc.textContent = n || ''; if (n) { rc.classList.remove('bump'); void rc.offsetWidth; rc.classList.add('bump'); } } }
+  // menu items
+  const multi = pages && pages.length > 1;
+  document.querySelectorAll('#mMenu .needs-img').forEach(b => b.disabled = !st.hasImg);
+  const mr = document.getElementById('mRestore'); if (mr) mr.disabled = !(originalImg && originalImg !== img);
+  const ms = document.getElementById('mScaleAll'); if (ms) ms.disabled = !(st.hasSc && multi);
+  const mv = document.getElementById('mScaleVis'); if (mv) mv.disabled = !st.hasSc;
+  const tog = (id, on) => { const b = document.getElementById(id); if (b) b.classList.toggle('on', !!on); };
+  tog('mPan', zoomEnabled); tog('mMag', magEnabled); tog('mPtSnap', ptSnapEnabled); tog('mEdge', snapEnabled);
+  const ml = document.getElementById('mLangSelect'); if (ml && typeof currentLang !== 'undefined') ml.value = currentLang;
+  _renderPlan();
+  document.body.classList.toggle('has-img', !!st.hasImg);
+  document.body.classList.toggle('multi-page', !!multi);
+}
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('mesu_theme', next); } catch (e) {}
+  if (typeof img !== 'undefined' && img) draw();
+}
+
+function toggleResPanel() {
+  if (_isSheetLayout()) { mCloseSheets(); return; }
+  const p = document.getElementById('resPanel');
+  if (!p) return;
+  const collapsed = p.classList.toggle('collapsed');
+  try { localStorage.setItem('mesu_res_collapsed', collapsed); } catch (e) {}
+}
+
+function _fitZoomMin() { return Math.min(cp.clientWidth / img.width, cp.clientHeight / img.height, 1); }
+function zoomStep(f) {
+  if (!img) return;
+  if (!zoomEnabled) toggleZoom();          // zooming in only makes sense if the view can be panned
+  const cx = cp.clientWidth / 2, cy = cp.clientHeight / 2;
+  const nz = Math.max(_fitZoomMin(), Math.min(20, zoom * f));
+  panX = cx - (cx - panX) * (nz / zoom);
+  panY = cy - (cy - panY) * (nz / zoom);
+  zoom = nz; clampPan(); draw();
+}
+function zoomFit() { if (img) fitImg(); }
+function _updZoomLabel() {
+  const z = document.getElementById('zoomPct');
+  if (z) z.textContent = (typeof img !== 'undefined' && img) ? Math.round(zoom * 100) + '%' : '–';
+}
+</script>
 <script>
 
 /* ── roundRect polyfill for iOS Safari < 15.4 ── */
@@ -1700,7 +2538,9 @@ function applyLang() {
   // Load image label — multi-image is free now, always plural
   const loadLabelTxtEl = document.getElementById('loadLabelTxt');
   if (loadLabelTxtEl) {
-    loadLabelTxtEl.textContent = tr.load_img || 'Load image(s) or PDF';
+    loadLabelTxtEl.textContent = 'Open';
+    const ll = document.getElementById('loadLabel');
+    if (ll) ll.dataset.tip = tr.load_img || 'Open image(s) or PDF';
   }
   // Drop zone
   const dzMain = document.getElementById('dzMain');
@@ -1716,30 +2556,27 @@ function applyLang() {
     const _hasSc = !!scFactor;
     btnScale.textContent = _isSc ? tr.scale_cancel : (_hasSc ? tr.scale_reset : tr.scale_set);
   }
-  // tool buttons
-  if (btnMeasure) btnMeasure.innerHTML = `↔ ${tr.distance} <span class="kbd">L</span>`;
-  if (btnDiam)    btnDiam.innerHTML    = `⌀ ${tr.diameter} <span class="kbd">D</span>`;
-  if (btnAngle)   btnAngle.innerHTML   = `∠ ${tr.angle} <span class="kbd">A</span>`;
-  if (btnArea)    btnArea.innerHTML    = `⬡ ${tr.area} <span class="kbd">R</span>`;
+  // tool buttons — icon-only palette: translate the tooltip, keep the SVG icon
+  const _tip = (el, label) => {
+    if (!el || !label) return;
+    el.dataset.tip = label; el.setAttribute('aria-label', label);
+    const tl = el.querySelector('.tl'); if (tl) tl.textContent = label;     // short label under the icon (phones)
+  };
+  _tip(btnMeasure, tr.distance);
+  _tip(btnDiam,    tr.diameter);
+  _tip(btnAngle,   tr.angle);
+  _tip(btnArea,    tr.area);
+  _tip(btnPerim,   tr.path);
   if (btnUndo)    btnUndo.innerHTML    = `${tr.undo} <span class="kbd">Ctrl+Z</span>`;
   if (btnClear)   btnClear.textContent = tr.clear_all;
-  // btnPerim — keep SVG
-  const pathSvg2 = `<svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>`;
-  if (btnPerim)   { btnPerim.innerHTML = `${pathSvg2}${tr.path} <span class="kbd">P</span>`; btnPerim.style.cssText='flex:1;font-size:11px'; }
   // note button
-  const btnNt2 = document.getElementById('btnNote');
-  if (btnNt2) btnNt2.innerHTML = `<span style="position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px">Aa</span>${tr.note} <span class="kbd">N</span>`;
-  // zoom buttons
-  if (btnZoom) btnZoom.textContent = tr.pan_zoom;
-  if (btnMag)  btnMag.textContent  = tr.zoom_cursor;
-  const btnSnap2 = document.getElementById('btnSnap');
-  if (btnSnap2) btnSnap2.textContent = tr.edge_snap||'⌖ Edge detect';
-  // restore btn
-  const btnRst2 = document.getElementById('btnRestoreOriginal');
-  if (btnRst2) btnRst2.textContent = tr.original;
-  // save/load project
-  const bsp = document.getElementById('btnSaveProject');
-  if (bsp) bsp.textContent = tr.save_proj;
+  // Labels in the translation table carry a leading glyph ("⊕ Pan & zoom"); tooltips use the words only
+  const _words = v => (v || '').replace(/^[^\p{L}\p{N}]+/u, '');
+  _tip(document.getElementById('btnNote'), tr.note);
+  _tip(btnZoom, _words(tr.pan_zoom) + ' (Z)');
+  _tip(btnMag,  _words(tr.zoom_cursor) + ' (C)');
+  _tip(document.getElementById('btnSnap'), _words(tr.edge_snap) || 'Edge detection snapping');
+  _tip(document.getElementById('btnRestoreOriginal'), _words(tr.original));
   // note modal placeholder
   const nti = document.getElementById('noteText');
   if (nti) nti.placeholder = tr.note_placeholder;
@@ -1876,7 +2713,7 @@ let meas = [], pLine = null, hovIdx = -1, history = [];
 
 /* ── Pro license ── */
 let isPro = !!localStorage.getItem('mesuro_license_key');
-if (isPro) { document.body.classList.add('is-pro'); const lt = document.getElementById('loadLabelTxt'); if (lt) lt.textContent = 'Load image(s) or PDF'; }
+if (isPro) { document.body.classList.add('is-pro'); }
 
 /* ── LemonSqueezy checkout URLs ──
    Configure these after creating the Monthly and Yearly subscription products
@@ -2215,7 +3052,7 @@ document.getElementById('projectInput').onchange = e => { if (e.target.files[0])
 
 ca.addEventListener('dragover', e => { e.preventDefault(); ca.style.outline='2px solid #1D9E75'; });
 ca.addEventListener('click', e => {
-  if (e.target.closest('#bottomArea') || e.target.closest('.modal-overlay') || e.target.closest('#filmstrip') || e.target.closest('#vpWrap')) return;
+  if (e.target.closest('.no-dz') || e.target.closest('.modal-overlay') || e.target.closest('#filmstrip') || e.target.closest('#vpWrap')) return;
   const pm = document.getElementById('proModal');
   if (pm && pm.style.display !== 'none') return;
   if (!pages.length) { document.getElementById('fileInput').click(); }
@@ -3196,6 +4033,8 @@ document.addEventListener('keydown', e => {
     if ((e.key==='a'||e.key==='A')&&img) doAngle();
     if ((e.key==='n'||e.key==='N')&&img) doNote();
     if ((e.key==='p'||e.key==='P')&&img) doPerim();
+    if ((e.key==='r'||e.key==='R')&&img) doArea();
+    if ((e.key==='s'||e.key==='S')&&img) doScale();
     if ((e.key==='z'||e.key==='Z')&&img) toggleZoom();
     if ((e.key==='c'||e.key==='C')&&img) toggleMag();
     if (e.key==='0'&&img) resetZoom();
@@ -3298,12 +4137,9 @@ function setDiamMode(m) {
   window._lastDiamMode = m;
 
   p0=null; p1=null; mp=null; clearHint();
-  document.getElementById('btnDiamCR').style.background  = m==='cr'  ? '#2a2a2a' : 'none';
-  document.getElementById('btnDiam3P').style.background  = m==='3p'  ? '#2a2a2a' : 'none';
-  document.getElementById('btnDiamArc').style.background = m==='arc' ? '#2a2a2a' : 'none';
-  document.getElementById('btnDiamCR').style.color  = m==='cr'  ? '#5DCAA5' : '#aaa';
-  document.getElementById('btnDiam3P').style.color  = m==='3p'  ? '#5DCAA5' : '#aaa';
-  document.getElementById('btnDiamArc').style.color = m==='arc' ? '#5DCAA5' : '#aaa';
+  document.getElementById('btnDiamCR').classList.toggle('on',  m==='cr');
+  document.getElementById('btnDiam3P').classList.toggle('on',  m==='3p');
+  document.getElementById('btnDiamArc').classList.toggle('on', m==='arc');
   if (m==='cr')  { mode='da';   setHint(L('h_diam_a')); }
   else if (m==='3p')  { mode='d3a';  setHint(L('h_d3a')); }
   else           { mode='arc1'; setHint(L('h_arc1')); }
@@ -3380,7 +4216,7 @@ function updStraightenUI() {
   if (!status || !btn) return;
 
   // toggle active color on button, keep SVG+text intact
-  btn.className = active ? 'btn-area-active' : '';
+  btn.classList.toggle('active', active);
 
   if (active) {
     status.style.display = 'block';
@@ -3606,10 +4442,9 @@ function setAngleMode(m) {
   window._lastAngleMode = m;
 
   p0=null; p1=null; mp=null; clearHint();
-  const c='#D4537E';
   const b3=document.getElementById('btnAngle3'), b4=document.getElementById('btnAngle4');
-  if(b3){b3.style.background=m==='3p'?'#2a2a2a':'none';b3.style.color=m==='3p'?c:'#aaa';}
-  if(b4){b4.style.background=m==='4p'?'#2a2a2a':'none';b4.style.color=m==='4p'?c:'#aaa';}
+  if(b3) b3.classList.toggle('on', m==='3p');
+  if(b4) b4.classList.toggle('on', m==='4p');
   if (m==='3p') { mode='aa'; setHint(L('h_angle_a')); }
   else          { mode='p4a'; setHint('Click 1st point of line A'); }
   draw(); updUI();
@@ -3623,8 +4458,7 @@ function setDistMode(m) {
   const btns = {pp:'btnDistPP',ce:'btnDistCE',pl:'btnDistPL',ll:'btnDistLL'};
   Object.entries(btns).forEach(([k,id])=>{
     const b=document.getElementById(id); if(!b)return;
-    b.style.background = m===k ? '#2a2a2a' : 'none';
-    b.style.color = m===k ? '#EF9F27' : '#aaa';
+    b.classList.toggle('on', m===k);
   });
   if (m==='pp')      { mode='ma';  setHint(L('h_dist_a')); }
   else if (m==='ce') { mode='ce1'; setHint(L('h_ce1')); }
@@ -3661,10 +4495,9 @@ function doPtCoord() {
 function setPtCoordMode(m) {
   ptCoordMode = m;
   p0=null; mp=null; clearHint();
-  const c='#5DCAA5';
   const bo=document.getElementById('btnSetOrigin'), bp=document.getElementById('btnPlacePoint');
-  if(bo){bo.style.background=m==='origin'?'#2a2a2a':'none';bo.style.color=m==='origin'?c:'#aaa';}
-  if(bp){bp.style.background=m==='point'?'#2a2a2a':'none';bp.style.color=m==='point'?c:'#5DCAA5';}
+  if(bo) bo.classList.toggle('on', m==='origin');
+  if(bp) bp.classList.toggle('on', m==='point');
   if (m==='origin') setHint('Click to set origin (0,0) — or press Escape to use image corner');
   else              setHint('Click to place coordinate points — Escape or Enter to finish');
   mode = 'ptc'; draw(); updUI();
@@ -3929,9 +4762,7 @@ function setSegMode(tool, segModeVal) {
   const btnBez  = document.getElementById(isArea ? 'btnAreaBez'  : 'btnPerimBez');
   [[btnStr, 'straight'], [btnBez, 'bezier']].forEach(([b,k]) => {
     if (!b) return;
-    const active = segModeVal===k;
-    b.style.background = active ? '#2a2a2a' : 'none';
-    b.style.color = active ? col : '#aaa';
+    b.classList.toggle('on', segModeVal===k);
   });
   // Analytics
 
@@ -4152,7 +4983,7 @@ function updUI() {
   // Daily measurement counter widget (free users only — at top of measurement list)
   _renderDailyCounter();
   const loadTxt = document.getElementById('loadLabelTxt');
-  if (loadTxt) loadTxt.textContent = 'Load image(s) or PDF';
+  if (loadTxt) loadTxt.textContent = 'Open';
   const hasImg=!!img, hasSc=!!scFactor;
   const isSc=mode==='sa'||mode==='sb'||mode==='wait';
   const isMeas=mode==='ma'||mode==='mb'||mode==='ce1'||mode==='ce2'||mode==='ll1'||mode==='ll2'||mode==='ll3';
@@ -4162,7 +4993,7 @@ function updUI() {
   const isPtCoordMode=mode==='ptc';
   const isArea=mode==='pa', isPerim=mode==='pp';
 
-  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
+  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnExportDXF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
   disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasImg);
   const btnScaleApplyAll = document.getElementById('btnScaleApplyAll');
   const btnScaleHideAll = document.getElementById('btnScaleHideAll');
@@ -4171,38 +5002,34 @@ function updUI() {
   if (btnScaleHideAll) btnScaleHideAll.disabled = !anyVisibleScalePage();
   if (btnScaleShowAll) btnScaleShowAll.disabled = !anyHiddenScalePage();
   const isNote=mode==='na';
-  const btnNtEl=document.getElementById('btnNote');
-  if(btnNtEl) btnNtEl.className=isNote?'btn-meas-active':''; btnNtEl.innerHTML=`<span style='position:relative;top:-1px;font-size:10px;font-weight:700;margin-right:3px;letter-spacing:-0.5px'>Aa</span>${L('note')} <span class='kbd'>N</span>`;
+  const _on = (el, on) => { if (el) el.classList.toggle('active', !!on); };
+  const _tog = (el, on) => { if (el) el.classList.toggle('on', !!on); };
+  _on(document.getElementById('btnNote'), isNote);
   const btnRst = document.getElementById('btnRestoreOriginal');
   if (btnRst) btnRst.disabled = !(originalImg && originalImg !== img);
   const btnSnap = document.getElementById('btnSnap');
-  if (btnSnap) { btnSnap.disabled = !hasImg; btnSnap.className = snapEnabled ? 'btn-tog-active' : ''; }
+  if (btnSnap) { btnSnap.disabled = !hasImg; _tog(btnSnap, snapEnabled); }
   const btnPtCoord = document.getElementById('btnPtCoord');
-  if (btnPtCoord) { btnPtCoord.disabled=!hasImg; btnPtCoord.className=isPtCoordMode?'btn-meas-active':''; }
+  if (btnPtCoord) { btnPtCoord.disabled=!hasImg; _on(btnPtCoord, isPtCoordMode); }
   const btnPtSnap = document.getElementById('btnPtSnap');
-  if (btnPtSnap) { btnPtSnap.disabled = !hasImg; btnPtSnap.className = ptSnapEnabled ? 'btn-tog-active' : ''; }
+  if (btnPtSnap) { btnPtSnap.disabled = !hasImg; _tog(btnPtSnap, ptSnapEnabled); }
+  const tbScale = document.getElementById('tbScale');
+  if (tbScale) { tbScale.disabled = !hasImg; _on(tbScale, isSc); }
+  const btnUndoTop = document.getElementById('btnUndoTop');
+  if (btnUndoTop) btnUndoTop.disabled = !hasImg || !history.length;
 
-  btnScale.className=isSc?'btn-scale-active':'';
+  _on(btnScale, isSc);
   btnScale.textContent=isSc?L('scale_cancel'):(hasSc?L('scale_reset'):L('scale_set'));
-  btnMeasure.className=isMeas?'btn-meas-active':'';
-  btnMeasure.innerHTML=isMeas?`↔ ${L('distance')} ◼`:`↔ ${L('distance')} <span class="kbd">L</span>`;
-  btnDiam.className=isDiam?'btn-diam-active':'';
-  btnDiam.innerHTML=isDiam?`⌀ ${L('diameter')} ◼`:`⌀ ${L('diameter')} <span class="kbd">D</span>`;
-  btnAngle.className=isAngle?'btn-angle-active':'';
-  btnMeasure.className=(isMeas||isPtLine)?'btn-meas-active':'';
-  btnAngle.innerHTML=isAngle?`∠ ${L('angle')} ◼`:`∠ ${L('angle')} <span class="kbd">A</span>`;
-  btnArea.className=isArea?'btn-area-active':'';
-  btnArea.innerHTML=isArea?`⬡ ${L('area')} ◼`:`⬡ ${L('area')} <span class="kbd">R</span>`;
-  const pathSvg = `<svg width="11" height="10" viewBox="0 0 64 56" fill="none" style="vertical-align:middle;margin-right:3px"><polyline points="4,52 18,6 36,34 52,10" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="52" r="7" fill="currentColor"/><circle cx="52" cy="10" r="7" fill="currentColor"/></svg>`;
-  btnPerim.className=isPerim?'btn-perim-active':'';
-  btnPerim.style.cssText='flex:1;font-size:11px';
-  btnPerim.innerHTML=isPerim?`${pathSvg}${L('path')} ◼`:`${pathSvg}${L('path')} <span class="kbd">P</span>`;
-  btnZoom.className=zoomEnabled?'btn-zoom-active':'';
-  btnZoom.textContent=`${zoomEnabled?'⊖':'⊕'} ${L('pan_zoom').slice(2)}`;
-  btnMag.className=magEnabled?'btn-tog-active':'';
-  btnMag.textContent=`${magEnabled?'◉':'◎'} ${L('zoom_cursor').slice(2)}`;
+  _on(btnMeasure, isMeas||isPtLine);
+  _on(btnDiam, isDiam);
+  _on(btnAngle, isAngle);
+  _on(btnArea, isArea);
+  _on(btnPerim, isPerim);
+  _tog(btnZoom, zoomEnabled);
+  _tog(btnMag, magEnabled);
 
   const activeTool=isMeas||isDiam||isAngle||isArea||isPerim||isSc||(mode==='st')||isNote||isPtLine||isPtCoordMode;
+  _updOptbar({isSc,isMeas,isPtLine,isDiam,isAngle,isArea,isPerim,isNote,isPtCoordMode,isSt:mode==='st',hasImg,hasSc});
   const isPointDragUI = mode==='drag' && dragState && dragState.idx>=0 && dragState.field!=='label';
   const isLabelDragUI = mode==='drag' && dragState && dragState.field==='label';
   cv.style.cursor=activeTool?(magEnabled?'none':'crosshair'):isLabelDragUI?'grab':isPointDragUI?'default':mode==='drag'?'grabbing':(mode==='st'?'crosshair':zoomEnabled?'grab':'default');
@@ -4210,7 +5037,7 @@ function updUI() {
   if (hasSc) { scaleStatus.textContent=`${(1/scFactor).toFixed(2)} px\u202f=\u202f1\u202f${scUnit}`; scaleStatus.style.color='#1D9E75'; scaleStatus.classList.add('has-scale'); scaleStatus.classList.remove('no-scale','has-img'); scaleStatus.title=''; }
   else { scaleStatus.textContent='pixel mode'; scaleStatus.style.color=''; scaleStatus.classList.remove('has-scale'); scaleStatus.classList.add('no-scale'); if(hasImg){scaleStatus.classList.add('has-img');scaleStatus.title='Measuring in pixels — click to set a real-world scale';}else{scaleStatus.classList.remove('has-img');scaleStatus.title='';} }
 
-  measCount.textContent=meas.length?`(${meas.length})`:'';
+  measCount.textContent=meas.length?`${meas.length}`:'';
   const ra = document.getElementById('resultsActions');
   if (ra) ra.style.display = meas.length >= 1 ? 'flex' : 'none';
   noRes.style.display=meas.length?'none':'block'; noRes.textContent=L('no_meas');
@@ -5746,7 +6573,7 @@ function updMobileFilmstrip() {
   if (!isMob()) return;
   const mfs = document.getElementById('mobileFilmstrip');
   if (!mfs) return;
-  if (pages.length === 0) { mfs.classList.remove('has-pages'); mfs.innerHTML = ''; return; }
+  if (pages.length < 2) { mfs.classList.remove('has-pages'); mfs.innerHTML = ''; return; }
   mfs.classList.add('has-pages');
   mfs.innerHTML = '';
   pages.forEach((p, i) => {
@@ -6017,6 +6844,176 @@ function exportCSV() {
   const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.csv`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 
+/* ── DXF export (AutoCAD R12 ASCII — opens in AutoCAD, LibreCAD, QCAD, Fusion, Inkscape…) ──
+   Every page becomes a block of geometry laid out left to right. When a page has a scale,
+   coordinates are in its real unit; otherwise they are in pixels. Y is flipped so the
+   drawing reads upright in CAD, with each image's bottom-left corner at its origin. */
+const DXF_LAYERS = [
+  ['MESURO_IMAGE', 8], ['MESURO_SCALE', 3], ['MESURO_DISTANCE', 30], ['MESURO_DIAMETER', 4],
+  ['MESURO_ANGLE', 6], ['MESURO_AREA', 200], ['MESURO_PATH', 40], ['MESURO_POINTS', 140], ['MESURO_NOTES', 2],
+];
+const DXF_INSUNITS = { in: 1, ft: 2, mi: 3, mm: 4, cm: 5, m: 6, km: 7, yd: 10, um: 13, 'µm': 13 };
+
+function _dxfText(s) {
+  // R12 files are read as ANSI; anything outside ASCII goes through AutoCAD's \U+XXXX escape
+  return String(s).replace(/[\r\n]+/g, ' ').replace(/[^\x20-\x7e]/g, c => '\\U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'));
+}
+
+function _bezSample(pts, cps, closed, steps) {
+  const out = [], n = pts.length, segs = closed ? n : n - 1;
+  if (!n) return out;
+  out.push(pts[0]);
+  for (let i = 0; i < segs; i++) {
+    const a = pts[i], b = pts[(i + 1) % n], cp = cps && cps[i];
+    if (!cp) { if (closed && i === segs - 1) break; out.push(b); continue; }
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps, mt = 1 - t;
+      if (closed && i === segs - 1 && s === steps) break;      // closing vertex = first vertex
+      out.push({
+        x: mt*mt*mt*a.x + 3*mt*mt*t*cp.cp1.x + 3*mt*t*t*cp.cp2.x + t*t*t*b.x,
+        y: mt*mt*mt*a.y + 3*mt*mt*t*cp.cp1.y + 3*mt*t*t*cp.cp2.y + t*t*t*b.y,
+      });
+    }
+  }
+  return out;
+}
+
+function buildDXF() {
+  saveCurrentPageState();
+  const allPages = pages.length ? pages
+    : [{ label: '', imgEl: img, meas, scLine, scPx, scFactor, scUnit, scaleVisible, ptCoordGlobalOrigin }];
+  const ents = [];
+  const f = v => (Math.abs(v) < 1e-9 ? 0 : v).toFixed(6);
+  const add = (...codes) => { for (let i = 0; i < codes.length; i += 2) ents.push(codes[i], codes[i + 1]); };
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, insUnits = 0, offX = 0, count = 0;
+
+  allPages.forEach((pg, pi) => {
+    const im = pg.imgEl || (pi === currentPageIdx ? img : null);
+    if (!im) return;
+    const k = pg.scFactor || 1;
+    const unit = pg.scFactor ? (pg.scUnit || 'mm') : 'px';
+    if (pg.scFactor && !insUnits) insUnits = DXF_INSUNITS[unit] || 0;
+    const W = im.width * k, H = im.height * k;
+    const X = x => offX + x * k, Y = y => (im.height - y) * k;
+    const th = Math.max(W, H) * 0.014;                         // label height relative to the page
+    const fmtLen = px => pg.scFactor ? `${(px * k).toFixed(2)} ${unit}` : `${Math.round(px)} px`;
+    const ext = (x, y) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); };
+
+    const line = (layer, x1, y1, x2, y2) => add(0, 'LINE', 8, layer, 10, f(X(x1)), 20, f(Y(y1)), 30, f(0), 11, f(X(x2)), 21, f(Y(y2)), 31, f(0));
+    const text = (layer, x, y, s, h) => add(0, 'TEXT', 8, layer, 10, f(X(x)), 20, f(Y(y)), 30, f(0), 40, f(h || th), 1, _dxfText(s), 72, 1, 11, f(X(x)), 21, f(Y(y)), 31, f(0));
+    const circle = (layer, cx, cy, r) => add(0, 'CIRCLE', 8, layer, 10, f(X(cx)), 20, f(Y(cy)), 30, f(0), 40, f(r * k));
+    const poly = (layer, pts, closed) => {
+      add(0, 'POLYLINE', 8, layer, 66, 1, 10, f(0), 20, f(0), 30, f(0), 70, closed ? 1 : 0);
+      pts.forEach(p => add(0, 'VERTEX', 8, layer, 10, f(X(p.x)), 20, f(Y(p.y)), 30, f(0)));
+      add(0, 'SEQEND', 8, layer);
+    };
+    // arc from canvas angles (radians, y-down) — DXF arcs run counter-clockwise in y-up degrees
+    const arc = (layer, cx, cy, r, a1, sweep) => {
+      const s = -a1 * 180 / Math.PI, e = -(a1 + sweep) * 180 / Math.PI;
+      add(0, 'ARC', 8, layer, 10, f(X(cx)), 20, f(Y(cy)), 30, f(0), 40, f(r * k), 50, f(Math.min(s, e)), 51, f(Math.max(s, e)));
+    };
+    const cross = (layer, x, y, sz) => { line(layer, x - sz, y, x + sz, y); line(layer, x, y - sz, x, y + sz); };
+    const mid = (x1, y1, x2, y2) => ({ x: (x1 + x2) / 2, y: (y1 + y2) / 2 });
+    const above = th / k * 0.9;                                // label offset, in image pixels
+
+    // Image frame and page title
+    poly('MESURO_IMAGE', [{x:0,y:0},{x:im.width,y:0},{x:im.width,y:im.height},{x:0,y:im.height}], true);
+    text('MESURO_IMAGE', im.width / 2, -above * 2, `${pg.label || 'Page ' + (pi + 1)}  (${unit})`, th * 1.2);
+    ext(offX, -th * 3); ext(offX + W, H);
+
+    if (pg.scLine && pg.scFactor && pg.scaleVisible !== false) {
+      const s = pg.scLine; line('MESURO_SCALE', s.x1, s.y1, s.x2, s.y2);
+      const m = mid(s.x1, s.y1, s.x2, s.y2);
+      text('MESURO_SCALE', m.x, m.y - above, `${(pg.scPx * pg.scFactor).toFixed(2)} ${unit}`);
+    }
+    if (pg.ptCoordGlobalOrigin && (pg.meas || []).some(m => m.type === 'ptcoord')) {
+      const o = pg.ptCoordGlobalOrigin; cross('MESURO_POINTS', o.x, o.y, above); text('MESURO_POINTS', o.x, o.y - above * 1.4, '0, 0');
+    }
+
+    (pg.meas || []).forEach((m, i) => {
+      const n = `#${i + 1} `;
+      count++;
+      if (m.type === 'line') {
+        line('MESURO_DISTANCE', m.x1, m.y1, m.x2, m.y2);
+        const c = mid(m.x1, m.y1, m.x2, m.y2); text('MESURO_DISTANCE', c.x, c.y - above, n + fmtLen(m.px));
+      } else if (m.type === 'diam') {
+        circle('MESURO_DIAMETER', m.cx, m.cy, m.r);
+        line('MESURO_DIAMETER', m.cx - m.r, m.cy, m.cx + m.r, m.cy);
+        text('MESURO_DIAMETER', m.cx, m.cy - above, n + '%%c ' + fmtLen(m.r * 2));
+      } else if (m.type === 'arc') {
+        arc('MESURO_DIAMETER', m.cx, m.cy, m.r, m.a1, m.sweep);
+        const am = m.a1 + m.sweep / 2;
+        text('MESURO_DIAMETER', m.cx + Math.cos(am) * (m.r + above), m.cy + Math.sin(am) * (m.r + above), n + 'arc ' + fmtLen(m.arcLen));
+      } else if (m.type === 'angle') {
+        line('MESURO_ANGLE', m.vx, m.vy, m.ax, m.ay); line('MESURO_ANGLE', m.vx, m.vy, m.bx, m.by);
+        const ra = Math.atan2(m.ay - m.vy, m.ax - m.vx), rb = Math.atan2(m.by - m.vy, m.bx - m.vx);
+        let sw = rb - ra; if (sw > Math.PI) sw -= 2 * Math.PI; if (sw < -Math.PI) sw += 2 * Math.PI;
+        const r = Math.min(Math.hypot(m.ax - m.vx, m.ay - m.vy), Math.hypot(m.bx - m.vx, m.by - m.vy)) * 0.3;
+        arc('MESURO_ANGLE', m.vx, m.vy, r, ra, sw);
+        const am = ra + sw / 2;
+        text('MESURO_ANGLE', m.vx + Math.cos(am) * (r + above * 1.5), m.vy + Math.sin(am) * (r + above * 1.5), `${n}${m.deg.toFixed(1)}%%d`);
+      } else if (m.type === 'angle4') {
+        line('MESURO_ANGLE', m.ax, m.ay, m.bx, m.by); line('MESURO_ANGLE', m.cx, m.cy, m.dx, m.dy);
+        const c = mid(m.ax, m.ay, m.cx, m.cy); text('MESURO_ANGLE', c.x, c.y, `${n}${m.deg.toFixed(1)}%%d`);
+      } else if (m.type === 'area' || m.type === 'perim') {
+        const layer = m.type === 'area' ? 'MESURO_AREA' : 'MESURO_PATH';
+        const closed = m.type === 'area' || !m.open;
+        poly(layer, m.cps ? _bezSample(m.pts, m.cps, closed, 16) : m.pts, closed);
+        const c = m.pts.reduce((a, p) => ({ x: a.x + p.x / m.pts.length, y: a.y + p.y / m.pts.length }), { x: 0, y: 0 });
+        const val = m.type === 'area'
+          ? (pg.scFactor ? `${(m.areaPx * k * k).toFixed(2)} ${unit}²` : `${Math.round(m.areaPx)} px²`)
+          : fmtLen(m.perimPx);
+        text(layer, c.x, c.y, n + val);
+      } else if (m.type === 'ptline') {
+        line('MESURO_DISTANCE', m.lx1, m.ly1, m.lx2, m.ly2); line('MESURO_DISTANCE', m.px, m.py, m.fx, m.fy);
+        const c = mid(m.px, m.py, m.fx, m.fy); text('MESURO_DISTANCE', c.x, c.y - above, n + fmtLen(m.distPx));
+      } else if (m.type === 'll') {
+        line('MESURO_DISTANCE', m.lx1, m.ly1, m.lx2, m.ly2); line('MESURO_DISTANCE', m.l2x1, m.l2y1, m.l2x2, m.l2y2);
+        line('MESURO_DISTANCE', m.mx, m.my, m.fx, m.fy);
+        const c = mid(m.mx, m.my, m.fx, m.fy); text('MESURO_DISTANCE', c.x, c.y - above, n + fmtLen(m.distPx));
+      } else if (m.type === 'ptcoord') {
+        add(0, 'POINT', 8, 'MESURO_POINTS', 10, f(X(m.px)), 20, f(Y(m.py)), 30, f(0));
+        cross('MESURO_POINTS', m.px, m.py, above * 0.6);
+        const cx = (m.px - (m.ox || 0)) * k, cy = -(m.py - (m.oy || 0)) * k;
+        text('MESURO_POINTS', m.px, m.py - above, `${n}X ${cx.toFixed(2)}  Y ${cy.toFixed(2)} ${unit}`);
+      } else if (m.type === 'note') {
+        text('MESURO_NOTES', m.x, m.y, m.text);
+      } else count--;
+    });
+    offX += W + Math.max(W, H) * 0.1;                          // gap before the next page
+  });
+
+  if (!isFinite(minX)) return null;
+  const out = [];
+  const push = (...codes) => { for (let i = 0; i < codes.length; i += 2) out.push(codes[i], codes[i + 1]); };
+  push(0, 'SECTION', 2, 'HEADER', 9, '$ACADVER', 1, 'AC1009', 9, '$DWGCODEPAGE', 3, 'ANSI_1252',
+       9, '$INSUNITS', 70, insUnits,
+       9, '$EXTMIN', 10, f(minX), 20, f(minY), 30, f(0), 9, '$EXTMAX', 10, f(maxX), 20, f(maxY), 30, f(0),
+       0, 'ENDSEC');
+  push(0, 'SECTION', 2, 'TABLES',
+       0, 'TABLE', 2, 'LTYPE', 70, 1, 0, 'LTYPE', 2, 'CONTINUOUS', 70, 0, 3, 'Solid line', 72, 65, 73, 0, 40, f(0), 0, 'ENDTAB',
+       0, 'TABLE', 2, 'LAYER', 70, DXF_LAYERS.length);
+  DXF_LAYERS.forEach(([name, color]) => push(0, 'LAYER', 2, name, 70, 0, 62, color, 6, 'CONTINUOUS'));
+  push(0, 'ENDTAB', 0, 'ENDSEC', 0, 'SECTION', 2, 'ENTITIES');
+  out.push(...ents);
+  push(0, 'ENDSEC', 0, 'EOF');
+  let s = '';
+  for (let i = 0; i < out.length; i += 2) s += String(out[i]).padStart(3, ' ') + '\r\n' + out[i + 1] + '\r\n';
+  return { text: s, count };
+}
+
+function exportDXF() {
+  if (!img) return;
+  const r = buildDXF();
+  if (!r) return;
+  t('export_dxf', { count: r.count });
+  _trackFirstExport('dxf');
+  const blob = new Blob([r.text], { type: 'application/dxf' });
+  const u = URL.createObjectURL(blob); const a = document.createElement('a');
+  a.download = `mesuro-${_ts()}.dxf`; a.href = u; a.click(); setTimeout(() => URL.revokeObjectURL(u), 5000);
+  showToast(scFactor ? `DXF exported in ${scUnit}` : 'DXF exported in pixels — set a scale for real units');
+}
+
 updUI();
 // init language
 setLang(currentLang);
@@ -6247,7 +7244,7 @@ function updMobile() {
 
 
   // export buttons
-  ['mExpImg','mExpPdf','mExpCsv','mExpSave'].forEach(id => {
+  ['mExpImg','mExpPdf','mExpCsv','mExpDxf','mExpSave'].forEach(id => {
     const b = document.getElementById(id); if(b) b.disabled=!hasImg;
   });
 
@@ -6359,6 +7356,11 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   let longPressTimer=null;
   // Pinch state
   let pinchDist0=0, pinchZoom0=1, pinchPanX0=0, pinchPanY0=0, pinchMid0X=0, pinchMid0Y=0, isPinching=false;
+  // A gesture that ever had two fingers is a view gesture: it never places a point.
+  // One finger: quick drag pans the view; touch-and-hold aims with the magnifier; a tap places.
+  let gestureMulti=false, tPanning=false, tPanLastX=0, tPanLastY=0;
+  const AIM_HOLD_MS = 250, PAN_SLOP = 10;
+  function panViewBy(dx, dy) { panX += dx; panY += dy; clampPan(); draw(); }
 
   // All modes that accept taps to place points
   const TOOL_MODES = ['sa','sb','ma','mb','ce1','ce2','da','db','d3a','d3b','d3c',
@@ -6366,7 +7368,7 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
 
   function startLongPress(cx, cy) {
     clearLongPress();
-    longPressTimer = setTimeout(() => { longPressActive = true; draw(); }, 100);
+    longPressTimer = setTimeout(() => { if (!tPanning && !gestureMulti) { longPressActive = true; draw(); } }, AIM_HOLD_MS);
   }
   function clearLongPress() {
     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer=null; }
@@ -6379,9 +7381,9 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
   cv.addEventListener('touchstart', e => {
     if (!img) return;
     // Pinch (2 fingers): zoom + pan
-    if (e.touches.length === 2) {
-      isPinching = true; _isScrolling = false;
-      clearLongPress();
+    if (e.touches.length >= 2) {
+      isPinching = true; _isScrolling = false; gestureMulti = true; tPanning = false;
+      clearLongPress(); longPressActive = false; mp = null;
       const t0=e.touches[0], t1=e.touches[1];
       const rc=cv.getBoundingClientRect();
       pinchDist0 = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
@@ -6391,8 +7393,10 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       e.preventDefault(); return;
     }
     isPinching = false; _isScrolling = false;
+    if (e.touches.length === 1) { gestureMulti = false; tPanning = false; }   // first finger down = new gesture
     const t=e.touches[0];
     txStart=t.clientX; tyStart=t.clientY; tMoved=false; longPressActive=false;
+    tPanLastX=t.clientX; tPanLastY=t.clientY;
     if (TOOL_MODES.includes(mode)) {
       e.preventDefault();
       mp = getTouchPt(t);
@@ -6426,29 +7430,39 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     }
     const t=e.touches[0];
     const dx=Math.abs(t.clientX-txStart), dy=Math.abs(t.clientY-tyStart);
-    const moved = dx>15 || dy>15;
+    const moved = dx>PAN_SLOP || dy>PAN_SLOP;
+    if (gestureMulti) { e.preventDefault(); return; }               // leftover finger after a pinch
     if (mode==='drag'&&dragState) {
       e.preventDefault(); mp=getTouchPt(t); applyDrag(mp); draw(); updUI();
-    } else if (TOOL_MODES.includes(mode)) {
-      e.preventDefault(); mp=getTouchPt(t); draw();
-    } else if (mode==='idle' && !dragState) {
-      // Manual scroll: simulate native one-finger page scroll
-      if (moved && !_isScrolling) { _isScrolling = true; tMoved = true; clearLongPress(); }
-      if (_isScrolling) {
-        e.preventDefault();
-        window.scrollBy(0, tyStart - t.clientY);
-        txStart = t.clientX; tyStart = t.clientY;
+    } else if (TOOL_MODES.includes(mode) && longPressActive) {
+      e.preventDefault(); mp=getTouchPt(t); draw();               // aiming with the magnifier
+    } else if (TOOL_MODES.includes(mode) || (mode==='idle' && !dragState)) {
+      e.preventDefault();
+      if (moved && !tPanning) { tPanning = true; tMoved = true; clearLongPress(); mp = null; }
+      if (tPanning) {
+        panViewBy(t.clientX - tPanLastX, t.clientY - tPanLastY);
+        tPanLastX = t.clientX; tPanLastY = t.clientY;
       }
     }
   }, {passive:false});
+
+  cv.addEventListener('touchcancel', () => {
+    clearLongPress(); isPinching=false; gestureMulti=false; tPanning=false; longPressActive=false;
+    if (mode==='drag') { mode='idle'; dragState=null; }
+    mp=null; draw();
+  });
 
   cv.addEventListener('touchend', e => {
     clearLongPress();
     _isScrolling = false;
     if (!img) return;
-    if (isPinching && e.touches.length < 2) { isPinching=false; return; }
+    if (isPinching && e.touches.length < 2) { isPinching=false; }
+    if (gestureMulti) {                                              // pinch/two-finger pan: view only
+      if (e.touches.length === 0) gestureMulti = false;
+      e.preventDefault(); mp=null; longPressActive=false; draw(); return;
+    }
     if (mode==='drag') { mode='idle'; dragState=null; mp=null; updUI(); draw(); return; }
-    if (tMoved) return;
+    if (tMoved || tPanning) { tPanning=false; mp=null; draw(); return; }
     e.preventDefault();
     const wasLongPress = longPressActive;
     const p = wasLongPress ? {...mp} : getTouchPt(e.changedTouches[0]);
@@ -6760,6 +7774,26 @@ function hidePrivacyModal() {
   if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
 }
 
+</script>
+<script>
+/* ── Beta UI shell: hooks that run after the app script ── */
+(function () {
+  const _draw = draw;
+  draw = function () { const r = _draw.apply(this, arguments); _updZoomLabel(); _updDone(); return r; };
+  const _upd = updUI;
+  updUI = function () {
+    const r = _upd.apply(this, arguments);
+    const sc = document.getElementById('scaleStatus');
+    if (sc && isMob() && !scFactor) sc.textContent = img ? 'Set scale' : 'No image';
+    return r;
+  };
+  // Phones: tapping the scale chip starts calibration (desktop keeps inline editing)
+  const sc = document.getElementById('scaleStatus');
+  if (sc) sc.addEventListener('click', () => { if (isMob() && img) doScale(); });
+  window.addEventListener('resize', () => { if (!_isSheetLayout()) document.getElementById('resPanel').classList.remove('m-open'); });
+  try { if (localStorage.getItem('mesu_res_collapsed') === 'true') document.getElementById('resPanel').classList.add('collapsed'); } catch (e) {}
+  updUI();
+})();
 </script>
 <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 </body>
