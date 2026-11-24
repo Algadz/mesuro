@@ -1165,6 +1165,7 @@
       <button type="button" class="tbtn" id="btnExport" onclick="exportImg()" disabled data-tip="Export annotated image"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg><span class="lbl">Image</span></button>
       <button type="button" class="tbtn" id="btnExportCSV" onclick="exportCSV()" disabled data-tip="Export measurements as CSV"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></svg><span class="lbl">CSV</span></button>
       <button type="button" class="tbtn" id="btnExportPDF" onclick="exportPDF()" disabled data-tip="Export PDF report"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span class="lbl">PDF</span></button>
+      <button type="button" class="tbtn" id="btnExportDXF" onclick="exportDXF()" disabled data-tip="Export DXF for CAD (scaled geometry, one layer per tool)"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 20 4" opacity=".45"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/><path d="M4 4h7v7H4z"/><path d="M13 20a7 7 0 0 1 7-7"/></svg><span class="lbl">DXF</span></button>
     </div>
 
     <div class="group" aria-label="Preferences">
@@ -1504,39 +1505,39 @@
   (LS_CHECKOUT_MONTHLY / LS_CHECKOUT_YEARLY). See worker/SETUP.md for how to fill them in.
 -->
 <div id="proModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:16px;width:100%;max-width:420px;padding:24px 22px 20px;position:relative;animation:gateCardIn .22s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
-    <button onclick="hideProModal('dismiss')" style="position:absolute;top:14px;right:14px;width:26px;height:26px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#888;font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#888';this.style.background='#2a2a2a'">×</button>
+  <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:16px;width:100%;max-width:420px;padding:24px 22px 20px;position:relative;animation:gateCardIn .22s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
+    <button onclick="hideProModal('dismiss')" style="position:absolute;top:14px;right:14px;width:26px;height:26px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text-soft);font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#888';this.style.background='#2a2a2a'">×</button>
 
     <div style="font-size:9px;letter-spacing:.14em;color:#2563eb;font-weight:700;margin-bottom:8px;">MESURO PRO</div>
-    <div style="font-size:20px;font-weight:700;color:#e8e8e8;margin-bottom:6px;padding-right:30px;line-height:1.3;">Unlimited measurements, every day</div>
-    <div id="proModalSub" style="font-size:13px;color:#888;line-height:1.5;margin-bottom:18px;">Pick the plan that fits how you work.</div>
+    <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;padding-right:30px;line-height:1.3;">Unlimited measurements, every day</div>
+    <div id="proModalSub" style="font-size:13px;color:var(--text-soft);line-height:1.5;margin-bottom:18px;">Pick the plan that fits how you work.</div>
 
     <!-- Pricing cards -->
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
 
       <!-- Monthly -->
-      <a id="proPlanMonthly" href="#" class="lemonsqueezy-button" data-plan="monthly" onclick="t('gate_click_monthly')" style="display:block;text-decoration:none;background:#181818;border:0.5px solid #2a2a2a;border-radius:10px;padding:14px 16px;transition:border-color .15s,background .15s;" onmouseenter="this.style.borderColor='#3a3a3a';this.style.background='#1f1f1f'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#181818'">
+      <a id="proPlanMonthly" href="#" class="lemonsqueezy-button" data-plan="monthly" onclick="t('gate_click_monthly')" style="display:block;text-decoration:none;background:var(--panel);border:0.5px solid var(--border-soft);border-radius:10px;padding:14px 16px;transition:border-color .15s,background .15s;" onmouseenter="this.style.borderColor='#3a3a3a';this.style.background='#1f1f1f'" onmouseleave="this.style.borderColor='#2a2a2a';this.style.background='#181818'">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:2px;">Monthly</div>
-            <div style="font-size:11px;color:#666;">Cancel anytime</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">Monthly</div>
+            <div style="font-size:11px;color:var(--text-muted);">Cancel anytime</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:20px;font-weight:700;color:#e8e8e8;line-height:1;">$9.99<span style="font-size:11px;color:#666;font-weight:500;margin-left:2px;">/mo</span></div>
+            <div style="font-size:20px;font-weight:700;color:var(--text);line-height:1;">$9.99<span style="font-size:11px;color:var(--text-muted);font-weight:500;margin-left:2px;">/mo</span></div>
           </div>
         </div>
       </a>
 
       <!-- Yearly (highlighted) -->
-      <a id="proPlanYearly" href="#" class="lemonsqueezy-button" data-plan="yearly" onclick="t('gate_click_yearly')" style="display:block;text-decoration:none;background:#181818;border:1px solid #2563eb;border-radius:10px;padding:14px 16px;position:relative;">
+      <a id="proPlanYearly" href="#" class="lemonsqueezy-button" data-plan="yearly" onclick="t('gate_click_yearly')" style="display:block;text-decoration:none;background:var(--panel);border:1px solid #2563eb;border-radius:10px;padding:14px 16px;position:relative;">
         <span style="position:absolute;top:-8px;right:14px;background:#2563eb;color:#fff;font-size:9px;font-weight:700;letter-spacing:.06em;border-radius:4px;padding:2px 6px;">SAVE 25%</span>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8e8e8;margin-bottom:2px;">Yearly</div>
-            <div style="font-size:11px;color:#888;">$7.42/mo, billed annually</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">Yearly</div>
+            <div style="font-size:11px;color:var(--text-soft);">$7.42/mo, billed annually</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:20px;font-weight:700;color:#e8e8e8;line-height:1;">$89<span style="font-size:11px;color:#666;font-weight:500;margin-left:2px;">/yr</span></div>
+            <div style="font-size:20px;font-weight:700;color:var(--text);line-height:1;">$89<span style="font-size:11px;color:var(--text-muted);font-weight:500;margin-left:2px;">/yr</span></div>
           </div>
         </div>
       </a>
@@ -1545,15 +1546,15 @@
 
     <!-- Feature list -->
     <div style="display:grid;grid-template-columns:1fr;gap:6px 10px;margin-bottom:14px;">
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Unlimited measurements</div>
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>No daily cap or reset wait</div>
-      <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Same local-only workflow</div>
+      <div style="font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Unlimited measurements</div>
+      <div style="font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>No daily cap or reset wait</div>
+      <div style="font-size:11px;color:var(--text-soft);display:flex;align-items:center;gap:6px;"><span style="color:#1D9E75;font-size:13px;flex-shrink:0;">✓</span>Same local-only workflow</div>
     </div>
 
-    <button onclick="hideProModal('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:#666;font-family:inherit;padding:6px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Maybe later</button>
+    <button onclick="hideProModal('dismiss')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);font-family:inherit;padding:6px 0;text-align:center;transition:color .15s;" onmouseenter="this.style.color='#aaa'" onmouseleave="this.style.color='#666'">Maybe later</button>
     <button onclick="toggleProKeyInput();t('gate_click_key')" style="display:block;width:100%;background:none;border:none;cursor:pointer;font-size:11px;color:#C9913A;font-family:inherit;padding:6px 0 0;text-align:center;opacity:.75;transition:opacity .15s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.75'">Have a license key?</button>
     <div id="proKeyArea" style="display:none;margin-top:10px;">
-      <input id="proKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:#111;border:0.5px solid #444;border-radius:6px;color:#e0e0e0;font-size:12px;padding:8px 10px;font-family:inherit;outline:none;margin-bottom:6px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
+      <input id="proKeyInput" type="text" placeholder="License key" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:8px 10px;font-family:inherit;outline:none;margin-bottom:6px;" onkeydown="if(event.key==='Enter')doVerifyLicense()">
       <button id="proKeyBtn" onclick="doVerifyLicense()" style="width:100%;background:#1D9E75;border:none;border-radius:6px;color:#fff;font-size:12px;padding:9px;cursor:pointer;font-family:inherit;font-weight:500;">Verify</button>
       <div id="proKeyError" style="font-size:11px;color:#e24b4b;margin-top:6px;display:none;"></div>
     </div>
@@ -1562,63 +1563,64 @@
 
 <!-- PDF title modal -->
 <div id="pdfTitleModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1e1e1e;border:0.5px solid #2e2e2e;border-radius:14px;width:100%;max-width:380px;padding:22px 22px 20px;position:relative;animation:gateCardIn .2s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
-    <button onclick="closePdfTitleModal()" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:#2a2a2a;border:0.5px solid #3a3a3a;border-radius:50%;cursor:pointer;color:#666;font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#666';this.style.background='#2a2a2a'">×</button>
-    <div style="font-size:9px;letter-spacing:.12em;color:#555;font-weight:600;margin-bottom:10px;">EXPORT PDF</div>
-    <div style="font-size:16px;font-weight:700;color:#e8e8e8;margin-bottom:16px;padding-right:20px;">Name your document</div>
+  <div style="background:var(--panel);border:0.5px solid var(--border);border-radius:14px;width:100%;max-width:380px;padding:22px 22px 20px;position:relative;animation:gateCardIn .2s ease;box-shadow:0 8px 32px rgba(0,0,0,.7);">
+    <button onclick="closePdfTitleModal()" style="position:absolute;top:14px;right:14px;width:24px;height:24px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:50%;cursor:pointer;color:var(--text-muted);font-size:14px;padding:0;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s;" onmouseenter="this.style.color='#fff';this.style.background='#3e3e3e'" onmouseleave="this.style.color='#666';this.style.background='#2a2a2a'">×</button>
+    <div style="font-size:9px;letter-spacing:.12em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">EXPORT PDF</div>
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;padding-right:20px;">Name your document</div>
     <!-- Title field -->
     <div style="margin-bottom:12px;">
-      <label style="display:block;font-size:10px;letter-spacing:.08em;color:#555;font-weight:600;margin-bottom:6px;">DOCUMENT TITLE</label>
-      <input id="pdfTitleInput" type="text" style="width:100%;box-sizing:border-box;background:#141414;border:0.5px solid #333;border-radius:8px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
-      <div style="font-size:10px;color:#444;margin-top:5px;">Appears as the document heading in the PDF</div>
+      <label style="display:block;font-size:10px;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">DOCUMENT TITLE</label>
+      <input id="pdfTitleInput" type="text" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">Appears as the document heading in the PDF</div>
     </div>
     <!-- Note toggle -->
     <div id="pdfNoteToggleRow" style="margin-bottom:4px;">
-      <button onclick="togglePdfNote()" id="pdfNoteToggleBtn" style="background:none;border:none;cursor:pointer;font-size:11px;color:#555;font-family:inherit;padding:0;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">+ Add a note</button>
+      <button onclick="togglePdfNote()" id="pdfNoteToggleBtn" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-muted);font-family:inherit;padding:0;transition:color .15s;" onmouseenter="this.style.color='#888'" onmouseleave="this.style.color='#555'">+ Add a note</button>
     </div>
     <!-- Note field (hidden by default) -->
     <div id="pdfNoteArea" style="display:none;margin-bottom:12px;margin-top:8px;">
-      <label style="display:block;font-size:10px;letter-spacing:.08em;color:#555;font-weight:600;margin-bottom:6px;">NOTE <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#444;">(optional)</span></label>
-      <input id="pdfNoteInput" type="text" placeholder="e.g. client name, address, job number…" style="width:100%;box-sizing:border-box;background:#141414;border:0.5px solid #333;border-radius:8px;color:#e0e0e0;font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
+      <label style="display:block;font-size:10px;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">NOTE <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--text-muted);">(optional)</span></label>
+      <input id="pdfNoteInput" type="text" placeholder="e.g. client name, address, job number…" style="width:100%;box-sizing:border-box;background:var(--field);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='#444'" onblur="this.style.borderColor='#333'">
     </div>
     <!-- Actions -->
     <div style="display:flex;gap:8px;margin-top:16px;">
-      <button onclick="closePdfTitleModal()" style="flex:1;background:#252525;border:0.5px solid #333;border-radius:8px;color:#888;font-size:12px;font-weight:500;padding:10px 0;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseenter="this.style.background='#2e2e2e'" onmouseleave="this.style.background='#252525'">Cancel</button>
+      <button onclick="closePdfTitleModal()" style="flex:1;background:var(--panel-2);border:0.5px solid var(--border);border-radius:8px;color:var(--text-soft);font-size:12px;font-weight:500;padding:10px 0;cursor:pointer;font-family:inherit;transition:background .15s;" onmouseenter="this.style.background='#2e2e2e'" onmouseleave="this.style.background='#252525'">Cancel</button>
       <button onclick="confirmPdfExport()" style="flex:2;background:#1D9E75;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:10px 0;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseenter="this.style.opacity='.88'" onmouseleave="this.style.opacity='1'">Export PDF →</button>
     </div>
   </div>
 </div>
 
 <!-- Mobile utility section (shown only below the app on small screens) -->
-<div id="mobileSupportSection" style="max-width:860px;margin:0 auto;padding:28px 20px 40px;font-family:system-ui,-apple-system,sans-serif;color:#bbb;line-height:1.8">
+<div id="mobileSupportSection" style="max-width:860px;margin:0 auto;padding:28px 20px 40px;font-family:system-ui,-apple-system,sans-serif;color:var(--text-soft);line-height:1.8">
 
   <div id="mobileMeasSection" style="display:none;margin-bottom:24px;">
-    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin-bottom:10px;">MEASUREMENTS</div>
+    <div style="font-size:10px;color:var(--text-muted);letter-spacing:.08em;margin-bottom:10px;">MEASUREMENTS</div>
     <div id="mMeasList" style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px;"></div>
-    <div id="mMeasEmpty" style="font-size:13px;color:#333;margin-bottom:16px;">No measurements yet.</div>
-    <div style="font-size:10px;color:#444;letter-spacing:.08em;margin:20px 0 10px;">EXPORT</div>
+    <div id="mMeasEmpty" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">No measurements yet.</div>
+    <div style="font-size:10px;color:var(--text-muted);letter-spacing:.08em;margin:20px 0 10px;">EXPORT</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
+      <button id="mExpImg"  onclick="exportImg()" disabled style="height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;text-align:left;padding:0 16px;">Export annotated image</button>
       <div style="display:flex;gap:8px;">
-        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">PDF report</button>
-        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">CSV</button>
+        <button id="mExpPdf" onclick="exportPDF()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">PDF report</button>
+        <button id="mExpCsv" onclick="exportCSV()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">CSV</button>
+        <button id="mExpDxf" onclick="exportDXF()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">DXF</button>
       </div>
-      <div style="height:0.5px;background:#2a2a2a;margin:4px 0;"></div>
+      <div style="height:0.5px;background:var(--panel-2);margin:4px 0;"></div>
       <div style="display:flex;gap:8px;">
-        <button id="mExpSave" onclick="saveProject()" disabled style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Save .mesuro</button>
-        <button onclick="document.getElementById('projectInput').click()" style="flex:1;height:44px;background:#252525;border:none;border-radius:8px;font-size:13px;color:#d0d0d0;cursor:pointer;font-family:inherit;">Load .mesuro</button>
+        <button id="mExpSave" onclick="saveProject()" disabled style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">Save .mesuro</button>
+        <button onclick="document.getElementById('projectInput').click()" style="flex:1;height:44px;background:var(--panel-2);border:none;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;">Load .mesuro</button>
       </div>
     </div>
   </div>
 
-  <div style="font-size:11px;color:#444;text-align:center">
+  <div style="font-size:11px;color:var(--text-muted);text-align:center">
     Mesuro app
     <span style="margin:0 8px;color:#222;">?</span>
-    <a href="../" style="color:#666;text-decoration:none;">Home</a>
+    <a href="../" style="color:var(--text-muted);text-decoration:none;">Home</a>
     <span style="margin:0 8px;color:#222;">?</span>
-    <a href="../faq/" style="color:#666;text-decoration:none;">FAQ</a>
+    <a href="../faq/" style="color:var(--text-muted);text-decoration:none;">FAQ</a>
     <span style="margin:0 8px;color:#222;">?</span>
-    <a href="#" onclick="showPrivacyModal();return false;" style="color:#666;text-decoration:none;">Privacy</a>
+    <a href="#" onclick="showPrivacyModal();return false;" style="color:var(--text-muted);text-decoration:none;">Privacy</a>
   </div>
 </div>
 
@@ -4513,7 +4515,7 @@ function updUI() {
   const isPtCoordMode=mode==='ptc';
   const isArea=mode==='pa', isPerim=mode==='pp';
 
-  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
+  disableButtons(['btnScale','btnSaveProject','btnAngle','btnZoom','btnMag','btnExport','btnExportCSV','btnExportPDF','btnExportDXF','btnNote','btnRotL','btnRotR','btnStraighten'], !hasImg);
   disableButtons(['btnMeasure','btnDiam','btnArea','btnPerim'], !hasImg);
   const btnScaleApplyAll = document.getElementById('btnScaleApplyAll');
   const btnScaleHideAll = document.getElementById('btnScaleHideAll');
@@ -6364,6 +6366,176 @@ function exportCSV() {
   const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.download=`mesuro-${_ts()}.csv`; a.href=u; a.click(); setTimeout(()=>URL.revokeObjectURL(u),5000);
 }
 
+/* ── DXF export (AutoCAD R12 ASCII — opens in AutoCAD, LibreCAD, QCAD, Fusion, Inkscape…) ──
+   Every page becomes a block of geometry laid out left to right. When a page has a scale,
+   coordinates are in its real unit; otherwise they are in pixels. Y is flipped so the
+   drawing reads upright in CAD, with each image's bottom-left corner at its origin. */
+const DXF_LAYERS = [
+  ['MESURO_IMAGE', 8], ['MESURO_SCALE', 3], ['MESURO_DISTANCE', 30], ['MESURO_DIAMETER', 4],
+  ['MESURO_ANGLE', 6], ['MESURO_AREA', 200], ['MESURO_PATH', 40], ['MESURO_POINTS', 140], ['MESURO_NOTES', 2],
+];
+const DXF_INSUNITS = { in: 1, ft: 2, mi: 3, mm: 4, cm: 5, m: 6, km: 7, yd: 10, um: 13, 'µm': 13 };
+
+function _dxfText(s) {
+  // R12 files are read as ANSI; anything outside ASCII goes through AutoCAD's \U+XXXX escape
+  return String(s).replace(/[\r\n]+/g, ' ').replace(/[^\x20-\x7e]/g, c => '\\U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'));
+}
+
+function _bezSample(pts, cps, closed, steps) {
+  const out = [], n = pts.length, segs = closed ? n : n - 1;
+  if (!n) return out;
+  out.push(pts[0]);
+  for (let i = 0; i < segs; i++) {
+    const a = pts[i], b = pts[(i + 1) % n], cp = cps && cps[i];
+    if (!cp) { if (closed && i === segs - 1) break; out.push(b); continue; }
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps, mt = 1 - t;
+      if (closed && i === segs - 1 && s === steps) break;      // closing vertex = first vertex
+      out.push({
+        x: mt*mt*mt*a.x + 3*mt*mt*t*cp.cp1.x + 3*mt*t*t*cp.cp2.x + t*t*t*b.x,
+        y: mt*mt*mt*a.y + 3*mt*mt*t*cp.cp1.y + 3*mt*t*t*cp.cp2.y + t*t*t*b.y,
+      });
+    }
+  }
+  return out;
+}
+
+function buildDXF() {
+  saveCurrentPageState();
+  const allPages = pages.length ? pages
+    : [{ label: '', imgEl: img, meas, scLine, scPx, scFactor, scUnit, scaleVisible, ptCoordGlobalOrigin }];
+  const ents = [];
+  const f = v => (Math.abs(v) < 1e-9 ? 0 : v).toFixed(6);
+  const add = (...codes) => { for (let i = 0; i < codes.length; i += 2) ents.push(codes[i], codes[i + 1]); };
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, insUnits = 0, offX = 0, count = 0;
+
+  allPages.forEach((pg, pi) => {
+    const im = pg.imgEl || (pi === currentPageIdx ? img : null);
+    if (!im) return;
+    const k = pg.scFactor || 1;
+    const unit = pg.scFactor ? (pg.scUnit || 'mm') : 'px';
+    if (pg.scFactor && !insUnits) insUnits = DXF_INSUNITS[unit] || 0;
+    const W = im.width * k, H = im.height * k;
+    const X = x => offX + x * k, Y = y => (im.height - y) * k;
+    const th = Math.max(W, H) * 0.014;                         // label height relative to the page
+    const fmtLen = px => pg.scFactor ? `${(px * k).toFixed(2)} ${unit}` : `${Math.round(px)} px`;
+    const ext = (x, y) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); };
+
+    const line = (layer, x1, y1, x2, y2) => add(0, 'LINE', 8, layer, 10, f(X(x1)), 20, f(Y(y1)), 30, f(0), 11, f(X(x2)), 21, f(Y(y2)), 31, f(0));
+    const text = (layer, x, y, s, h) => add(0, 'TEXT', 8, layer, 10, f(X(x)), 20, f(Y(y)), 30, f(0), 40, f(h || th), 1, _dxfText(s), 72, 1, 11, f(X(x)), 21, f(Y(y)), 31, f(0));
+    const circle = (layer, cx, cy, r) => add(0, 'CIRCLE', 8, layer, 10, f(X(cx)), 20, f(Y(cy)), 30, f(0), 40, f(r * k));
+    const poly = (layer, pts, closed) => {
+      add(0, 'POLYLINE', 8, layer, 66, 1, 10, f(0), 20, f(0), 30, f(0), 70, closed ? 1 : 0);
+      pts.forEach(p => add(0, 'VERTEX', 8, layer, 10, f(X(p.x)), 20, f(Y(p.y)), 30, f(0)));
+      add(0, 'SEQEND', 8, layer);
+    };
+    // arc from canvas angles (radians, y-down) — DXF arcs run counter-clockwise in y-up degrees
+    const arc = (layer, cx, cy, r, a1, sweep) => {
+      const s = -a1 * 180 / Math.PI, e = -(a1 + sweep) * 180 / Math.PI;
+      add(0, 'ARC', 8, layer, 10, f(X(cx)), 20, f(Y(cy)), 30, f(0), 40, f(r * k), 50, f(Math.min(s, e)), 51, f(Math.max(s, e)));
+    };
+    const cross = (layer, x, y, sz) => { line(layer, x - sz, y, x + sz, y); line(layer, x, y - sz, x, y + sz); };
+    const mid = (x1, y1, x2, y2) => ({ x: (x1 + x2) / 2, y: (y1 + y2) / 2 });
+    const above = th / k * 0.9;                                // label offset, in image pixels
+
+    // Image frame and page title
+    poly('MESURO_IMAGE', [{x:0,y:0},{x:im.width,y:0},{x:im.width,y:im.height},{x:0,y:im.height}], true);
+    text('MESURO_IMAGE', im.width / 2, -above * 2, `${pg.label || 'Page ' + (pi + 1)}  (${unit})`, th * 1.2);
+    ext(offX, -th * 3); ext(offX + W, H);
+
+    if (pg.scLine && pg.scFactor && pg.scaleVisible !== false) {
+      const s = pg.scLine; line('MESURO_SCALE', s.x1, s.y1, s.x2, s.y2);
+      const m = mid(s.x1, s.y1, s.x2, s.y2);
+      text('MESURO_SCALE', m.x, m.y - above, `${(pg.scPx * pg.scFactor).toFixed(2)} ${unit}`);
+    }
+    if (pg.ptCoordGlobalOrigin && (pg.meas || []).some(m => m.type === 'ptcoord')) {
+      const o = pg.ptCoordGlobalOrigin; cross('MESURO_POINTS', o.x, o.y, above); text('MESURO_POINTS', o.x, o.y - above * 1.4, '0, 0');
+    }
+
+    (pg.meas || []).forEach((m, i) => {
+      const n = `#${i + 1} `;
+      count++;
+      if (m.type === 'line') {
+        line('MESURO_DISTANCE', m.x1, m.y1, m.x2, m.y2);
+        const c = mid(m.x1, m.y1, m.x2, m.y2); text('MESURO_DISTANCE', c.x, c.y - above, n + fmtLen(m.px));
+      } else if (m.type === 'diam') {
+        circle('MESURO_DIAMETER', m.cx, m.cy, m.r);
+        line('MESURO_DIAMETER', m.cx - m.r, m.cy, m.cx + m.r, m.cy);
+        text('MESURO_DIAMETER', m.cx, m.cy - above, n + '%%c ' + fmtLen(m.r * 2));
+      } else if (m.type === 'arc') {
+        arc('MESURO_DIAMETER', m.cx, m.cy, m.r, m.a1, m.sweep);
+        const am = m.a1 + m.sweep / 2;
+        text('MESURO_DIAMETER', m.cx + Math.cos(am) * (m.r + above), m.cy + Math.sin(am) * (m.r + above), n + 'arc ' + fmtLen(m.arcLen));
+      } else if (m.type === 'angle') {
+        line('MESURO_ANGLE', m.vx, m.vy, m.ax, m.ay); line('MESURO_ANGLE', m.vx, m.vy, m.bx, m.by);
+        const ra = Math.atan2(m.ay - m.vy, m.ax - m.vx), rb = Math.atan2(m.by - m.vy, m.bx - m.vx);
+        let sw = rb - ra; if (sw > Math.PI) sw -= 2 * Math.PI; if (sw < -Math.PI) sw += 2 * Math.PI;
+        const r = Math.min(Math.hypot(m.ax - m.vx, m.ay - m.vy), Math.hypot(m.bx - m.vx, m.by - m.vy)) * 0.3;
+        arc('MESURO_ANGLE', m.vx, m.vy, r, ra, sw);
+        const am = ra + sw / 2;
+        text('MESURO_ANGLE', m.vx + Math.cos(am) * (r + above * 1.5), m.vy + Math.sin(am) * (r + above * 1.5), `${n}${m.deg.toFixed(1)}%%d`);
+      } else if (m.type === 'angle4') {
+        line('MESURO_ANGLE', m.ax, m.ay, m.bx, m.by); line('MESURO_ANGLE', m.cx, m.cy, m.dx, m.dy);
+        const c = mid(m.ax, m.ay, m.cx, m.cy); text('MESURO_ANGLE', c.x, c.y, `${n}${m.deg.toFixed(1)}%%d`);
+      } else if (m.type === 'area' || m.type === 'perim') {
+        const layer = m.type === 'area' ? 'MESURO_AREA' : 'MESURO_PATH';
+        const closed = m.type === 'area' || !m.open;
+        poly(layer, m.cps ? _bezSample(m.pts, m.cps, closed, 16) : m.pts, closed);
+        const c = m.pts.reduce((a, p) => ({ x: a.x + p.x / m.pts.length, y: a.y + p.y / m.pts.length }), { x: 0, y: 0 });
+        const val = m.type === 'area'
+          ? (pg.scFactor ? `${(m.areaPx * k * k).toFixed(2)} ${unit}²` : `${Math.round(m.areaPx)} px²`)
+          : fmtLen(m.perimPx);
+        text(layer, c.x, c.y, n + val);
+      } else if (m.type === 'ptline') {
+        line('MESURO_DISTANCE', m.lx1, m.ly1, m.lx2, m.ly2); line('MESURO_DISTANCE', m.px, m.py, m.fx, m.fy);
+        const c = mid(m.px, m.py, m.fx, m.fy); text('MESURO_DISTANCE', c.x, c.y - above, n + fmtLen(m.distPx));
+      } else if (m.type === 'll') {
+        line('MESURO_DISTANCE', m.lx1, m.ly1, m.lx2, m.ly2); line('MESURO_DISTANCE', m.l2x1, m.l2y1, m.l2x2, m.l2y2);
+        line('MESURO_DISTANCE', m.mx, m.my, m.fx, m.fy);
+        const c = mid(m.mx, m.my, m.fx, m.fy); text('MESURO_DISTANCE', c.x, c.y - above, n + fmtLen(m.distPx));
+      } else if (m.type === 'ptcoord') {
+        add(0, 'POINT', 8, 'MESURO_POINTS', 10, f(X(m.px)), 20, f(Y(m.py)), 30, f(0));
+        cross('MESURO_POINTS', m.px, m.py, above * 0.6);
+        const cx = (m.px - (m.ox || 0)) * k, cy = -(m.py - (m.oy || 0)) * k;
+        text('MESURO_POINTS', m.px, m.py - above, `${n}X ${cx.toFixed(2)}  Y ${cy.toFixed(2)} ${unit}`);
+      } else if (m.type === 'note') {
+        text('MESURO_NOTES', m.x, m.y, m.text);
+      } else count--;
+    });
+    offX += W + Math.max(W, H) * 0.1;                          // gap before the next page
+  });
+
+  if (!isFinite(minX)) return null;
+  const out = [];
+  const push = (...codes) => { for (let i = 0; i < codes.length; i += 2) out.push(codes[i], codes[i + 1]); };
+  push(0, 'SECTION', 2, 'HEADER', 9, '$ACADVER', 1, 'AC1009', 9, '$DWGCODEPAGE', 3, 'ANSI_1252',
+       9, '$INSUNITS', 70, insUnits,
+       9, '$EXTMIN', 10, f(minX), 20, f(minY), 30, f(0), 9, '$EXTMAX', 10, f(maxX), 20, f(maxY), 30, f(0),
+       0, 'ENDSEC');
+  push(0, 'SECTION', 2, 'TABLES',
+       0, 'TABLE', 2, 'LTYPE', 70, 1, 0, 'LTYPE', 2, 'CONTINUOUS', 70, 0, 3, 'Solid line', 72, 65, 73, 0, 40, f(0), 0, 'ENDTAB',
+       0, 'TABLE', 2, 'LAYER', 70, DXF_LAYERS.length);
+  DXF_LAYERS.forEach(([name, color]) => push(0, 'LAYER', 2, name, 70, 0, 62, color, 6, 'CONTINUOUS'));
+  push(0, 'ENDTAB', 0, 'ENDSEC', 0, 'SECTION', 2, 'ENTITIES');
+  out.push(...ents);
+  push(0, 'ENDSEC', 0, 'EOF');
+  let s = '';
+  for (let i = 0; i < out.length; i += 2) s += String(out[i]).padStart(3, ' ') + '\r\n' + out[i + 1] + '\r\n';
+  return { text: s, count };
+}
+
+function exportDXF() {
+  if (!img) return;
+  const r = buildDXF();
+  if (!r) return;
+  t('export_dxf', { count: r.count });
+  _trackFirstExport('dxf');
+  const blob = new Blob([r.text], { type: 'application/dxf' });
+  const u = URL.createObjectURL(blob); const a = document.createElement('a');
+  a.download = `mesuro-${_ts()}.dxf`; a.href = u; a.click(); setTimeout(() => URL.revokeObjectURL(u), 5000);
+  showToast(scFactor ? `DXF exported in ${scUnit}` : 'DXF exported in pixels — set a scale for real units');
+}
+
 updUI();
 // init language
 setLang(currentLang);
@@ -6594,7 +6766,7 @@ function updMobile() {
 
 
   // export buttons
-  ['mExpImg','mExpPdf','mExpCsv','mExpSave'].forEach(id => {
+  ['mExpImg','mExpPdf','mExpCsv','mExpDxf','mExpSave'].forEach(id => {
     const b = document.getElementById(id); if(b) b.disabled=!hasImg;
   });
 
