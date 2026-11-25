@@ -23,66 +23,55 @@
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
 </head>
 <body>
+<div class="site-header-bar">
 <header class="site-header shell">
-  <a class="brand" href="../../" aria-label="Mesuro home">
-    <svg class="brand-logo" width="160" height="36" viewBox="0 0 160 36" fill="none" aria-hidden="true">
-      <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
-        <tspan x="0" y="22" fill="#e0e0e0">Mesuro</tspan>
-      </text>
-      <line x1="0" y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
-      <line x1="0" y1="28" x2="0" y2="34" stroke="#666" stroke-width="1.2"/>
-      <line x1="33" y1="28" x2="33" y2="31" stroke="#555" stroke-width="0.75"/>
-      <line x1="65" y1="28" x2="65" y2="33" stroke="#666" stroke-width="1"/>
-      <line x1="98" y1="28" x2="98" y2="31" stroke="#555" stroke-width="0.75"/>
-      <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
-    </svg>
-  </a>
-  <nav class="site-nav" aria-label="Primary navigation">
+  <a class="brand" href="../../" aria-label="Mesuro home"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M7 17.5v-4M12 17.5v-6M17 17.5v-4"/></svg>Mesuro</a>
+  <nav class="site-nav" aria-label="Primary">
     <details class="nav-dropdown">
-      <summary>Use cases</summary>
+      <summary><span class="d-only">Use cases</span><span class="m-only">Menu</span></summary>
       <div class="nav-dropdown-menu">
-        <a href="../sem-images/">Microscopy analysis</a>
-        <a href="../cad-drawings/">CAD drawing analysis</a>
-        <a href="../laser-alignment/">Industrial applications</a>
-        <a href="../pdf-blueprints/">Floor plan measurement</a>
-        <a href="../known-object/" aria-current="page">Photo measurement</a>
+          <a href="../../use-cases/sem-images/">Microscopy analysis<small>Calibrate from the scale bar, then measure features across a batch.</small></a>
+          <a href="../../use-cases/cad-drawings/">CAD drawing analysis<small>Check dimensions on exported drawings without opening CAD.</small></a>
+          <a href="../../use-cases/laser-alignment/">Industrial applications<small>Verify laser engraving offsets and calibration points.</small></a>
+          <a href="../../use-cases/pdf-blueprints/">Floor plan measurement<small>Room areas, wall lengths and openings from scaled plans.</small></a>
+          <a href="../../use-cases/known-object/" aria-current="page">Photo measurement<small>Use a coin or card in the photo as the reference.</small></a>
+        <div class="menu-extra">
+          <a href="../../pricing/">Pricing</a>
+          <a href="../../faq/">FAQ</a>
+        </div>
       </div>
     </details>
     <a href="../../pricing/" data-umami-event="cta_view_pricing" data-umami-event-source="nav">Pricing</a>
     <a href="../../faq/">FAQ</a>
-    <a class="nav-cta" href="../../app/?from=nav" data-umami-event="cta_open_app" data-umami-event-source="nav">Open App</a>
+    <a class="button primary small nav-cta" href="../../app/?from=nav" data-umami-event="cta_open_app" data-umami-event-source="nav">Open app</a>
   </nav>
 </header>
+</div>
 <main class="shell">
   <section class="page-hero">
-    <p class="eyebrow">Photo measurement</p>
+    <p class="crumbs"><a href="../../">Home</a><span>/</span><a href="../../#use-cases">Use cases</a><span>/</span>Photo measurement</p>
     <h1>Measure from a known object in a photo</h1>
     <p>Use Mesuro when a photo contains a reliable reference object: set scale from a coin, ruler, or known part, then measure nearby objects in real units without leaving the browser.</p>
     <div class="button-row">
-      <a class="button primary" href="../../app/?from=known-object" data-umami-event="cta_open_app" data-umami-event-source="known-object">Open App</a>
+      <a class="button primary" href="../../app/?from=known-object" data-umami-event="cta_open_app" data-umami-event-source="known-object">Open the app</a>
     </div>
   </section>
 
   <section class="use-case-layout">
     <div>
       <figure class="demo-card">
-        <img src="../../assets/known-object-photo-measurement-tool.png" alt="Mesuro measuring a wrench from a photo using a coin as a known reference object">
-        <figcaption class="demo-caption">
-          <span>Known reference</span>
-          <span>Photo scale</span>
-          <span>Real units</span>
-        </figcaption>
+        <img src="../../assets/uc-photo.webp" alt="Mesuro measuring a wrench from a photo using a coin as a known reference object">
       </figure>
 
       <section class="section" aria-labelledby="workflow-title">
         <div class="section-head">
-          <h2 id="workflow-title">Practical workflow</h2>
+          <h2 id="workflow-title">How it works</h2>
         </div>
-        <div class="steps"><article class="step"><b>1</b><h3>Load the photo</h3><p>Open an image containing both the item and a reference object with a known size.</p></article><article class="step"><b>2</b><h3>Set scale from the reference</h3><p>Measure the known object first, then enter its real-world dimension.</p></article><article class="step"><b>3</b><h3>Measure nearby objects</h3><p>Check lengths, diameters, areas, or other geometry in calibrated units.</p></article><article class="step"><b>4</b><h3>Export the result</h3><p>Save an annotated image, PDF report, CSV file, or reusable project.</p></article></div>
+        <ol class="steps"><li class="step"><h3>Load the photo</h3><p>Open an image containing both the item and a reference object with a known size.</p></li><li class="step"><h3>Set scale from the reference</h3><p>Measure the known object first, then enter its real-world dimension.</p></li><li class="step"><h3>Measure nearby objects</h3><p>Check lengths, diameters, areas, or other geometry in calibrated units.</p></li><li class="step"><h3>Export the result</h3><p>Save an annotated image, PDF report, CSV file, or reusable project.</p></li></ol>
       </section>
 
       <section class="faq-section">
-        <h2>Workflow FAQ</h2>
+        <h2>Questions</h2>
         <details open><summary>What can I use as a reference object?</summary><p>Use any visible object with a known size, such as a coin, ruler segment, gauge block, or another part with a trusted dimension.</p></details><details><summary>Does the reference object need to be near the item?</summary><p>For best results, keep the reference object in the same plane as the item you want to measure so perspective affects both similarly.</p></details><details><summary>Can I correct perspective before measuring?</summary><p>Yes. If the photographed surface is skewed, use perspective correction before calibrated measurement when you have a suitable rectangular reference.</p></details>
       </section>
     </div>
@@ -90,18 +79,40 @@
     <aside class="side-panel">
       <h2>Useful when you need to</h2>
       <ul><li>measure from a coin, ruler, or known part</li><li>estimate object size from a field photo</li><li>check diameters or clearances without a drawing</li><li>share annotated evidence in real units</li></ul>
+      <a class="button primary" href="../../app/?from=known-object-side" data-umami-event="cta_open_app" data-umami-event-source="known-object-side">Open the app</a>
+      <div class="related"><p>Other use cases</p><a href="../sem-images/">Microscopy analysis</a><a href="../cad-drawings/">CAD drawing analysis</a><a href="../laser-alignment/">Industrial applications</a><a href="../pdf-blueprints/">Floor plan measurement</a></div>
     </aside>
   </section>
 </main>
 <footer class="site-footer">
-  <div class="shell footer-row">
-    <div>Mesuro &mdash; calibrated image and PDF measurement in the browser.</div>
-    <div class="footer-links">
-      <a href="../../app/?from=footer">Open App</a>
-      <a href="../../pricing/" data-umami-event="cta_view_pricing" data-umami-event-source="footer">Pricing</a>
-    <a href="../../faq/">FAQ</a>
-      <a href="../../faq/#privacy">Privacy</a>
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="../../" aria-label="Mesuro home"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M7 17.5v-4M12 17.5v-6M17 17.5v-4"/></svg>Mesuro</a>
+        <p>Calibrated measurement for images and PDFs, in the browser. Your files stay on your device.</p>
+      </div>
+      <div>
+        <h2>Product</h2>
+        <a href="../../app/?from=footer">Open app</a>
+        <a href="../../app/?from=footer&amp;sample=technical-drawing">Try the sample</a>
+        <a href="../../pricing/" data-umami-event="cta_view_pricing" data-umami-event-source="footer">Pricing</a>
+      </div>
+      <div>
+        <h2>Use cases</h2>
+      <a href="../../use-cases/sem-images/">Microscopy analysis</a>
+      <a href="../../use-cases/cad-drawings/">CAD drawing analysis</a>
+      <a href="../../use-cases/laser-alignment/">Industrial applications</a>
+      <a href="../../use-cases/pdf-blueprints/">Floor plan measurement</a>
+      <a href="../../use-cases/known-object/">Photo measurement</a>
+      </div>
+      <div>
+        <h2>Help</h2>
+        <a href="../../faq/">FAQ</a>
+        <a href="../../faq/#privacy">Privacy</a>
+        <a href="mailto:hello@mesu.ro">hello@mesu.ro</a>
+      </div>
     </div>
+    <div class="footer-base">&copy; 2026 Mesuro</div>
   </div>
 </footer>
 </body>

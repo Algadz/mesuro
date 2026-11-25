@@ -23,66 +23,55 @@
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1862fd90-e083-4d42-9a96-96b12e2cde74"></script>
 </head>
 <body>
+<div class="site-header-bar">
 <header class="site-header shell">
-  <a class="brand" href="../../" aria-label="Mesuro home">
-    <svg class="brand-logo" width="160" height="36" viewBox="0 0 160 36" fill="none" aria-hidden="true">
-      <text font-family="system-ui,-apple-system,sans-serif" font-size="24" font-weight="500" letter-spacing="-0.5">
-        <tspan x="0" y="22" fill="#e0e0e0">Mesuro</tspan>
-      </text>
-      <line x1="0" y1="28" x2="130" y2="28" stroke="#555" stroke-width="0.75"/>
-      <line x1="0" y1="28" x2="0" y2="34" stroke="#666" stroke-width="1.2"/>
-      <line x1="33" y1="28" x2="33" y2="31" stroke="#555" stroke-width="0.75"/>
-      <line x1="65" y1="28" x2="65" y2="33" stroke="#666" stroke-width="1"/>
-      <line x1="98" y1="28" x2="98" y2="31" stroke="#555" stroke-width="0.75"/>
-      <line x1="130" y1="28" x2="130" y2="34" stroke="#666" stroke-width="1.2"/>
-    </svg>
-  </a>
-  <nav class="site-nav" aria-label="Primary navigation">
+  <a class="brand" href="../../" aria-label="Mesuro home"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M7 17.5v-4M12 17.5v-6M17 17.5v-4"/></svg>Mesuro</a>
+  <nav class="site-nav" aria-label="Primary">
     <details class="nav-dropdown">
-      <summary>Use cases</summary>
+      <summary><span class="d-only">Use cases</span><span class="m-only">Menu</span></summary>
       <div class="nav-dropdown-menu">
-        <a href="../sem-images/">Microscopy analysis</a>
-        <a href="../cad-drawings/">CAD drawing analysis</a>
-        <a href="../laser-alignment/" aria-current="page">Industrial applications</a>
-        <a href="../pdf-blueprints/">Floor plan measurement</a>
-        <a href="../known-object/">Photo measurement</a>
+          <a href="../../use-cases/sem-images/">Microscopy analysis<small>Calibrate from the scale bar, then measure features across a batch.</small></a>
+          <a href="../../use-cases/cad-drawings/">CAD drawing analysis<small>Check dimensions on exported drawings without opening CAD.</small></a>
+          <a href="../../use-cases/laser-alignment/" aria-current="page">Industrial applications<small>Verify laser engraving offsets and calibration points.</small></a>
+          <a href="../../use-cases/pdf-blueprints/">Floor plan measurement<small>Room areas, wall lengths and openings from scaled plans.</small></a>
+          <a href="../../use-cases/known-object/">Photo measurement<small>Use a coin or card in the photo as the reference.</small></a>
+        <div class="menu-extra">
+          <a href="../../pricing/">Pricing</a>
+          <a href="../../faq/">FAQ</a>
+        </div>
       </div>
     </details>
     <a href="../../pricing/" data-umami-event="cta_view_pricing" data-umami-event-source="nav">Pricing</a>
     <a href="../../faq/">FAQ</a>
-    <a class="nav-cta" href="../../app/?from=nav" data-umami-event="cta_open_app" data-umami-event-source="nav">Open App</a>
+    <a class="button primary small nav-cta" href="../../app/?from=nav" data-umami-event="cta_open_app" data-umami-event-source="nav">Open app</a>
   </nav>
 </header>
+</div>
 <main class="shell">
   <section class="page-hero">
-    <p class="eyebrow">Industrial applications</p>
+    <p class="crumbs"><a href="../../">Home</a><span>/</span><a href="../../#use-cases">Use cases</a><span>/</span>Industrial applications</p>
     <h1>Laser engraving calibration measurement</h1>
     <p>Use Mesuro to review real machine output during laser engraving setup: mark reference points, compare coordinate offsets, and document calibration results from a photo or exported image.</p>
     <div class="button-row">
-      <a class="button primary" href="../../app/?from=laser-alignment" data-umami-event="cta_open_app" data-umami-event-source="laser-alignment">Open App</a>
+      <a class="button primary" href="../../app/?from=laser-alignment" data-umami-event="cta_open_app" data-umami-event-source="laser-alignment">Open the app</a>
     </div>
   </section>
 
   <section class="use-case-layout">
     <div>
       <figure class="demo-card">
-        <img src="../../assets/laser-engraving-calibration-measurement-tool.png" alt="Mesuro checking laser engraving calibration points in pixel coordinate mode">
-        <figcaption class="demo-caption">
-          <span>Coordinate checks</span>
-          <span>Offset review</span>
-          <span>Exportable record</span>
-        </figcaption>
+        <img src="../../assets/uc-laser.webp" alt="Mesuro checking laser engraving calibration points in pixel coordinate mode">
       </figure>
 
       <section class="section" aria-labelledby="workflow-title">
         <div class="section-head">
-          <h2 id="workflow-title">Practical workflow</h2>
+          <h2 id="workflow-title">How it works</h2>
         </div>
-        <div class="steps"><article class="step"><b>1</b><h3>Load the output image</h3><p>Open a photo or exported image of the engraved calibration pattern.</p></article><article class="step"><b>2</b><h3>Mark reference points</h3><p>Use point coordinates for repeated target locations, or set scale when real-world units are needed.</p></article><article class="step"><b>3</b><h3>Compare offsets</h3><p>Check point positions, spacing, edge distances, angles, or alignment drift.</p></article><article class="step"><b>4</b><h3>Export the result</h3><p>Save a clear annotated record for adjustment, handoff, or later comparison.</p></article></div>
+        <ol class="steps"><li class="step"><h3>Load the output image</h3><p>Open a photo or exported image of the engraved calibration pattern.</p></li><li class="step"><h3>Mark reference points</h3><p>Use point coordinates for repeated target locations, or set scale when real-world units are needed.</p></li><li class="step"><h3>Compare offsets</h3><p>Check point positions, spacing, edge distances, angles, or alignment drift.</p></li><li class="step"><h3>Export the result</h3><p>Save a clear annotated record for adjustment, handoff, or later comparison.</p></li></ol>
       </section>
 
       <section class="faq-section">
-        <h2>Workflow FAQ</h2>
+        <h2>Questions</h2>
         <details open><summary>Can Mesuro help with laser engraving calibration?</summary><p>Yes. Use point coordinates or calibrated measurements to compare engraved test marks, inspect offsets, and document setup corrections from output images.</p></details><details><summary>Do I need a physical scale reference?</summary><p>Not always. Pixel coordinate mode is useful when you need relative positions or repeated point checks; use calibrated scale when you need real-world units.</p></details><details><summary>Can I export the calibration result?</summary><p>Yes. You can export an annotated image, PDF report, CSV data, or a reusable project file.</p></details>
       </section>
     </div>
@@ -90,18 +79,40 @@
     <aside class="side-panel">
       <h2>Useful when you need to</h2>
       <ul><li>compare calibration target positions</li><li>check laser or fixture offsets</li><li>review repeated setup output</li><li>keep a visual record of adjustments</li></ul>
+      <a class="button primary" href="../../app/?from=laser-alignment-side" data-umami-event="cta_open_app" data-umami-event-source="laser-alignment-side">Open the app</a>
+      <div class="related"><p>Other use cases</p><a href="../sem-images/">Microscopy analysis</a><a href="../cad-drawings/">CAD drawing analysis</a><a href="../pdf-blueprints/">Floor plan measurement</a><a href="../known-object/">Photo measurement</a></div>
     </aside>
   </section>
 </main>
 <footer class="site-footer">
-  <div class="shell footer-row">
-    <div>Mesuro &mdash; calibrated image and PDF measurement in the browser.</div>
-    <div class="footer-links">
-      <a href="../../app/?from=footer">Open App</a>
-      <a href="../../pricing/" data-umami-event="cta_view_pricing" data-umami-event-source="footer">Pricing</a>
-    <a href="../../faq/">FAQ</a>
-      <a href="../../faq/#privacy">Privacy</a>
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="../../" aria-label="Mesuro home"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5"/><path d="M7 17.5v-4M12 17.5v-6M17 17.5v-4"/></svg>Mesuro</a>
+        <p>Calibrated measurement for images and PDFs, in the browser. Your files stay on your device.</p>
+      </div>
+      <div>
+        <h2>Product</h2>
+        <a href="../../app/?from=footer">Open app</a>
+        <a href="../../app/?from=footer&amp;sample=technical-drawing">Try the sample</a>
+        <a href="../../pricing/" data-umami-event="cta_view_pricing" data-umami-event-source="footer">Pricing</a>
+      </div>
+      <div>
+        <h2>Use cases</h2>
+      <a href="../../use-cases/sem-images/">Microscopy analysis</a>
+      <a href="../../use-cases/cad-drawings/">CAD drawing analysis</a>
+      <a href="../../use-cases/laser-alignment/">Industrial applications</a>
+      <a href="../../use-cases/pdf-blueprints/">Floor plan measurement</a>
+      <a href="../../use-cases/known-object/">Photo measurement</a>
+      </div>
+      <div>
+        <h2>Help</h2>
+        <a href="../../faq/">FAQ</a>
+        <a href="../../faq/#privacy">Privacy</a>
+        <a href="mailto:hello@mesu.ro">hello@mesu.ro</a>
+      </div>
     </div>
+    <div class="footer-base">&copy; 2026 Mesuro</div>
   </div>
 </footer>
 </body>
