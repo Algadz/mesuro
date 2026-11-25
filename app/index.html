@@ -6885,7 +6885,7 @@ function exportCSV() {
 }
 
 /* ── DXF export (AutoCAD R12 ASCII — opens in AutoCAD, LibreCAD, QCAD, Fusion, Inkscape…) ──
-   Every page becomes a block of geometry laid out left to right. When a page has a scale,
+   The page currently shown is exported (not the whole document). When it has a scale,
    coordinates are in its real unit; otherwise they are in pixels. Y is flipped so the
    drawing reads upright in CAD, with each image's bottom-left corner at its origin. */
 const DXF_LAYERS = [
@@ -6920,15 +6920,17 @@ function _bezSample(pts, cps, closed, steps) {
 
 function buildDXF() {
   saveCurrentPageState();
-  const allPages = pages.length ? pages
-    : [{ label: '', imgEl: img, meas, scLine, scPx, scFactor, scUnit, scaleVisible, ptCoordGlobalOrigin }];
+  // Only the sheet being viewed is exported
+  const active = (pages.length && pages[currentPageIdx]) ? pages[currentPageIdx]
+    : { label: '', imgEl: img, meas, scLine, scPx, scFactor, scUnit, scaleVisible, ptCoordGlobalOrigin };
+  const pageNo = pages.length ? currentPageIdx + 1 : 1;
   const ents = [];
   const f = v => (Math.abs(v) < 1e-9 ? 0 : v).toFixed(6);
   const add = (...codes) => { for (let i = 0; i < codes.length; i += 2) ents.push(codes[i], codes[i + 1]); };
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, insUnits = 0, offX = 0, count = 0;
 
-  allPages.forEach((pg, pi) => {
-    const im = pg.imgEl || (pi === currentPageIdx ? img : null);
+  [active].forEach(pg => {
+    const im = pg.imgEl || img;
     if (!im) return;
     const k = pg.scFactor || 1;
     const unit = pg.scFactor ? (pg.scUnit || 'mm') : 'px';
@@ -6958,7 +6960,7 @@ function buildDXF() {
 
     // Image frame and page title
     poly('MESURO_IMAGE', [{x:0,y:0},{x:im.width,y:0},{x:im.width,y:im.height},{x:0,y:im.height}], true);
-    text('MESURO_IMAGE', im.width / 2, -above * 2, `${pg.label || 'Page ' + (pi + 1)}  (${unit})`, th * 1.2);
+    text('MESURO_IMAGE', im.width / 2, -above * 2, `${pg.label || 'Page ' + pageNo}  (${unit})`, th * 1.2);
     ext(offX, -th * 3); ext(offX + W, H);
 
     if (pg.scLine && pg.scFactor && pg.scaleVisible !== false) {
@@ -7050,8 +7052,9 @@ function exportDXF() {
   _trackFirstExport('dxf');
   const blob = new Blob([r.text], { type: 'application/dxf' });
   const u = URL.createObjectURL(blob); const a = document.createElement('a');
-  a.download = `mesuro-${_ts()}.dxf`; a.href = u; a.click(); setTimeout(() => URL.revokeObjectURL(u), 5000);
-  showToast(scFactor ? `DXF exported in ${scUnit}` : 'DXF exported in pixels — set a scale for real units');
+  a.download = `mesuro-${_ts()}${pages.length > 1 ? '-page' + (currentPageIdx + 1) : ''}.dxf`; a.href = u; a.click(); setTimeout(() => URL.revokeObjectURL(u), 5000);
+  const which = pages.length > 1 ? `page ${currentPageIdx + 1} of ${pages.length}` : 'DXF';
+  showToast(scFactor ? `Exported ${which} in ${scUnit}` : `Exported ${which} in pixels — set a scale for real units`);
 }
 
 updUI();
